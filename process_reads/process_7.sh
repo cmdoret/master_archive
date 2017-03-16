@@ -18,6 +18,6 @@ module add UHTS/Analysis/stacks/1.30;
 process_radtags -p /scratch/beegfs/monthly/cmatthey/data/raw_reads/lib7/ \
 -b /scratch/beegfs/monthly/cmatthey/data/barcodes/barcodes_radwasp7 \
 -o /scratch/beegfs/monthly/cmatthey/data/processed/lib7 \
--r -q -c -e ecoRI -i gzfastq --filter_illumina --adapter_1 GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT --adapter_mm 2;
+-r -q -c -e ecoRI --filter_illumina --adapter_1 GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT --adapter_mm 2;
 
 module rm UHTS/Analysis/stacks/1.30;
