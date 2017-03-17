@@ -1,9 +1,7 @@
 ## references are excluded
 background_literature/
-maps/
 data/
 pictures/
-Presentation/
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
@@ -24,7 +22,7 @@ Presentation/
 *.png
 #*.docx
 #*.xlsx
-*.tex
+#*.tex
 ## Intermediate documents:
 *.dvi
 *-converted-to.*
