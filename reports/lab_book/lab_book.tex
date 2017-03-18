@@ -8,7 +8,7 @@
  \title{\textbf{Master Project}\\ Lab book}
  \maketitle
  \chapter{Introduction}
-Samples were single-end sequenced using a ddRAD protocole and digested with ecoRI and mseI. There are 2 separate libraries with two different illumina adaptors (6 and 12). 
+Lyisphlebus fabarum wasp specimens issued from thelytokous mothers are used. These individuals come from crossing experiments in a strongly inbred line. They have a highly homozygous background, but females must be heterozygous at the CSD locus/loci. Here, we use RAD-seq with a custom pipeline to locate the locus/loci. Samples were single-end sequenced using a ddRAD protocole and digested with ecoRI and mseI. There are 2 separate libraries with two different illumina adaptors (6 and 12).
 
 \begin{center}
 \begin{tabular}{l| c c}
@@ -20,10 +20,11 @@ containing adaptors & 23.25\% & 45.84\% \\
 fragment size & 302bp & 302bp \\
 mean quality score & 34.88 & 35.05 \\
 $>=$ Q30 bases & 92.62\% & 92.13\% \\
+
 \end{tabular}
 \end{center}
  \chapter{Processing reads}
- RAD-seq data was split into 2 separate libraries: 7 and 7b. Together, the libraries contain 173 F4 individuals from 12 different F3 mothers. 
+ RAD-seq data was split into 2 separate libraries: 7 and 7b. Together, the libraries contain 173 F4 individuals from 11 different F3 mothers. There were 96 samples in library 7 (one of which was contaminated) and 77 in library 7b. In total we have 172 valid samples across 11 families
  \section{Quality control}
  fastqc was used for quality control, separately on each file, and on all files together in the library.
  \section{Demultiplexing}
@@ -33,11 +34,13 @@ $>=$ Q30 bases & 92.62\% & 92.13\% \\
 
 \begin{center}
 \begin{tabular}{c c}
-lib7 & Truseq adapter, index 6 \footnote{GATCGGAAGAGCACACGTCTGAACTCCAGTCACGCCAATATCTCGTATGCCGTCTTCTGCTTG}\\ 
-lib7b & TruSeq adapter, index 12 \footnote{GATCGGAAGAGCACACGTCTGAACTCCAGTCACCTTGTAATCTCGTATGCCGTCTTCTGCTTG}\\
+lib7 & Truseq adapter, index 6 \footnotemark\\ 
+lib7b & TruSeq adapter, index 12 \footnotemark\\
 \end{tabular}
 \end{center}
+\footnotetext[1]{GATCGGAAGAGCACACGTCTGAACTCCAGTCACGCCAATATCTCGTATGCCGTCTTCTGCTTG}
+\footnotetext[2]{GATCGGAAGAGCACACGTCTGAACTCCAGTCACCTTGTAATCTCGTATGCCGTCTTCTGCTTG}
 \section{Trimming adaptors}
-This step is performed by process radtags at the same time as demultiplexing.
+This step is performed by process radtags at the same time as demultiplexing. Before processing, library 7 contained ~4M reads with the full adaptor sequence, afterwards there were still ~7k.
 \chapter{STACKS pipeline}
 \end{document} 
