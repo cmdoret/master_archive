@@ -2,22 +2,23 @@
 # Takes number of mismatches in adaptor as an argument.
 # Cyril Matthey-Doret
 # 15.03.2017
-#BSUB -J radtags7b
-#BSUB -o 'demulti-%J-output_'$MM'.txt'
-#BSUB -e 'demulti-%J-error_'$MM'.txt'
-#BSUB -n 12
-#BSUB -u cmatthey@unil.ch
-#BSUB -R "span[ptile=4]"
-#BSUB -q long
-#BSUB -R "rusage[mem=4000]"
-#BSUB -M 8000000
 
 if [ $# -ge 1 ]
 then
     MM=$1
 else
-    MM=2
+    MM=3
 fi
+
+#BSUB -J radtags7b
+#BSUB -o demulti-7b-output_.o
+#BSUB -e demulti-7b-error_.e
+##BSUB -n 4
+#BSUB -u cmatthey@unil.ch
+##BSUB -R "span[ptile=4]"
+#BSUB -q normal
+#BSUB -R "rusage[mem=4000]"
+#BSUB -M 8000000
 
 wd=/scratch/beegfs/monthly/cmatthey/data/processed
 mkdir -p $wd'_'$MM'/lib7b'

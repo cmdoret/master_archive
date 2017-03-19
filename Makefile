@@ -1,31 +1,29 @@
 include config.mk
+RR=$(wildcard $(RAW)/lib*/)
+LIB=$(patsubst $(RAW)/lib%/, %, $(RR))
+PR=$(patsubst $(RAW)/lib%/, $(PROC)_$(ADAP_MM)/lib%/, $(RR))
 
-# Processing reads of library 7
-$(wildcard $(PROC)/lib7/*) : $(wildcard $(RAW)/lib7/*) process_reads/process_7.sh
-	#bash process_reads/sub_process.sh 7 $(ADAP_MM)
-	sed -i "s/MM=[0-9]/MM=$(ADAP_MM)/g" process_reads/process_7.sh
-	bsub <./process_reads/process_7.sh
+.PHONY : run
+run : $(PR)
 
-# Processing reads of library 7b
-$(wildcard $(PROC)/lib7b/*) : $(wildcard $(RAW)/lib7b/*) process_reads/process_7b.sh
-	#bash process_reads/sub_process.sh 7b $(ADAP_MM)
-	sed -i "s/MM=[0-9]/MM=$(ADAP_MM)/g" process_reads/process_7b.sh
-	bsub <./process_reads/process_7b.sh
 
-.PHONY : qc
-qc: $(wilcard $(RAW)/lib%/*)
-	module add UHTS/Quality_control/fastqc/0.11.2
+# Processing raw reads of all libraries
+$(PROC)_$(ADAP_MM)/lib%/ : process_reads/process_%.sh
+	sed -i "s/MM=[0-9]/MM=$(ADAP_MM)/g" $<
+	bsub <./$<
+
+
+$(RAW)/qc/lib%.html : $(RAW)/lib%/)
 	cat $(RAW)/lib$*/*.fq* > lib$*.fq
 	mkdir -p $(RAW)/qc/
-	bsub -q normal fastqc -o $(RAW)/qc/ $(RAW)/lib$*/lib$*.fq
-	module rm UHTS/Quality_control/fastqc/0.11.2
+	sed -i "s/lib=[a-zA-Z0-9]*/lib=$*/g" process_reads/qc.sh
+	bsub <./process_reads/qc.sh
 	rm $(RAW)/lib$*/lib$*.fq
 
-.PHONY : post_qc
-post_qc: $(wilcard $(PROC)/lib%/*)
-	module add UHTS/Quality_control/fastqc/0.11.2
+$(PROC)_$(MM)/qc/lib%.html : $(PROC)_$(MM)/lib%/
 	cat $(PROC)/lib$*/*.fq* > lib$*.fq
 	mkdir -p $(PROC)/qc/
-	bsub -q normal fastqc -o $(PROC)/qc/ $(PROC)/lib$*/lib$*.fq
-	module rm UHTS/Quality_control/fastqc/0.11.2
+	sed -i "s/lib=[a-zA-Z0-9]*/lib=$*/g" process_reads/post_qc.sh
+	sed -i "s/MM=[0-9]/MM=$(ADAP_MM)/g" process_reads/post_qc.sh
+	bsub <./post_qc.sh
 	rm $(PROC)/lib$*/lib$*.fq
