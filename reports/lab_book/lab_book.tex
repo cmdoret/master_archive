@@ -41,6 +41,16 @@ lib7b & TruSeq adapter, index 12 \footnotemark\\
 \footnotetext[1]{GATCGGAAGAGCACACGTCTGAACTCCAGTCACGCCAATATCTCGTATGCCGTCTTCTGCTTG}
 \footnotetext[2]{GATCGGAAGAGCACACGTCTGAACTCCAGTCACCTTGTAATCTCGTATGCCGTCTTCTGCTTG}
 \section{Trimming adaptors}
-This step is performed by process radtags at the same time as demultiplexing. Before processing, library 7 contained ~4M reads with the full adaptor sequence, afterwards there were still ~7k.
+This step is performed by process radtags at the same time as demultiplexing. I tried different values for adapter mismatches, between 0 and 3. This did not cause any mmajor difference.
+
 \chapter{STACKS pipeline}
+
+\section{Mapping}
+Since the reference genome of \textit{Lysiphlebus fabarum} was recently released, I will first map the sequencing reads to the reference, using Bowtie2.
+
+Here is the list of different mapping parameters I will try:
+
+End-to-end versus local alignemt: end to end takes all bases in the reads into account, while local allows to trim reads to exclude the ends from the alignment.
+
+ 
 \end{document} 
