@@ -3,12 +3,14 @@
  \usepackage{amsmath}
  \usepackage{amsfonts}
  \usepackage{amssymb}
+ \usepackage[colorlinks=true,urlcolor=cyan]{hyperref}
+ \usepackage{listings} %code highlighting
  \author{Cyril Matthey-Doret}
  \begin{document}
  \title{\textbf{Master Project}\\ Lab book}
  \maketitle
  \chapter{Introduction}
-Lyisphlebus fabarum wasp specimens issued from thelytokous mothers are used. These individuals come from crossing experiments in a strongly inbred line. They have a highly homozygous background, but females must be heterozygous at the CSD locus/loci. Here, we use RAD-seq with a custom pipeline to locate the locus/loci. Samples were single-end sequenced using a ddRAD protocole and digested with ecoRI and mseI. There are 2 separate libraries with two different illumina adaptors (6 and 12).
+Lysiphlebus fabarum wasp specimens issued from thelytokous mothers are used. These individuals come from crossing experiments in a strongly inbred line. They have a highly homozygous background, but females must be heterozygous at the CSD locus/loci. Here, we use RAD-seq with a custom pipeline to locate the locus/loci. Samples were single-end sequenced using a ddRAD protocole and digested with ecoRI and mseI. There are 2 separate libraries with two different illumina adaptors (6 and 12).
 
 \begin{center}
 \begin{tabular}{l| c c}
@@ -30,7 +32,12 @@ $>=$ Q30 bases & 92.62\% & 92.13\% \\
  \section{Demultiplexing}
  The process-radtags program from stacks was used for demultiplexing and removal of Illumina adaptors. The operation was performed separately for libraries 7 and 7b:
 
-\noindent \textbf{process\_radtags -p raw/ -o processed/ -b /barcodes -e ecoRI --filter\_illumina -E phred33 -r -c -q --adapter\_1 adapter --adapter\_mm 2}
+\begin{lstlisting}
+$ process_radtags -p raw/ -o processed/ -b \
+/barcodes -e ecoRI --filter_illumina -E phred33 \
+ -r -c -q --adapter_1 adapter --adapter_mm 2
+\end{lstlisting}
+
 
 \begin{center}
 \begin{tabular}{c c}
@@ -41,16 +48,80 @@ lib7b & TruSeq adapter, index 12 \footnotemark\\
 \footnotetext[1]{GATCGGAAGAGCACACGTCTGAACTCCAGTCACGCCAATATCTCGTATGCCGTCTTCTGCTTG}
 \footnotetext[2]{GATCGGAAGAGCACACGTCTGAACTCCAGTCACCTTGTAATCTCGTATGCCGTCTTCTGCTTG}
 \section{Trimming adaptors}
-This step is performed by process radtags at the same time as demultiplexing. I tried different values for adapter mismatches, between 0 and 3. This did not cause any mmajor difference.
+This step is performed by process radtags at the same time as demultiplexing. I tried different values for adapter mismatches, between 0 and 3 (i.e. reads containing sequences distant from the adapter by n mismatches are removed). This did not cause any major difference and therefore I will perform all downnstream analyses with an allowance of 2 mismatches in the adapter.
 
 \chapter{STACKS pipeline}
 
+The pipeline described in this chapter will map the processed reads to the reference genome and build a catalogue of loci. It will eventually implement additional features such as calculating population statistics. At each step of the pipeline, I will try different combinations of parameters and choose the one yielding the best results. 
+
 \section{Mapping}
-Since the reference genome of \textit{Lysiphlebus fabarum} was recently released, I will first map the sequencing reads to the reference, using Bowtie2.
+Since the reference genome of \textit{Lysiphlebus fabarum} was recently released, I will first map the sequencing reads to the reference, using BWA, but I may also want to use bowtie to compare the results, eventually.
+\subsection{BWA}
 
-Here is the list of different mapping parameters I will try:
+BWA provides 3 different algorithms: MEM, backtrack and SW. MEM is the preferred algorithm for Illumina reads longer than 70bp, therefore I will be using this one here. Backtrack is preferred for short reads and SW with frequent gaps.
+There are also 2 algorithms for building the index: 'is' and 'bwtsw'. 'is' is used with reference <2GB, 'bwtsw' with larger references.
 
-End-to-end versus local alignemt: end to end takes all bases in the reads into account, while local allows to trim reads to exclude the ends from the alignment.
+General commands: 
+\begin{lstlisting}
+$ bwa index -p <out_index_name> -a <algorithm>
+$ bwa mem -n <MM> <index> <sample.fq> > <out.sai>
+$ bwa samse -n $MM $index $sample.sai $data_dir/$sample.fq.gz > $sample-$prefix.sam
+\end{lstlisting}
+The first command (bwa index) constructs an index from the reference genome, whereas the second one actually runs the aligner. The third command allows to transform the .sai into .sam files.
 
- 
+Here is the list of different mapping parameters I may try:
+\begin{itemize}
+\item -k : minimum seed length (will miss matches shorter than value)[19]
+\item -w : band width (gaps longer than value will not be found)[100]
+\item -d : maximum distance between query and reference positions before stopping seed extension. [100]
+\item -r : triggers reseeding for a MEM longer than min_seed_len*float. Larger values yield fewer seeds -> faster alignment but lower accuracy.[1.5]
+\item -
+\end{itemize}
+Note: I did not include parameters that are not relevant to sensitivity (e.g. threads) or parameters that involve scoring (changing these naively would probably have a negative impact) 
+\subsection{Bowtie2}
+General commands: 
+\begin{lstlisting}
+$ bowtie2-build reference_genome.fa L_fabarum
+$ bowtie2 -x <ref_index> -U <unpaired_reads_files> -S <out_SAM_file>
+\end{lstlisting}
+The first command (bowtie2-build) constructs a set of index (extension: .bt2) from the reference genome, whereas the second one actually runs the aligner.
+
+Here is the list of different mapping parameters I may try:
+\begin{itemize}
+\item --trim5 <n> : trim n bases from the 5' end (left) of each read before alignment
+\item --trim3 <n> : trim n bases from the 3' end (right) of each read before alignment
+\item -D : maximum number of seed extension that can fail in a row before stopping (increasing makes bt2 slower)
+\item -R : maximum number of re-seeding when attempting to align read with repetitive seeds (increasing makes bt2 slower)
+\item -N : number of mismatches permitted per seed (increasing reduces false negative, but makes bt2 slower)
+\item -L : length of seeds (de%%creasing makes bt2 slower but more sensitive)
+\item -i : interval between seeds (increasing makes bt2 slower but more sensitive)
+\end{itemize}
+
+Recommandations from the bowtie2 website to make alignment more sensitive: 
+a) make seeds closer (reduce i)
+b) make seeds shorted (reduce L)
+c) allow more mismatches per seed
+
+End-to-end versus local alignment (--local): end to end takes all bases in the reads into account, while local allows to trim reads to exclude the ends from the alignment.
+Seeds are substring of the reads which bowtie2 tries to align to narrow down the valid regions for aligning a read. There is a list of preset values for these parameters on the \href{http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#preset-options-in---end-to-end-mode}{official bowtie2 website}. Preset parameters differ between local and end-to-end modes.
+There are other parameters, such as score weights for gaps mismatches and allowance for 'N' ambiguous characters but changing these naively could probably have negative effect on the alignments.
+Procedure: try out different preset values and select the one yielding the best results. Then, eventually tweak the parameters slightly from the preset values. These simulations can be run on a subset of individuals to speed up the process.
+
+note to self: at the end of a run, bowtie2 prints a summary to stderr such as:
+
+20000 reads; of these:
+
+  20000 (100.00\%) were unpaired; of these:
+  
+    1247 (6.24\%) aligned 0 times
+    
+    18739 (93.69\%) aligned exactly 1 time
+    
+    14 (0.07\%) aligned $>$1 times
+    
+93.77\% overall alignment rate
+\vspace{10px}\\
+I will redirect the stderr and parse it into a csv file and generate plot to visually estimate the best parameter values.
+
 \end{document} 
+\grid
