@@ -64,8 +64,9 @@ There are also 2 algorithms for building the index: 'is' and 'bwtsw'. 'is' is us
 General commands: 
 \begin{lstlisting}
 $ bwa index -p <out_index_name> -a <algorithm>
-$ bwa mem -n <MM> <index> <sample.fq> > <out.sai>
-$ bwa samse -n $MM $index $sample.sai $data_dir/$sample.fq.gz > $sample-$prefix.sam
+$ bwa mem <index> <sample.fq> > <out.sai>
+$ bwa samse -n <max_dupl> $index $sample.sai $data_dir/$sample.fq.gz \
+> $sample-$prefix.sam
 \end{lstlisting}
 The first command (bwa index) constructs an index from the reference genome, whereas the second one actually runs the aligner. The third command allows to transform the .sai into .sam files.
 
@@ -78,6 +79,7 @@ Here is the list of different mapping parameters I may try:
 \end{itemize}
 
 Note: I did not include parameters that are not relevant to sensitivity (e.g. threads) or parameters that involve scoring (changing these naively would probably have a negative impact). Full list of parameters is on the \href{http://bio-bwa.sourceforge.net/bwa.shtml}{official bwa website}
+In the case we use the backtrack algorithm instead of MEM, the only parameter worth tuning is probably -n, the number of mismatches allowed. 
 
 
 \subsection{Bowtie2}
@@ -157,7 +159,6 @@ Parameters I may want to change are:
 \begin{itemize}
 \item -n : Number of mismatches allowed between sample loci when building catalogue [1]
 \item -g : base catalog on alignment position instead of sequence identity
-\item --min\_mapq : minimum required quality [10]
 \end{itemize}
 
 Note: There are also advanced options such as gapped assembly parameters and loci matching multiple catalogue entries, but these are probably not relevant here.

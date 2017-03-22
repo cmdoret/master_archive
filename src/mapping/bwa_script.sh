@@ -15,12 +15,21 @@ module add UHTS/Analysis/samtools/1.3;
 
 data_dir=/scratch/beegfs/monthly/cmatthey/data/
 prefix=BWA_4M
-index=/scratch/beegfs/monthly/cvanderk/genome/genome20161212.fasta ## path and prefix of indexed genome files
-MM=4 ## mismatches
+index=/scratch/beegfs/monthly/cmatthey/data/ref_genome/lfabarum_bwa_index ## path and prefix of indexed genome files
 threads=24
 
+# Parameters I want to change
+ALG='mem' ## mem or backtrack
+MM=4 ## mismatches (aln)
+K=19 ## min seed length (mem)
+W=100 ## band width (mem)
+D=100 ## max dist between query and ref position (mem)
+R=1.5 ## min reseeding length (mem)
+
+
+
 ## Do some work:
-mkdir bam
+mkdir -p bam
 	
 date
 
@@ -29,8 +38,17 @@ do
         echo "\nprocessing sample $sample\n";
         #cp -v $data_dir/$sample* $sample.fq.gz
         #gunzip -v $sample.fq.gz
-	bwa aln -n $MM -t $threads $index $data_dir/$sample.fq.gz > $sample.sai ## align reads
-	bwa samse -n $MM $index $sample.sai $data_dir/$sample.fq.gz > $sample-$prefix.sam # index alignment file
+        
+        case $ALG in
+            'mem')
+                bwa mem -k $K -t $threads -w $W -d $D -r $R $index $data_dir/$sample.fq.gz > $sample.sai
+                ;;
+            'backtrack')
+                bwa aln -n $MM -t $threads $index $data_dir/$sample.fq.gz > $sample.sai ## align reads
+                ;;
+        esac
+        
+        bwa samse -n $MM $index $sample.sai $data_dir/$sample.fq.gz > $sample-$prefix.sam # index alignment file
 	perl /scratch/beegfs/monthly/cvanderk/split_sam.pl -i $sample-$prefix.sam -o $sample-$prefix >> split_summary.log ## change perl script path (script removes reads which map more than once)
 	rm -v $sample-$prefix.sam
 	cd bam/
