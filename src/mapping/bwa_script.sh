@@ -1,8 +1,7 @@
 #BSUB -L /bin/bash
 #BSUB -o BWA-%J-OUT.txt
 #BSUB -e BWA-%J-ERROR.txt
-##BSUB -N
-#BSUB -u cvanderk@unil.ch
+#BSUB -u cmatthey@unil.ch
 #BSUB -J bam
 #BSUB -n 24
 ##BSUB -R "span[ptile=8]"
@@ -12,9 +11,9 @@
 
 module add UHTS/Aligner/bwa/0.7.13;
 module add UHTS/Analysis/samtools/1.3;
-module add UHTS/Aligner/bowtie2/2.2.4;
+#module add UHTS/Aligner/bowtie2/2.2.4;
 
-data_dir=/scratch/beegfs/monthly/cvanderk/demulti
+data_dir=/scratch/beegfs/monthly/cmatthey/data/
 prefix=BWA_4M
 index=/scratch/beegfs/monthly/cvanderk/genome/genome20161212.fasta ## path and prefix of indexed genome files
 MM=4 ## mismatches

@@ -74,10 +74,12 @@ Here is the list of different mapping parameters I may try:
 \item -k : minimum seed length (will miss matches shorter than value)[19]
 \item -w : band width (gaps longer than value will not be found)[100]
 \item -d : maximum distance between query and reference positions before stopping seed extension. [100]
-\item -r : triggers reseeding for a MEM longer than min_seed_len*float. Larger values yield fewer seeds -> faster alignment but lower accuracy.[1.5]
-\item -
+\item -r : triggers reseeding for a MEM longer than min\_seed\_len$*$float. Larger values yield fewer seeds $->$ faster alignment but lower accuracy [1.5].
 \end{itemize}
-Note: I did not include parameters that are not relevant to sensitivity (e.g. threads) or parameters that involve scoring (changing these naively would probably have a negative impact) 
+
+Note: I did not include parameters that are not relevant to sensitivity (e.g. threads) or parameters that involve scoring (changing these naively would probably have a negative impact). Full list of parameters is on the \href{http://bio-bwa.sourceforge.net/bwa.shtml}{official bwa website}
+
+
 \subsection{Bowtie2}
 General commands: 
 \begin{lstlisting}
@@ -93,7 +95,7 @@ Here is the list of different mapping parameters I may try:
 \item -D : maximum number of seed extension that can fail in a row before stopping (increasing makes bt2 slower)
 \item -R : maximum number of re-seeding when attempting to align read with repetitive seeds (increasing makes bt2 slower)
 \item -N : number of mismatches permitted per seed (increasing reduces false negative, but makes bt2 slower)
-\item -L : length of seeds (de%%creasing makes bt2 slower but more sensitive)
+\item -L : length of seeds (decreasing makes bt2 slower but more sensitive)
 \item -i : interval between seeds (increasing makes bt2 slower but more sensitive)
 \end{itemize}
 
@@ -122,6 +124,43 @@ note to self: at the end of a run, bowtie2 prints a summary to stderr such as:
 93.77\% overall alignment rate
 \vspace{10px}\\
 I will redirect the stderr and parse it into a csv file and generate plot to visually estimate the best parameter values.
+
+\section{pstacks}
+
+pstacks is a component of the STACKS suite that takes stacks of reads aligned to a reference genome as an input (typically in the SAM format) and idenify SNPs
+
+general command: 
+\begin{lstlisting}
+$ pstacks -f <input_path> -i <sample_ID_int> -o <out_dir> \
+ -m <min_depth> -p <num_threads> -t <file_type>
+\end{lstlisting}
+
+Parameters I may want to change are: 
+\begin{itemize}
+\item -m : minimum depth of coverage required to call a stack [3]
+\item --max\_clippped : alignments with more than X soft-clipped bases are discarded [15\%]
+\item --min\_mapq : minimum required quality [10]
+\end{itemize}
+
+Note: there are 3 models; SNP, bounded SNP and fixed. SNP is the default model, bounded SNPs allows to give prior expectations about the error rate, which can allow better estimations of heterozygosity and the fixed model identifies all fixed sites and masks all others.
+\section{cstacks}
+
+cstacks is a component of the STACKS suite that builds a catalog of loci with different alleles from a set of processed samples.
+
+general command: 
+\begin{lstlisting}
+$ cstacks -s <sample_prefix> -o <out_dir> -b <catalogue_ID>\
+-p <num_threads> -n <num_mm> -M <pop_map>
+\end{lstlisting}
+
+Parameters I may want to change are: 
+\begin{itemize}
+\item -n : Number of mismatches allowed between sample loci when building catalogue [1]
+\item -g : base catalog on alignment position instead of sequence identity
+\item --min\_mapq : minimum required quality [10]
+\end{itemize}
+
+Note: There are also advanced options such as gapped assembly parameters and loci matching multiple catalogue entries, but these are probably not relevant here.
 
 \end{document} 
 \grid
