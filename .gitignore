@@ -2,6 +2,7 @@
 background_literature/
 data/
 pictures/
+data
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
