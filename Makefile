@@ -28,6 +28,9 @@ $(PROC)_$(ADAP_MM)/qc/lib%.html : $(PROC)_$(ADAP_MM)/lib%/
 	sed -i "s/lib=[a-zA-Z0-9]*/lib=$*/g" src/process_reads/post_qc.sh
 	sed -i "s/MM=[0-9]/MM=$(ADAP_MM)/g" src/process_reads/post_qc.sh
 	bsub <./src/process_reads/post_qc.sh
+	
+# Running alignment to reference genome
+
 
 .PHONY : clean
 clean : 

@@ -33,7 +33,7 @@ mkdir -p bam
 	
 date
 
-for sample in $(cat names_sexasex.txt) #this is a list of sample names (similar as the popmap file for Populations, but without reproductive mode)
+for sample in $(tail -n +2 F4_table.csv) #this is a list of sample names (similar as the popmap file for Populations, but without reproductive mode)
 do 
         echo "\nprocessing sample $sample\n";
         #cp -v $data_dir/$sample* $sample.fq.gz
