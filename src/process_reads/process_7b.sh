@@ -7,7 +7,7 @@ if [ $# -ge 1 ]
 then
     MM=$1
 else
-    MM=3
+    MM=2
 fi
 
 #BSUB -J radtags7b
