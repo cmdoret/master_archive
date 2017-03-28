@@ -1,11 +1,13 @@
+#!/bin/bash
+
 #BSUB -L /bin/bash
 #BSUB -o BWA-%J-OUT.txt
 #BSUB -e BWA-%J-ERROR.txt
 #BSUB -u cmatthey@unil.ch
 #BSUB -J bam
-#BSUB -n 24
+#BSUB -n 12
 ##BSUB -R "span[ptile=8]"
-##BSUB -q normal
+#BSUB -q normal
 #BSUB -R "rusage[mem=20000]"
 #BSUB -M 20000000
 
@@ -16,7 +18,7 @@ module add UHTS/Analysis/samtools/1.3;
 data_dir=/scratch/beegfs/monthly/cmatthey/data/processed/
 index=/scratch/beegfs/monthly/cmatthey/data/ref_genome/lfabarum_bwa_index ## path and prefix of indexed genome files
 
-threads=24
+threads=12
 
 # Parameters I want to change
 ALG='mem' ## mem or backtrack[mem/aln]
