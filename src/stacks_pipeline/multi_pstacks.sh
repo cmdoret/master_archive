@@ -14,7 +14,7 @@ cd $wd
 
 
 mkdir -p bsub_scripts
-mkdir -p ustacks
+mkdir -p pstacks
 
 
 for i in $(ls *fq.gz)

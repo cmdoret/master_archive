@@ -1,5 +1,10 @@
 
 DAT_FILES=./data
-RAW=$(DAT_FILES)/raw_reads
 PROC=$(DAT_FILES)/processed
-ADAP_MM=2
+MAP=$(DAT_FILES)/mapped
+STACK=$(DAT)/pstacks
+
+ALG=mem
+MM=4
+K=19
+W=100

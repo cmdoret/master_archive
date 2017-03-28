@@ -1,37 +1,22 @@
 include config.mk
-RR=$(wildcard $(RAW)/lib*)
-LIB=$(patsubst $(RAW)/lib%/, %, $(RR))
-PR=$(patsubst $(RAW)/lib%/, $(PROC)_$(ADAP_MM)/lib%/, $(RR))
-PQC_FILES=$(patsubst $(RAW)/lib%, $(PROC)_$(ADAP_MM)/qc/lib%.html, $(RR))
 
 .PHONY : all
-all : $(PQC_FILES)
+all : $(MAP)/$(ALG)_$(MM)_$(K)_$(W)
 
-# Processing raw reads of all libraries
-$(PROC)_$(ADAP_MM)/lib%/ : src/process_reads/process_%.sh
+# Running alignment with BWA
+$(MAP)/$(ALG)_$(MM)_$(K)_$(W) : $(PROC)
 	mkdir -p $@
-	sed -i "s/\(MM=\)[0-9]/\1$(ADAP_MM)/g" $<
-	bsub <./$<
+	bsub bash src/mapping/bwa_script.sh $(ALG) $(MM) $(K) $(W)
 
-
-$(RAW)/qc/lib%.html : $(RAW)/lib%/
-	rm $</lib$*.fq
-	cat $</*.fq* > $</lib$*.fq
-	mkdir -p $(RAW)/qc/
-	sed -i "s/\(lib=\)[a-zA-Z0-9]*/\1$*/g" src/process_reads/qc.sh
-	bsub <./src/process_reads/qc.sh
-
-$(PROC)_$(ADAP_MM)/qc/lib%.html : $(PROC)_$(ADAP_MM)/lib%/
-	rm -f $</lib$*.fq
-	cat $</*.fq* > $</lib$*.fq
-	mkdir -p $(PROC)_$(ADAP_MM)/qc/
-	sed -i "s/\(lib=\)[a-zA-Z0-9]*/\1$*/g" src/process_reads/post_qc.sh
-	sed -i "s/\(MM=\)[0-9]*/\1$(ADAP_MM)/g" src/process_reads/post_qc.sh
-	bsub <./src/process_reads/post_qc.sh
-	
-# Running alignment to reference genome
+# Running pstacks
+#$(STACK) : $(MAP)/$(ALG)_$(MM)_$(K)_$(W)
+#	bash src/stacks_pipeline/multi_pstacks.sh $<
+#	for i in $(PROC)/*.fq.gz
+#	do
+#		bsub bash
+#	done
 
 
 .PHONY : clean
-clean : 
+clean :
 	rm -f demulti*
