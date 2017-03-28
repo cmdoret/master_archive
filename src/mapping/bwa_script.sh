@@ -15,18 +15,18 @@ module add UHTS/Analysis/samtools/1.3;
 
 data_dir=/scratch/beegfs/monthly/cmatthey/data/processed/
 index=/scratch/beegfs/monthly/cmatthey/data/ref_genome/lfabarum_bwa_index ## path and prefix of indexed genome files
-out_dir=/scratch/beegfs/monthly/cmatthey/data/mapped/$1_$2_$3_$4/
+
 threads=24
 
 # Parameters I want to change
-ALG=$1 ## mem or backtrack[mem/aln]
-MM=$2 ## mismatches (aln)[4]
-K=$3 ## min seed length (mem)[19]
-W=$4 ## band width (mem)[100]
+ALG='mem' ## mem or backtrack[mem/aln]
+MM=4 ## mismatches (aln)[4]
+K=19 ## min seed length (mem)[19]
+W=100 ## band width (mem)[100]
 #D=100 ## max dist between query and ref position (mem)
 #R=1.5 ## min reseeding length (mem)
-prefix=BWA_$1
-
+prefix=BWA_$ALG
+out_dir=/scratch/beegfs/monthly/cmatthey/data/mapped/$ALG_$MM_$K_$W/
 
 ## Do some work:
 mkdir -p bam

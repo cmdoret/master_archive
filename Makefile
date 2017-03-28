@@ -6,7 +6,11 @@ all : $(MAP)/$(ALG)_$(MM)_$(K)_$(W)
 # Running alignment with BWA
 $(MAP)/$(ALG)_$(MM)_$(K)_$(W) : $(PROC)
 	mkdir -p $@
-	bsub bash src/mapping/bwa_script.sh $(ALG) $(MM) $(K) $(W)
+	sed -i "s/\(MM=\)[0-9]*/\1$(MM)/g" src/mapping/bwa_script.sh
+	sed -i "s/\(ALG=\)[a-z]*/\1$(ALG)/g" src/mapping/bwa_script.sh
+	sed -i "s/\(K=\)[0-9]*/\1$(K)/g" src/mapping/bwa_script.sh
+	sed -i "s/\(W=\)[0-9]*/\1$(W)/g" src/mapping/bwa_script.sh
+	bsub <./src/mapping/bwa_script.sh
 
 # Running pstacks
 #$(STACK) : $(MAP)/$(ALG)_$(MM)_$(K)_$(W)
@@ -20,3 +24,4 @@ $(MAP)/$(ALG)_$(MM)_$(K)_$(W) : $(PROC)
 .PHONY : clean
 clean :
 	rm -f demulti*
+	rmdir bam
