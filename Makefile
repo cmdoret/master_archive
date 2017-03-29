@@ -1,10 +1,10 @@
 include config.mk
 
 .PHONY : all
-all : $(MAP)/$(ALG)_$(MM)_$(K)_$(W)
+all : $(MAP)/$(ALG)-$(MM)-$(K)-$(W)
 
 # Running alignment with BWA
-$(MAP)/$(ALG)_$(MM)_$(K)_$(W) : $(PROC)
+$(MAP)/$(ALG)-$(MM)-$(K)-$(W) : $(PROC)
 	mkdir -p $@
 	sed -i "s/\(MM=\)[0-9]*/\1$(MM)/g" src/mapping/bwa_script.sh
 	sed -i "s/\(ALG=\)[a-z]*/\1$(ALG)/g" src/mapping/bwa_script.sh
