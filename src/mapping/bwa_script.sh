@@ -5,11 +5,11 @@
 #BSUB -e BWA-%J-ERROR.txt
 #BSUB -u cmatthey@unil.ch
 #BSUB -J bam
-#BSUB -n 24
-#BSUB -R "span[ptile=8]"
+#BSUB -n 12
+#BSUB -R "span[ptile=12]"
 #BSUB -q normal
-#BSUB -R "rusage[mem=20000]"
-#BSUB -M 20000000
+#BSUB -R "rusage[mem=50000]"
+#BSUB -M 50000000
 
 module add UHTS/Aligner/bwa/0.7.2;
 module add UHTS/Analysis/samtools/1.3;
@@ -18,7 +18,7 @@ module add UHTS/Analysis/samtools/1.3;
 data_dir=/scratch/beegfs/monthly/cmatthey/data/processed/
 index=/scratch/beegfs/monthly/cmatthey/data/ref_genome/lfabarum_bwa_index ## path and prefix of indexed genome files
 
-threads=24
+threads=12
 
 # Parameters I want to change
 ALG=mem ## mem or backtrack[mem/aln]
@@ -43,14 +43,14 @@ do
         
         case $ALG in
             'mem')
-                bwa mem -k $K -t $threads -w $W  $index $data_dir/$sample.fq.gz > $sample.sai
+                bwa mem -k $K -t $threads -w $W  $index $data_dir/$sample.fq.gz > $sample-$prefeix.sam
                 ;;
             'aln')
                 bwa aln -n $MM -t $threads $index $data_dir/$sample.fq.gz > $sample.sai ## align reads
+                bwa samse -n 3 $index $sample.sai $data_dir/$sample.fq.gz > $sample-$prefix.sam # index alignment file
                 ;;
         esac
         
-        bwa samse -n $MM $index $sample.sai $data_dir/$sample.fq.gz > $sample-$prefix.sam # index alignment file
 	perl /scratch/beegfs/monthly/cmatthey/src/mapping/split_sam.pl -i $sample-$prefix.sam -o $sample-$prefix >> split_summary.log ## change perl script path (script removes reads which map more than once)
 	rm -v $sample-$prefix.sam
 	cd bam/
