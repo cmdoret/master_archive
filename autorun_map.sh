@@ -5,7 +5,7 @@ for K in 15 17 19 21;
 do
     for W in 90 100 110 120;
     do
-        mkdir -p data/mapping/$ALG-$MM-$K-$W
+        mkdir -p data/mapped/$ALG-$MM-$K-$W
         sed -i "s/\(MM=\)[0-9]*/\1$MM/g" src/mapping/bwa_script.sh
         sed -i "s/\(ALG=\)[a-z]*/\1$ALG/g" src/mapping/bwa_script.sh
         sed -i "s/\(K=\)[0-9]*/\1$K/g" src/mapping/bwa_script.sh
