@@ -1,4 +1,4 @@
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 
 """
@@ -8,3 +8,4 @@ combinations of parameters yield the best results.
 Cyril Matthey-Doret
 02.04.2017
 """
+map_sum = pd.read_csv("mapstats.csv",header=1)  # Loading mapping summaries

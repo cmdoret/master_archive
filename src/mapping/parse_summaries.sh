@@ -5,10 +5,10 @@
 
 echo 'alg,MM,K,W,tot,single,multi,miss' > mapstats.csv
 
-for i in ../../data/mapped/*;
+# for i in ../../data/mapped/*;
+for i in ./me*;
 do
-    
-    echo $i | sed 's/\([a-zA-Z]*\)-\([0-9]*\)-\([0-9]*\)-\([0-9]*\)/\1,\2,\3,\4,/g' >> mapstats.csv
+    echo -n ${i##*/} | sed 's/\([a-zA-Z]*\)-\([0-9]*\)-\([0-9]*\)-\([0-9]*\)/\1,\2,\3,\4,/g' >> mapstats.csv
     awk 'BEGIN {FS = "\n"; OFS = ","; RS = ""; tot = 0; uniq = 0; multi = 0; miss = 0}
     { if ( NF==4 ) {
         { match($1,/: [0-9]+/); tot += substr($1, RSTART+2, RLENGTH) }
