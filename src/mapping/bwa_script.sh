@@ -5,8 +5,8 @@
 #BSUB -e BWA-%J-ERROR.txt
 #BSUB -u cmatthey@unil.ch
 #BSUB -J bam
-#BSUB -n 4
-#BSUB -R "span[ptile=4]"
+#BSUB -n 12
+#BSUB -R "span[ptile=12]"
 #BSUB -q normal
 #BSUB -R "rusage[mem=16000]"
 #BSUB -M 16000000
@@ -18,7 +18,7 @@ module add UHTS/Analysis/samtools/1.3;
 data_dir=/scratch/beegfs/monthly/cmatthey/data/processed/
 index=/scratch/beegfs/monthly/cmatthey/data/ref_genome/lfabarum_bwa_index ## path and prefix of indexed genome files
 
-threads=4
+threads=12
 
 # Parameters I want to change
 ALG=mem ## mem or backtrack[mem/aln]
@@ -35,7 +35,7 @@ mkdir -p $out_dir/bam
 
 date
 
-for sample in $(tail -n +2 /scratch/beegfs/monthly/cmatthey/data/F4_table.csv | awk -F, '/01/ {print $1"_"$2}') #this is a list of sample names (similar as the popmap file for Populations, but without reproductive mode)
+for sample in $(tail -n +2 /scratch/beegfs/monthly/cmatthey/data/F4_table.csv | awk -F, '{print $1"_"$2}') #this is a list of sample names (similar as the popmap file for Populations, but without reproductive mode)
 do 
         echo "\nprocessing sample $sample\n";
         #cp -v $data_dir/$sample* $sample.fq.gz
