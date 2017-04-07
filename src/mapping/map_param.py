@@ -19,6 +19,7 @@ single_aln = aln.loc[:,"single"]/aln.loc[:,"tot"]
 single_mem = mem.loc[:,"single"]/mem.loc[:,"tot"]
 
 # plotting
+"""
 fig = plt.figure()
 ax = fig.add_subplot(121)
 ax.plot(aln.loc[:,"MM"],single_aln)
@@ -30,5 +31,11 @@ bx.plot(mem.loc[:,"K"],single_mem)
 bx.set(title="mem single hits",
        ylabel="proportion of single mapped reads",
        xlabel="minimum seed length")
-
-plt.savefig("mapstats.png")
+"""
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.plot(aln.loc[:,"MM"],single_aln)
+ax.set(title="aln single hits",
+       ylabel="proportion of single mapped reads",
+       xlabel="number of mismatches allowed")
+plt.savefig("mapstats.pdf")

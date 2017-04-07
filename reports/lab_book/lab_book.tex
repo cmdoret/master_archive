@@ -3,6 +3,7 @@
  \usepackage{amsmath}
  \usepackage{amsfonts}
  \usepackage{amssymb}
+ \usepackage{graphicx}
  \usepackage[colorlinks=true,urlcolor=cyan]{hyperref}
  \usepackage{listings} %code highlighting
  \author{Cyril Matthey-Doret}
@@ -50,6 +51,8 @@ lib7b & TruSeq adapter, index 12 \footnotemark\\
 \section{Trimming adaptors}
 This step is performed by process radtags at the same time as demultiplexing. I tried different values for adapter mismatches, between 0 and 3 (i.e. reads containing sequences distant from the adapter by n mismatches are removed). This did not cause any major difference and therefore I will perform all downnstream analyses with an allowance of 2 mismatches in the adapter.
 
+Note: Demultiplexing did not yield any read for CF4F10. 
+
 \chapter{STACKS pipeline}
 
 The pipeline described in this chapter will map the processed reads to the reference genome and build a catalogue of loci. It will eventually implement additional features such as calculating population statistics. At each step of the pipeline, I will try different combinations of parameters and choose the one yielding the best results. 
@@ -58,19 +61,24 @@ The pipeline described in this chapter will map the processed reads to the refer
 Since the reference genome of \textit{Lysiphlebus fabarum} was recently released, I will first map the sequencing reads to the reference, using BWA, but I may also want to use bowtie to compare the results, eventually.
 \subsection{BWA}
 
-BWA provides 3 different algorithms: MEM, backtrack and SW. MEM is the preferred algorithm for Illumina reads longer than 70bp, therefore I will be using this one here. Backtrack is preferred for short reads and SW with frequent gaps.
+BWA provides 3 different algorithms: MEM, backtrack (aln) and SW. MEM is normally the better for Illumina reads longer than 70bp, therefore I will be using this one here. Backtrack is preferred for short reads and SW with frequent gaps.
 There are also 2 algorithms for building the index: 'is' and 'bwtsw'. 'is' is used with reference <2GB, 'bwtsw' with larger references.
 
 General commands: 
 \begin{lstlisting}
 $ bwa index -p <out_index_name> -a <algorithm>
 $ bwa mem <index> <sample.fq> > <out.sai>
-$ bwa samse -n <max_dupl> $index $sample.sai $data_dir/$sample.fq.gz \
 > $sample-$prefix.sam
 \end{lstlisting}
-The first command (bwa index) constructs an index from the reference genome, whereas the second one actually runs the aligner. The third command allows to transform the .sai into .sam files.
 
-Here is the list of different mapping parameters I may try:
+When using bwa-aln, there the command running the alignment (after indexing) is:
+\begin{lstlisting}
+$ bwa aln -n <mismatches> $index <sample.fq> > <sample.sai>
+$ bwa samse -n <max_dupl> $index $sample.sai $data_dir/$sample.fq.gz
+\end{lstlisting}
+The first command (bwa index) constructs an index from the reference genome, whereas the second one (bwa mem/aln) actually runs the aligner. The third command (bwa samse) allows to transform the .sai into .sam files.
+
+Here is the list of different mapping parameters I may try with bwa-mem:
 \begin{itemize}
 \item -k : minimum seed length (will miss matches shorter than value)[19]
 \item -w : band width (gaps longer than value will not be found)[100]
@@ -78,8 +86,10 @@ Here is the list of different mapping parameters I may try:
 \item -r : triggers reseeding for a MEM longer than min\_seed\_len$*$float. Larger values yield fewer seeds $->$ faster alignment but lower accuracy [1.5].
 \end{itemize}
 
+In the case we use the backtrack (aln) algorithm instead of MEM, the only parameter worth tuning is -n, the number of mismatches allowed. 
+
+
 Note: I did not include parameters that are not relevant to sensitivity (e.g. threads) or parameters that involve scoring (changing these naively would probably have a negative impact). Full list of parameters is on the \href{http://bio-bwa.sourceforge.net/bwa.shtml}{official bwa website}
-In the case we use the backtrack algorithm instead of MEM, the only parameter worth tuning is probably -n, the number of mismatches allowed. 
 
 
 \subsection{Bowtie2}
@@ -125,7 +135,15 @@ note to self: at the end of a run, bowtie2 prints a summary to stderr such as:
     
 93.77\% overall alignment rate
 \vspace{10px}\\
-I will redirect the stderr and parse it into a csv file and generate plot to visually estimate the best parameter values.
+If I use Bowtie2, I will redirect the stderr and parse it into a csv file and generate plot to visually estimate the best parameter values.
+
+\subsection{Mapping results}
+
+I used the aln algorith of bwa, since the mem algorithm did not report multiple alignments and has very few documentation available. I tried different mismatches values with aln, ranging from 0 to 8, and I chose to use 4 since the increase in single was quite low above this value. When the mismatch parameter is set to 4, running bwa-aln on a subset of 12 samples yielded 57\% of single hit reads, 26\% of multiple hits and 17\% of unmapped reads.
+
+\begin{figure}[h]
+\includegraphics[scale=0.5]{mapstats}
+\end{figure}
 
 \section{pstacks}
 

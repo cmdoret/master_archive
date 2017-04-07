@@ -14,11 +14,7 @@ $(MAP)/$(ALG)-$(MM)-$(K)-$(W) : $(PROC)
 
 # Running pstacks
 #$(STACK) : $(MAP)/$(ALG)_$(MM)_$(K)_$(W)
-#	bash src/stacks_pipeline/multi_pstacks.sh $<
-#	for i in $(PROC)/*.fq.gz
-#	do
-#		bsub bash
-#	done
+#	bash src/stacks_pipeline/multi_pstacks.sh $< $(M)
 
 
 .PHONY : clean

@@ -6,20 +6,18 @@
 ## for super quick pstacks analyses. See below for 
 ## arguments required:
 
-wd=/scratch/beegfs/monthly/cmatthey/data/mapped/aln-4-19-100 ## the directory containing the fastq files
+wd=$1 ## the directory containing the sam files
 ID=1 ## the stacks ID to start from
 
 
-
-
 mkdir -p bsub_scripts
-mkdir -p pstacks
+mkdir -p data/pstacks/covmin-$2
 
 
-for i in $(ls *fq.gz)
-do 
+for i in $(ls $wd/bam/CF*01*uniq.sorted.bam)
+do
     echo "Sample= $i, ID=$ID" 
-    j=$(echo $i | cut -f1 -d '.')
+    j=$(echo ${i##*/} | cut -f1 -d '.')
     echo "#!/bin/bash" > ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -L /bin/bash" >> ./bsub_scripts/bsub_${j}_script.sh
@@ -34,8 +32,8 @@ do
     echo "module add UHTS/Analysis/stacks/1.30" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
 
-    echo "pstacks -f $wd -i id -o path [-m min_cov] [-p num_threads -t bam" >> ./bsub_scripts/bsub_${j}_script.sh
+    echo "pstacks -f $i -i $ID -o ./data/pstacks/covmin-$2 -m $2 -p 3 -t bam" >> ./bsub_scripts/bsub_${j}_script.sh
 
     ((ID+=1))
 
-done 
+done
