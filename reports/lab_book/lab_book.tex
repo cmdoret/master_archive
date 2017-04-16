@@ -4,6 +4,8 @@
  \usepackage{amsfonts}
  \usepackage{amssymb}
  \usepackage{graphicx}
+\usepackage{csvsimple}
+\usepackage{array,booktabs}
  \usepackage[colorlinks=true,urlcolor=cyan]{hyperref}
  \usepackage{listings} %code highlighting
  \author{Cyril Matthey-Doret}
@@ -163,6 +165,19 @@ Parameters I may want to change are:
 \end{itemize}
 
 Note: there are 3 models; SNP, bounded SNP and fixed. SNP is the default model, bounded SNPs allows to give prior expectations about the error rate, which can allow better estimations of heterozygosity and the fixed model identifies all fixed sites and masks all others.
+
+\subsection{pstacks results}
+
+Pstacks was run on aligned reads (BWA, 4 mismatches allowed). I tried different values for the minimum coverage required to call a stack (-m parameter), ranging from 1 to 6. Below is the value for minimum coverage, along with the mean number of loci and alleles that was produced per sample.
+
+\vspace{10px}
+\csvautobooktabular[respect underscore=true]{pstats.csv}
+\vspace{10px}
+
+I will use 4 reads minimum coverage as this is already high and using lower values does not improve the output in anyway.
+
+Note: Locus are regions formed by one or more stacks. Alleles are different stacks at the same locus. It is surprising that the number of loci/alleles does not decrease below 4 min cov, also the allele files contain alleles with count value lower than the -m parameter (minimum depth of coverage to report a stack).
+
 \section{cstacks}
 
 cstacks is a component of the STACKS suite that builds a catalog of loci with different alleles from a set of processed samples.
@@ -180,6 +195,10 @@ Parameters I may want to change are:
 \end{itemize}
 
 Note: There are also advanced options such as gapped assembly parameters and loci matching multiple catalogue entries, but these are probably not relevant here.
+\subsection{cstacks results}
+
+I changed the number of mismatches allowed between samples between 1 and 4.
+
 
 \end{document} 
 \grid

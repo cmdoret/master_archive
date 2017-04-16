@@ -27,3 +27,4 @@ do
 done;
 
 module rm R/latest
+cp pstats.csv ../../reports/lab_book/

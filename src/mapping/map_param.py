@@ -38,4 +38,4 @@ ax.plot(aln.loc[:,"MM"],single_aln)
 ax.set(title="aln single hits",
        ylabel="proportion of single mapped reads",
        xlabel="number of mismatches allowed")
-plt.savefig("mapstats.pdf")
+plt.savefig("../../reports/lab_book/mapstats.pdf")
