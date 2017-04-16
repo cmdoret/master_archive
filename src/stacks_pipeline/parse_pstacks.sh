@@ -14,6 +14,7 @@ do
     declare -i L=0 A=0 C=0
     for f in $d/*.alleles.tsv.gz;
     do
+        echo $L'_'$A
         # Number of loci
         L+=$(zcat $f | cut  -f3 | uniq | wc -l);
         # Total number of alleles

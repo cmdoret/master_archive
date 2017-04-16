@@ -7,7 +7,7 @@
 ## arguments required:
 
 wd=$1 ## the directory containing the sam files
-ID=1 ## the stacks ID to start from
+declare -i ID=1 ## the stacks ID to start from
 
 
 mkdir -p bsub_scripts
@@ -34,6 +34,6 @@ do
 
     echo "pstacks -f $i -i $ID -o ./data/pstacks/covmin-$2 -m $2 -p 3 -t bam" >> ./bsub_scripts/bsub_${j}_script.sh
 
-    ((ID+=1))
+    ID+=1
 
 done
