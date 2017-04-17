@@ -13,10 +13,10 @@ mkdir -p bsub_scripts
 mkdir -p data/cstacks/mm-$2
 
 
-for i in $(ls $wd/CF*01*)
+for i in $(ls $wd/CF*01*.allele*)
 do
     echo "Sample= $i" 
-    j=$(echo ${i##*/} | cut -f1 -d '.')
+    j=$(echo ${i##*/} | cut -f1 -d '_')
     echo "#!/bin/bash" > ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -L /bin/bash" >> ./bsub_scripts/bsub_${j}_script.sh
@@ -31,8 +31,6 @@ do
     echo "module add UHTS/Analysis/stacks/1.30" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
 
-    echo "cstacks -s $i -i $ID -o ./data/cstacks/mm-$2 -n $2 -p 3 -t bam" >> ./bsub_scripts/bsub_${j}_script.sh
-
-    ((ID+=1))
+    echo "cstacks -s ${i%%.*} -o ./data/cstacks/mm-$2 -n $2 -p 3" >> ./bsub_scripts/bsub_${j}_script.sh
 
 done
