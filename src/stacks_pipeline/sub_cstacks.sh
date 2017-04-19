@@ -14,8 +14,6 @@
 wd=/scratch/beegfs/monthly/cmatthey/data ## the directory containing the pstacks files
 MM=1
 
-rm -r $wd/data/cstacks/mm-$MM;
-mkdir -p $wd/data/cstacks/mm-$MM;
 
 
 samp=""
