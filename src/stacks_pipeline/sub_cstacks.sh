@@ -19,7 +19,10 @@ MM=1
 samp=""
 for i in $wd/pstacks/covmin-4/*allel*;
 do
-    samp+="-s ${i%%.alleles*} "
+    if [ "$(zcat $i | wc -l)" -gt "1" ];
+    then
+        samp+="-s ${i%%.alleles*} "
+    fi;
 done;
 
 module add UHTS/Analysis/stacks/1.30;
