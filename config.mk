@@ -1,33 +1,25 @@
-include config.mk
+MAIN=/scratch/beegfs/monthly/cmatthey
+DAT=./data
+PROC=$(DAT)/processed
 
-.PHONY : all
-all : $(CSTACK)
+## Mapping parameters for bwa
+BWA-SRC=src/mapping/bwa_script.sh
+ALG=aln
+# aln: mismatches (MM)
+MM=4
 
-# Running alignment with BWA
-$(MAP) : $(PROC)
-	mkdir -p $@
-	sed -i "s^\(main_dir=\).*^\1$(MAIN)^g" $(BWA-SRC);
-	sed -i "s/\(MM=\)[0-9]*/\1$(MM)/g" $(BWA-SRC)
-	sed -i "s/\(ALG=\)[a-z]*/\1$(ALG)/g" $(BWA-SRC)
-	sed -i "s/\(K=\)[0-9]*/\1$(K)/g" $(BWA-SRC)
-	sed -i "s/\(W=\)[0-9]*/\1$(W)/g" $(BWA-SRC)
-	bsub -K <./$(BWA-SRC)
+# mem: min seed length(K) and band width (W)
+K=19
+W=100
 
-# Running pstacks
-$(PSTACK) : $(MAP)
-	bash $(P-SRC) $< $(M)
+## STACKS parameters
+# pstacks: minimum coverage (M)
+P-SRC=src/stacks_pipeline/multi_pstacks.sh
+M=3
+# cstacks: loci mismatches (LM)
+C-SRC=src/stacks_pipeline/sub_cstacks.sh
+LM=1
 
-# Running cstacks
-$(CSTACK) : $(PSTACK)
-	rm -fr $@;
-	mkdir -p $@;
-	sed -i "s^\(wd=\).*^\1$(MAIN)/data^g" $(C-SRC);
-	sed -i "s/\(MM=\)[0-9]*/\1$(LM)/g" $(C-SRC);
-	bsub -K < $(C-SRC)
-
-.PHONY : clean
-clean :
-	rm -f *STDERR*
-	rm -f *STDOUT*
-	rm -f demulti*
-	rmdir bam
+MAP=$(DAT)/mapped/$(ALG)-$(MM)-$(K)-$(W)
+PSTACK=$(DAT)/pstacks/covmin-$(M)
+CSTACK=$(DAT)/mm-$(LM)
