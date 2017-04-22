@@ -210,5 +210,10 @@ I changed the number of mismatches allowed between samples between 1 and 4. Thes
 \csvautobooktabular[respect underscore=true]{cstats.csv}
 \vspace{10px}
 
+I tried running cstacks on all samples, and also modifying the script so that it will first compute the mean number of tags across all samples, and exclude those with less than 10\% of this value when building the catalogue.
+\\
+Summary results:
+All samples: 25618 alleles in catalogue, over 7062 loci.
+Excluding samples with $<10%$ of mean reads: 
 \end{document} 
 \grid

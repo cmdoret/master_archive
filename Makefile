@@ -30,4 +30,4 @@ clean :
 	rm -f *STDERR*
 	rm -f *STDOUT*
 	rm -f demulti*
-	rmdir bam
+	rm -rf bam
