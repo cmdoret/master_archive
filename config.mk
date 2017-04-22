@@ -22,4 +22,4 @@ LM=1
 
 MAP=$(DAT)/mapped/$(ALG)-$(MM)-$(K)-$(W)
 PSTACK=$(DAT)/pstacks/covmin-$(M)
-CSTACK=$(DAT)/mm-$(LM)
+CSTACK=$(DAT)/cstacks/mm-$(LM)
