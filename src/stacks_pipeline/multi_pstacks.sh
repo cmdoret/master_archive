@@ -14,7 +14,7 @@ mkdir -p bsub_scripts
 mkdir -p data/pstacks/covmin-$2
 
 
-for i in $(ls $wd/bam/CF*01*uniq.sorted.bam)
+for i in $(ls $wd/bam/*uniq.sorted.bam)
 do
     echo "Sample= $i, ID=$ID" 
     j=$(echo ${i##*/} | cut -f1 -d '.')
@@ -23,7 +23,7 @@ do
     echo "#BSUB -L /bin/bash" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -o %J_STDOUT.log" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -e %J_STDERR.log" >> ./bsub_scripts/bsub_${j}_script.sh
-    echo "#BSUB -J Pstacks_${j}" >> ./bsub_scripts/bsub_${j}_script.sh
+    echo "#BSUB -J PST${j}" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -n 3" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -M 2000000" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -q priority" >> ./bsub_scripts/bsub_${j}_script.sh
@@ -35,5 +35,16 @@ do
     echo "pstacks -f $i -i $ID -o ./data/pstacks/covmin-$2 -m $2 -p 3 -t bam" >> ./bsub_scripts/bsub_${j}_script.sh
 
     ID+=1
-
+ 
 done
+
+while [ $(bjobs -w | awk '/RUN/ {print $7}' | grep 'PST' | wc -l) -gt 0 ]
+do
+    sleep 2;
+done
+
+for f in bsub_scripts/*;
+do
+    bsub <./$f
+done;
+

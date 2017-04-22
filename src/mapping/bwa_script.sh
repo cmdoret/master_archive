@@ -14,9 +14,9 @@
 module add UHTS/Aligner/bwa/0.7.2;
 module add UHTS/Analysis/samtools/1.3;
 #module add UHTS/Aligner/bowtie2/2.2.4;
-
-data_dir=/scratch/beegfs/monthly/cmatthey/data/processed/
-index=/scratch/beegfs/monthly/cmatthey/data/ref_genome/lfabarum_bwa_index ## path and prefix of indexed genome files
+main_dir=/scratch/beegfs/monthly/cmatthey
+data_dir=$main_dir/data/processed/
+index=$main_dir/data/ref_genome/lfabarum_bwa_index ## path and prefix of indexed genome files
 
 threads=12
 
@@ -28,14 +28,14 @@ W=100 ## band width (mem)[100]
 #D=100 ## max dist between query and ref position (mem)
 #R=1.5 ## min reseeding length (mem)
 prefix=BWA
-out_dir=/scratch/beegfs/monthly/cmatthey/data/mapped/$ALG-$MM-$K-$W/
+out_dir=$main_dir/data/mapped/$ALG-$MM-$K-$W/
 
 ## Do some work:
 mkdir -p $out_dir/bam
 
 date
 
-for sample in $(tail -n +2 /scratch/beegfs/monthly/cmatthey/data/F4_table.csv | awk -F, '{print $1"_"$2}') #this is a list of sample names (similar as the popmap file for Populations, but without reproductive mode)
+for sample in $(tail -n +2 $main_dir/data/F4_table.csv | awk -F, '{print $1"_"$2}') #this is a list of sample names (similar as the popmap file for Populations, but without reproductive mode)
 do 
         echo "\nprocessing sample $sample\n";
         #cp -v $data_dir/$sample* $sample.fq.gz
@@ -51,7 +51,7 @@ do
                 ;;
         esac
         
-	perl /scratch/beegfs/monthly/cmatthey/src/mapping/split_sam.pl -i $out_dir/$sample-$prefix.sam -o $out_dir/$sample-$prefix >> $out_dir/split_summary.log ## change perl script path (script removes reads which map more than once)
+	perl $main_dir/src/mapping/split_sam.pl -i $out_dir/$sample-$prefix.sam -o $out_dir/$sample-$prefix >> $out_dir/split_summary.log ## change perl script path (script removes reads which map more than once)
 	rm -v $out_dir/$sample-$prefix.sam
     # cd $out_dir/bam/
 	samtools view -@ $threads -bS -o $out_dir/bam/$sample-$prefix-uniq.bam $out_dir/$sample-$prefix-uniq.sam ## converts from SAM to BAM
