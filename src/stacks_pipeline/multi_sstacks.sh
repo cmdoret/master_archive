@@ -6,9 +6,9 @@
 ## the mean number of reads across samples), as they were not used when building the catalogue
 
 wd=/scratch/beegfs/monthly/cmatthey/data ## the directory containing the pstacks files
-declare -i n=0 tot=0
+declare -i n=0 tot=0 # Number of samples and total radtags
 
-
+# Cleaning directories
 rm -rf bsub_scripts/
 mkdir -p bsub_scripts
 rm -rf data/sstacks
@@ -23,13 +23,13 @@ done;
 samp=""
 for i in $wd/pstacks/covmin-4/*tags*;
 do
-    if [ "$(zcat $i | wc -l)" -gt $(($tot/($n*10))) ];
+    if [ "$(zcat $i | wc -l)" -gt $(($tot/($n*10))) ];  # Only using samples containing more radtags than 10% of arithmetic mean over all samples
     then
         samp+="${i%%.tags*} "
     fi;
 done;
 
-for i in $samp
+for i in $samp  # Writing a script automatically for each "good" sample
 do
     echo "Sample= $i, ID=$ID" 
     j=$(echo ${i##*/} | cut -f1 -d '.')
