@@ -1,7 +1,7 @@
 include config.mk
 
 .PHONY : all
-all : $(CSTACK)
+all : $(SSTACK)
 
 # Running alignment with BWA
 $(MAP) : $(PROC)
@@ -13,11 +13,11 @@ $(MAP) : $(PROC)
 	sed -i "s/\(W=\)[0-9]*/\1$(W)/g" $(BWA-SRC)
 	bsub -K <./$(BWA-SRC)
 
-# Running pstacks
+# Running Pstacks
 $(PSTACK) : $(MAP)
 	bash $(P-SRC) $< $(M)
 
-# Running cstacks
+# Running Cstacks
 $(CSTACK) : $(PSTACK)
 	rm -fr $@;
 	mkdir -p $@;
@@ -25,9 +25,14 @@ $(CSTACK) : $(PSTACK)
 	sed -i "s/\(MM=\)[0-9]*/\1$(LM)/g" $(C-SRC);
 	bsub -K < $(C-SRC)
 
+# Running Sstacks
+$(SSTACK) : $(CSTACK)
+	bash $(S-SRC) $<
+
 .PHONY : clean
 clean :
 	rm -f *STDERR*
 	rm -f *STDOUT*
 	rm -f demulti*
 	rm -rf bam
+	rm -rf bsub_scripts

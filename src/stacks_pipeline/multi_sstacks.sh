@@ -1,15 +1,6 @@
  
 #!/bin/bash
 
-#BSUB -o %J_STDOUT.log
-#BSUB -e %J_STDERR.log
-#BSUB -J sstacks_${j}
-#BSUB -n 3
-#BSUB -R "span[ptile=3]"
-#BSUB -R "rusage[mem=30000]"
-#BSUB -M 30000000
-#BSUB -q normal
-
 ## This script runs sstacks, matching samples against the catalogue.
 ## It will exclude samples with very low number of reads from the analysis (less than 10% of
 ## the mean number of reads across samples), as they were not used when building the catalogue
@@ -28,7 +19,6 @@ do
     tot+=$(zcat $f | wc -l);
     n+=1;
 done;
-
 
 samp=""
 for i in $wd/pstacks/covmin-4/*tags*;
@@ -57,7 +47,7 @@ do
     echo "module add UHTS/Analysis/stacks/1.30" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
 
-    echo "sstacks -b 1 -c ./data/cstacks/mm-1 -s $i -o ./data/sstacks/ -p 3" >> ./bsub_scripts/bsub_${j}_script.sh
+    echo "sstacks -b 1 -c $1/batch_0 -s $i -o ./data/sstacks/ -p 3" >> ./bsub_scripts/bsub_${j}_script.sh
 
 done
 

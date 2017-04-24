@@ -20,6 +20,10 @@ M=3
 C-SRC=src/stacks_pipeline/sub_cstacks.sh
 LM=1
 
+# sstacks:
+S-SRC=src/stacks_pipeline/multi_sstacks.sh
+
 MAP=$(DAT)/mapped/$(ALG)-$(MM)-$(K)-$(W)
 PSTACK=$(DAT)/pstacks/covmin-$(M)
 CSTACK=$(DAT)/cstacks/mm-$(LM)
+SSTACK=$(DAT)/sstacks
