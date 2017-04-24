@@ -9,7 +9,7 @@
 wd=$1 ## the directory containing the sam files
 declare -i ID=1 ## the stacks ID to start from
 
-
+rm -rf bsub_scripts
 mkdir -p bsub_scripts
 mkdir -p data/pstacks/covmin-$2
 
@@ -21,8 +21,8 @@ do
     echo "#!/bin/bash" > ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -L /bin/bash" >> ./bsub_scripts/bsub_${j}_script.sh
-    echo "#BSUB -o %J_STDOUT.log" >> ./bsub_scripts/bsub_${j}_script.sh
-    echo "#BSUB -e %J_STDERR.log" >> ./bsub_scripts/bsub_${j}_script.sh
+    echo "#BSUB -o PST_COVMIN$2_${j}_STDOUT.log" >> ./bsub_scripts/bsub_${j}_script.sh
+    echo "#BSUB -e PST_COVMIN$2_${j}_STDERR.log" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -J PST${j}" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -n 3" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -M 2000000" >> ./bsub_scripts/bsub_${j}_script.sh
