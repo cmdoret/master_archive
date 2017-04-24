@@ -38,13 +38,12 @@ do
  
 done
 
-while [ $(bjobs -w | awk '/RUN/ {print $7}' | grep 'PST' | wc -l) -gt 0 ]
-do
-    sleep 2;
-done
-
 for f in bsub_scripts/*;
 do
     bsub <./$f
 done;
 
+while [ $(bjobs -w | awk '/RUN/ {print $7}' | grep 'PST' | wc -l) -gt 0 ]
+do
+    sleep 2;
+done

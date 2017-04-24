@@ -213,9 +213,10 @@ I changed the number of mismatches allowed between samples between 1 and 4. Thes
 I tried running cstacks on all (non-empty) samples, and also modifying the script so that it will first compute the mean number of tags across all samples, and exclude those with less than 10\% of this value when building the catalogue. From the 202 original samples, 4 were empty and excluding low quality ones removed 13 additional ones.
 \\
 Summary results:
-All non-empty samples (198): 25618 alleles in catalogue, over 7062 loci.
-Excluding samples with \textless 10\% of mean tags (185): 25585 alleles in catalogue, over 7046 loci
-
+\begin{itemize}
+\item All non-empty samples (198): 25618 alleles in catalogue, over 7062 loci.
+\item Excluding samples with \textless 10\% of mean tags (185): 25585 alleles in catalogue, over 7046 loci
+\end{itemize}
 Removing those samples did not greatly improve the output in terms of number. I should discuss this with Casper.
 
 \end{document} 
