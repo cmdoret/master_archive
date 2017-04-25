@@ -175,7 +175,7 @@ Note: there are 3 models; SNP, bounded SNP and fixed. SNP is the default model, 
 
 \subsection{pstacks results}
 
-Pstacks was run on aligned reads (BWA, 4 mismatches allowed). I tried different values for the minimum coverage required to call a stack (-m parameter), ranging from 1 to 6. Below is the value for minimum coverage, along with the mean number of loci and alleles that was produced per sample.
+Pstacks was run on aligned reads (BWA, 4 mismatches allowed). I tried different values for the minimum coverage required to call a stack (-m parameter), ranging from 1 to 6. Below is the value for minimum coverage, along with the mean number of loci and alleles that was produced per sample. This table was produced including all non-empty samples (198 individuals) and the variables are averaged (arithmetic mean) over all those samples.
 
 \vspace{10px}
 \csvautobooktabular[respect underscore=true]{pstats.csv}
@@ -183,7 +183,7 @@ Pstacks was run on aligned reads (BWA, 4 mismatches allowed). I tried different 
 
 I will use 4 reads minimum coverage as this is already high and using lower values does not improve the output in anyway.
 
-Note: Locus are regions formed by one or more stacks. Alleles are different stacks at the same locus. It is surprising that the number of loci/alleles does not decrease below 4 min cov, also the allele files contain alleles with count value lower than the -m parameter (minimum depth of coverage to report a stack).
+Note: Locus are regions formed by one or more stacks. Alleles are different stacks at the same locus.
 
 \section{cstacks}
 
