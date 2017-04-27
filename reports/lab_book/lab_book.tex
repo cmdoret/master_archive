@@ -217,7 +217,28 @@ Summary results:
 \item All non-empty samples (198): 25618 alleles in catalogue, over 7062 loci.
 \item Excluding samples with \textless 10\% of mean tags (185): 25585 alleles in catalogue, over 7046 loci
 \end{itemize}
-Removing those samples did not greatly improve the output in terms of number. I should discuss this with Casper.
+
+\section{sstacks}
+
+sstacks is used to generate one file per individual, in each file, the matching loci point to the cstacks catalogue. There is no crucial parameter to change in this program.
+
+\section{populations}
+
+The "populations" component of STACKS is used to compute population genetics statistics on a set of individuals. I use it here to compute FST statistics (fixation index) along the genome. It offers several features to compute different statistics, including a bootstrapping feature and a "kernel smoothing" flag, allowing to take neighbouring region into account with a decreasing weight as a function of their distance from the focus nucleotide. I will use both of these features to compute FST.
+
+The main features to change in FST calculation are :
+\begin{itemize}
+\item -r: minimum percentage of individuals in a population required to process a locus for that population.
+\item -p: minimum number of populations a locus must be present in to be procesed.
+\item -m: minimum stack depth required for indiciduals at a locus.
+
+Example populations call for FST calculation:
+\begin{lstlisting}
+$ populations -P <stacks_files> -M <popmap> -b 1
+ -k -r 0.75 -f p_value
+\end{lstlisting}
+
+\end{itemize}
 
 \end{document} 
 \grid

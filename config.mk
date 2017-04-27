@@ -23,7 +23,13 @@ LM=1
 # sstacks:
 S-SRC=src/stacks_pipeline/multi_sstacks.sh
 
+# populations:
+POP-SRC=src/stacks_pipeline/pop_FST.sh
+R=75
+
+
 MAP=$(DAT)/mapped/$(ALG)-$(MM)-$(K)-$(W)
 PSTACK=$(DAT)/pstacks/covmin-$(M)
 CSTACK=$(DAT)/cstacks/mm-$(LM)
 SSTACK=$(DAT)/sstacks
+POP=$(DAT)/populations/r-$(R)

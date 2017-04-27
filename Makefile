@@ -1,7 +1,7 @@
 include config.mk
 
 .PHONY : all
-all : $(SSTACK)
+all : $(POP)
 
 # Running alignment with BWA
 $(MAP) : $(PROC)
@@ -16,6 +16,7 @@ $(MAP) : $(PROC)
 # Running Pstacks
 $(PSTACK) : $(MAP)
 	bash $(P-SRC) $< $(M)
+	
 
 # Running Cstacks
 $(CSTACK) : $(PSTACK)
@@ -28,6 +29,15 @@ $(CSTACK) : $(PSTACK)
 # Running Sstacks
 $(SSTACK) : $(CSTACK)
 	bash $(S-SRC) $<
+
+# Running populations
+$(POP) : $(SSTACK)
+	mkdir -p $(POP)
+	rm -rf $(DAT)/logs/populations
+	mkdir -p $(DAT)/logs/populations
+	sed -i "s^\(od=\).*^\1$(POP)^g" $(POP-SRC);
+	sed -i "s^\(R=\).*^\1$(R)/data^g" $(POP-SRC);
+	bsub -K $(POP-SRC)
 
 .PHONY : clean
 clean :

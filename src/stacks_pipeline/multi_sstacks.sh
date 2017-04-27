@@ -13,13 +13,17 @@ rm -rf bsub_scripts/
 mkdir -p bsub_scripts
 rm -rf data/sstacks
 mkdir -p data/sstacks
+rm -rf data/logs/sstacks/
+mkdir -p data/logs/sstacks/
 
+# Summing all Total reads and number of samples
 for f in $wd/pstacks/covmin-4/*tags*;
 do
     tot+=$(zcat $f | wc -l);
     n+=1;
 done;
 
+# Filtering out low quality samples
 samp=""
 for i in $wd/pstacks/covmin-4/*tags*;
 do
@@ -29,6 +33,7 @@ do
     fi;
 done;
 
+# Writing scripts automatically
 for i in $samp  # Writing a script automatically for each "good" sample
 do
     echo "Sample= $i, ID=$ID" 
@@ -36,8 +41,8 @@ do
     echo "#!/bin/bash" > ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -L /bin/bash" >> ./bsub_scripts/bsub_${j}_script.sh
-    echo "#BSUB -o %J_STDOUT.log" >> ./bsub_scripts/bsub_${j}_script.sh
-    echo "#BSUB -e %J_STDERR.log" >> ./bsub_scripts/bsub_${j}_script.sh
+    echo "#BSUB -o ./data/logs/sstacks/SST_${j}_STDOUT.log" >> ./bsub_scripts/bsub_${j}_script.sh
+    echo "#BSUB -e ./data/logs/sstacks/SST_${j}_STDERR.log" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -J SST${j}" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -n 3" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "#BSUB -M 2000000" >> ./bsub_scripts/bsub_${j}_script.sh
@@ -51,11 +56,13 @@ do
 
 done
 
+# Submitting jobs in a loop
 for f in bsub_scripts/*;
 do
     bsub <./$f;
 done;
 
+# Waiting for all sstacks jobs to finish
 while [ $(bjobs -w | awk '/RUN/ {print $7}' | grep 'SST' | wc -l) -gt 0 ]
 do
     sleep 2;
