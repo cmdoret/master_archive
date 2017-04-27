@@ -13,6 +13,15 @@
 
 od=data/populations/r-75
 R=0.75
+M=3
+
+# Copying all snps, tags and alleles files from valid pstacks samples to sstacks folder
+
+for f in data/sstacks/*;
+do
+    tf=$(basename ${f%%.matches*});
+    cp data/pstacks/covmin-$M/$tf* data/sstacks/;
+done;
 
 module add UHTS/Analysis/stacks/1.30;
 
