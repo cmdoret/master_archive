@@ -24,6 +24,7 @@ LM=1
 S-SRC=src/stacks_pipeline/multi_sstacks.sh
 
 # populations:
+GR-SRC=src/stacks_pipeline/group_sstacks.sh
 POP-SRC=src/stacks_pipeline/pop_FST.sh
 R=75
 

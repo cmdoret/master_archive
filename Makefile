@@ -27,8 +27,8 @@ all : $(POP)
 #	bsub -K < $(C-SRC)
 
 # Running Sstacks
-#$(SSTACK) : $(CSTACK)
-#	bash $(S-SRC) $<
+$(SSTACK) : $(CSTACK)
+	bash $(S-SRC) $<
 
 # Running populations
 $(POP) : $(SSTACK) $(POP-SRC)
@@ -36,9 +36,9 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	mkdir -p $(POP)
 	rm -rf $(DAT)/logs/populations
 	mkdir -p $(DAT)/logs/populations
+	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK)
 	sed -i "s^\(od=\).*^\1$(POP)^g" $(POP-SRC);
 	sed -i "s/\(R=\).*/\10\.$(R)/g" $(POP-SRC);
-	sed -i "s/\(M=\).*/\1$(M)/g" $(POP-SRC);
 	bsub -K <$(POP-SRC)
 
 .PHONY : clean

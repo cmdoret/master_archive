@@ -4,7 +4,9 @@
 #BSUB -e data/logs/populations/POP_STDERR.err
 #BSUB -o data/logs/populations/POP_STDOUT.out
 #BSUB -M 20000000
-#BSUB -n 3
+#BSUB -R "rusage[mem=20000]"
+#BSUB -n 12
+#BSUB -R "span[ptile=12]"
 
 # This script uses the populations component from the STACKS suite to compute FST across the genome of individuals. 
 # It requires stacks files for each individual and a population map.
@@ -13,18 +15,9 @@
 
 od=data/populations/r-75
 R=0.75
-M=3
-
-# Copying all snps, tags and alleles files from valid pstacks samples to sstacks folder
-
-for f in data/sstacks/*;
-do
-    tf=$(basename ${f%%.matches*});
-    cp data/pstacks/covmin-$M/$tf* data/sstacks/;
-done;
 
 module add UHTS/Analysis/stacks/1.30;
 
-populations -P data/sstacks/ -M data/popmap -b 1 -k -r $R -f p_value -o $od -t 3
+populations -P data/sstacks/ -M data/popmap -k -b 0 -r $R -f p_value -t 12 --verbose --fstats --bootstrap --vcf
 
 module add UHTS/Analysis/stacks/1.30;
