@@ -4,6 +4,7 @@
 PSTACK=$1
 CSTACK=$2
 SSTACK=$3
+rm -f $SSTACK/batch*
 for f in $SSTACK/*; 
 do
     tf=$(basename ${f%%.matches*}); 
