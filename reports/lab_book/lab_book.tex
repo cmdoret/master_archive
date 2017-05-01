@@ -230,7 +230,8 @@ The main features to change in FST calculation are :
 \begin{itemize}
 \item -r: minimum percentage of individuals in a population required to process a locus for that population.
 \item -p: minimum number of populations a locus must be present in to be procesed.
-\item -m: minimum stack depth required for indiciduals at a locus.
+\item -m: minimum stack depth required for individuals at a locus.
+\end{itemize}
 
 Example populations call for FST calculation:
 \begin{lstlisting}
@@ -238,7 +239,33 @@ $ populations -P <stacks_files> -M <popmap> -b 1
  -k -r 0.75 -f p_value
 \end{lstlisting}
 
+\subsection{populations results}
+
+I ran populations with the following parameters:
+\begin{itemize}
+\item -r: 0.75 - 0.85
+\item -p: 2
+\item -m: 5
 \end{itemize}
+
+Therefore, only locii with at least 5 reads of coverage were included, each loci also needs to be in at least 75\% to 85\% of all individuals and in both populations (males and females).
+
+This table summarizes the first statistics I extracted from the VCF files (using vcftools) with the different values for r:
+\begin{center}
+\vspace{10px}
+\csvautobooktabular[respect underscore=true]{vcf_sumtable.csv}
+\vspace{10px}
+\end{center}
+
+plotting the inbreeding coefficient per individual with r=75 yields:
+
+\begin{figure}[h]
+	\begin{center}
+		\hspace*{-1.5in}
+		\includegraphics[width=1.55\textwidth]{F_r-75}
+		\caption{Inbreeding coefficient (F). Each plot is a family, each bar is an individual. Blue bars represent males, and pink ones represent females. Green and red squares span the mean +- standard deviation of males and females, respectively.}
+	\end{center}
+\end{figure}
 
 \end{document} 
 \grid

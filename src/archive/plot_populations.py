@@ -7,6 +7,7 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
+
 haplotable = pd.read_csv("../../data/sstacks/batch_0.haplotypes.tsv",sep="\t")
 
 haplotable = haplotable.drop(["Catalog ID","Cnt"],axis="columns")
@@ -32,10 +33,12 @@ for key, item in df1:
 targets = zip(sorted(df1.groups.keys()), axs.flatten())
 
 for i, (key, ax) in enumerate(targets):
-    print(df1.get_group(key).values[:,0])
     ax.bar(range(len(df1.get_group(key).values[:,0])),
            df1.get_group(key).values[:,0])
-    ax.set_xticklabels(df1.get_group(key).index,rotation='vertical')
+    ax.set_xticklabels(df1.get_group(key).index.str.slice(start=3,stop=8)
+                       ,rotation='vertical')
     ax.set_title('Family %s'%key)
 ax.legend()
+plt.rcParams["figure.figsize"] = (20,20)
+plt.savefig("heterozygosity.pdf")
 plt.show()
