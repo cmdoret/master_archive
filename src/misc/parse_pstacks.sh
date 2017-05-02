@@ -7,6 +7,7 @@
 
 
 
+cd "$(dirname "$0")"
 
 pdir=../../data/logs/pstacks
 echo "min_cov,nloci,mean_cov,sd_cov" > pstats.csv

@@ -4,6 +4,9 @@
 # 01.05.2017
 
 
+args = commandArgs(trailingOnly=TRUE)
+setwd(args[1])
+
 plot_popstats <- function(sum_file,stats){
   # sum_file: path to the input summary file
   # parameter to be plotted. Needs to be a colname
@@ -27,12 +30,15 @@ plot_popstats <- function(sum_file,stats){
     MM <- mean(subt[subt$SEX=='M',stats]); SM <- sd(subt[subt$SEX=='M',stats])
     abline(h = MF,col="pink")
     # abline(h = MF-SF,col="pink");abline(h = MF+SF,col="pink",lty=2)
-    polygon(x=c(-3,nrow(subt)/10,nrow(subt)/10,-3),y=c(MF-SF,MF-SF,MF+SF,MF+SF), 
-            col=rgb(1, 0, 0,0.4),border="red",lty = 1)
     abline(h = MM,col="blue")
     # abline(h = MM-SM,col="blue",lty=2);abline(h = MM+SM,col="blue",lty=2)
-    polygon(x=c(nrow(subt)/10,nrow(subt)/5,nrow(subt)/5,nrow(subt)/10),y=c(MM-SM,MM-SM,MM+SM,MM+SM), 
-            col=rgb(0, 1, 0,0.4),border="green",lty = 1)
+    par(xpd=NA)
+    scoef <- nrow(subt)/20
+    polygon(x=c(-5,-3,-3,-5)*scoef,y=c(MF-SF,MF-SF,MF+SF,MF+SF), 
+            col=rgb(1, 0.75, 0.8,0.6),lty = 1,border=NA)
+    polygon(x=c(-3,-1,-1,-3)*scoef,y=c(MM-SM,MM-SM,MM+SM,MM+SM), 
+            col=rgb(0, 0, 1,0.6),lty = 1,border=NA)
+    par(xpd=FALSE)
   }
 }
 
@@ -57,5 +63,5 @@ for(p in param_space){
 out_table <- data.frame(lapply(out_table, function(y) if(is.numeric(y)) round(y, 2) else y))
 colnames(out_table) <- c("r parameter","obs.hom.","exp.hom.","n.sites","inbreed.coef.","mean depth","obs./exp. hom.")
 write.table(out_table,file='vcftools/vcf_sumtable.csv',col.names = T,quote = F,row.names = F,sep=',')
-system("cp vcftools/vcf_sumtable.csv ../../reports/lab_book/vcf_sumtable.csv")
+system("cp vcftools/vcf_sumtable.csv vcftools/F_r-75.pdf ../../reports/lab_book/")
 

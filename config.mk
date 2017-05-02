@@ -28,6 +28,10 @@ GR-SRC=src/stacks_pipeline/group_sstacks.sh
 POP-SRC=src/stacks_pipeline/pop_FST.sh
 R=75
 
+# Misc: report generation
+LAB=reports/lab_book
+MISC=src/misc
+
 
 MAP=$(DAT)/mapped/$(ALG)-$(MM)-$(K)-$(W)
 PSTACK=$(DAT)/pstacks/covmin-$(M)

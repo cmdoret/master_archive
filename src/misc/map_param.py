@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-
+import sys, os
+from os.path import join
 """
 This script generates plots from custom generated summaries of the BWA
 mapping output with different parameters. This is useful to visualize which
@@ -9,8 +10,11 @@ Cyril Matthey-Doret
 02.04.2017
 """
 
+file = sys.argv[0]
+pathname = os.path.dirname(file)
+
 # Importing mapping output summary table
-map_sum = pd.read_csv("mapstats.csv",header=0)  # Loading mapping summaries
+map_sum = pd.read_csv(join(pathname,"mapstats.csv"),header=0)  # Loading mapping summaries
 
 # Splitting by mapping algorithm
 aln = map_sum.loc[map_sum['alg'] == 'aln']
@@ -38,4 +42,4 @@ ax.plot(aln.loc[:,"MM"],single_aln)
 ax.set(title="aln single hits",
        ylabel="proportion of single mapped reads",
        xlabel="number of mismatches allowed")
-plt.savefig("../../reports/lab_book/mapstats.pdf")
+plt.savefig(join(pathname,"../../reports/lab_book/mapstats.pdf"))

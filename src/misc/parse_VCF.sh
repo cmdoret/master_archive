@@ -1,4 +1,4 @@
-
+cd "$(dirname "$0")"
 mkdir -p vcftools
 
 for folder in ../../data/populations/*;

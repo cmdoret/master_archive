@@ -42,6 +42,17 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	bsub -K <$(POP-SRC)
 	mv $(SSTACK)/batch* $(POP)
 
+.PHONY : lab_book
+lab_book : $(LAB) $(MISC)
+	rm  -f $(LAB)/*.log $(LAB)/*.synctex* $(LAB)/*.aux $(LAB)/*.out
+	python $(MISC)/map_param.py
+	bash $(MISC)/parse_pstacks.sh
+	bash $(MISC)/parse_cstacks.sh
+	bash $(MISC)/parse_VCF.sh
+	Rscript $(MISC)/plot_VCF.R $(MISC)
+	texi2pdf -b $(LAB)/lab_book.tex -c
+	mv lab_book.pdf $(LAB)
+
 .PHONY : clean
 clean :
 	rm -f *STDERR*
