@@ -5,7 +5,7 @@
 # 11.04.2017
 
 cd "$(dirname "$0")"
-cdir=/scratch/beegfs/monthly/cmatthey/data/cstacks
+cdir=../../data/cstacks/
 echo 'mismatch,mean_loci,mean_alleles' > cstats.csv
 for d in $cdir/*;
 do
