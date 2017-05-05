@@ -6,7 +6,7 @@ all : $(POP)
 # Running alignment with BWA
 #$(MAP) : $(PROC)
 #	mkdir -p $@
-#	sed -i "s^\(main_dir=\).*^\1$(MAIN)^g" $(BWA-SRC);
+#	sed -i "s^\(main_dir=\).*^\1$(MAIN)^g" $(BWA-SRC)
 #	sed -i "s/\(MM=\)[0-9]*/\1$(MM)/g" $(BWA-SRC)
 #	sed -i "s/\(ALG=\)[a-z]*/\1$(ALG)/g" $(BWA-SRC)
 #	sed -i "s/\(K=\)[0-9]*/\1$(K)/g" $(BWA-SRC)
@@ -22,8 +22,8 @@ all : $(POP)
 #$(CSTACK) : $(PSTACK)
 #	rm -fr $@;
 #	mkdir -p $@;
-#	sed -i "s^\(wd=\).*^\1$(MAIN)/data^g" $(C-SRC);
-#	sed -i "s/\(MM=\)[0-9]*/\1$(LM)/g" $(C-SRC);
+#	sed -i "s^\(wd=\).*^\1$(MAIN)/data^g" $(C-SRC)
+#	sed -i "s/\(MM=\)[0-9]*/\1$(LM)/g" $(C-SRC)
 #	bsub -K < $(C-SRC)
 
 # Running Sstacks
@@ -37,8 +37,8 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	rm -rf $(DAT)/logs/populations
 	mkdir -p $(DAT)/logs/populations
 	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK)
-	sed -i "s^\(od=\).*^\1$(POP)^g" $(POP-SRC);
-	sed -i "s/\(R=\).*/\10\.$(R)/g" $(POP-SRC);
+	sed -i "s^\(od=\).*^\1$(POP)^g" $(POP-SRC)
+	sed -i "s/\(R=\).*/\10\.$(R)/g" $(POP-SRC)
 	bsub -K <$(POP-SRC)
 	mv $(SSTACK)/batch* $(POP)
 

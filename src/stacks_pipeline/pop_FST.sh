@@ -13,7 +13,7 @@
 # Cyril Matthey-Doret
 # 24.04.2017
 
-od=data/populations/r-75
+od=./data/populations/r-75
 R=0.75
 
 module add UHTS/Analysis/stacks/1.30;

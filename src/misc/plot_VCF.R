@@ -4,12 +4,14 @@
 # 01.05.2017
 
 
-args = commandArgs(trailingOnly=TRUE)
-setwd(args[1])
+args = commandArgs(trailingOnly=TRUE)  
+# Changing working directory to source directory. Prevents inheriting wd of bash/makekfile
+# script if not directly running this script
+#setwd(args[1])
 
 plot_popstats <- function(sum_file,stats){
   # sum_file: path to the input summary file
-  # parameter to be plotted. Needs to be a colname
+  # stats: parameter to be plotted. Needs to be a colname
   sex_palette <- c('pink','blue')  # Color palette used to represent sex
   sum_table <- read.table(file=sum_file,sep='\t',header=T)  # reading input file
   sum_table$SEX <- sapply(sum_table$INDV,function(x) substr(x,8,8))  # Extracting sex info from sample name
@@ -42,6 +44,26 @@ plot_popstats <- function(sum_file,stats){
   }
 }
 
+plot_corr <- function(sum_file,stat1,stat2){
+  # sum_file: path to the input summary file
+  # stat1, stat2: parameters to be plotted. Needs to be colnames
+  sex_palette <- c('pink','blue')  # Color palette used to represent sex
+  sum_table <- read.table(file=sum_file,sep='\t',header=T)  # reading input file
+  sum_table$SEX <- sapply(sum_table$INDV,function(x) substr(x,8,8))  # Extracting sex info from sample name
+  sum_table$FAMILY <- sapply(sum_table$INDV,function(x) substr(x,4,4))  # Extracting family info from sample name
+  sum_table$INDV <- sapply(sum_table$INDV,function(x) substr(x,4,6))  # Shortening sample name
+  sum_table$PROP <- sum_table$O.HOM./ sum_table$E.HOM.
+  pl_row <- length(unique(sum_table$FAMILY)) / 2  # Plots spread over 2 rows
+  par(mfrow=c(2,pl_row))
+  for(f in unique(sum_table$FAMILY)){
+    subt <- sum_table[sum_table$FAMILY==f,]
+    corr <- format(cor.test(x = subt[,stat1],y = subt[,stat2],method = 'pearson')$estimate,digits = 2)
+    pv <- format(cor.test(x = subt[,stat1],y = subt[,stat2],method = 'pearson')$p.value,digits = 2)
+    plot(x = subt[,stat1],y = subt[,stat2],xlab='mean depth',ylab='F(IS)',
+            col =  sex_palette[as.factor(subt$SEX)],main=paste0(f,': cor= ',corr,'; p=',pv))
+  }
+}
+
 param_space <- seq(75,85,5)
 ref_table <- read.table(file="vcftools/summary_r-75",sep='\t',header=T)
 out_table <- matrix(nrow = length(param_space),ncol = 7)
@@ -49,6 +71,9 @@ out_table <- as.data.frame.array(out_table)
 colnames(out_table) <- c("R","O.HOM.","E.HOM.","N_SITES","F","MEAN_DEPTH","PROP")
 out_table$R <- param_space
 for(p in param_space){
+  pdf(paste0("vcftools/corr_depth_r-",p,".pdf"),width = 9)
+  plot_corr(paste0("vcftools/summary_r-",p),'MEAN_DEPTH','F')
+  dev.off()
   for(param in c("O.HOM.","E.HOM.","N_SITES","F","MEAN_DEPTH","PROP")){
     if(param %in% c('F','MEAN_DEPTH','PROP')){
       pdf(paste0("vcftools/",param,"_r-",p,".pdf"),width = 9)
@@ -64,4 +89,21 @@ out_table <- data.frame(lapply(out_table, function(y) if(is.numeric(y)) round(y,
 colnames(out_table) <- c("r parameter","obs.hom.","exp.hom.","n.sites","inbreed.coef.","mean depth","obs./exp. hom.")
 write.table(out_table,file='vcftools/vcf_sumtable.csv',col.names = T,quote = F,row.names = F,sep=',')
 system("cp vcftools/vcf_sumtable.csv vcftools/F_r-75.pdf ../../reports/lab_book/")
+
+# REMINDER: ctrl-shift-C in Rstudio to comment/uncomment multiple lines
+ # for(p in param_space){
+ #  pdf(paste0("vcftools/","full_corr_r-",p,".pdf"),width = 9)
+ #  sex_palette <- c('pink','blue')  # Color palette used to represent sex
+ #  sum_table <- read.table(file=paste0("vcftools/summary_r-",p),sep='\t',header=T)  # reading input file
+ #  sum_table$SEX <- sapply(sum_table$INDV,function(x) substr(x,8,8))  # Extracting sex info from sample name
+ #  sum_table$FAMILY <- sapply(sum_table$INDV,function(x) substr(x,4,4))  # Extracting family info from sample name
+ #  sum_table$INDV <- sapply(sum_table$INDV,function(x) substr(x,4,6))  # Shortening sample name
+ #  sum_table$PROP <- sum_table$O.HOM./ sum_table$E.HOM.
+ #  corr <- format(cor.test(x = sum_table[,'MEAN_DEPTH'],y = sum_table[,'F'],method = 'pearson')$estimate,digits = 2)
+ #  pv <- format(cor.test(x = sum_table[,'MEAN_DEPTH'],y = sum_table[,'F'],method = 'pearson')$p.value,digits = 2)
+ # 
+ #  plot(x = sum_table[,'MEAN_DEPTH'],y = sum_table[,'F'],xlab='mean depth',ylab='F(IS)',
+ #       col =  sex_palette[as.factor(sum_table$SEX)],main=paste0('cor= ',corr,'; p=',pv))
+ #  dev.off()
+ # }
 
