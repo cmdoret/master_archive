@@ -15,9 +15,10 @@
 
 od=./data/populations/r-75
 R=0.75
+D=5
 
 module add UHTS/Analysis/stacks/1.30;
 
-populations -P data/sstacks/ -M data/popmap -k -p 2 -m 5 -b 0 -r $R -f p_value -t 3 --verbose --fstats --bootstrap --vcf --max_obs_het 0.9
+populations -P data/sstacks/ -M data/popmap -k -p 2 -m $D -b 0 -r $R -f p_value -t 3 --verbose --fstats --bootstrap --vcf --max_obs_het 0.9
 
 module add UHTS/Analysis/stacks/1.30;

@@ -27,8 +27,8 @@ all : $(POP)
 #	bsub -K < $(C-SRC)
 
 # Running Sstacks
-$(SSTACK) : $(CSTACK)
-	bash $(S-SRC) $<
+#$(SSTACK) : $(CSTACK)
+#	bash $(S-SRC) $<
 
 # Running populations
 $(POP) : $(SSTACK) $(POP-SRC)
@@ -39,6 +39,7 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK)
 	sed -i "s^\(od=\).*^\1$(POP)^g" $(POP-SRC)
 	sed -i "s/\(R=\).*/\10\.$(R)/g" $(POP-SRC)
+	sed -i "s/\(D=\).*/\1$(D)/g" $(POP-SRC)
 	bsub -K <$(POP-SRC)
 	mv $(SSTACK)/batch* $(POP)
 
