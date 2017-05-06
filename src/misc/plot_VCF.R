@@ -7,7 +7,7 @@
 args = commandArgs(trailingOnly=TRUE)  
 # Changing working directory to source directory. Prevents inheriting wd of bash/makekfile
 # script if not directly running this script
-#setwd(args[1])
+setwd(args[1])
 
 plot_popstats <- function(sum_file,stats){
   # sum_file: path to the input summary file
