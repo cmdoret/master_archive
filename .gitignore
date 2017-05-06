@@ -3,6 +3,7 @@ background_literature/
 data/
 pictures/
 data
+src/misc/vcftools/
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
