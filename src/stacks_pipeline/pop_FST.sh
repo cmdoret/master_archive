@@ -5,7 +5,7 @@
 #BSUB -o data/logs/populations/POP_STDOUT.out
 #BSUB -M 20000000
 #BSUB -R "rusage[mem=20000]"
-#BSUB -n 3
+#BSUB -n 5
 #BSUB -R "span[ptile=3]"
 
 # This script uses the populations component from the STACKS suite to compute FST across the genome of individuals. 
@@ -19,6 +19,6 @@ D=5
 
 module add UHTS/Analysis/stacks/1.30;
 
-populations -P data/sstacks/ -M data/popmap -k -p 2 -m $D -b 0 -r $R -f p_value -t 3 --verbose --fstats --bootstrap --vcf --max_obs_het 0.9
+populations -P data/sstacks/ -M data/popmap -k -p 2 -m $D -b 0 -r $R -f p_value -t 5 --verbose --fstats --bootstrap --vcf --max_obs_het 0.9
 
 module add UHTS/Analysis/stacks/1.30;

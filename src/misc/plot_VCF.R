@@ -65,22 +65,22 @@ plot_corr <- function(sum_file,stat1,stat2){
 }
 
 param_space <- seq(75,85,5)
-ref_table <- read.table(file="vcftools/summary_r-75",sep='\t',header=T)
+ref_table <- read.table(file="vcftools/summary_d-5_r-75",sep='\t',header=T)
 out_table <- matrix(nrow = length(param_space),ncol = 7)
 out_table <- as.data.frame.array(out_table)
 colnames(out_table) <- c("R","O.HOM.","E.HOM.","N_SITES","F","MEAN_DEPTH","PROP")
 out_table$R <- param_space
 for(p in param_space){
-  pdf(paste0("vcftools/corr_depth_r-",p,".pdf"),width = 9)
-  plot_corr(paste0("vcftools/summary_r-",p),'MEAN_DEPTH','F')
+  pdf(paste0("vcftools/corr_depth_d-5_r-",p,".pdf"),width = 9)
+  plot_corr(paste0("vcftools/summary_d-5_r-",p),'MEAN_DEPTH','F')
   dev.off()
   for(param in c("O.HOM.","E.HOM.","N_SITES","F","MEAN_DEPTH","PROP")){
     if(param %in% c('F','MEAN_DEPTH','PROP')){
-      pdf(paste0("vcftools/",param,"_r-",p,".pdf"),width = 9)
-      plot_popstats(paste0("vcftools/summary_r-",p),param)
+      pdf(paste0("vcftools/",param,"_d-5_r-",p,".pdf"),width = 9)
+      plot_popstats(paste0("vcftools/summary_d-5_r-",p),param)
       dev.off()
     }
-    tmp_tbl <- read.table(paste0("vcftools/summary_r-",p),header = T,sep="\t")
+    tmp_tbl <- read.table(paste0("vcftools/summary_d-5_r-",p),header = T,sep="\t")
     tmp_tbl$PROP <- tmp_tbl$O.HOM./ tmp_tbl$E.HOM.
     out_table[out_table$R==p,param] <- mean(tmp_tbl[,param])
   }
@@ -88,13 +88,13 @@ for(p in param_space){
 out_table <- data.frame(lapply(out_table, function(y) if(is.numeric(y)) round(y, 2) else y))
 colnames(out_table) <- c("r parameter","obs.hom.","exp.hom.","n.sites","inbreed.coef.","mean depth","obs./exp. hom.")
 write.table(out_table,file='vcftools/vcf_sumtable.csv',col.names = T,quote = F,row.names = F,sep=',')
-system("cp vcftools/vcf_sumtable.csv vcftools/F_r-75.pdf ../../reports/lab_book/")
+system("cp vcftools/vcf_sumtable.csv vcftools/F_d-5_r-75.pdf ../../reports/lab_book/")
 
 # REMINDER: ctrl-shift-C in Rstudio to comment/uncomment multiple lines
  # for(p in param_space){
- #  pdf(paste0("vcftools/","full_corr_r-",p,".pdf"),width = 9)
+ #  pdf(paste0("vcftools/","full_corr_d-5_r-",p,".pdf"),width = 9)
  #  sex_palette <- c('pink','blue')  # Color palette used to represent sex
- #  sum_table <- read.table(file=paste0("vcftools/summary_r-",p),sep='\t',header=T)  # reading input file
+ #  sum_table <- read.table(file=paste0("vcftools/summary_d-5_r-",p),sep='\t',header=T)  # reading input file
  #  sum_table$SEX <- sapply(sum_table$INDV,function(x) substr(x,8,8))  # Extracting sex info from sample name
  #  sum_table$FAMILY <- sapply(sum_table$INDV,function(x) substr(x,4,4))  # Extracting family info from sample name
  #  sum_table$INDV <- sapply(sum_table$INDV,function(x) substr(x,4,6))  # Shortening sample name
@@ -106,4 +106,3 @@ system("cp vcftools/vcf_sumtable.csv vcftools/F_r-75.pdf ../../reports/lab_book/
  #       col =  sex_palette[as.factor(sum_table$SEX)],main=paste0('cor= ',corr,'; p=',pv))
  #  dev.off()
  # }
-

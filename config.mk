@@ -38,4 +38,4 @@ MAP=$(DAT)/mapped/$(ALG)-$(MM)-$(K)-$(W)
 PSTACK=$(DAT)/pstacks/covmin-$(M)
 CSTACK=$(DAT)/cstacks/mm-$(LM)
 SSTACK=$(DAT)/sstacks
-POP=$(DAT)/populations/r-$(R)
+POP=$(DAT)/populations/d-$(D)_r-$(R)
