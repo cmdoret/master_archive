@@ -33,6 +33,9 @@ D=25
 LAB=reports/lab_book
 MISC=src/misc
 
+# Ploidy: exclude haplomales
+VCFSUM=src/misc/vcftools/summary_d-$D_r-$(R)
+
 
 MAP=$(DAT)/mapped/$(ALG)-$(MM)-$(K)-$(W)
 PSTACK=$(DAT)/pstacks/covmin-$(M)
