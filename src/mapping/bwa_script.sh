@@ -35,7 +35,7 @@ mkdir -p $out_dir/bam
 
 date
 
-for sample in $(tail -n +2 $main_dir/data/F4_table.csv | awk -F, '{print $1"_"$2}') #this is a list of sample names (similar as the popmap file for Populations, but without reproductive mode)
+for sample in $(cut -f1 $main_dir/data/popmap) #this is a list of sample names (similar as the popmap file for Populations, but without reproductive mode)
 do 
         echo "\nprocessing sample $sample\n";
         #cp -v $data_dir/$sample* $sample.fq.gz

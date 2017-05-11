@@ -5,6 +5,7 @@ all : $(POP)
 
 # Running alignment with BWA
 $(MAP) : $(PROC)
+	rm -rf $@
 	mkdir -p $@
 	sed -i "s^\(main_dir=\).*^\1$(MAIN)^g" $(BWA-SRC)
 	sed -i "s/\(MM=\)[0-9]*/\1$(MM)/g" $(BWA-SRC)
@@ -32,8 +33,8 @@ $(SSTACK) : $(CSTACK)
 
 # Running populations
 $(POP) : $(SSTACK) $(POP-SRC)
-	rm -rf $(POP)
-	mkdir -p $(POP)
+	rm -rf $@
+	mkdir -p $@
 	rm -rf $(DAT)/logs/populations
 	mkdir -p $(DAT)/logs/populations
 	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK)
