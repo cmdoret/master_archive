@@ -6,14 +6,21 @@
 import pandas as pd
 from sys import argv
 
-vcf_sum = pd.read_csv(argv[1], sep='\t')
-motherfam = pd.read_csv("../../data/mother_fam.txt",sep='\t')
-fam_sum = pd.merge(vcf_sum, motherfam, how='outer', left_on="INDV", right_on="Parent",
-         left_index=False, right_index=False, sort=False,
-         copy=True, indicator=False)
-print(fam_sum)
 # 1: read data/mother_fam.txt to extract families of mothers
+vcf_sum = pd.read_csv(argv[1], sep='\t')
+# Using command line argument to load VCF file summary
+vcf_sum['Family'] = vcf_sum.INDV.str.slice(start=3,stop=4)
+# Extracting family from individual names (will only work on F4 individuals)
+motherfam = pd.read_csv("../../data/mother_fam.txt",sep='\t')
+
+#vcf_sum.loc[vcf_sum.INDV.isin(motherfam.Parent),'Family'] = mother_fam['Family']
+famm_sum = vcf_sum.merge(motherfam, left_on='INDV', right_on='Parent', how='outer')
+
+
 # 2: compute mean Fis of females in each family
+Fis_stat = fam_sum.groupby(['Family'])['F'].mean()
+print(Fis_mean)
 # 3: compute standard deviation of Fis in each family
+
 # 4: In each family: males with heterozygosity < meanF - NstdevF -> haploid
 # 5: output list of males with ploidy information
