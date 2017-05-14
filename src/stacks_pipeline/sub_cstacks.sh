@@ -14,12 +14,12 @@
 ## the mean number of reads across samples)
 # Cyril Matthey-Doret
 # 22.04.2017
-
+M=3
 wd=/scratch/beegfs/monthly/cmatthey/data ## the directory containing the pstacks files
 MM=1  # Mismatches allowed between samples when building loci
 declare -i n=0 tot=0  # n is the number of samples, tot will store total number of radtags
 
-for f in $wd/pstacks/covmin-4/*tags*;  # Iterating over all samples
+for f in $wd/pstacks/covmin-$M/*tags*;  # Iterating over all samples
 do
     tot+=$(zcat $f | wc -l);  # adding number of radtags to total
     n+=1;  # incrementing number of samples by one at each iteration
@@ -27,7 +27,7 @@ done;
 
 
 samp=""  # initiating list of "good" samples
-for i in $wd/pstacks/covmin-4/*tags*;  # Iterating over samples (again)
+for i in $wd/pstacks/covmin-$M/*tags*;  # Iterating over samples (again)
 do
     if [ "$(zcat $i | wc -l)" -gt $(($tot/($n*10))) ];
     then

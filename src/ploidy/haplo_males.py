@@ -13,13 +13,13 @@ vcf_sum['Family'] = vcf_sum.INDV.str.slice(start=3,stop=4)
 # Extracting family from individual names (will only work on F4 individuals)
 motherfam = pd.read_csv("../../data/mother_fam.txt",sep='\t')
 
-#vcf_sum.loc[vcf_sum.INDV.isin(motherfam.Parent),'Family'] = mother_fam['Family']
-famm_sum = vcf_sum.merge(motherfam, left_on='INDV', right_on='Parent', how='outer')
-
-
+# vcf_sum.loc[vcf_sum.INDV.isin(motherfam.Parent),'Family'] = mother_fam['Family']
+fam_sum = vcf_sum.merge(motherfam, left_on='INDV', right_on='Parent', how='outer')
+vcf_sum.merge(motherfam, left_on='INDV', right_on='Parent', how='left')
+pd.Series().isnull
 # 2: compute mean Fis of females in each family
 Fis_stat = fam_sum.groupby(['Family'])['F'].mean()
-print(Fis_mean)
+print(Fis_stat)
 # 3: compute standard deviation of Fis in each family
 
 # 4: In each family: males with heterozygosity < meanF - NstdevF -> haploid
