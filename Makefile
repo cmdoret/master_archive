@@ -20,16 +20,17 @@ all : $(POP)
 	
 
 # Running Cstacks
-$(CSTACK) : $(PSTACK)
-	rm -fr $@;
-	mkdir -p $@;
-	sed -i "s^\(wd=\).*^\1$(MAIN)/data^g" $(C-SRC)
-	sed -i "s/\(MM=\)[0-9]*/\1$(LM)/g" $(C-SRC)
-	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(C-SRC)
-	bsub -K < $(C-SRC)
+# $(CSTACK) : $(PSTACK)
+# 	rm -fr $@;
+# 	mkdir -p $@;
+# 	sed -i "s^\(wd=\).*^\1$(MAIN)/data^g" $(C-SRC)
+# 	sed -i "s/\(MM=\)[0-9]*/\1$(LM)/g" $(C-SRC)
+# 	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(C-SRC)
+# 	bsub -K < $(C-SRC)
 
 # Running Sstacks
 $(SSTACK) : $(CSTACK)
+	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(S-SRC)
 	bash $(S-SRC) $<
 
 # Running populations
@@ -65,6 +66,6 @@ clean :
 	rm -rf bsub_scripts
 
 #.PHONY : ploidy
-#ploidy:
-#	bash $(MISC)/parse_VCF.sh
-#	python src/ploidy/haplo_males.py $(VCFSUM)
+ploidy:
+	bash $(MISC)/parse_VCF.sh
+	python src/ploidy/haplo_males.py $(VCFSUM)

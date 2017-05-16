@@ -14,9 +14,8 @@ plot_popstats <- function(sum_file,stats){
   # stats: parameter to be plotted. Needs to be a colname
   sex_palette <- c('pink','blue')  # Color palette used to represent sex
   sum_table <- read.table(file=sum_file,sep='\t',header=T)  # reading input file
-  sum_table$SEX <- sapply(sum_table$INDV,function(x) substr(x,8,8))  # Extracting sex info from sample name
-  sum_table$FAMILY <- sapply(sum_table$INDV,function(x) substr(x,4,4))  # Extracting family info from sample name
-  sum_table$INDV <- sapply(sum_table$INDV,function(x) substr(x,4,6))  # Shortening sample name
+  sum_table <- merge(x = sum_table, y = fam_table, by.x='INDV',by.y='Name',all=F)  # Extracting infos from family table
+  colnames(sum_table)[c(7,8)] <- c("SEX","FAMILY")
   if(stats=='PROP'){
    sum_table$PROP <- sum_table$O.HOM./ sum_table$E.HOM.
   }
@@ -49,9 +48,8 @@ plot_corr <- function(sum_file,stat1,stat2){
   # stat1, stat2: parameters to be plotted. Needs to be colnames
   sex_palette <- c('pink','blue')  # Color palette used to represent sex
   sum_table <- read.table(file=sum_file,sep='\t',header=T)  # reading input file
-  sum_table$SEX <- sapply(sum_table$INDV,function(x) substr(x,8,8))  # Extracting sex info from sample name
-  sum_table$FAMILY <- sapply(sum_table$INDV,function(x) substr(x,4,4))  # Extracting family info from sample name
-  sum_table$INDV <- sapply(sum_table$INDV,function(x) substr(x,4,6))  # Shortening sample name
+  sum_table <- merge(x = sum_table, y = fam_table, by.x='INDV',by.y='Name',all=F)  # Extracting infos from family table
+  colnames(sum_table)[c(7,8)] <- c("SEX","FAMILY")
   sum_table$PROP <- sum_table$O.HOM./ sum_table$E.HOM.
   pl_row <- length(unique(sum_table$FAMILY)) / 2  # Plots spread over 2 rows
   par(mfrow=c(2,pl_row))
@@ -66,6 +64,7 @@ plot_corr <- function(sum_file,stat1,stat2){
 
 param_space <- seq(75,85,5)
 ref_table <- read.table(file="vcftools/summary_d-5_r-75",sep='\t',header=T)
+fam_table <- read.table(file='../../data/individuals',sep="\t", header=T)
 out_table <- matrix(nrow = length(param_space),ncol = 7)
 out_table <- as.data.frame.array(out_table)
 colnames(out_table) <- c("R","O.HOM.","E.HOM.","N_SITES","F","MEAN_DEPTH","PROP")
