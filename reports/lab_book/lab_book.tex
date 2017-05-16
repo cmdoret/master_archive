@@ -267,13 +267,19 @@ plotting the inbreeding coefficient per individual with r=75 yields:
 	\end{center}
 \end{figure}
 
-When trying to increase the minimum depth required to 20, the populations module kept crashing. Looking into the log file revealed that the crash always occured when computed the Kernel-smoothed F statistics on the following contig: \\
->tig00002906 len=9740 reads=14 covStat=12.75 gappedBases=no class=contig suggestRepeat=no suggestCircular=no
+When increasing the minimum depth above ~15, populations crashed. Disabling bootsrapping and kernel smoothing fixed the issue. Guess: May be caused by a contig smaller than the sliding window size during kernel smoothing. This could be the case if the sliding window has a min number of loci, in which case increasing minimum depth would cause the window to enlarge.
+
+\section{Excluding haploids}
+
+I used the F statistics (coefficient of inbreeding) given by the STACKS populations module to measure homozygosity levels in each individual. The F statistics used were generated with more stringent parameters (min depth: 25) to call ploidy more confidently.
+
+First, I calculated the Mean and standard deviation of the inbreeding coefficient among females in each family. I then classified males with:
+ $F > \mu + 2\sigma $
 
 
 \section{TO DO}
 \begin{itemize}
-\item Check if there is a correlation between coverage depth and homozygosity. If so, this is bad news: alleles from heterozygous loci could be dropped because of low coverage, causing them to becom homozygous.
+\item Check if there is a correlation between coverage depth and homozygosity. If so, this is bad news: alleles from heterozygous loci could be dropped because of low coverage, causing them to become homozygous.
 \item Use FIS of females to define haploid/diploid males with very stringent settings (few loci). And rerun analysis with less stringent parameters once we know which are haplo/diploid. 
 \item Validate haploid definition using haplotypes deduced from linkage map.
 \end{itemize}
