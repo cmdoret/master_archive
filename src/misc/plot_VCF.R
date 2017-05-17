@@ -12,7 +12,7 @@ setwd(args[1])
 plot_popstats <- function(sum_file,stats){
   # sum_file: path to the input summary file
   # stats: parameter to be plotted. Needs to be a colname
-  sex_palette <- c('pink','blue')  # Color palette used to represent sex
+  sex_palette <- c('pink','blue','red')  # Color palette used to represent sex
   sum_table <- read.table(file=sum_file,sep='\t',header=T)  # reading input file
   sum_table <- merge(x = sum_table, y = fam_table, by.x='INDV',by.y='Name',all=F)  # Extracting infos from family table
   colnames(sum_table)[c(7,8)] <- c("SEX","FAMILY")
@@ -24,11 +24,13 @@ plot_popstats <- function(sum_file,stats){
   sum_table <- sum_table[with(sum_table, order(FAMILY,sum_table[,stats])), ]
   for(f in unique(sum_table$FAMILY)){
     subt <- sum_table[sum_table$FAMILY==f,]
+    MF <- mean(subt[subt$SEX=='F',stats]); SF <- sd(subt[subt$SEX=='F',stats])
+    MM <- mean(subt[subt$SEX=='M',stats]); SM <- sd(subt[subt$SEX=='M',stats])
+    subt$SEX <- as.character(subt$SEX)
+    subt[subt$INDV %in% generations$Name,'SEX'] <- 'T'
     barplot(height = subt[,stats],
             names.arg = subt$INDV,
             col =  sex_palette[as.factor(subt$SEX)],main=f)
-    MF <- mean(subt[subt$SEX=='F',stats]); SF <- sd(subt[subt$SEX=='F',stats])
-    MM <- mean(subt[subt$SEX=='M',stats]); SM <- sd(subt[subt$SEX=='M',stats])
     abline(h = MF,col="pink")
     # abline(h = MF-SF,col="pink");abline(h = MF+SF,col="pink",lty=2)
     abline(h = MM,col="blue")
@@ -62,24 +64,26 @@ plot_corr <- function(sum_file,stat1,stat2){
   }
 }
 
-param_space <- seq(75,85,5)
-ref_table <- read.table(file="vcftools/summary_d-5_r-75",sep='\t',header=T)
+#param_space <- seq(75,85,5)
+param_space <- 75
+ref_table <- read.table(file="vcftools/summary_d-25_r-75",sep='\t',header=T)
 fam_table <- read.table(file='../../data/individuals',sep="\t", header=T)
+generations <- fam_table[fam_table$Generation=='F3',]
 out_table <- matrix(nrow = length(param_space),ncol = 7)
 out_table <- as.data.frame.array(out_table)
 colnames(out_table) <- c("R","O.HOM.","E.HOM.","N_SITES","F","MEAN_DEPTH","PROP")
 out_table$R <- param_space
 for(p in param_space){
-  pdf(paste0("vcftools/corr_depth_d-5_r-",p,".pdf"),width = 9)
-  plot_corr(paste0("vcftools/summary_d-5_r-",p),'MEAN_DEPTH','F')
+  pdf(paste0("vcftools/corr_depth_d-25_r-",p,".pdf"),width = 9)
+  plot_corr(paste0("vcftools/summary_d-25_r-",p),'MEAN_DEPTH','F')
   dev.off()
   for(param in c("O.HOM.","E.HOM.","N_SITES","F","MEAN_DEPTH","PROP")){
     if(param %in% c('F','MEAN_DEPTH','PROP')){
-      pdf(paste0("vcftools/",param,"_d-5_r-",p,".pdf"),width = 9)
-      plot_popstats(paste0("vcftools/summary_d-5_r-",p),param)
+      pdf(paste0("vcftools/",param,"_d-25_r-",p,".pdf"),width = 9)
+      plot_popstats(paste0("vcftools/summary_d-25_r-",p),param)
       dev.off()
     }
-    tmp_tbl <- read.table(paste0("vcftools/summary_d-5_r-",p),header = T,sep="\t")
+    tmp_tbl <- read.table(paste0("vcftools/summary_d-25_r-",p),header = T,sep="\t")
     tmp_tbl$PROP <- tmp_tbl$O.HOM./ tmp_tbl$E.HOM.
     out_table[out_table$R==p,param] <- mean(tmp_tbl[,param])
   }
@@ -87,7 +91,7 @@ for(p in param_space){
 out_table <- data.frame(lapply(out_table, function(y) if(is.numeric(y)) round(y, 2) else y))
 colnames(out_table) <- c("r parameter","obs.hom.","exp.hom.","n.sites","inbreed.coef.","mean depth","obs./exp. hom.")
 write.table(out_table,file='vcftools/vcf_sumtable.csv',col.names = T,quote = F,row.names = F,sep=',')
-system("cp vcftools/vcf_sumtable.csv vcftools/F_d-5_r-75.pdf ../../reports/lab_book/")
+system("cp vcftools/vcf_sumtable.csv vcftools/F_d-25_r-75.pdf ../../reports/lab_book/")
 
 # REMINDER: ctrl-shift-C in Rstudio to comment/uncomment multiple lines
  # for(p in param_space){
