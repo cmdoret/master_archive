@@ -98,3 +98,9 @@ Once the `data.tar.gz` has been uncompressed, the data folder should contain the
 * `popmap`: Population map required by STACKS to match sample names to population group (i.e. male and female).
 
 After the pipeline has been running, all intermediary and final output files will be generated and stored in their respective sub-folders inside `data`.
+
+### Flowchart
+
+Here is a visual summary of how the pipeline works. Rectangles represent operations/programs, diamonds represent data. Unlike blue ones, red rectangles are not implemented here. This is still WIP.
+
+![Pipeline overview](reports/lab_book/flowchart.png){height="555px":width="1230px"}
