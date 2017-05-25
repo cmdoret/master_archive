@@ -17,13 +17,19 @@ To run the pipeline:
 
 ### Status:
 
-* <span style="color:green">_DONE:_ </span> Quality control and Processing of RAD-seq data
-* <span style="color:green"> _DONE:_ </span> Transformation of data into catalogue of loci
-* <span style="color:green"> _DONE:_ </span> Measuring heterozygosity levels and other statistics per individual and per loci
-* <span style="color:orange"> _WIP:_ </span>Excluding haploid males from the analysis.
-* <span style="color:red"> _TODO:_ </span> Perform association mapping to locate candidate region(s) for CSD
-* <span style="color:red"> _TODO:_ </span> Look for annotated genes in candidate region(s)
-* <span style="color:red"> _TODO:_ </span> Look for homologies to identify potential paralogs and orthologs
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Quality control and Processing of RAD-seq data
+
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Transformation of data into catalogue of loci
+
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Measuring heterozygosity levels and other statistics per individual and per loci
+
+![](https://placehold.it/15/ffff00/000000?text=+) __WIP:__ Excluding haploid males from the analysis.
+
+![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Perform association mapping to locate candidate region(s) for CSD
+
+![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Look for annotated genes in candidate region(s)
+
+![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Look for homologies to identify potential paralogs and orthologs
 
 ### Dependencies:
 * [FastQC 0.11.5](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
