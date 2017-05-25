@@ -103,4 +103,4 @@ After the pipeline has been running, all intermediary and final output files wil
 
 Here is a visual summary of how the pipeline works. Rectangles represent operations/programs, diamonds represent data. Unlike blue ones, red rectangles are not implemented here. This is still WIP.
 
-![Pipeline overview](reports/lab_book/flowchart.png){height="555px":width="1230px"}
+<img src="reports/lab_book/flowchart.png" width="400">

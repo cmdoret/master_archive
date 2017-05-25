@@ -21,7 +21,7 @@ src/misc/vcftools/
 #Personal additions
 *.jpg
 *.jpeg
-*.png
+#*.png
 #*.docx
 #*.xlsx
 #*.tex
