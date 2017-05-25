@@ -67,5 +67,6 @@ clean :
 
 #.PHONY : ploidy
 ploidy:
+	mkdir -p $(DAT)/ploidy
 	bash $(MISC)/parse_VCF.sh
 	python src/ploidy/haplo_males.py $(VCFSUM)
