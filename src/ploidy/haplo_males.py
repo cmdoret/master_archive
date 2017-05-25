@@ -27,6 +27,7 @@ haplo = males.apply(lambda g:
                       g[g['F'] >= (Fis_ref.loc[g.name,'MEAN'] +
                                    2*Fis_ref.loc[g.name,'STD'])])
 
+
 # 4: output list of males with ploidy information
 out_haplo = fam_sum.loc[fam_sum.Sex == 'M',['Name','Family']]
 out_haplo = out_haplo.merge(haplo,on='Name',how='inner')[['Name','Family_x']]

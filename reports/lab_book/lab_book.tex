@@ -5,6 +5,7 @@
  \usepackage{amssymb}
  \usepackage{graphicx}
 \usepackage{csvsimple}
+\usepackage{placeins}
 \usepackage{array,booktabs}
  \usepackage[colorlinks=true,urlcolor=cyan]{hyperref}
  \usepackage{listings} %code highlighting
@@ -263,18 +264,42 @@ plotting the inbreeding coefficient per individual with r=75 yields:
 	\begin{center}
 		\hspace*{-1.5in}
 		\includegraphics[width=1.55\textwidth]{F_d-25_r-75}
-		\caption{Inbreeding coefficient (F). Each plot is a family, each bar is an individual. Blue bars represent males, and pink ones represent females. color bars on the y axis span the mean +- standard deviation of males and females, respectively.}
+		\caption{Inbreeding coefficient (F). Each plot is a family, each bar is an individual. Blue bars represent males and pink ones represent females and red ones are mothers. color bars on the y axis span the mean +- standard deviation of males and females, respectively. In theory, mothers should have the lowest inbreeding coefficient of their family (highest heterozygosity)}
 	\end{center}
 \end{figure}
 
 When increasing the minimum depth above ~15, populations crashed. Disabling bootsrapping and kernel smoothing fixed the issue. Guess: May be caused by a contig smaller than the sliding window size during kernel smoothing. This could be the case if the sliding window has a min number of loci, in which case increasing minimum depth would cause the window to enlarge.
 
+I tested for correlations between Mean depth of loci and homozygosity in all individuals and per family, no significant correlation was found. This means there should not be significant allele excludion caused by too stringent min depth (i.e. stacks removed because of low coverage, resulting in homozygous loci).
+
+\section{STACKS parameters summary}
+\begin{table}[h!]
+\begin{tabular}{c|c}
+process radtags & Mis:2\\
+bwa & Mis:4\\
+Pstacks & MinDep:3\\
+Cstacks & LocMis:1\\
+Sstacks & -\\
+populations & IndProp:0.75, MinDep:5(25)*, MaxHet:0.9\\
+\vspace{5px}
+\end{tabular}
+\\
+ \footnotesize * Stringent MinDepth value used to exclude haploid males. The smaller value is used for downstream analyses to keep more loci.
+\end{table}
+
+\FloatBarrier
+
 \section{Excluding haploids}
 
 I used the F statistics (coefficient of inbreeding) given by the STACKS populations module to measure homozygosity levels in each individual. The F statistics used were generated with more stringent parameters (min depth: 25) to call ploidy more confidently.
 
-First, I calculated the Mean and standard deviation of the inbreeding coefficient among females in each family. I then classified males with:
- $F > \mu + 2\sigma $
+First, I calculated the Mean $\mu$ and standard deviation $\sigma$ of the inbreeding coefficient $F$ among females in each family. I then classified males with:
+\\
+\begin{center}
+ $F > \mu + 2\sigma $  \\
+\end{center}
+
+ as haploid. This is stringent threshold should exclude all haploid males, but it can also potentially exclude diploid males from the analysis.
 
 
 \section{TO DO}
