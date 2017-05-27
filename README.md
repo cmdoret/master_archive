@@ -32,18 +32,17 @@ To run the pipeline:
 ![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Look for homologies to identify potential paralogs and orthologs
 
 ### Dependencies:
-* [FastQC 0.11.5](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
-* [BWA 0.7.2](http://bio-bwa.sourceforge.net/)
-* [STACKS 1.30](http://catchenlab.life.illinois.edu/stacks/)
-* [SAMtools 1.3](http://samtools.sourceforge.net/)
-* [VCFtools 0.1.13](https://vcftools.github.io/)
+* [FastQC 0.11.5](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/): Quality control of sequencing data.
+* [BWA 0.7.2](http://bio-bwa.sourceforge.net/): Aligning sequencing reads
+* [STACKS 1.30](http://catchenlab.life.illinois.edu/stacks/): RAD-seq data processing
+* [SAMtools 1.3](http://samtools.sourceforge.net/): Manipulating SAM files
+* [VCFtools 0.1.13](https://vcftools.github.io/): Parsing VCF files
 * [R 3.3.x](https://www.r-project.org/)
-  + [dplyr 0.5.0](https://cran.r-project.org/web/packages/dplyr/README.html)
-  + [ggplot2 2.2.1](http://ggplot2.org/)
+  + [tidyverse 1.1.1](http://tidyverse.org/): Bundle of pacakges for data analysis (includes dplyr, ggplot2,tibble, stringr, magittr and tidyr among others)
 * [Python 2.7.x](https://www.python.org/)
-  + [numpy 1.11](http://www.numpy.org/)
-  + [pandas 0.19](http://pandas.pydata.org/)
-  + [matplotlib 1.5](https://matplotlib.org/)
+  + [numpy 1.11](http://www.numpy.org/): Fast array and vectorized operations
+  + [pandas 0.19](http://pandas.pydata.org/): Convenient dataframes
+  + [matplotlib 1.5](https://matplotlib.org/): Plotting methods
 
 ### Scripts
 
@@ -82,6 +81,7 @@ The `src` folders contains all scripts required to run the analysis along with o
 
 * `ploidy`: This folder contains scripts required to classify males as diploid or haploid based on the genomic data.
   + `haplo_males.py`: Uses the inbreeding coefficient of daughters in each family to compute a homozygosity threshold in each family and males above this threshold are considered haploid. The implementation is flexible and allows to change the threshold formula easily. A table is then returned with the inferred ploidy of each individual.
+  + `comp_thresh.R`: Plots the ploidy inferred by different threshold, using tables produces by `haplo_males.py`. Allows to visually selevt the most realistic threshold formula.
 
 
 * `assoc_mapping`: This folder contains scripts used to locate candidate CSD region(s).

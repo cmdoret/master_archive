@@ -67,6 +67,8 @@ clean :
 
 #.PHONY : ploidy
 ploidy:
-	mkdir -p $(DAT)/ploidy
+	mkdir -p $(DAT)/ploidy/thresholds
 	bash $(MISC)/parse_VCF.sh
 	python src/ploidy/haplo_males.py $(VCFSUM)
+	mkdir -p data/ploidy/plots
+	Rscript src/ploidy/comp_thresh.R data/ploidy//thresholds/

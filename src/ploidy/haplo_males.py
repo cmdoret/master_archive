@@ -52,8 +52,10 @@ def ploidy(indiv,mult=1,transf=None):
                                     mult * Fis_ref.loc[g.name,'STD'])])
 
     # Appending new column to family table with ploidy information
+    # New 'ploidy' column is created in 'indiv' table, and names that are found
+    # in the 'haplo' table are considered as haploid, other are diploid
     indiv['Ploidy'] = np.where(indiv.Name.isin(haplo.Name),
-                                             'D','H')
+                                             'H','D')
     return fam_sum
 
 # 1: read individuals table to extract families of mothers
@@ -76,10 +78,11 @@ benchmark_set = {'mult':list(range(1,5)),
 
 for m in benchmark_set['mult']:  # Looping over all combination of param values
     out_m = ploidy(fam_sum,mult=m)  # Without transformation
-    out_m.to_csv('data/ploidy/m' + str(m), sep='\t')
+    out_m.to_csv('data/ploidy/thresholds/m' + str(m), sep='\t', index=False)
     for t in benchmark_set['transf']:
         out_m_t = ploidy(fam_sum,mult=m,transf=t[0])  # With transformation
-        out_m_t.to_csv('data/ploidy/m' + str(m) + t[1], sep='\t')
+        out_m_t.to_csv('data/ploidy/thresholds/m' + str(m) + t[1], sep='\t',
+        index=False)
 
 #out_haplo = fam_sum.loc[fam_sum.Sex == 'M',['Name','Family']]
 #out_haplo = out_haplo.merge(haplo,on='Name',how='inner')[['Name','Family_x']]
