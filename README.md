@@ -38,7 +38,7 @@ To run the pipeline:
 * [SAMtools 1.3](http://samtools.sourceforge.net/): Manipulating SAM files
 * [VCFtools 0.1.13](https://vcftools.github.io/): Parsing VCF files
 * [R 3.3.x](https://www.r-project.org/)
-  + [tidyverse 1.1.1](http://tidyverse.org/): Bundle of pacakges for data analysis (includes dplyr, ggplot2,tibble, stringr, magittr and tidyr among others)
+  + [tidyverse 1.1.1](http://tidyverse.org/): Group of packages for data processing  (includes dplyr, ggplot2,tibble, stringr, magittr and tidyr among others)
 * [Python 2.7.x](https://www.python.org/)
   + [numpy 1.11](http://www.numpy.org/): Fast array and vectorized operations
   + [pandas 0.19](http://pandas.pydata.org/): Convenient dataframes
