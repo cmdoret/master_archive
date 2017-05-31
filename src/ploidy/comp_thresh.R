@@ -39,7 +39,10 @@ ploidy_plot <- function(ploid_tbl,thresh){
   dev.off()  # Closing connection
 }
 
-#haplo_prop <- tibble(param = N)
+haplo_prop <- tibble(threshold = numeric(0),
+                     Daughters = numeric(0),
+                     Mothers = numeric(0)
+                     )
 for(in_file in list.files(in_folder)){  # Iterating over input lists
   in_data <- read_tsv(paste0(in_folder,in_file),col_names = T)  # Reading files sequentially
   

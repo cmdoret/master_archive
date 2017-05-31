@@ -101,6 +101,14 @@ In the case we use the backtrack (aln) algorithm instead of MEM, the only parame
 
 Note: I did not include parameters that are not relevant to sensitivity (e.g. threads) or parameters that involve scoring (changing these naively would probably have a negative impact). Full list of parameters is on the \href{http://bio-bwa.sourceforge.net/bwa.shtml}{official bwa website}
 
+Note2: About multiple hits and BWA-mem: 
+
+(https://github.com/lh3/bwa)
+
+####2. Why does a read appear multiple times in the output SAM?
+
+BWA-SW and BWA-MEM perform local alignments. If there is a translocation, a gene fusion or a long deletion, a read bridging the break point may have two hits, occupying two lines in the SAM output. With the default setting of BWA-MEM, one and only one line is primary and is soft clipped; other lines are tagged with 0x800 SAM flag (supplementary alignment) and are hard clipped.
+
 
 \subsection{Bowtie2}
 General commands: 

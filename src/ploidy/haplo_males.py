@@ -37,6 +37,8 @@ def ploidy(indiv,mult=1,transf=None):
     Fis_ref = pd.DataFrame({'MEAN':daughters.groupby(['Family'])['F'].mean(),
                              'STD':daughters.groupby(['Family'])['F'].std()})
 
+    Fis_ref = Fis_ref.fillna(0)
+
     # Subsetting males and grouping by family
     males = indiv[indiv.Sex == 'M'].groupby(['Family'])
 
