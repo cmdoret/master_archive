@@ -36,9 +36,14 @@ MISC=src/misc
 # Ploidy: exclude haplomales
 VCFSUM=src/misc/vcftools/summary_d-$D_r-$(R)
 
+# Association mapping:
+ASSOC-SRC=src/assoc_mapping/assoc_map.R
+VCFPED=src/assoc_mapping/vcf2ped.sh
+
 
 MAP=$(DAT)/mapped/$(ALG)-$(MM)-$(K)-$(W)
 PSTACK=$(DAT)/pstacks/covmin-$(M)
 CSTACK=$(DAT)/cstacks/mm-$(LM)
 SSTACK=$(DAT)/sstacks
 POP=$(DAT)/populations/d-$(D)_r-$(R)
+ASSOC=$(DAT)/assoc_mapping

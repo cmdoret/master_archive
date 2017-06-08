@@ -105,7 +105,7 @@ Note2: About multiple hits and BWA-mem:
 
 (https://github.com/lh3/bwa)
 
-####2. Why does a read appear multiple times in the output SAM?
+2. Why does a read appear multiple times in the output SAM?
 
 BWA-SW and BWA-MEM perform local alignments. If there is a translocation, a gene fusion or a long deletion, a read bridging the break point may have two hits, occupying two lines in the SAM output. With the default setting of BWA-MEM, one and only one line is primary and is soft clipped; other lines are tagged with 0x800 SAM flag (supplementary alignment) and are hard clipped.
 
@@ -301,7 +301,7 @@ populations & IndProp:0.75, MinDep:5(25)*, MaxHet:0.9\\
 
 I used the F statistics (coefficient of inbreeding) given by the STACKS populations module to measure homozygosity levels in each individual. The F statistics used were generated with more stringent parameters (min depth: 25) to call ploidy more confidently.
 
-First, I calculated the Mean $\mu$ and standard deviation $\sigma$ of the inbreeding coefficient $F$ among females in each family. I then classified males with:
+First, I calculated the Mean $\mu$ and standard deviation $\sigma$ of the inbreeding coefficient $F$ among daughters in each family. I then classified males with:
 \\
 \begin{center}
  $F > \mu + 2\sigma $  \\
@@ -309,12 +309,18 @@ First, I calculated the Mean $\mu$ and standard deviation $\sigma$ of the inbree
 
  as haploid. This is stringent threshold should exclude all haploid males, but it can also potentially exclude diploid males from the analysis.
 
+Update: 08.06.2017
+
+I tried different thresholds for excluding haploids. The thresholds were computed according to these rules:
+1: All thresholds follow the formula $\mu + \tau(N\sigma)$ with $1 \leq N \leq 4$
 
 \section{TO DO}
 \begin{itemize}
 \item Check if there is a correlation between coverage depth and homozygosity. If so, this is bad news: alleles from heterozygous loci could be dropped because of low coverage, causing them to become homozygous.
 \item Use FIS of females to define haploid/diploid males with very stringent settings (few loci). And rerun analysis with less stringent parameters once we know which are haplo/diploid. 
 \item Validate haploid definition using haplotypes deduced from linkage map.
+\item convert VCF file into PED format using vcftools
+\item import data into genABEL and perform association mapping
 \end{itemize}
 
 \end{document} 

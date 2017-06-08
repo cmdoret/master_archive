@@ -57,6 +57,15 @@ lab_book : $(LAB) $(MISC)
 	texi2pdf -b $(LAB)/lab_book.tex -c
 	mv lab_book.pdf $(LAB)
 
+# Association mapping
+# 1: convert vcf to ped
+# 2: import data in genABEL for GWAS
+$(ASSOC) : $(POP) $(DAT)/haploid_males
+	mkdir -p $(ASSOC)
+	bash $(VCFPED) $(POP)/*.vcf
+	Rscript $(ASSOC-SRC)
+
+	
 .PHONY : clean
 clean :
 	rm -f *STDERR*
@@ -65,10 +74,10 @@ clean :
 	rm -rf bam
 	rm -rf bsub_scripts
 
-#.PHONY : ploidy
+.PHONY : ploidy
 ploidy:
 	mkdir -p $(DAT)/ploidy/thresholds
 	bash $(MISC)/parse_VCF.sh
 	python src/ploidy/haplo_males.py $(VCFSUM)
 	mkdir -p data/ploidy/plots
-	Rscript src/ploidy/comp_thresh.R data/ploidy//thresholds/
+	Rscript src/ploidy/comp_thresh.R data/ploidy/thresholds/
