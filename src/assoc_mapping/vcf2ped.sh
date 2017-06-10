@@ -1,4 +1,4 @@
-§# This scripts converts the VCF file containing all individuals to ped format.
+# This scripts converts the VCF file containing all individuals to ped format.
 # Takes a vcf file as input.
 # Cyril Matthey-Doret
 # 08.06.2017

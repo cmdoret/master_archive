@@ -49,7 +49,7 @@ $(POP) : $(SSTACK) $(POP-SRC)
 .PHONY : lab_book
 lab_book : $(LAB) $(MISC)
 	rm  -f $(LAB)/*.log $(LAB)/*.synctex* $(LAB)/*.aux $(LAB)/*.out
-	python $(MISC)/map_param.py
+	python2 $(MISC)/map_param.py
 	bash $(MISC)/parse_pstacks.sh
 	bash $(MISC)/parse_cstacks.sh
 	bash $(MISC)/parse_VCF.sh
@@ -78,6 +78,6 @@ clean :
 ploidy:
 	mkdir -p $(DAT)/ploidy/thresholds
 	bash $(MISC)/parse_VCF.sh
-	python src/ploidy/haplo_males.py $(VCFSUM)
+	python2 src/ploidy/haplo_males.py $(VCFSUM)
 	mkdir -p data/ploidy/plots
 	Rscript src/ploidy/comp_thresh.R data/ploidy/thresholds/
