@@ -46,17 +46,6 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	bsub -K <$(POP-SRC)
 	mv $(SSTACK)/batch* $(POP)
 
-.PHONY : lab_book
-lab_book : $(LAB) $(MISC)
-	rm  -f $(LAB)/*.log $(LAB)/*.synctex* $(LAB)/*.aux $(LAB)/*.out
-	python2 $(MISC)/map_param.py
-	bash $(MISC)/parse_pstacks.sh
-	bash $(MISC)/parse_cstacks.sh
-	bash $(MISC)/parse_VCF.sh
-	Rscript $(MISC)/plot_VCF.R $(MISC)
-	texi2pdf -b $(LAB)/lab_book.tex -c
-	mv lab_book.pdf $(LAB)
-
 # Association mapping
 # 1: convert vcf to ped
 # 2: import data in genABEL for GWAS
@@ -64,8 +53,26 @@ $(ASSOC) : $(POP) $(DAT)/haploid_males
 	mkdir -p $(ASSOC)
 	bash $(VCFPED) $(POP)/*.vcf
 	Rscript $(ASSOC-SRC)
-
 	
+
+# Rule for building lab book figures, tables and compiling Latex script
+# Needs the all main steps to be run first
+.PHONY : lab_book
+lab_book : $(LAB) $(MISC)
+	rm  -f $(LAB)/*.log $(LAB)/*.synctex* $(LAB)/*.aux $(LAB)/*.out
+	Rscript src/misc/assembly_stats.R $(REF)
+	python2 $(MISC)/map_param.py
+	bash $(MISC)/parse_pstacks.sh
+	bash $(MISC)/parse_cstacks.sh
+	bash $(MISC)/parse_VCF.sh
+	Rscript $(MISC)/plot_VCF.R $(MISC)
+	mkdir -p reports/lab_book/assoc_explo
+	for t in data/ploidy/thresholds/*; do python2 src/misc/explo_assoc.py $(POP)/*haplotypes.tsv $$t;done
+	texi2pdf -b $(LAB)/lab_book.tex -c
+	mv lab_book.pdf $(LAB)
+
+
+# When it gets too messy
 .PHONY : clean
 clean :
 	rm -f *STDERR*
@@ -74,6 +81,9 @@ clean :
 	rm -rf bam
 	rm -rf bsub_scripts
 
+
+# This rule is used to split haploid and diploid males.
+# This has already been done under stringent parameters (d=25)
 .PHONY : ploidy
 ploidy:
 	mkdir -p $(DAT)/ploidy/thresholds

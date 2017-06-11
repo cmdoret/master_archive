@@ -32,9 +32,11 @@ D=25
 # Misc: report generation
 LAB=reports/lab_book
 MISC=src/misc
+REF=data/ref_genome/canu2_low_corrRE.contigs.fasta
 
 # Ploidy: exclude haplomales
 VCFSUM=src/misc/vcftools/summary_d-$D_r-$(R)
+THRESH=data/ploidy/thresholds/m2
 
 # Association mapping:
 ASSOC-SRC=src/assoc_mapping/assoc_map.R
