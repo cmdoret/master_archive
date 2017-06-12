@@ -477,14 +477,14 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35355339"
-     inkscape:cx="30.311184"
-     inkscape:cy="541.62818"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="224.39102"
+     inkscape:cy="216.53847"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1920"
-     inkscape:window-height="1009"
+     inkscape:window-height="993"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -503,7 +503,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -959,7 +959,7 @@
            height="59.598999"
            width="370.72598"
            id="rect5394" /></flowRegion><flowPara
-         id="flowPara5396">TASSEL/?</flowPara></flowRoot>    <path
+         id="flowPara5396">GenABEL</flowPara></flowRoot>    <path
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path5398"

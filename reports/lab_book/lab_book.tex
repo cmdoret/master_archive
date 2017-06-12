@@ -14,7 +14,9 @@
  \title{\textbf{Master Project}\\ Lab book}
  \maketitle
  \chapter{Introduction}
-Lysiphlebus fabarum wasp specimens issued from thelytokous mothers are used. These individuals come from crossing experiments in a strongly inbred line. They have a highly homozygous background, but females must be heterozygous at the CSD locus/loci. Here, we use RAD-seq with a custom pipeline to locate the locus/loci. Samples were single-end sequenced using a ddRAD protocole and digested with ecoRI and mseI. There are 2 separate libraries with two different illumina adaptors (6 and 12).
+
+The goal of this project is to identify the locus or loci responsible for sex determination in the parasitoid wasp \textit{Lysiphlebus fabarum}. The species is known to have CSD, which means there are one or more loci that need to be heterozygous in order to triggger female development. I will use the offspring of asexual (thelytokous) females to identify these loci. The offspring consists of haploid males, diploid males and diploid females. Using DNA sequencing data, I will exclude haploid males as they do not provide information on homozygosity/heterozygosity and compare only diploid males versus females to identify the CSD locus/loci.
+\textit{Lysiphlebus fabarum} wasp specimens (generation F4) issued from thelytokous mothers (generation F3) are used. These individuals come from crossing experiments in a strongly inbred line. Here, we use restriction site associated DNA sequencing(RAD-seq) with a custom pipeline to locate the locus/loci. Samples were single-end sequenced using a ddRAD protocole and digested with ecoRI and mseI. There are 2 separate libraries with two different illumina adaptors (detailed in next section). Statistics for the raw RAD-seq data of both libraries of F4 individuals are shown in the table below. I also reused sequencing data for the mothers (F3) from Casper, however I don't have the raw reads statistics as they were already processed.
 
 \begin{center}
 \begin{tabular}{l| c c}
@@ -362,8 +364,13 @@ In this analysis, I excluded all consensus loci (where all individuals had the s
 
 \section{TO DO}
 \begin{itemize}
-\item Check if there is a correlation between coverage depth and homozygosity. If so, this is bad news: alleles from heterozygous loci could be dropped because of low coverage, causing them to become homozygous.
-\item Use FIS of females to define haploid/diploid males with very stringent settings (few loci). And rerun analysis with less stringent parameters once we know which are haplo/diploid. 
+\item represent heterozygosity as distribution (histogram) to see if clearly bimodal (mod1: 1Nmales, mod2: 2Nmales and females.
+\item Are haplotypes in haplotypes.tsv STACKS populations file SNPs, or loci ? (Maybe can set flag to show SNPs/loci)
+\item Run pipeline (populations and down) separately for each family.
+\item Use heterozygosity instead of inbreeding coefficient for disinguishing between haploids and diploids.
+\item investigate SNPs with more than 2 alleles: individuals specific (contamination) or locus specific (paralogs merged) kickout concerned individuals/loci based on results
+\item Black list loci homozygous in mothers  (not CSD candidates).
+\item Visualize average heterozygosity (or allele frequency) at each SNPs in offpring versus in mother to assess transmission bias (hom SNPs in mothers more often het in offspring or reversse). 
 \item Validate haploid definition using haplotypes deduced from linkage map.
 \item convert VCF file into PED format using vcftools
 \item import data into genABEL and perform association mapping

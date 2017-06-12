@@ -27,7 +27,7 @@ S-SRC=src/stacks_pipeline/multi_sstacks.sh
 GR-SRC=src/stacks_pipeline/group_sstacks.sh
 POP-SRC=src/stacks_pipeline/pop_FST.sh
 R=75
-D=25
+D=5
 
 # Misc: report generation
 LAB=reports/lab_book
