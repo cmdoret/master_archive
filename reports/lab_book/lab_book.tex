@@ -370,6 +370,8 @@ In this analysis, I excluded all consensus loci (where all individuals had the s
 \item Use heterozygosity instead of inbreeding coefficient for disinguishing between haploids and diploids.
 \item investigate SNPs with more than 2 alleles: individuals specific (contamination) or locus specific (paralogs merged) kickout concerned individuals/loci based on results
 \item Black list loci homozygous in mothers  (not CSD candidates).
+\item subset very confident individuals (top x\% high hom and high het) and find set of loci always CSD-like in these.
+\item use these loci to classify ambiguous individuals
 \item Visualize average heterozygosity (or allele frequency) at each SNPs in offpring versus in mother to assess transmission bias (hom SNPs in mothers more often het in offspring or reversse). 
 \item Validate haploid definition using haplotypes deduced from linkage map.
 \item convert VCF file into PED format using vcftools

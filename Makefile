@@ -68,6 +68,8 @@ lab_book : $(LAB) $(MISC)
 	Rscript $(MISC)/plot_VCF.R $(MISC)
 	mkdir -p reports/lab_book/assoc_explo
 	for t in data/ploidy/thresholds/*; do python2 src/misc/explo_assoc.py $(POP)/*haplotypes.tsv $$t;done
+	mkdir -p reports/lab_book/ploidy_per_fam
+	for t in data/ploidy/thresholds/*; do Rscript src/ploidy/prop_offspring.R $$t;done
 	texi2pdf -b $(LAB)/lab_book.tex -c
 	mv lab_book.pdf $(LAB)
 
