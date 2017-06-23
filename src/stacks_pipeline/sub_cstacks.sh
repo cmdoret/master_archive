@@ -14,6 +14,7 @@
 ## the mean number of reads across samples)
 # Cyril Matthey-Doret
 # 22.04.2017
+
 M=3
 wd=/scratch/beegfs/monthly/cmatthey/data ## the directory containing the pstacks files
 MM=1  # Mismatches allowed between samples when building loci

@@ -33,7 +33,7 @@ $(SSTACK) : $(CSTACK)
 	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(S-SRC)
 	bash $(S-SRC) $<
 
-# Running populations
+# Running populations on each family
 $(POP) : $(SSTACK) $(POP-SRC)
 	rm -rf $@
 	mkdir -p $@
@@ -44,7 +44,6 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	sed -i "s/\(R=\).*/\10\.$(R)/g" $(POP-SRC)
 	sed -i "s/\(D=\).*/\1$(D)/g" $(POP-SRC)
 	bsub -K <$(POP-SRC)
-	mv $(SSTACK)/batch* $(POP)
 
 # Association mapping
 # 1: convert vcf to ped

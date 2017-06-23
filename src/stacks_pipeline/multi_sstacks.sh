@@ -28,7 +28,8 @@ done;
 samp=""
 for i in $wd/pstacks/covmin-$M/*tags*;
 do
-    if [ "$(zcat $i | wc -l)" -gt $(($tot/($n*10))) ];  # Only using samples containing more radtags than 10% of arithmetic mean over all samples
+    if [ "$(zcat $i | wc -l)" -gt $(($tot/($n*10))) ];  
+    # Only using samples containing more radtags than 10% of arithmetic mean over all samples
     then
         samp+="${i%%.tags*} "
     fi;

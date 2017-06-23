@@ -362,12 +362,40 @@ In this analysis, I excluded all consensus loci (where all individuals had the s
 
 \FloatBarrier
 
+\chapter{Cleaning genomic data}
+
+date : 23.06.2017
+\\
+
+The first attempt at separating individuals based on inbreeding coefficient revealed several issues inherent to the data:
+\begin{itemize}
+\item The inbreeding coefficient is not clearly bimodal in all families (1 haploid mode and 1 diploid mode)
+\item Some loci have more than 2 haplotypes, although we are working with diploids.
+\item There are no loci that clearly stand out as perfectly 'CSD like' among all individuals, this should be looked at family-wise.
+\end{itemize}
+These issues will be solved one by one in this chapter.
+
+\section{Improving ploidy separation metric}
+
+The inbreeding coefficient was computed using all males/females. Also, the raw heterozygosity may be a more accurate metric than inbreeding coefficient. Both issue require the analysis to be done in a per-family fashion, either by re-running the populations program for each family, or implementing family as an additional population layer.
+
+\section{Loci with 3 or more haplotypes}
+
+There are two possible explanation for the existence of these loci. It could be either due to a contamination, in which case few individuals would present many loci with 3 or more haplotype. On the other hand, if few loci have this issue in several individuals, it could be due to paralog merging. This can be solved by identifying which case is the most likely, and either excluding concerned individuals (first case), or loci (second case).
+
+\section{No clear signal in whole population}
+
+This issue could be expected from the biological system because it is believed that there is ml-CSD in this species; there should be no single locus that will fit the CSD pattern across all individuals. This mean we need to identify different loci independently in each family. There are several things which can be done to work around this issue. 
+
+First, and most importantly, the populations program should be taking family information into account, but this was done already when solving the first issue (Improving ploidy separation metric). Second, the data should be cleaned by blacklisting loci that are homozygous in mothers in each family, as there is no way these will be heterozygous in their respective daughters and be CSD candidates.
+
+
 \section{TO DO}
 \begin{itemize}
-\item represent heterozygosity as distribution (histogram) to see if clearly bimodal (mod1: 1Nmales, mod2: 2Nmales and females.
-\item Are haplotypes in haplotypes.tsv STACKS populations file SNPs, or loci ? (Maybe can set flag to show SNPs/loci)
 \item Run pipeline (populations and down) separately for each family.
 \item Use heterozygosity instead of inbreeding coefficient for disinguishing between haploids and diploids.
+\item represent heterozygosity as distribution (histogram) to see if clearly bimodal (mod1: 1Nmales, mod2: 2Nmales and females.
+\item Are haplotypes in haplotypes.tsv STACKS populations file SNPs, or loci ? (Maybe can set flag to show SNPs/loci)
 \item investigate SNPs with more than 2 alleles: individuals specific (contamination) or locus specific (paralogs merged) kickout concerned individuals/loci based on results
 \item Black list loci homozygous in mothers  (not CSD candidates).
 \item subset very confident individuals (top x\% high hom and high het) and find set of loci always CSD-like in these.
