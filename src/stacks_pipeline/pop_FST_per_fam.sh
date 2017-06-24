@@ -30,5 +30,5 @@ do
     # Moving all populations output file from sstacks family folder to populations family folder
 done    
 
+rm $od/batch*
 
-module add UHTS/Analysis/stacks/1.30;

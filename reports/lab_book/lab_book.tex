@@ -379,9 +379,12 @@ These issues will be solved one by one in this chapter.
 
 The inbreeding coefficient was computed using all males/females. Also, the raw heterozygosity may be a more accurate metric than inbreeding coefficient. Both issue require the analysis to be done in a per-family fashion, either by re-running the populations program for each family, or implementing family as an additional population layer.
 
+
 \section{Loci with 3 or more haplotypes}
 
 There are two possible explanation for the existence of these loci. It could be either due to a contamination, in which case few individuals would present many loci with 3 or more haplotype. On the other hand, if few loci have this issue in several individuals, it could be due to paralog merging. This can be solved by identifying which case is the most likely, and either excluding concerned individuals (first case), or loci (second case).
+
+24.06.2017: Asked on STACKS google group about the haplotypes.tsv file. It is apparently normal to have more than 2 genotypes and depends on the parameters that were set in pstacks/ustacks. The answer I got, is that I should only work with the VCF file, which calls only 2 genotypes/site/individual. This imply figures \ref{SNPs_explo25} and \ref{SNPs_explo5} are not valid, as I misinterpreted the file content. I will re-generate these figures using the VCF file directly.
 
 \section{No clear signal in whole population}
 
