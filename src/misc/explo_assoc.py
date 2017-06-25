@@ -158,11 +158,11 @@ for fam in sorted(fam_geno):
     axScatter.set_ylabel("Male heterozygosity")
 
     # Displaying data summary on the plot
-    m1n = len(traits.Name[traits.Ploidy=='H'])
+    m1n = len(traits.Name[(traits.Ploidy=='H') & (traits.Family==fam)])
     textstr = 'Threshold={0}\nM1N={1}\nM2N={2}\nF={3}\nSNPs={4}'.format(
-        thresh.split('/')[-1], m1n, males[fam].shape[1]-2, females[fam].shape[1]-2,
+        thresh.split('/')[-1], m1n, males[fam].shape[0], females[fam].shape[0],
         SNP_sum[fam].shape[0])
     plt.text(1.3, 1.2, textstr, fontsize=9)
     plt.draw()
     # plt.show()
-    plt.savefig("reports/lab_book/assoc_explo_fam/" + fam + ".pdf")
+    plt.savefig("../../reports/lab_book/assoc_explo_fam/" + fam + ".pdf")
