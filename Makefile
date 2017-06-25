@@ -70,17 +70,6 @@ lab_book : $(LAB) $(MISC)
 	# Parsing pstacks output into summary table
 	bash $(MISC)/parse_cstacks.sh
 	# Same for cstacks
-	bash $(MISC)/parse_VCF.sh
-	# Parsing VCF populations output file into tables
-	Rscript $(MISC)/plot_VCF.R $(MISC)
-	# Generating plots from tables (parsed VCF)
-	mkdir -p reports/lab_book/assoc_explo
-	# Creating folder to store new plots if necessary
-	for t in data/ploidy/thresholds/*; do python2 src/misc/explo_assoc.py $(POP)/*haplotypes.tsv $$t;done
-	# Plotting exploratory results for het. at each SNP
-	mkdir -p reports/lab_book/ploidy_per_fam
-	for t in data/ploidy/thresholds/*; do Rscript src/ploidy/prop_offspring.R $$t;done
-	# Proportion of offspring type per family
 	texi2pdf -b $(LAB)/lab_book.tex -c
 	mv lab_book.pdf $(LAB)
 	# Compiling LaTeX report and moving it to appropriate folder
@@ -105,6 +94,21 @@ ploidy:
 	# Parsing VCF file from populations output
 	python2 src/ploidy/haplo_males.py $(VCFSUM)
 	# Building list of haploid males
-	mkdir -p data/ploidy/plots
+	mkdir -p data/ploidy/plots/density
+	mkdir -p data/ploidy/plots/barplots
 	Rscript src/ploidy/comp_thresh.R data/ploidy/thresholds/
 	# Visualize different thresholds with resulting ploidies
+	mkdir -p reports/lab_book/assoc_explo
+	# Creating folder to store new plots if necessary
+	python2 src/misc/explo_assoc.py $(POP)/ data/ploidy/thresholds/m2
+	# Plotting exploratory results for het. at each SNP
+	mkdir -p reports/lab_book/ploidy_per_fam
+	for t in data/ploidy/thresholds/*; do Rscript src/ploidy/prop_offspring.R $$t;done
+	# Proportion of offspring type per family
+
+# Saving an archive folder with all the data and parameters used.
+# Not tested, probably very slow and memory consuming. Careful with this.
+.PHONY : archive
+archive:
+	mkdir -p archive/ALG$(ALG)MM$(MM)K$(K)W$(W)_M$(M)_LM$(LM)_R$(R)D$(D)
+	cp -r * archive/ALG$(ALG)MM$(MM)K$(K)W$(W)_M$(M)_LM$(LM)_R$(R)D$(D)

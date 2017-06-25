@@ -1,6 +1,6 @@
 # This script allows to differentiate between haploid and diploid males based on
 # heterozygosity. It generates takes a table containing summarised statistics
-# from the parsed vcf file of populations, a table with generation, sex and
+# from the parsed vcf files of populations, a table with generation, sex and
 # family information of each individual. And output a table containing all this
 # data, along with ploidy information of each individual.
 # Cyril Matthey-Doret

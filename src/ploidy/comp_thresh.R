@@ -5,7 +5,7 @@
 
 library(tidyverse)
 
-#in_folder <- '../../data/ploidy/'
+#in_folder <- '../../data/ploidy/thresholds/'
 in_folder <- commandArgs(trailingOnly = TRUE)  # Folder containing input tables
 
 #' ploidy_plot
@@ -16,7 +16,7 @@ in_folder <- commandArgs(trailingOnly = TRUE)  # Folder containing input tables
 #' @param thresh filename of the table, showing threshold multiplier and transformation
 #'
 #' @return Nothing, saves a plot into a folder
-ploidy_plot <- function(ploid_tbl,thresh){
+ploidy_plot <- function(ploid_tbl,thresh, type='bar'){
   
   group_stats <- ploid_tbl %>%  # Computing summary stats for each family
     filter(Generation == 'F4' & Sex == 'F') %>%  # Computing from daughters only
@@ -24,25 +24,30 @@ ploidy_plot <- function(ploid_tbl,thresh){
     summarise_at(.cols=c("Fis"),.funs = c("mean","sd")) %>%
     mutate(state = "Daughters") %>%  # These are all daughters (used for plotting)
     mutate(mid_x = n()/2)  # Graphical parameter for plots
-  
+  group_stats$sd[is.na(group_stats$sd)] <- 0
   # Producing barplot faceted by family, with mean and standard deviation displayed
   # as segments. Colors represent individuals' states.
-  gg <- ggplot(data = ploid_tbl, aes(x = factor(Fis), y = Fis,fill = state))+
-    geom_bar(stat = 'identity') +
-    geom_hline(data = group_stats, aes(yintercept = mean)) + 
-    geom_segment(data = group_stats,aes(x=mid_x,xend=mid_x,y=mean-sd,yend=mean+sd)) +
-    theme(axis.text.x = element_blank()) + facet_wrap(~Family,drop=T, scale='free') +
-    xlab("Individuals") + ylab("Inbreeding coefficient") + ggtitle(thresh)
-  
-  pdf(paste0('data/ploidy/plots/',thresh,'.pdf'))  # Opening pdf connection
+  if(type=='bar'){
+    gg <- ggplot(data = ploid_tbl, aes(x = factor(Fis), y = Fis,fill = state))+
+      geom_bar(stat = 'identity') +
+      geom_hline(data = group_stats, aes(yintercept = mean)) + 
+      geom_segment(data = group_stats,aes(x=mid_x,xend=mid_x,y=mean-sd,yend=mean+sd)) +
+      theme(axis.text.x = element_blank()) + facet_wrap(~Family,drop=T, scale='free') +
+      xlab("Individuals") + ylab("Inbreeding coefficient") + ggtitle(thresh)
+    out_folder <- 'barplots'
+  } else{
+    gg <- ggplot(data = ploid_tbl, aes(x = Fis))+
+      geom_density(alpha = 0.1, col="green") +
+      geom_density(alpha = 0.1,aes(fill=Ploidy)) +
+      theme(axis.text.x = element_blank()) + facet_wrap(~Family,drop=T, scale='free') +
+      xlab("Individuals") + ylab("Inbreeding coefficient") + ggtitle(thresh)
+    out_folder <- 'density'
+  }
+  pdf(paste0('data/ploidy/plots/', out_folder,'/',thresh,'.pdf'))  # Opening pdf connection
   print(gg)  # Saving plot
   dev.off()  # Closing connection
 }
 
-haplo_prop <- tibble(threshold = numeric(0),
-                     Daughters = numeric(0),
-                     Mothers = numeric(0)
-                     )
 for(in_file in list.files(in_folder)){  # Iterating over input lists
   in_data <- read_tsv(paste0(in_folder,in_file),col_names = T)  # Reading files sequentially
   
@@ -51,9 +56,10 @@ for(in_file in list.files(in_folder)){  # Iterating over input lists
     mutate(state=paste0(Generation,Sex,Ploidy)) %>%  # New column containing state information
     rename(Fis=F)  # Renaming inbreeding coefficient column (F is colliding with 'FALSE')
   # Changing individual states by Human-friendly names
-  in_data$state <-recode_factor(in_data$state, "F3FD" = "Mothers",  #
+  in_data$state <-recode_factor(in_data$state, "F3FD" = "Mothers",
                          "F4FD" = "Daughters",
                          "F4MH" = "1N Sons", 
                          "F4MD" = "2N Sons")
   ploidy_plot(in_data,basename(in_file))  # Calling plotting function
+  ploidy_plot(in_data,basename(in_file), type='density')
 }

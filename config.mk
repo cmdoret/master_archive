@@ -36,7 +36,7 @@ MISC=src/misc
 REF=data/ref_genome/canu2_low_corrRE.contigs.fasta
 
 # Ploidy: exclude haplomales
-VCFSUM=src/misc/vcftools/summary_d-$D_r-$(R)
+VCFSUM=data/ploidy/vcftools/summary_full.txt
 THRESH=data/ploidy/thresholds/m2
 
 # Association mapping:

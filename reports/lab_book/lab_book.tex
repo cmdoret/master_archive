@@ -306,7 +306,7 @@ populations & IndProp:0.75, MinDep:5(25)*, MaxHet:0.9\\
 
 \chapter{Excluding haploids}
 
-I used the F statistics (coefficient of inbreeding) given by the STACKS populations module to measure homozygosity levels in each individual. The F statistics used were generated with more stringent parameters (min depth: 25) to call ploidy more confidently.
+I used the F statistics (coefficient of inbreeding) computed by vcftools to measure homozygosity levels in each individual. The F statistics used were generated with more stringent parameters (min depth: 25) to call ploidy more confidently. It is calculated as $F = \frac{O-E}{N-E}$ where O is the observed number of homozygous loci, E is the number expected by chance and N is the total number of loci.
 
 First, I calculated the Mean $\mu$ and standard deviation $\sigma$ of the inbreeding coefficient $F$ among daughters in each family. I then classified males with:
 \\

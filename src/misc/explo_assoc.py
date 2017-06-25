@@ -10,6 +10,7 @@
 import pandas as pd
 import numpy as np
 from sys import argv
+from os import path, walk
 import re
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -21,17 +22,55 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 in_geno = argv[1]
 thresh = argv[2]
 # thresh = "../../data/ploidy/thresholds/m2"
-# in_geno = "../../data/populations/d-25_r-75/batch_0.haplotypes.tsv"
+# in_geno = "../../data/ploidy/vcftools/"
+
+families = {}
+mat_pat = re.compile(r'012')
+# Filename pattern for genotype matrices produced by vcftools
+for subdir, dirs, files in walk(in_geno):
+    # Walking through file tree
+    if path.basename(subdir):
+        # Exclude folder itself, only taking subfolders
+        mat_files = list(filter(mat_pat.search,files))
+        pos_index = [i for i, s in enumerate(mat_files) if 'pos' in s][0]
+        pos = pd.read_csv(path.join(subdir, mat_files.pop(pos_index)),
+                          header=None, sep='\t', dtype='str')
+        # reading file with positions of SNPs
+        pos = pos.iloc[:,0].str.cat(pos.iloc[:,1], sep='_')
+        # Concatenating contig ID and position on each row
+        indv_index = [i for i, s in enumerate(mat_files) if 'indv' in s][0]
+        indv = pd.read_csv(path.join(subdir, mat_files.pop(indv_index)),
+                              header=None, sep='\t', squeeze=True)
+        # reading file with individuals in family
+        geno_mat = pd.read_csv(path.join(subdir, mat_files[0]), sep='\t',
+                               header=None, names=pos,
+                               usecols=range(1,len(pos)+1))
+        geno_mat.reindex(geno_mat.index.rename(indv))
+        ## THIS DOES NOT WORK; FIND OUT HOW TO RENAME ROWS WITH INDV NAMES
+        # reading genotypes matrix. ignoring first column as it contains row
+        # numbers. Also giving individuals names as row names and SNPs positions
+        # as column names
+        # Storing all filenames related to genotype matrices
+        families[path.basename(subdir)] ='lelelel'
+len(range(1,len(pos)+1))
+len(list(indv.values))
+
 geno = pd.read_csv(in_geno,sep='\t')  # importing genotypes into df
+
+traits = pd.read_csv(thresh,sep='\t')
+# Importing traits data (sex, ploidy, family...)
+
+"""
+# This commented block relies on the haplotypes.tsv file, which is not reliable
+# I now use the 012 genotype matrices instead
 consensus = re.compile(r'consensus|-')  # faster to compile regex first
 
 # Excluding all rows with only consensus or missing
 consensus_rows  = geno.iloc[:,2:].apply(
        lambda row : all([ consensus.match(e) for e in row ]), axis=1)
 geno = geno[~consensus_rows]
+"""
 
-traits = pd.read_csv(thresh,sep='\t')
-# Importing traits data (sex, ploidy, family...)
 
 ##################
 # Splitting data #
@@ -61,6 +100,10 @@ males_hom_sum["hom_full"] = males.iloc[:,2:].apply(
 # Computing statistics #
 ########################
 
+"""
+# This commented block is not used anymore as it relied on the haplotypes.tsv
+# file, which is not reliable.
+
 # Extracting proportion of het. in fem/males for each SNP
 
 # Number of homozygous SNPs in females
@@ -81,6 +124,7 @@ malhom_geno = males.iloc[:,2:].apply(
     lambda r: r.str.count(r'^[ACTG]+$'),axis=1).sum(axis=1)
 
 males_het_sum["prop_malhet"] = malhet_geno / (malhet_geno+malhom_geno)
+"""
 
 ################
 # Merging data #
