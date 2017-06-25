@@ -98,9 +98,9 @@ ploidy:
 	mkdir -p data/ploidy/plots/barplots
 	Rscript src/ploidy/comp_thresh.R data/ploidy/thresholds/
 	# Visualize different thresholds with resulting ploidies
-	mkdir -p reports/lab_book/assoc_explo
+	mkdir -p reports/lab_book/assoc_explo_fam
 	# Creating folder to store new plots if necessary
-	python2 src/misc/explo_assoc.py $(POP)/ data/ploidy/thresholds/m2
+	python2 src/misc/explo_assoc.py data/ploidy/vcftools/ data/ploidy/thresholds/m2
 	# Plotting exploratory results for het. at each SNP
 	mkdir -p reports/lab_book/ploidy_per_fam
 	for t in data/ploidy/thresholds/*; do Rscript src/ploidy/prop_offspring.R $$t;done

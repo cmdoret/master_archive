@@ -24,7 +24,7 @@ thresh = argv[2]
 # thresh = "../../data/ploidy/thresholds/m2"
 # in_geno = "../../data/ploidy/vcftools/"
 
-families = {}
+fam_geno = {}
 mat_pat = re.compile(r'012')
 # Filename pattern for genotype matrices produced by vcftools
 for subdir, dirs, files in walk(in_geno):
@@ -45,31 +45,16 @@ for subdir, dirs, files in walk(in_geno):
         geno_mat = pd.read_csv(path.join(subdir, mat_files[0]), sep='\t',
                                header=None, names=pos,
                                usecols=range(1,len(pos)+1))
-        geno_mat.reindex(geno_mat.index.rename(indv))
-        ## THIS DOES NOT WORK; FIND OUT HOW TO RENAME ROWS WITH INDV NAMES
+        geno_mat.index = indv.values
         # reading genotypes matrix. ignoring first column as it contains row
         # numbers. Also giving individuals names as row names and SNPs positions
         # as column names
-        # Storing all filenames related to genotype matrices
-        families[path.basename(subdir)] ='lelelel'
-len(range(1,len(pos)+1))
-len(list(indv.values))
+        fam_geno[path.basename(subdir)] = geno_mat
+        # Storing genotype matrix of each family in the dictionary
 
-geno = pd.read_csv(in_geno,sep='\t')  # importing genotypes into df
 
 traits = pd.read_csv(thresh,sep='\t')
 # Importing traits data (sex, ploidy, family...)
-
-"""
-# This commented block relies on the haplotypes.tsv file, which is not reliable
-# I now use the 012 genotype matrices instead
-consensus = re.compile(r'consensus|-')  # faster to compile regex first
-
-# Excluding all rows with only consensus or missing
-consensus_rows  = geno.iloc[:,2:].apply(
-       lambda row : all([ consensus.match(e) for e in row ]), axis=1)
-geno = geno[~consensus_rows]
-"""
 
 
 ##################
@@ -78,126 +63,106 @@ geno = geno[~consensus_rows]
 
 # Subsetting males and females separately (excluding individuals)
 # Note: comp for comp(lementary)
-comp_mal = traits.loc[(traits.Sex=='F') | (traits.Ploidy == 'H'),"Name"]
-comp_fem = traits.loc[(traits.Sex=='M') | (traits.Ploidy == 'H'),"Name"]
-
-males = geno.drop(comp_mal,axis=1)  # Diploid males only
-females = geno.drop(comp_fem,axis=1)  # Females only
-
-# Initiating summary dataframes
-males_het_sum = males.iloc[:,0:2]  # Summary of heterozygosity in males
-females_het_sum = females.iloc[:,0:2]  # Summary of heterozygosity in females
-
-"""
-# Only SNPs always homozygous (males) or only heterozygous (females)
-females_het_sum["het_full"] = females.iloc[:,2:].apply(
-    lambda r: r.str.match(r'^[ACTG]+/[ACTG]+$').all(),axis=1)
-males_hom_sum["hom_full"] = males.iloc[:,2:].apply(
-    lambda r: r.str.match(r'^[ACTG]+$').all(),axis=1)
-"""
+males = {}
+females = {}
+for fam in sorted(fam_geno):  # Iterating over families
+    fam_traits = traits.loc[traits.Family==fam]
+    # Subsetting traits df for each family
+    comp_mal = fam_traits.loc[(fam_traits.Sex=='F') |
+                          (fam_traits.Ploidy == 'H'),"Name"]
+    comp_fem = fam_traits.loc[(fam_traits.Sex=='M') |
+                              (fam_traits.Ploidy == 'H'),"Name"]
+    # Individuals to be excluded from diploid males and females respectively
+    males[fam] = fam_geno[fam].drop(comp_mal,axis=0)
+    # Genotypes of diploid males only
+    females[fam] = fam_geno[fam].drop(comp_fem,axis=0)
+    # Genotypes of females only
 
 ########################
 # Computing statistics #
 ########################
-
-"""
-# This commented block is not used anymore as it relied on the haplotypes.tsv
-# file, which is not reliable.
-
-# Extracting proportion of het. in fem/males for each SNP
-
-# Number of homozygous SNPs in females
-femhom_geno = females.iloc[:,2:].apply(
-    lambda r: r.str.count(r'^[ACTG]+$'),axis=1).sum(axis=1)
-# Number of heterozygous SNPs in females
-femhet_geno = females.iloc[:,2:].apply(
-    lambda r: r.str.count(r'^[ACTG]+/[ACTG]+$'),axis=1).sum(axis=1)
-
-# Proportion calculation (het/(het+hom)). Done by dividing het count by
-# total number of columns minus consensus and - .
-females_het_sum["prop_femhet"] = femhet_geno / (femhet_geno+femhom_geno)
-
-# Same operation in males
-malhet_geno = males.iloc[:,2:].apply(
-    lambda r: r.str.count(r'^[ACTG]+/[ACTG]+$'),axis=1).sum(axis=1)
-malhom_geno = males.iloc[:,2:].apply(
-    lambda r: r.str.count(r'^[ACTG]+$'),axis=1).sum(axis=1)
-
-males_het_sum["prop_malhet"] = malhet_geno / (malhet_geno+malhom_geno)
-"""
+SNP_sum = {}
+for fam in fam_geno:
+    SNP_sum[fam] = pd.DataFrame(columns=['Male het.', 'Female het.'],
+                                index=fam_geno[fam].columns.values)
+    # Initiating dataframe to store SNPs statistics
+    SNP_sum[fam].loc[:,'Male het.'] = males[fam].apply(
+        lambda c:len(c[(c>0) & (c%2)])/max(list([1, len(c[c>0])])),axis=0)
+    SNP_sum[fam].loc[:,'Female het.'] = females[fam].apply(
+        lambda c:len(c[(c>0) & (c%2)])/max(list([1,len(c[c>0])])),axis=0)
+    # Summarizing each SNPs by proportion of males and females in which it
+    # is heterozygous. Note: not including individuals where SNP is absent.
+    # max(1,prop_het) used to prevent divisiion by zero.
 
 ################
 # Merging data #
 ################
 
-# Putting males and females info back together
-csd_snp = females_het_sum.merge(males_het_sum, on="Catalog ID", how="inner")
-# Merging by SNP ID
-csd_snp.drop("Cnt_x", 1, inplace=True)
-csd_snp.rename(columns={"Cnt_y": "Cnt"},  inplace=True)
-csd_snp["prop_CSD"] = (csd_snp.prop_femhet+(1-csd_snp.prop_malhet))/2
-# csd_snp.sort_values(by="prop_CSD", ascending=False)
+for fam in fam_geno:
+    SNP_sum[fam]["prop_CSD"] = (SNP_sum[fam]["Female het."] +
+                                  (1-SNP_sum[fam]["Male het."]))/2
+# Prop. of males in which SNP is hom. + prop of females in which it is het.
+# Basically a measure of how CSD-like it is
 
 ####################
 # Visualizing data #
 ####################
-fe = csd_snp.prop_femhet; me = csd_snp.prop_malhet
+for fam in sorted(fam_geno):
+    fe = SNP_sum[fam]["Female het."]; me = SNP_sum[fam]["Male het."]
+    fig, axScatter = plt.subplots(figsize=(5.5, 5.5))
+    # the scatter plot:
+    axScatter.scatter(fe, me,
+                      c=fe + (1-me),
+                      s=15, cmap='plasma')
+    axScatter.set_aspect(1.)
 
-fig, axScatter = plt.subplots(figsize=(5.5, 5.5))
+    # create new axes on the right and on the top of the current axes
+    # The first argument of the new_vertical(new_horizontal) method is
+    # the height (width) of the axes to be created in inches.
+    divider = make_axes_locatable(axScatter)
+    axHistx = divider.append_axes("top", 1.2, pad=0.1, sharex=axScatter)
+    axHisty = divider.append_axes("right", 1.2, pad=0.1, sharey=axScatter)
 
-# the scatter plot:
-axScatter.scatter(fe, me,
-                  c=fe + (1-me),
-                  s=15, cmap='plasma')
-axScatter.set_aspect(1.)
+    # make some labels invisible
+    plt.setp(axHistx.get_xticklabels() + axHisty.get_yticklabels(),
+             visible=False)
 
-# create new axes on the right and on the top of the current axes
-# The first argument of the new_vertical(new_horizontal) method is
-# the height (width) of the axes to be created in inches.
-divider = make_axes_locatable(axScatter)
-axHistx = divider.append_axes("top", 1.2, pad=0.1, sharex=axScatter)
-axHisty = divider.append_axes("right", 1.2, pad=0.1, sharey=axScatter)
+    # now determine nice limits by hand:
+    binwidth = 0.05
+    xymax = np.max([np.max(np.fabs(fe)),
+                    np.max(np.fabs(me))])
+    lim = (int(xymax/binwidth) + 1)*binwidth
 
-# make some labels invisible
-plt.setp(axHistx.get_xticklabels() + axHisty.get_yticklabels(),
-         visible=False)
+    bins = np.arange(0, lim, binwidth)
+    axHistx.hist(fe, bins=bins)
+    axHisty.hist(me, bins=bins, orientation='horizontal')
 
-# now determine nice limits by hand:
-binwidth = 0.05
-xymax = np.max([np.max(np.fabs(fe)),
-                np.max(np.fabs(me))])
-lim = (int(xymax/binwidth) + 1)*binwidth
+    # the xaxis of axHistx and yaxis of axHisty are shared with axScatter,
+    # thus there is no need to manually adjust the xlim and ylim of these
+    # axis.
 
-bins = np.arange(0, lim, binwidth)
-axHistx.hist(fe, bins=bins)
-axHisty.hist(me, bins=bins, orientation='horizontal')
+    #axHistx.axis["bottom"].major_ticklabels.set_visible(False)
+    for tl in axHistx.get_xticklabels():
+        tl.set_visible(False)
+    #axHistx.set_yticks([0, 50, 100])
 
-# the xaxis of axHistx and yaxis of axHisty are shared with axScatter,
-# thus there is no need to manually adjust the xlim and ylim of these
-# axis.
+    #axHisty.axis["left"].major_ticklabels.set_visible(False)
+    for tl in axHisty.get_yticklabels():
+        tl.set_visible(False)
+    #axHisty.set_xticks([0, 50, 100])
 
-#axHistx.axis["bottom"].major_ticklabels.set_visible(False)
-for tl in axHistx.get_xticklabels():
-    tl.set_visible(False)
-#axHistx.set_yticks([0, 50, 100])
+    # Adding labels to axes
+    axHisty.set_xlabel("Male SNPs")
+    axHistx.set_ylabel("Female SNPs")
+    axScatter.set_xlabel("Female heterozygosity")
+    axScatter.set_ylabel("Male heterozygosity")
 
-#axHisty.axis["left"].major_ticklabels.set_visible(False)
-for tl in axHisty.get_yticklabels():
-    tl.set_visible(False)
-#axHisty.set_xticks([0, 50, 100])
-
-# Adding labels to axes
-axHisty.set_xlabel("Male SNPs")
-axHistx.set_ylabel("Female SNPs")
-axScatter.set_xlabel("Female heterozygosity")
-axScatter.set_ylabel("Male heterozygosity")
-
-# Displaying data summary on the plot
-m1n = len(traits.Name[traits.Ploidy=='H'])
-textstr = 'Threshold={0}\nM1N={1}\nM2N={2}\nF={3}\nSNPs={4}'.format(
-    thresh.split('/')[-1], m1n, males.shape[1]-2, females.shape[1]-2,
-    csd_snp.shape[0])
-plt.text(1.3, 1.2, textstr, fontsize=9)
-plt.draw()
-plt.savefig("reports/lab_book/assoc_explo/" + thresh.split('/')[-1] + ".pdf")
-# plt.show()
+    # Displaying data summary on the plot
+    m1n = len(traits.Name[traits.Ploidy=='H'])
+    textstr = 'Threshold={0}\nM1N={1}\nM2N={2}\nF={3}\nSNPs={4}'.format(
+        thresh.split('/')[-1], m1n, males[fam].shape[1]-2, females[fam].shape[1]-2,
+        SNP_sum[fam].shape[0])
+    plt.text(1.3, 1.2, textstr, fontsize=9)
+    plt.draw()
+    # plt.show()
+    plt.savefig("reports/lab_book/assoc_explo_fam/" + fam + ".pdf")
