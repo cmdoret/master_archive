@@ -24,6 +24,9 @@ thresh = argv[2]
 # thresh = "../../data/ploidy/thresholds/m2"
 # in_geno = "../../data/ploidy/vcftools/"
 
+traits = pd.read_csv(thresh,sep='\t')
+# Importing traits data (sex, ploidy, family...)
+
 fam_geno = {}
 mat_pat = re.compile(r'012')
 # Filename pattern for genotype matrices produced by vcftools
@@ -49,12 +52,20 @@ for subdir, dirs, files in walk(in_geno):
         # reading genotypes matrix. ignoring first column as it contains row
         # numbers. Also giving individuals names as row names and SNPs positions
         # as column names
+        try:
+            mother = list(traits.Name[(traits.Generation=='F3') &
+                             (traits.Family==path.basename(subdir))])
+            mo_bool = geno_mat.loc[mother,:]%2==1
+            # Boolean mask for SNPs that are heterozygous in mother
+            geno_mat = geno_mat.loc[:,mo_bool.iloc[0,:]]
+            # excluding SNPs that are homozygous in mothers
+        except IndexError:
+            print("No SNP data for mother of family " + path.basename(subdir))
         fam_geno[path.basename(subdir)] = geno_mat
         # Storing genotype matrix of each family in the dictionary
 
 
-traits = pd.read_csv(thresh,sep='\t')
-# Importing traits data (sex, ploidy, family...)
+
 
 
 ##################
@@ -165,4 +176,4 @@ for fam in sorted(fam_geno):
     plt.text(1.3, 1.2, textstr, fontsize=9)
     plt.draw()
     # plt.show()
-    plt.savefig("../../reports/lab_book/assoc_explo_fam/" + fam + ".pdf")
+    plt.savefig("reports/lab_book/assoc_explo_fam/" + fam + ".pdf")

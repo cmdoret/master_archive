@@ -37,10 +37,11 @@ ploidy_plot <- function(ploid_tbl,thresh, type='bar'){
     out_folder <- 'barplots'
   } else{
     gg <- ggplot(data = ploid_tbl, aes(x = Fis))+
+      geom_density(alpha = 0.3,aes(fill=Ploidy)) +
       geom_density(alpha = 0.1, col="green") +
-      geom_density(alpha = 0.1,aes(fill=Ploidy)) +
+      geom_point(aes(y=0, col=state)) + 
       theme(axis.text.x = element_blank()) + facet_wrap(~Family,drop=T, scale='free') +
-      xlab("Individuals") + ylab("Inbreeding coefficient") + ggtitle(thresh)
+      xlab("Inbreeding coefficient") + ylab("Density") + ggtitle(paste("Threshold ", thresh, sep=" "))
     out_folder <- 'density'
   }
   pdf(paste0('data/ploidy/plots/', out_folder,'/',thresh,'.pdf'))  # Opening pdf connection

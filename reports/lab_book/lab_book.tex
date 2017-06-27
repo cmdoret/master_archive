@@ -330,7 +330,7 @@ Figure \ref{haplodiplo} shows a plot showing the separation of haploid and diplo
 \begin{figure}[h]
 	\begin{center}
 		\hspace*{-1.5in}
-		\includegraphics[width=1.55\textwidth]{m2}
+		\includegraphics[width=1.55\textwidth]{exclu_haplo/m2}
 		
 		\caption{Inbreeding coefficient (F). Different colors represent the different types of individuals, as shown in the legend. Each plot is a family, each bar is an individual. Horizontal black bars show the mean inbreeding coefficient of daughters within the family $+/-$ the standard deviation (vertical black line). In theory, mothers should have the lowest inbreeding coefficient of their family (highest heterozygosity)}
 		\label{haplodiplo}
@@ -345,7 +345,7 @@ In this analysis, I excluded all consensus loci (where all individuals had the s
 
 \begin{figure}[h]
 	\begin{center}
-		\includegraphics[width=0.8\textwidth]{d5assoc_explo/m2}
+		\includegraphics[width=0.8\textwidth]{exclu_haplo/d5assoc_explo/m2}
 		\caption{Homozygosity of female and diploid male SNPs where depth $\geq 5$ (permissive parameters). Each point on the scatterplot is a SNP, and its coordinate are the proportion of females (x) and males (y) in which it is homozygous. Histograms allow to visualize the distribution of homozygosity for SNPs of each sex. The color code shows how SNPs fit the CSD pattern with lighter points being closer to it (i.e. more homozygous in males and heterozygous in females). Summary statistics on the top right show the threshold used, the number of haploid males excluded (M1N) as well as the number of diploid males (M2N), females (F) and SNPs included.}
 		\label{SNPs_explo5}
 	\end{center}
@@ -353,7 +353,7 @@ In this analysis, I excluded all consensus loci (where all individuals had the s
 
 \begin{figure}[h]
 	\begin{center}
-		\includegraphics[width=0.8\textwidth]{d25assoc_explo/m2}
+		\includegraphics[width=0.8\textwidth]{exclu_haplo/d25assoc_explo/m2}
 		\caption{Homozygosity of female and diploid male SNPs $\geq 25$ (stringent parameters). Each point on the scatterplot is a SNP, and its coordinate are the proportion of females (x) and males (y) in which it is homozygous. Histograms allow to visualize the distribution of homozygosity for SNPs of each sex. The color code shows how SNPs fit the CSD pattern with lighter points being closer to it (i.e. more homozygous in males and heterozygous in females). Summary statistics on the top right show the threshold used, the number of haploid males excluded (M1N) as well as the number of diploid males (M2N), females (F) and SNPs included.}
 		\label{SNPs_explo25}
 	\end{center}
@@ -379,12 +379,40 @@ These issues will be solved one by one in this chapter.
 
 The inbreeding coefficient was computed using all males/females. Also, the raw heterozygosity may be a more accurate metric than inbreeding coefficient. Both issue require the analysis to be done in a per-family fashion, either by re-running the populations program for each family, or implementing family as an additional population layer.
 
+Date: 27.06.2017
+Solution: The inbreeding coefficient being calculated on a per-individual basis from homozygosity rates across the genome, it is fine to keep this metric. I did however, re-run the populations program separately for each family. I did not add a population layer to the popmap, because it would not have allowed for different loci blacklists between families when solving the third issue. Visualizing the distribution of inbreeding coefficients across individuals reveals a pretty good (?) separation of individuals (Figure \ref{ploidy_metric}).
+
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{cleaning_genomic_data/F_r-75_d-5_m2_density.pdf}
+		\caption{Distriution of individual inbreeding coefficient. The green curve represents the overall distribution of inbreeding coefficients within the family. The blue and pink areas represent the distribution of inbreeding coefficients for haploids and diploids, respectively, split using the m2 threshold defined at the beginning of chapter 4. Ideally, the green curve would follow a bimodal distribution clearly separating individuals by homozygosity.}
+		\label{ploidy_metric}
+	\end{center}
+\end{figure}
+
+
 
 \section{Loci with 3 or more haplotypes}
 
 There are two possible explanation for the existence of these loci. It could be either due to a contamination, in which case few individuals would present many loci with 3 or more haplotype. On the other hand, if few loci have this issue in several individuals, it could be due to paralog merging. This can be solved by identifying which case is the most likely, and either excluding concerned individuals (first case), or loci (second case).
 
 24.06.2017: Asked on STACKS google group about the haplotypes.tsv file. It is apparently normal to have more than 2 genotypes and depends on the parameters that were set in pstacks/ustacks. The answer I got, is that I should only work with the VCF file, which calls only 2 genotypes/site/individual. This imply figures \ref{SNPs_explo25} and \ref{SNPs_explo5} are not valid, as I misinterpreted the file content. I will re-generate these figures using the VCF file directly.
+
+Date: 27.06.2017
+Solution: I used the -012 argument in VCFtools to produce a genotype matrix from the populations output VCF file. This matrix encodes the genotype of each individual at each SNP with an integer representing the number of non-reference alleles present. These matrices were generated separately for each family and used to regenerate the figures \ref{SNPs_explo25} and \ref{SNPs_explo5}.
+
+The issue when visualizing the SNPs heterozygosity per family (Figure \ref{SNPs_explo_fam}) is that the low number of individuals allow for few different heterozygosity values for any given SNPs, yielding a high number of 'perfectly' CSD-like candidates. Solving the next issue or grouping SNPs by contig/locus may help reduce this number, but ultimately only association mapping will allow to find the best candidate region. 
+
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{cleaning_genomic_data/assoc_explo_fam/B.pdf}
+		\caption{Example: SNPs heterozygosity across individuals of family B. The yellowness represents the proximity to CSD-like pattern (i.e. homozygous in all males and heterozygous in all females. Note: populations parameters set to : min depth (D)=5 and prop pop (r)=75}
+		\label{SNPs_explo_fam}
+	\end{center}
+\end{figure}
+
 
 \section{No clear signal in whole population}
 
