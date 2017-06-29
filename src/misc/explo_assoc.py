@@ -64,10 +64,6 @@ for subdir, dirs, files in walk(in_geno):
         fam_geno[path.basename(subdir)] = geno_mat
         # Storing genotype matrix of each family in the dictionary
 
-
-
-
-
 ##################
 # Splitting data #
 ##################
@@ -98,9 +94,12 @@ for fam in fam_geno:
                                 index=fam_geno[fam].columns.values)
     # Initiating dataframe to store SNPs statistics
     SNP_sum[fam].loc[:,'Male het.'] = males[fam].apply(
-        lambda c:len(c[(c>0) & (c%2)])/max(list([1, len(c[c>0])])),axis=0)
+        lambda c:float(len(c[(c>0) & (c%2)])) /
+        float(max(list([1, len(c[c>0])]))),axis=0)
+
     SNP_sum[fam].loc[:,'Female het.'] = females[fam].apply(
-        lambda c:len(c[(c>0) & (c%2)])/max(list([1,len(c[c>0])])),axis=0)
+        lambda c:float(len(c[(c>0) & (c%2)])) /
+        float(max(list([1,len(c[c>0])]))),axis=0)
     # Summarizing each SNPs by proportion of males and females in which it
     # is heterozygous. Note: not including individuals where SNP is absent.
     # max(1,prop_het) used to prevent divisiion by zero.

@@ -378,8 +378,9 @@ These issues will be solved one by one in this chapter.
 \section{Improving ploidy separation metric}
 
 The inbreeding coefficient was computed using all males/females. Also, the raw heterozygosity may be a more accurate metric than inbreeding coefficient. Both issue require the analysis to be done in a per-family fashion, either by re-running the populations program for each family, or implementing family as an additional population layer.
-
+\\
 Date: 27.06.2017
+\\
 Solution: The inbreeding coefficient being calculated on a per-individual basis from homozygosity rates across the genome, it is fine to keep this metric. I did however, re-run the populations program separately for each family. I did not add a population layer to the popmap, because it would not have allowed for different loci blacklists between families when solving the third issue. Visualizing the distribution of inbreeding coefficients across individuals reveals a pretty good (?) separation of individuals (Figure \ref{ploidy_metric}).
 
 
@@ -398,8 +399,9 @@ Solution: The inbreeding coefficient being calculated on a per-individual basis 
 There are two possible explanation for the existence of these loci. It could be either due to a contamination, in which case few individuals would present many loci with 3 or more haplotype. On the other hand, if few loci have this issue in several individuals, it could be due to paralog merging. This can be solved by identifying which case is the most likely, and either excluding concerned individuals (first case), or loci (second case).
 
 24.06.2017: Asked on STACKS google group about the haplotypes.tsv file. It is apparently normal to have more than 2 genotypes and depends on the parameters that were set in pstacks/ustacks. The answer I got, is that I should only work with the VCF file, which calls only 2 genotypes/site/individual. This imply figures \ref{SNPs_explo25} and \ref{SNPs_explo5} are not valid, as I misinterpreted the file content. I will re-generate these figures using the VCF file directly.
-
+\\
 Date: 27.06.2017
+\\
 Solution: I used the -012 argument in VCFtools to produce a genotype matrix from the populations output VCF file. This matrix encodes the genotype of each individual at each SNP with an integer representing the number of non-reference alleles present. These matrices were generated separately for each family and used to regenerate the figures \ref{SNPs_explo25} and \ref{SNPs_explo5}.
 
 The issue when visualizing the SNPs heterozygosity per family (Figure \ref{SNPs_explo_fam}) is that the low number of individuals allow for few different heterozygosity values for any given SNPs, yielding a high number of 'perfectly' CSD-like candidates. Solving the next issue or grouping SNPs by contig/locus may help reduce this number, but ultimately only association mapping will allow to find the best candidate region. 
@@ -419,7 +421,18 @@ The issue when visualizing the SNPs heterozygosity per family (Figure \ref{SNPs_
 This issue could be expected from the biological system because it is believed that there is ml-CSD in this species; there should be no single locus that will fit the CSD pattern across all individuals. This mean we need to identify different loci independently in each family. There are several things which can be done to work around this issue. 
 
 First, and most importantly, the populations program should be taking family information into account, but this was done already when solving the first issue (Improving ploidy separation metric). Second, the data should be cleaned by blacklisting loci that are homozygous in mothers in each family, as there is no way these will be heterozygous in their respective daughters and be CSD candidates.
+\\
+Date: 29.06.2017
+\\
+Solution: I re-ran the explo assoc script used to generate figure \ref{SNPs_explo_fam} and excluded all SNPs that are homozygous in the mother (Figure \ref{SNPs_explo_nomother}). It removed a significant number of SNPs from the set, but there are still way too many that fit the CSD pattern.
 
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{cleaning_genomic_data/assoc_explo_fam_no_mother/B.pdf}
+		\caption{Example: SNPs heterozygosity across individuals of family B after removing SNPs that are homozygous in the mother. The yellowness represents the proximity to CSD-like pattern (i.e. homozygous in all males and heterozygous in all females. Note: populations parameters set to : min depth (D)=5 and prop pop (r)=75}
+		\label{SNPs_explo_nomother}
+	\end{center}
+\end{figure}
 
 \section{TO DO}
 \begin{itemize}
