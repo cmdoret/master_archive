@@ -99,6 +99,7 @@ ploidy:
 	Rscript src/ploidy/comp_thresh.R data/ploidy/thresholds/
 	# Visualize different thresholds with resulting ploidies
 	mkdir -p reports/lab_book/assoc_explo_fam
+	mkdir -p data/SNP_lists
 	# Creating folder to store new plots if necessary
 	python2 src/misc/explo_assoc.py data/ploidy/vcftools/ data/ploidy/thresholds/m2
 	# Plotting exploratory results for het. at each SNP

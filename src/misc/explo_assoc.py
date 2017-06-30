@@ -24,9 +24,12 @@ thresh = argv[2]
 # thresh = "../../data/ploidy/thresholds/m2"
 # in_geno = "../../data/ploidy/vcftools/"
 
+SNP_splitter = lambda x: pd.Series([i for i in x.split('_')])
+# splits SNP IDs that have been compacted in <contig_bp> form
+
 traits = pd.read_csv(thresh,sep='\t')
 # Importing traits data (sex, ploidy, family...)
-
+mother_hom = pd.DataFrame() # Used to store all SNPs homozygous in mothers
 fam_geno = {}
 mat_pat = re.compile(r'012')
 # Filename pattern for genotype matrices produced by vcftools
@@ -55,14 +58,26 @@ for subdir, dirs, files in walk(in_geno):
         try:
             mother = list(traits.Name[(traits.Generation=='F3') &
                              (traits.Family==path.basename(subdir))])
-            mo_bool = geno_mat.loc[mother,:]%2==1
-            # Boolean mask for SNPs that are heterozygous in mother
-            geno_mat = geno_mat.loc[:,mo_bool.iloc[0,:]]
+            mo_bool = geno_mat.loc[mother,:]%2==0
+            # Boolean mask for SNPs that are homozygous in mother
+            mother_fam = pd.DataFrame(mo_bool.columns[mo_bool.iloc[0,:]],
+             columns=['merged'])
+            mother_fam[['contig', 'bp']] = mother_fam['merged'].apply(SNP_splitter)
+            mother_fam['family'] = path.basename(subdir)
+            mother_fam.drop('merged', axis=1, inplace=True)
+            # Split IDs to extract contig and base pair infos
+            mother_hom = mother_hom.append(mother_fam)
+            # Append family blacklist to overall dataframe
+            geno_mat = geno_mat.loc[:,~mo_bool.iloc[0,:]]
             # excluding SNPs that are homozygous in mothers
         except IndexError:
             print("No SNP data for mother of family " + path.basename(subdir))
         fam_geno[path.basename(subdir)] = geno_mat
         # Storing genotype matrix of each family in the dictionary
+mother_hom.sort_values(['family', 'contig', 'bp'], inplace=True)
+mother_hom.to_csv('data/SNP_lists/' + path.basename(thresh) + '_hom_mother.txt',
+                    index=False)
+# Sorting SNPs by family and writing them to a text file
 
 ##################
 # Splitting data #
@@ -94,25 +109,40 @@ for fam in fam_geno:
                                 index=fam_geno[fam].columns.values)
     # Initiating dataframe to store SNPs statistics
     SNP_sum[fam].loc[:,'Male het.'] = males[fam].apply(
-        lambda c:float(len(c[(c>0) & (c%2)])) /
-        float(max(list([1, len(c[c>0])]))),axis=0)
+        lambda c:float(len(c[(c > 0) & (c % 2)])) /
+        float(max(list([1, len(c[c > 0])]))),axis=0)
 
     SNP_sum[fam].loc[:,'Female het.'] = females[fam].apply(
-        lambda c:float(len(c[(c>0) & (c%2)])) /
-        float(max(list([1,len(c[c>0])]))),axis=0)
+        lambda c:float(len(c[(c > 0) & (c % 2)])) /
+        float(max(list([1,len(c[c > 0])]))),axis=0)
     # Summarizing each SNPs by proportion of males and females in which it
     # is heterozygous. Note: not including individuals where SNP is absent.
     # max(1,prop_het) used to prevent divisiion by zero.
 
-################
-# Merging data #
-################
+###############
+# Output data #
+###############
+
+CSD_full = pd.DataFrame()
 
 for fam in fam_geno:
     SNP_sum[fam]["prop_CSD"] = (SNP_sum[fam]["Female het."] +
-                                  (1-SNP_sum[fam]["Male het."]))/2
-# Prop. of males in which SNP is hom. + prop of females in which it is het.
-# Basically a measure of how CSD-like it is
+                                  (1-SNP_sum[fam]["Male het."]))
+    # Prop. of males in which SNP is hom. + prop of females in which it is het.
+    # Basically a measure of how CSD-like it is
+    CSD_like = SNP_sum[fam][SNP_sum[fam]["prop_CSD"]==1].index
+    # subset those segragating exactly like CSD
+    CSD_fam = pd.DataFrame(CSD_like, columns=['merged'])
+    # Store them in dataframe
+    CSD_fam[['contig', 'bp']] = CSD_fam['merged'].apply(SNP_splitter)
+    CSD_fam['family'] = fam
+    CSD_fam.drop('merged', axis=1, inplace=True)
+    # Split IDs to extract contig and base pair infos
+    CSD_full = CSD_full.append(CSD_fam)
+
+CSD_full.to_csv('data/SNP_lists/' + path.basename(thresh) +
+'_raw_CSD_candidates.txt', index=False)
+
 
 ####################
 # Visualizing data #

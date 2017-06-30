@@ -1,19 +1,23 @@
 \documentclass[10pt,a4paper]{report}
- \usepackage[utf8]{inputenc}
- \usepackage{amsmath}
- \usepackage{amsfonts}
- \usepackage{amssymb}
- \usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[left=2cm,
+			right=2cm,
+			top=3cm,
+bottom=3cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
 \usepackage{csvsimple}
 \usepackage{placeins}
 \usepackage{array,booktabs}
- \usepackage[colorlinks=true,urlcolor=cyan]{hyperref}
- \usepackage{listings} %code highlighting
- \author{Cyril Matthey-Doret}
- \begin{document}
- \title{\textbf{Master Project}\\ Lab book}
- \maketitle
- \chapter{Introduction}
+\usepackage[colorlinks=true,urlcolor=cyan]{hyperref}
+\usepackage{listings} %code highlighting
+\author{Cyril Matthey-Doret}
+\begin{document}
+\title{\textbf{Master Project}\\ Lab book}
+\maketitle
+\chapter{Introduction}
 
 The goal of this project is to identify the locus or loci responsible for sex determination in the parasitoid wasp \textit{Lysiphlebus fabarum}. The species is known to have CSD, which means there are one or more loci that need to be heterozygous in order to triggger female development. I will use the offspring of asexual (thelytokous) females to identify these loci. The offspring consists of haploid males, diploid males and diploid females. Using DNA sequencing data, I will exclude haploid males as they do not provide information on homozygosity/heterozygosity and compare only diploid males versus females to identify the CSD locus/loci.
 \textit{Lysiphlebus fabarum} wasp specimens (generation F4) issued from thelytokous mothers (generation F3) are used. These individuals come from crossing experiments in a strongly inbred line. Here, we use restriction site associated DNA sequencing(RAD-seq) with a custom pipeline to locate the locus/loci. Samples were single-end sequenced using a ddRAD protocole and digested with ecoRI and mseI. There are 2 separate libraries with two different illumina adaptors (detailed in next section). Statistics for the raw RAD-seq data of both libraries of F4 individuals are shown in the table below. I also reused sequencing data for the mothers (F3) from Casper, however I don't have the raw reads statistics as they were already processed.
@@ -381,7 +385,7 @@ The inbreeding coefficient was computed using all males/females. Also, the raw h
 \\
 Date: 27.06.2017
 \\
-Solution: The inbreeding coefficient being calculated on a per-individual basis from homozygosity rates across the genome, it is fine to keep this metric. I did however, re-run the populations program separately for each family. I did not add a population layer to the popmap, because it would not have allowed for different loci blacklists between families when solving the third issue. Visualizing the distribution of inbreeding coefficients across individuals reveals a pretty good (?) separation of individuals (Figure \ref{ploidy_metric}).
+Solution: I could switch to observed homozygosity, but I think it is also fine to keep this metric (I can always change it later). I did however, re-run the populations program separately for each family. I did not add a population layer to the popmap, because it would not have allowed for different loci blacklists between families when solving the third issue. Visualizing the distribution of inbreeding coefficients across individuals reveals a pretty good (?) separation of individuals (Figure \ref{ploidy_metric}).
 
 
 \begin{figure}[h]
