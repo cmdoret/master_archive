@@ -281,8 +281,8 @@ plotting the inbreeding coefficient per individual with r=75 yields:
 
 \begin{figure}[h]
 	\begin{center}
-		\hspace*{-1.5in}
-		\includegraphics[width=1.55\textwidth]{F_d-25_r-75}
+		\hspace*{-1in}
+		\includegraphics[width=1.5\textwidth]{F_d-25_r-75}
 		\caption{Inbreeding coefficient (F). Each plot is a family, each bar is an individual. Blue bars represent males and pink ones represent females and red ones are mothers. color bars on the y axis span the mean +- standard deviation of males and females, respectively. In theory, mothers should have the lowest inbreeding coefficient of their family (highest heterozygosity)}
 	\end{center}
 \end{figure}
@@ -333,8 +333,8 @@ Figure \ref{haplodiplo} shows a plot showing the separation of haploid and diplo
 
 \begin{figure}[h]
 	\begin{center}
-		\hspace*{-1.5in}
-		\includegraphics[width=1.55\textwidth]{exclu_haplo/m2}
+		\hspace*{-0.8in}
+		\includegraphics[width=1.2\textwidth]{exclu_haplo/m2}
 		
 		\caption{Inbreeding coefficient (F). Different colors represent the different types of individuals, as shown in the legend. Each plot is a family, each bar is an individual. Horizontal black bars show the mean inbreeding coefficient of daughters within the family $+/-$ the standard deviation (vertical black line). In theory, mothers should have the lowest inbreeding coefficient of their family (highest heterozygosity)}
 		\label{haplodiplo}
@@ -437,15 +437,15 @@ Solution: I re-ran the explo assoc script used to generate figure \ref{SNPs_expl
 		\label{SNPs_explo_nomother}
 	\end{center}
 \end{figure}
+\FloatBarrier
+
+\subsection{Transmission bias}
+
+Here I check how frequently SNPs that are homozygous in a mother are heterozygous in its offspring and vice versa.
 
 \section{TO DO}
 \begin{itemize}
-\item Run pipeline (populations and down) separately for each family.
-\item Use heterozygosity instead of inbreeding coefficient for disinguishing between haploids and diploids.
-\item represent heterozygosity as distribution (histogram) to see if clearly bimodal (mod1: 1Nmales, mod2: 2Nmales and females.
-\item Are haplotypes in haplotypes.tsv STACKS populations file SNPs, or loci ? (Maybe can set flag to show SNPs/loci)
-\item investigate SNPs with more than 2 alleles: individuals specific (contamination) or locus specific (paralogs merged) kickout concerned individuals/loci based on results
-\item Black list loci homozygous in mothers  (not CSD candidates).
+
 \item subset very confident individuals (top x\% high hom and high het) and find set of loci always CSD-like in these.
 \item use these loci to classify ambiguous individuals
 \item Visualize average heterozygosity (or allele frequency) at each SNPs in offpring versus in mother to assess transmission bias (hom SNPs in mothers more often het in offspring or reversse). 

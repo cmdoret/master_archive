@@ -104,7 +104,7 @@ ploidy:
 	python2 src/misc/explo_assoc.py data/ploidy/vcftools/ data/ploidy/thresholds/m2
 	# Plotting exploratory results for het. at each SNP
 	mkdir -p reports/lab_book/ploidy_per_fam
-	for t in data/ploidy/thresholds/*; do Rscript src/ploidy/prop_offspring.R $$t;done
+	# for t in data/ploidy/thresholds/*; do Rscript src/ploidy/prop_offspring.R $$t;done
 	# Proportion of offspring type per family
 
 # Saving an archive folder with all the data and parameters used.
