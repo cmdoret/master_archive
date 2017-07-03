@@ -3,7 +3,7 @@
 # Cyril Matthey-Doret
 # 26.05.2017
 
-library(tidyverse)
+suppressMessages(library(tidyverse))
 
 #in_folder <- '../../data/ploidy/thresholds/'
 in_folder <- commandArgs(trailingOnly = TRUE)  # Folder containing input tables

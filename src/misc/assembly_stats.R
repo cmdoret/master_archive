@@ -2,7 +2,7 @@
 # Cyril Matthey-Doret
 # 11.06.2017
 
-library(tidyverse)
+suppressMessages(library(tidyverse))
 
 # Path to reference genome
 ref_path <- commandArgs(trailingOnly = T)[1]

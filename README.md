@@ -23,9 +23,9 @@ To run the pipeline:
 
 ![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Measuring heterozygosity levels and other statistics per individual and per loci
 
-![](https://placehold.it/15/ffff00/000000?text=+) __WIP:__ Excluding haploid males from the analysis.
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Excluding haploid males from the analysis.
 
-![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Perform association mapping to locate candidate region(s) for CSD
+![](https://placehold.it/15/ffff00/000000?text=+) __WIP:__ Perform association mapping to locate candidate region(s) for CSD
 
 ![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Look for annotated genes in candidate region(s)
 
@@ -67,7 +67,10 @@ The `src` folders contains all scripts required to run the analysis along with o
   + `parse_pstacks.sh`: Parses the log files obtained by pstacks with different parameter values to produce a table of summary statistics for the report.
   + `parse_cstacks.sh`: Parses the cstacks output catalogue to compute summary statistics and store them in a table for the report.
   + `parse_VCF.sh`: Uses vcftools to compute several statistics from the output VCF file returned by the populations module of STACKS and store them in text files inside the `vcftools` subfolder.
-  + `plot_VCF.R`: Produces barplots to visualize the output statistics extracted by `parse_VCF.sh`. Plots are stored in the `vcftools` subfolder and used in the report.
+  + `plot_VCF.R`: Produces barplots to visualize the output statistics extracted by `parse_VCF.sh`: Plots are stored in the `vcftools` subfolder and used in the report.
+  + `assembly_stats.R`: Generates a table with standard descriptive statistics of the assembly (N50, number of contigs...).
+  + `explo_assoc.py`: Uses genotype matrices of each family to measure proportion of heterozygosity across individuals of each SNPs, and producing visualizations. Also produces a list of SNPs that are homozygous in mothers and another list of "potential CSD candidates".
+  + `SNP_stats.R`: Summarises lists of SNPs into number of SNPs per family for producing tables in lab book.
 
 
 * `stacks_pipeline`: This folder contains scripts required to run the different components of the STACKS suite
@@ -82,10 +85,13 @@ The `src` folders contains all scripts required to run the analysis along with o
 * `ploidy`: This folder contains scripts required to classify males as diploid or haploid based on the genomic data.
   + `haplo_males.py`: Uses the inbreeding coefficient of daughters in each family to compute a homozygosity threshold in each family and males above this threshold are considered haploid. The implementation is flexible and allows to change the threshold formula easily. A table is then returned with the inferred ploidy of each individual.
   + `comp_thresh.R`: Plots the ploidy inferred by different threshold, using tables produces by `haplo_males.py`. Allows to visually selevt the most realistic threshold formula.
+  + `prop_offspring.R`: Produces pie charts showing proportion of haploid males, diploid males and daughters for each family.
 
 
 * `assoc_mapping`: This folder contains scripts used to locate candidate CSD region(s).
-  + `genome_Fst.R`: Computes Male-Female Fst at each locus and plots it. (WIP)
+  + `genome_Fst.R`: Computes Male-Female Fst at each locus and plots it. Does not take relative positions of SNPs into account, this is just an exploratory analysis.
+  + `assoc_map.R`: Performs the actual association mapping, incorporating linkage map information. (WIP)
+  + `vcf2ped.sh`: transforms vcf files into ped files, compatible with GenABEL for association mapping.
 
 
 ### Data files

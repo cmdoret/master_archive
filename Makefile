@@ -70,6 +70,9 @@ lab_book : $(LAB) $(MISC)
 	# Parsing pstacks output into summary table
 	bash $(MISC)/parse_cstacks.sh
 	# Same for cstacks
+	Rscript src/misc/SNP_stats.R data/SNP_lists/m2_hom_mother.txt hom_mother.txt
+	Rscript src/misc/SNP_stats.R data/SNP_lists/m2_raw_CSD_candidates.txt CSD_like.txt
+	# Summarizing number of SNPs
 	texi2pdf -b $(LAB)/lab_book.tex -c
 	mv lab_book.pdf $(LAB)
 	# Compiling LaTeX report and moving it to appropriate folder

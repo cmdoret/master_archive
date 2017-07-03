@@ -20,8 +20,9 @@ bottom=3cm]{geometry}
 \chapter{Introduction}
 
 The goal of this project is to identify the locus or loci responsible for sex determination in the parasitoid wasp \textit{Lysiphlebus fabarum}. The species is known to have CSD, which means there are one or more loci that need to be heterozygous in order to triggger female development. I will use the offspring of asexual (thelytokous) females to identify these loci. The offspring consists of haploid males, diploid males and diploid females. Using DNA sequencing data, I will exclude haploid males as they do not provide information on homozygosity/heterozygosity and compare only diploid males versus females to identify the CSD locus/loci.
-\textit{Lysiphlebus fabarum} wasp specimens (generation F4) issued from thelytokous mothers (generation F3) are used. These individuals come from crossing experiments in a strongly inbred line. Here, we use restriction site associated DNA sequencing(RAD-seq) with a custom pipeline to locate the locus/loci. Samples were single-end sequenced using a ddRAD protocole and digested with ecoRI and mseI. There are 2 separate libraries with two different illumina adaptors (detailed in next section). Statistics for the raw RAD-seq data of both libraries of F4 individuals are shown in the table below. I also reused sequencing data for the mothers (F3) from Casper, however I don't have the raw reads statistics as they were already processed.
+\textit{Lysiphlebus fabarum} wasp specimens (generation F4) issued from thelytokous mothers (generation F3) are used. These individuals come from crossing experiments in a strongly inbred line. Here, we use restriction site associated DNA sequencing(RAD-seq) with a custom pipeline to locate the locus/loci. Samples were single-end sequenced using a ddRAD protocole and digested with ecoRI and mseI. There are 2 separate libraries with two different illumina adaptors (detailed in next section). Statistics for the raw RAD-seq data of both libraries of F4 individuals are shown in table \ref{table:raw_QC}. I also reused sequencing data for the mothers (F3) from Casper, however I don't have the raw reads statistics as they were already processed.
 
+\begin{table}[h]
 \begin{center}
 \begin{tabular}{l| c c}
  \multicolumn{1}{r}{Data summary:} \\
@@ -34,12 +35,16 @@ mean quality score & 34.88 & 35.05 \\
 $>=$ Q30 bases & 92.62\% & 92.13\% \\
 
 \end{tabular}
+\caption{Summary statistics of raw reads from the 2 libraries of F4 individuals RAD-seq data.}
+\label{table:raw_QC}
 \end{center}
+\end{table}
 
-Below is a sketch flowchart of the steps that will be described in this lab book. 
+This lab book will document my progression for mapping the CSD locus, which can be broken down into 4 main steps: preprocessing of sequencing data, STACKs analysis for RAD-seq data, association mapping and orthology search. These steps are likely to change and throughout the project and it is likely that more will be added. The general process is described visually in figure \ref{pipeline}.
 \begin{figure}
 \includegraphics[scale=0.5]{flowchart}
 \caption{\textbf{Pipeline described in the current lab book}. Diamonds represent data, rectangles represent operations/programs. Operations/programs in blue are included in the makefile, thos in red are not.}
+\label{pipeline}
 \end{figure}
 
  \chapter{Processing reads}
@@ -74,12 +79,14 @@ Note: Demultiplexing did not yield any read for CF4F10.
 The pipeline described in this chapter will map the processed reads to the reference genome and build a catalogue of loci. It will eventually implement additional features such as calculating population statistics. At each step of the pipeline, I will try different combinations of parameters and choose the one yielding the best results. 
 
 \section{Mapping}
-Since the reference genome of \textit{Lysiphlebus fabarum} was recently released, I will first map the sequencing reads to the reference, using BWA, but I may also want to use bowtie to compare the results, eventually. At the moment, a draft reference genome is available, here are some summary statistics of it:
-
+Since the reference genome of \textit{Lysiphlebus fabarum} was recently released, I will first map the sequencing reads to the reference, using BWA, but I may also want to use bowtie to compare the results, eventually. At the moment, a draft reference genome is available, table \ref{assembly_stats} displays some summary statistics of it.
+\begin{table}
 \vspace{10px}
 \csvautobooktabular[respect underscore=true]{ref_genome_stats.csv}
+\caption{Assembly statistics for the current reference genome of \textit{Lysiphlebus fabarum}}
+\label{assembly_stats}
 \vspace{10px}
-
+\end{table}
 \subsection{BWA}
 
 BWA provides 3 different algorithms: MEM, backtrack (aln) and SW. MEM is normally the better for Illumina reads longer than 70bp, therefore I will be using this one here. Backtrack is preferred for short reads and SW with frequent gaps.
@@ -168,10 +175,12 @@ If I use Bowtie2, I will redirect the stderr and parse it into a csv file and ge
 
 \subsection{Mapping results}
 
-I used the aln algorith of bwa, since the mem algorithm did not report multiple alignments and has very few documentation available. I tried different mismatches values with aln, ranging from 0 to 8, and I chose to use 4 since the increase in single was quite low above this value. When the mismatch parameter is set to 4, running bwa-aln on a subset of 12 samples yielded 57\% of single hit reads, 26\% of multiple hits and 17\% of unmapped reads.
+I used the aln algorith of bwa, since the mem algorithm did not report multiple alignments and has very few documentation available. I tried different mismatches values with aln (Figure \ref{map_results}), ranging from 0 to 8, and I chose to use 4 since the increase in single was quite low above this value. When the mismatch parameter is set to 4, running bwa-aln on a subset of 12 samples yielded 57\% of single hit reads, 26\% of multiple hits and 17\% of unmapped reads.
 
 \begin{figure}[h]
 \includegraphics[scale=0.5]{mapstats}
+\caption{Results of the BWA mapping with different parameter values for the number of mismatches allowed during mapping. The plot shows the proportion of reads that are mapped uniquely to the reference genome.}
+\label{map_results}
 \end{figure}
 
 \section{pstacks}
@@ -195,11 +204,17 @@ Note: there are 3 models; SNP, bounded SNP and fixed. SNP is the default model, 
 
 \subsection{pstacks results}
 
-Pstacks was run on aligned reads (BWA, 4 mismatches allowed). I tried different values for the minimum coverage required to call a stack (-m parameter), ranging from 1 to 6. Below is the value for minimum coverage, along with the mean number of loci and alleles that was produced per sample. This table was produced including all non-empty samples (198 individuals) and the variables are averaged (arithmetic mean) over all those samples.
+Pstacks was run on aligned reads (BWA, 4 mismatches allowed). I tried different values for the minimum coverage required to call a stack (-m parameter), ranging from 1 to 6 (Figure \ref{pstacks_param}). Below is the value for minimum coverage, along with the mean number of loci and alleles that was produced per sample. This table was produced including all non-empty samples (198 individuals) and the variables are averaged (arithmetic mean) over all those samples.
 
+\begin{table}
+\begin{center}
 \vspace{10px}
 \csvautobooktabular[respect underscore=true]{pstats.csv}
 \vspace{10px}
+\caption{Summary statistics of stacks obtained with different parameter values for minimum coverage in pstacks.}
+\label{pstacks_param}
+\end{center}
+\end{table}
 
 I will use 4 reads minimum coverage as this is already high and using lower values does not improve the output in anyway.
 
@@ -224,11 +239,17 @@ Parameters I may want to change are:
 Note: There are also advanced options such as gapped assembly parameters and loci matching multiple catalogue entries, but these are probably not relevant here.
 \subsection{cstacks results}
 
-I changed the number of mismatches allowed between samples between 1 and 4. These are the results with a subset of 11 samples $([A-L\&\&[\wedge B]]01)$ because B01 was empty (few, low quality reads). 
+I changed the number of mismatches allowed between samples between 1 and 4. Table \ref{cstacks_param} shows the results with a subset of 11 samples $([A-L\&\&[\wedge B]]01)$ because B01 was empty (few, low quality reads). 
 
+\begin{table}
+\begin{center}
 \vspace{10px}
 \csvautobooktabular[respect underscore=true]{cstats.csv}
 \vspace{10px}
+\caption{Summary statistics of loci obtained with different parameter values in cstacks.}
+\label{cstacks_param}
+\end{center}
+\end{table}
 
 I tried running cstacks on all (non-empty) samples, and also modifying the script so that it will first compute the mean number of tags across all samples, and exclude those with less than 10\% of this value when building the catalogue. From the 202 original samples, 4 were empty and excluding low quality ones removed 13 additional ones.
 \\
@@ -429,6 +450,23 @@ First, and most importantly, the populations program should be taking family inf
 Date: 29.06.2017
 \\
 Solution: I re-ran the explo assoc script used to generate figure \ref{SNPs_explo_fam} and excluded all SNPs that are homozygous in the mother (Figure \ref{SNPs_explo_nomother}). It removed a significant number of SNPs from the set, but there are still way too many that fit the CSD pattern.
+
+\begin{table}
+	\begin{center}
+		\csvautobooktabular[respect underscore=true]{cleaning_genomic_data/hom_mother.txt}
+		\caption{Number of homozygous SNPs found in the mother of each family. Note family D is excluded since there was no genomic data available for this mother.}
+		\label{hom_mother}
+	\end{center}
+\end{table}
+
+\begin{table}
+	\begin{center}
+		\csvautobooktabular[respect underscore=true]{cleaning_genomic_data/CSD_like.txt}
+		\caption{Number of homozygous SNPs that fit the CSD pattern in each family.}
+		\label{CSD_like_raw}
+	\end{center}
+\end{table}
+
 
 \begin{figure}[h]
 	\begin{center}
