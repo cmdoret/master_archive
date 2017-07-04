@@ -18,7 +18,7 @@ P-SRC=src/stacks_pipeline/multi_pstacks.sh
 M=3
 # cstacks: loci mismatches (LM)
 C-SRC=src/stacks_pipeline/sub_cstacks.sh
-LM=1
+LM=3
 
 # sstacks:
 S-SRC=src/stacks_pipeline/multi_sstacks.sh
