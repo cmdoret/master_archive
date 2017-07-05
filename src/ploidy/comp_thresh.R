@@ -37,9 +37,10 @@ ploidy_plot <- function(ploid_tbl,thresh, type='bar'){
     out_folder <- 'barplots'
   } else{
     gg <- ggplot(data = ploid_tbl, aes(x = Fis))+
-      geom_density(alpha = 0.3,aes(fill=Ploidy)) +
-      geom_density(alpha = 0.1, col="green") +
-      geom_point(aes(y=0, col=state)) + 
+      geom_density(data = ploid_tbl[ploid_tbl$state!="Mothers",], alpha = 0.3,aes(fill=Sex)) +  # Daughters vs Sons as density area
+      #geom_density(alpha = 0.1, col="green") +  # All individuals in family showed by green density curve
+      geom_point(data = ploid_tbl[ploid_tbl$state=="Mothers",], aes(y=0, col=state)) +  # Showing mother as a dot
+      geom_vline(data = group_stats, aes(xintercept = (mean + 2* sd)), col='red', lty=2) +
       theme(axis.text.x = element_blank()) + facet_wrap(~Family,drop=T, scale='free') +
       xlab("Inbreeding coefficient") + ylab("Density") + ggtitle(paste("Threshold ", thresh, sep=" "))
     out_folder <- 'density'

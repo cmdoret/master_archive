@@ -16,7 +16,7 @@ module add UHTS/Analysis/samtools/1.3;
 #module add UHTS/Aligner/bowtie2/2.2.4;
 main_dir=/scratch/beegfs/monthly/cmatthey
 data_dir=$main_dir/data/processed/
-index=$main_dir/data/ref_genome/lfabarum_bwa_index ## path and prefix of indexed genome files
+index=$main_dir/data/ref_genome/ordered_genome/merged.fasta ## path and prefix of indexed genome files
 
 threads=12
 
