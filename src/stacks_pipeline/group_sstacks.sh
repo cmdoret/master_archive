@@ -21,14 +21,15 @@ cp $CSTACK/* $SSTACK;  # Copying catalogue as well
 
 
 # Below: organizing subfolders to run populations separately on each family
-for fam in $(cut -f3 data/individuals|sort|tail -n +2|uniq)
+for fam in $(cut -f3 data/individuals|tail -n +2|sort|uniq)
 # All families in dataset (excluding header with tail)
 do
     mkdir -p $SSTACK/$fam
     for indv in $(awk -v var="$fam" '$3 == var {print $1}' data/individuals)
     # All individuals in each family
     do
-        mv $SSTACK/$indv* $SSTACK/$fam  # Moving all files of each individual to its family folder
+        mv $SSTACK/$indv* $SSTACK/$fam || echo "Individual $indv excluded from the analysis."
+        # Moving all files of each individual to its family folder
         cp $SSTACK/*catalog* $SSTACK/$fam/  # Copying the whole catalog for each family
     done
     echo "Family $fam folder ready for populations."

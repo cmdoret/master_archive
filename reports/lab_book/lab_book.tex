@@ -253,11 +253,13 @@ I changed the number of mismatches allowed between samples between 1 and 4. Tabl
 
 I tried running cstacks on all (non-empty) samples, and also modifying the script so that it will first compute the mean number of tags across all samples, and exclude those with less than 10\% of this value when building the catalogue. From the 202 original samples, 4 were empty and excluding low quality ones removed 13 additional ones.
 \\
-Summary results:
+Summary results with n=1:
 \begin{itemize}
 \item All non-empty samples (198): 25618 alleles in catalogue, over 7062 loci.
 \item Excluding samples with \textless 10\% of mean tags (185): 25585 alleles in catalogue, over 7046 loci
 \end{itemize}
+
+note: following recommandations from Paris et al. 2017, Lost in parameter space: a roadmap for STACKS. \textit{Methods in Ecology and Evolution}, I set the value of n to 3 (M-1=3)
 
 \section{sstacks}
 

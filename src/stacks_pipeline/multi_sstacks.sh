@@ -61,6 +61,7 @@ done
 # Submitting jobs in a loop
 for f in bsub_scripts/*;
 do
+    sleep 1;
     bsub <./$f;
 done;
 

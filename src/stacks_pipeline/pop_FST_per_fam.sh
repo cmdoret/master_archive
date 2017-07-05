@@ -20,7 +20,7 @@ D=5
 
 module add UHTS/Analysis/stacks/1.30;
 
-for fam in $(cut -f3 data/individuals | sort | tail -n +2 | uniq))
+for fam in $(cut -f3 data/individuals | tail -n +2 | sort | uniq)
 # All families in dataset (excluding header with tail)
 do
     echo "Populations running on family $fam..."
@@ -30,5 +30,5 @@ do
     # Moving all populations output file from sstacks family folder to populations family folder
 done    
 
-rm $od/batch*
+#rm $od/batch*
 
