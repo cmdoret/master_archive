@@ -5,16 +5,21 @@
 suppressMessages(library(tidyverse))
 
 # Path to reference genome
-ref_path <- commandArgs(trailingOnly = T)[1]
-summary_path <- "src/misc/ref_contigs.txt"
+# ref_path <- "../../data/ref_genome/ordered_genome/merged.fasta"
+# summary_path <- "../../src/misc/ref_ordered_contigs.txt"
 
-# Extracting contig headers
-system(paste('cat', ref_path, '| grep ">" >', summary_path,sep=' '))
-ref <- read_delim(file = summary_path, delim = ' ', col_names = F)[,1:2]
+ref_path <- commandArgs(trailingOnly = T)[1]
+summary_path <- "src/misc/ref_ordered_contigs.txt"
+
+# Extracting contig headers and lengths using awk one-liner:
+# Note: $0 ~ ">" : ">" appears in the record
+# cat ref_path | awk '$0 ~ ">" {print c; c=0;printf substr($0,2,100) "\t"; } $0 !~ ">" {c+=length($0);} END { print c; }' > summary_path
+system(paste("cat", ref_path, 
+             "| awk '$0 ~ \">\" {print c; c=0;printf substr($0,2,100) \"\t\"; } $0 !~ \">\" {c+=length($0);} END { print c; }' > ", 
+             summary_path, sep=" "))
+
+ref <- read_delim(file = summary_path, delim = '\t', col_names = F)[,1:2]
 colnames(ref) <- c("contig","len")
-ref$len %<>% 
-  gsub(pattern = "len=([0-9]*)", replacement = "\\1") %>%
-  as.numeric(.)
 
 half_genome <- sum(ref$len)/2
 ord_contigs <- ref %>% arrange(desc(len))
@@ -28,8 +33,8 @@ for(n in 1:nrow(ord_contigs)){
   }
 }
 
-sum_stats <- data.frame(Statistics=c("Assembly length (Mbp)", "Largest contig (Mbp)", "Mean contig size (kbp)",
-                                     "Median contig size (kbp)", "N50 (kbp)", "Number of contigs"),
+sum_stats <- data.frame(Statistics=c("Assembly length (Mbp)", "Largest scaffold (Mbp)", "Mean scaffold size (kbp)",
+                                     "Median scaffold size (kbp)", "N50 (kbp)", "Number of scaffolds"),
                         Values=c(round(sum(ref$len)/1000000, 1), round(max(ref$len)/1000000,1), 
                                  round(mean(ref$len)/1000, 1), round(median(ref$len)/1000, 1), round(n50/1000, 1), length(ref$len)))
 
