@@ -47,6 +47,7 @@ done
 for f in bsub_scripts/*;
 do
     bsub <./$f
+    sleep 1;
 done;
 
 # Waiting until all Pstacks jobs are finished

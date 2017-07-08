@@ -16,13 +16,13 @@ def ploidy(indiv,mult=1,transf=None):
     """
     This function returns a table with individuals and their ploidy, inferred
     based on parameters that were passed. Haploids and diploids sons are split
-    using the inbreeding coefficient of daughters (dau):
+    using the homozygosity of daughters (dau):
     haploids > mean(dau) + mult * transf(stdev(dau))
-    where mean and stdev are the mean and standard deviation of inbreeding
-    coefficient of daughters.
+    where mean and stdev are the mean and standard deviation of homozygosity of
+    daughters.
 
     :param individuals: pd.Dataframe of individuals with names, sex, families,
-    generations and inbreeding coefficients
+    generations and Homozygosity and inbreeding coefficients
     :param mult: Multiplier used to scale threshold
     :param transf: Optional function applied to transform threshold behaviour
     :return: A pandas.DataFrame object containing information of the input table
@@ -30,14 +30,18 @@ def ploidy(indiv,mult=1,transf=None):
     (H)
     """
 
+    # Computing proportion of homozygous sites as an additional variable
+    indiv["HOM"] = indiv["O(HOM)"]/indiv["N_SITES"]
+    indiv.HOM = indiv.HOM.round(3)
+
     # Subsetting daughters from family table
     daughters = indiv.loc[(indiv.Sex == 'F') & (indiv.Generation=='F4')]
 
-    # Summary statistics of inbreeding coefficient within each family
-    Fis_ref = pd.DataFrame({'MEAN':daughters.groupby(['Family'])['F'].mean(),
-                             'STD':daughters.groupby(['Family'])['F'].std()})
+    # Summary statistics of homozygosity within each family
+    Hom_ref = pd.DataFrame({'MEAN':daughters.groupby(['Family'])['HOM'].mean(),
+                             'STD':daughters.groupby(['Family'])['HOM'].std()})
 
-    Fis_ref = Fis_ref.fillna(0)
+    Hom_ref = Hom_ref.fillna(0)
 
     # Subsetting males and grouping by family
     males = indiv[indiv.Sex == 'M'].groupby(['Family'])
@@ -46,12 +50,12 @@ def ploidy(indiv,mult=1,transf=None):
     # computed from daughters.
     if transf:  # If a transformation was passed to the function
         haplo = males.apply(lambda g:
-                              g[g['F'] >= (Fis_ref.loc[g.name,'MEAN'] +
-                                    mult * transf(Fis_ref.loc[g.name,'STD']))])
+                              g[g['HOM'] >= (Hom_ref.loc[g.name,'MEAN'] +
+                                    mult * transf(Hom_ref.loc[g.name,'STD']))])
     else:
         haplo = males.apply(lambda g:
-                              g[g['F'] >= (Fis_ref.loc[g.name,'MEAN'] +
-                                    mult * Fis_ref.loc[g.name,'STD'])])
+                              g[g['HOM'] >= (Hom_ref.loc[g.name,'MEAN'] +
+                                    mult * Hom_ref.loc[g.name,'STD'])])
 
     # Appending new column to family table with ploidy information
     # New 'ploidy' column is created in 'indiv' table, and names that are found
@@ -65,7 +69,7 @@ fam_sum = pd.read_csv("data/individuals",sep='\t')
 
 # 2: Using command line argument to load VCF file summary
 vcf_sum = pd.read_csv(argv[1], sep='\t')
-# vcf_sum = pd.read_csv('../misc/vcftools/summary_d-25_r-75', sep='\t')
+# vcf_sum = pd.read_csv('../../data/ploidy/vcftools/summary_full.txt', sep='\t')
 
 # 3: Merging both table to get a single table with all infos
 fam_sum = fam_sum.merge(vcf_sum, left_on='Name', right_on='INDV', how='inner')

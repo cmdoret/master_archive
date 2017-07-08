@@ -24,6 +24,6 @@ do
         { match($9,/Dev: [0-9]+/);sdcov += substr($9,RSTART+5,RLENGTH-5) }
         {n+=1}
     }}
-    END {print nloc/n,meancov/n,sdcov/n}' $f >> pstats.csv
+    END {printf "%.1f,%.1f,%.1f\n", nloc/n,meancov/n,sdcov/n}' $f >> pstats.csv
 done;
 cp pstats.csv ../../reports/lab_book/

@@ -178,7 +178,7 @@ If I use Bowtie2, I will redirect the stderr and parse it into a csv file and ge
 I used the aln algorith of bwa, since the mem algorithm did not report multiple alignments and has very few documentation available. I tried different mismatches values with aln (Figure \ref{map_results}), ranging from 0 to 8, and I chose to use 4 since the increase in single was quite low above this value. When the mismatch parameter is set to 4, running bwa-aln on a subset of 12 samples yielded 57\% of single hit reads, 26\% of multiple hits and 17\% of unmapped reads.
 
 \begin{figure}[h]
-\includegraphics[scale=0.5]{mapstats}
+\includegraphics[scale=0.5]{param_space/mapstats}
 \caption{Results of the BWA mapping with different parameter values for the number of mismatches allowed during mapping. The plot shows the proportion of reads that are mapped uniquely to the reference genome.}
 \label{map_results}
 \end{figure}
@@ -209,7 +209,7 @@ Pstacks was run on aligned reads (BWA, 4 mismatches allowed). I tried different 
 \begin{table}
 \begin{center}
 \vspace{10px}
-\csvautobooktabular[respect underscore=true]{pstats.csv}
+\csvautobooktabular[respect underscore=true]{param_space/pstats.csv}
 \vspace{10px}
 \caption{Summary statistics of stacks obtained with different parameter values for minimum coverage in pstacks.}
 \label{pstacks_param}
@@ -244,7 +244,7 @@ I changed the number of mismatches allowed between samples between 1 and 4. Tabl
 \begin{table}
 \begin{center}
 \vspace{10px}
-\csvautobooktabular[respect underscore=true]{cstats.csv}
+\csvautobooktabular[respect underscore=true]{param_space/cstats.csv}
 \vspace{10px}
 \caption{Summary statistics of loci obtained with different parameter values in cstacks.}
 \label{cstacks_param}
@@ -296,7 +296,7 @@ Therefore, only loci with at least 5 reads of coverage were included, each loci 
 This table summarizes the first statistics I extracted from the VCF files (using vcftools) with the different values for r:
 \begin{center}
 \vspace{10px}
-\csvautobooktabular[respect underscore=true]{vcf_sumtable.csv}
+\csvautobooktabular[respect underscore=true]{param_space/vcf_sumtable.csv}
 \vspace{10px}
 \end{center}
 

@@ -12,7 +12,7 @@ do
     f=$d/*allel*
 
     # Number of loci
-    L=$(zcat $f | cut  -f3 | uniq | wc -l);
+    L=$(zcat $f | cut  -f3 | sort | uniq | wc -l);
     # Total number of alleles
     A=$(zcat $f | wc -l);
 
