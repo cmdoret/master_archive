@@ -2,7 +2,11 @@
 # Cyril Matthey-Doret
 # 11.06.2017
 
-suppressMessages(library(tidyverse))
+load_packages <- function(){all(require(readr), require(dplyr))}
+
+if(!suppressMessages(require(tidyverse))){
+  stopifnot(load_packages())
+}
 
 # Path to reference genome
 # ref_path <- "../../data/ref_genome/ordered_genome/merged.fasta"
@@ -32,6 +36,8 @@ for(n in 1:nrow(ord_contigs)){
     break
   }
 }
+
+
 
 sum_stats <- data.frame(Statistics=c("Assembly length (Mbp)", "Largest scaffold (Mbp)", "Mean scaffold size (kbp)",
                                      "Median scaffold size (kbp)", "N50 (kbp)", "Number of scaffolds"),

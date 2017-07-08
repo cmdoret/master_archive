@@ -10,9 +10,19 @@
 cd "$(dirname "$0")"
 
 pdir=../../data/logs/pstacks
+
+for f in {1..6};
+do
+    if [ $(ls -l $pdir | grep "COVMIN${f}" | wc -c) -gt 0 ];
+    then
+        awk 'FNR==1{print ""}{print}' $pdir/PST_COVMIN${f}*ERR* > $pdir/summary_PST${f}.txt  || echo "no pstacks log files for m=$f"
+    fi;
+done;
+
+
 echo "min_cov,nloci,mean_cov,sd_cov" > pstats.csv
 
-for f in $pdir/PST*;
+for f in $pdir/summary*;
 do
     echo -n $(echo $f | sed 's/.*\([0-9]\).*/\1/')"," >> pstats.csv
     awk 'BEGIN {FS = "\n"; OFS = ","; RS = ""; rds = 0; meancov = 0; sdcov = 0; nloc = 0; nstacks = 0; n = 0}

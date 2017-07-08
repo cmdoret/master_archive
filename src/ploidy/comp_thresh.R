@@ -3,10 +3,14 @@
 # Cyril Matthey-Doret
 # 26.05.2017
 
-suppressMessages(library(tidyverse))
+load_packages <- function(){all(require(ggplot2), require(dplyr), require(readr))}
 
-#in_folder <- '../../data/ploidy/thresholds/'
-in_folder <- commandArgs(trailingOnly = TRUE)  # Folder containing input tables
+if(!suppressMessages(require(tidyverse))){
+  stopifnot(load_packages())
+}
+
+#in_file <- '../../data/ploidy/thresholds/m2'
+in_file <- commandArgs(trailingOnly = TRUE)  # Folder containing input tables
 
 #' ploidy_plot
 #' Produces one barplot per families representing the proportion of homozygous SNPs
@@ -50,18 +54,17 @@ ploidy_plot <- function(ploid_tbl,thresh, type='bar'){
   dev.off()  # Closing connection
 }
 
-for(in_file in list.files(in_folder)){  # Iterating over input lists
-  in_data <- read_tsv(paste0(in_folder,in_file),col_names = T)  # Reading files sequentially
+
+in_data <- read_tsv(in_file,col_names = T)  # Reading files sequentially
   
-  # Preparing data:
-  in_data %<>%   # Erasing original variable
-    mutate(state=paste0(Generation,Sex,Ploidy)) %>%  # New column containing state information
-    rename(Fis=F)  # Renaming inbreeding coefficient column (F is colliding with 'FALSE')
-  # Changing individual states by Human-friendly names
-  in_data$state <-recode_factor(in_data$state, "F3FD" = "Mothers",
-                         "F4FD" = "Daughters",
-                         "F4MH" = "1N Sons", 
-                         "F4MD" = "2N Sons")
-  ploidy_plot(in_data,basename(in_file))  # Calling plotting function
-  ploidy_plot(in_data,basename(in_file), type='density')
-}
+# Preparing data:
+in_data %<>%   # Erasing original variable
+  mutate(state=paste0(Generation,Sex,Ploidy)) %>%  # New column containing state information
+  rename(Fis=F)  # Renaming inbreeding coefficient column (F is colliding with 'FALSE')
+# Changing individual states by Human-friendly names
+in_data$state <-recode_factor(in_data$state, "F3FD" = "Mothers",
+                       "F4FD" = "Daughters",
+                       "F4MH" = "1N Sons", 
+                       "F4MD" = "2N Sons")
+ploidy_plot(in_data,basename(in_file))  # Calling plotting function
+ploidy_plot(in_data,basename(in_file), type='density')

@@ -28,7 +28,7 @@ do
     for indv in $(awk -v var="$fam" '$3 == var {print $1}' data/individuals)
     # All individuals in each family
     do
-        mv $SSTACK/$indv* $SSTACK/$fam || echo "Individual $indv excluded from the analysis."
+        mv $SSTACK/$indv* $SSTACK/$fam 2> /dev/null || echo "Individual $indv excluded from the analysis."
         # Moving all files of each individual to its family folder
         cp $SSTACK/*catalog* $SSTACK/$fam/  # Copying the whole catalog for each family
     done

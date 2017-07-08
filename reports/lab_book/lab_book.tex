@@ -82,11 +82,12 @@ The pipeline described in this chapter will map the processed reads to the refer
 Since the reference genome of \textit{Lysiphlebus fabarum} was recently released, I will first map the sequencing reads to the reference, using BWA, but I may also want to use bowtie to compare the results, eventually. At the moment, a draft reference genome is available, table \ref{assembly_stats} displays some summary statistics of it.
 \begin{table}
 \vspace{10px}
-\csvautobooktabular[respect underscore=true]{ref_genome_stats.csv}
+\csvautobooktabular[respect underscore=true]{stacks_pipeline/ref_genome_stats.csv}
 \caption{Assembly statistics for the current reference genome of \textit{Lysiphlebus fabarum}}
 \label{assembly_stats}
 \vspace{10px}
 \end{table}
+
 \subsection{BWA}
 
 BWA provides 3 different algorithms: MEM, backtrack (aln) and SW. MEM is normally the better for Illumina reads longer than 70bp, therefore I will be using this one here. Backtrack is preferred for short reads and SW with frequent gaps.
@@ -490,6 +491,36 @@ Date: 05.07.2017
 
 Now that the data is cleaner, I will start with the association mapping. Casper provided me the genome with the contigs ordered by chromosomes (but not oriented?) he obtained with his linkage map. I will use this as the new reference genome and run the pipeline all the way from the mapping with it.
 
+Date : 08.07.2017
+
+I ran the whole pipeline on the ordered genome. Here are all statistics associated with all steps of the analysis previously described.\\
+\FloatBarrier
+
+\begin{table}[h]
+\csvautobooktabular[respect underscore=true]{association_mapping/ref_genome_stats.csv}
+\caption{Assembly statistics for the ordered reference genome of \textit{Lysiphlebus fabarum}}
+\label{assembly_stats_ordered}
+\end{table}
+
+\begin{table}[h]
+\csvautobooktabular[respect underscore=true]{association_mapping/mapstats.csv}
+\caption{Mapping: Proportion and number of reads aligned on the ordered reference genome using BWA's aln algorithm with 4 mismatches allowed.}
+\label{mapping_stats}
+\end{table}
+
+\begin{table}
+\csvautobooktabular[respect underscore=true]{association_mapping/pstats.csv}
+\caption{Pstacks: Summary statistics of stacks obtained with minimum coverage set to 3 in pstacks, using the ordered genome.}
+\label{pstacks_ordered}
+\end{table}
+
+\begin{table}
+\csvautobooktabular[respect underscore=true]{association_mapping/cstats.csv}
+\caption{Cstacks: Summary statistics of loci obtained with a mismatch value set to 3 in cstacks using the ordered genome.}
+\label{cstacks_ordered}
+\end{table}
+
+\FloatBarrier
 
 \section{TO DO}
 \begin{itemize}

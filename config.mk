@@ -33,7 +33,7 @@ D=20
 # Misc: report generation
 LAB=reports/lab_book
 MISC=src/misc
-REF=data/ref_genome/canu2_low_corrRE.contigs.fasta
+REF=data/ref_genome/ordered_genome/merged.fasta
 
 # Ploidy: exclude haplomales
 VCFSUM=data/ploidy/vcftools/summary_full.txt

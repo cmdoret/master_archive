@@ -3,7 +3,11 @@
 # Cyril Matthey-Doret
 # 03.07.2017
 
-suppressMessages(library(tidyverse))
+load_packages <- function(){all(require(readr), require(dplyr))}
+
+if(!suppressMessages(require(tidyverse))){
+  stopifnot(load_packages())
+}
 
 # SNP_path <- "../../data/SNP_lists/m2_hom_mother.txt"
 if(length(commandArgs(trailingOnly=TRUE))==2){

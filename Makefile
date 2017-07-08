@@ -100,7 +100,7 @@ ploidy:
 	# Building list of haploid males
 	mkdir -p data/ploidy/plots/density
 	mkdir -p data/ploidy/plots/barplots
-	Rscript src/ploidy/comp_thresh.R data/ploidy/thresholds/
+	Rscript src/ploidy/comp_thresh.R data/ploidy/thresholds/m2
 	# Visualize different thresholds with resulting ploidies
 	mkdir -p reports/lab_book/assoc_explo_fam
 	mkdir -p data/SNP_lists

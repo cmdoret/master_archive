@@ -4,7 +4,11 @@
 # Cyril Matthey-Doret
 # 19.06.2017
 
-library(tidyverse)
+load_packages <- function(){all(require(dplyr), require(tidyr))}
+
+if(!suppressMessages(require(tidyverse))){
+  stopifnot(load_packages())
+}
 
 # in_path <- "../../data/ploidy/thresholds/m2"
 in_path <- commandArgs(trailingOnly = T)[1]  # Taking ploidy list as CL argument
