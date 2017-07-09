@@ -17,18 +17,20 @@
 od=./data/populations/d-5_r-75
 R=0.75
 D=5
+thresh=data/ploidy/thresholds/m2
 
 module add UHTS/Analysis/stacks/1.30;
 
 for fam in $(cut -f3 data/individuals | tail -n +2 | sort | uniq)
 # All families in dataset (excluding header with tail)
 do
-    if [ -f data/haploid_males ]
+    if [ -f $thresh ]  # If ploidy information already available
     then
-        haplo=$(awk "/\t${fam}$/{print}" haploid_males | cut -f2)
-        for indv in haplo;
+        haplo=$(awk -v var=$fam '$11 ~ "H" && $3 ~ var {print $1}' $thresh)  # list haploid males for each family
+        for indv in $haplo;
         do
             rm data/sstacks/$fam/$indv*
+            # Remove all files related to haploids to exclude from populations run
         done
     fi
     

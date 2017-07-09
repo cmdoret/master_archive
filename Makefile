@@ -29,9 +29,9 @@ all : $(POP)
 #	bsub -K < $(C-SRC)
 
 # Running Sstacks
-#$(SSTACK) : $(CSTACK)
-#	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(S-SRC)
-#	bash $(S-SRC) $<
+# $(SSTACK) : $(CSTACK)
+# 	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(S-SRC)
+# 	bash $(S-SRC) $<
 
 # Running populations on each family
 $(POP) : $(SSTACK) $(POP-SRC)
@@ -43,6 +43,7 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	sed -i "s^\(od=\).*^\1$(POP)^g" $(POP-SRC)
 	sed -i "s/\(R=\).*/\10\.$(R)/g" $(POP-SRC)
 	sed -i "s/\(D=\).*/\1$(D)/g" $(POP-SRC)
+	sed -i "s^\(thresh=\).*^\1$(THRESH)^g" $(POP-SRC)
 	# Changing parameters directly in the file
 	bsub -K <$(POP-SRC)
 	# Submitting job (-K will hang pipeline until end of job)
@@ -100,12 +101,12 @@ ploidy:
 	# Building list of haploid males
 	mkdir -p data/ploidy/plots/density
 	mkdir -p data/ploidy/plots/barplots
-	Rscript src/ploidy/comp_thresh.R data/ploidy/thresholds/m2
+	Rscript src/ploidy/comp_thresh.R $(THRESH)
 	# Visualize different thresholds with resulting ploidies
 	mkdir -p reports/lab_book/assoc_explo_fam
 	mkdir -p data/SNP_lists
 	# Creating folder to store new plots if necessary
-	python2 src/misc/explo_assoc.py data/ploidy/vcftools/ data/ploidy/thresholds/m2
+	python2 src/misc/explo_assoc.py data/ploidy/vcftools/ $(THRESH)
 	# Plotting exploratory results for het. at each SNP
 	mkdir -p reports/lab_book/ploidy_per_fam
 	# for t in data/ploidy/thresholds/*; do Rscript src/ploidy/prop_offspring.R $$t;done
