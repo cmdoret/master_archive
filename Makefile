@@ -15,23 +15,23 @@ all : $(POP)
 #	bsub -K <./$(BWA-SRC)
 
 # Running Pstacks
-$(PSTACK) : $(MAP)
-	bash $(P-SRC) $< $(M)
+#$(PSTACK) : $(MAP)
+#	bash $(P-SRC) $< $(M)
 	
 
 # Running Cstacks
-$(CSTACK) : $(PSTACK)
-	rm -fr $@;
-	mkdir -p $@;
-	sed -i "s^\(wd=\).*^\1$(MAIN)/data^g" $(C-SRC)
-	sed -i "s/\(MM=\)[0-9]*/\1$(LM)/g" $(C-SRC)
-	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(C-SRC)
-	bsub -K < $(C-SRC)
+#$(CSTACK) : $(PSTACK)
+#	rm -fr $@;
+#	mkdir -p $@;
+#	sed -i "s^\(wd=\).*^\1$(MAIN)/data^g" $(C-SRC)
+#	sed -i "s/\(MM=\)[0-9]*/\1$(LM)/g" $(C-SRC)
+#	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(C-SRC)
+#	bsub -K < $(C-SRC)
 
 # Running Sstacks
-$(SSTACK) : $(CSTACK)
-	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(S-SRC)
-	bash $(S-SRC) $<
+#$(SSTACK) : $(CSTACK)
+#	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(S-SRC)
+#	bash $(S-SRC) $<
 
 # Running populations on each family
 $(POP) : $(SSTACK) $(POP-SRC)

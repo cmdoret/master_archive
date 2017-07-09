@@ -23,7 +23,16 @@ module add UHTS/Analysis/stacks/1.30;
 for fam in $(cut -f3 data/individuals | tail -n +2 | sort | uniq)
 # All families in dataset (excluding header with tail)
 do
-    echo "Populations running on family $fam..."
+    if [ -f data/haploid_males ]
+    then
+        haplo=$(awk "/\t${fam}$/{print}" haploid_males | cut -f2)
+        for indv in haplo;
+        do
+            rm data/sstacks/$fam/$indv*
+        done
+    fi
+    
+    echo "Populations running on family $fam, excluding $(echo $haplo | wc -w) haploid males."
     mkdir -p $od/$fam  # Prepare one output folder per family
     populations -P data/sstacks/$fam -M data/popmap -p 2 -m $D -b 0 -r $R -f p_value -t 3 --verbose --fstats --vcf --max_obs_het 0.9
     mv data/sstacks/$fam/batch* $od/$fam/
