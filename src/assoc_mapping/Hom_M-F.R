@@ -43,7 +43,7 @@ CSD_like <- merge(male_stat,female_stat,by=c('Chr','BP','fam'))
 #CSD_like$CSD <- (CSD_like$Obs.Hom+CSD_like$Obs.Het)*(CSD_like$N.x+CSD_like$N.y)/2
 CSD_like$CSD <- (CSD_like$Obs.Hom+CSD_like$Obs.Het)/2
 CSD_like <- rename(CSD_like, Nm=N.x,Nf=N.y, Male.Hom=Obs.Hom, Fem.Het=Obs.Het)
-CSD_like <- CSD_like[CSD_like$Nf>1 & CSD_like$Nm>1,]
+#CSD_like <- CSD_like[CSD_like$Nf>1 & CSD_like$Nm>1,]
 
 
 # Keeping only chromosomes (removing contigs)
@@ -65,11 +65,10 @@ compact_chrom <- chrom %>%
   summarise(avg=mean(CSD), BP=mean(tot_BP)) %>%
   arrange(BP)
 
-
 plot(compact_chrom$BP, compact_chrom$avg, type="l", ylab='prop. CSD', xlab="genomic position", 
      main="Proportion of CSD individuals, averaged across families")
 abline(v=chrom_sizes$start, lty=2,col="blue")
-text(x = chrom_sizes$mid,y=0,labels = chrom_sizes$chrom)
+text(x = chrom_sizes$mid,y=0.2,labels = chrom_sizes$chrom)
 
 highCSD <- chrom %>%
   group_by(fam) %>%
@@ -80,11 +79,20 @@ hist(top_CSD$tot_BP,breaks=100, main="Top CSD candidates", xlab="Genomic positio
 abline(v=chrom_sizes$start, lty=2,col="blue")
 text(x = chrom_sizes$mid,y=17,labels = chrom_sizes$chrom)
 
-ggplot(data=chrom, aes(x=tot_BP, y=CSD))+ geom_line() +
+ggplot(data=chrom[chrom$Nm>1 & chrom$Nf>1,], aes(x=tot_BP, y=CSD))+ geom_line() +
   facet_wrap(~fam,drop = F) + #geom_text(data=highCSD,aes(label=pos, y=CSD), size=1.9)+
-  geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2) 
+  geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2) +
+  ylab("Prop.CSD")
 
 ggplot(data=chrom, aes(x=tot_BP, y=CSD, col=fam))+ geom_line() + 
   #geom_text(data=highCSD,aes(label=pos, y=CSD), size=1.9)+
-  geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2) 
+  geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2) +
+  ylab("Prop.CSD")
 
+uniq_CSD = top_CSD[order(top_CSD[,'tot_BP'],-top_CSD[,'CSD']),]
+uniq_CSD$tot_BP <- round(uniq_CSD$tot_BP,digits=-3)
+uniq_CSD$BP <- round(uniq_CSD$BP,digits=-3)
+uniq_CSD = uniq_CSD[!duplicated(uniq_CSD$tot_BP),]
+
+out_CSD <- uniq_CSD[,c("Locus.ID","Chr","BP","tot_BP","Nf","Nm","CSD")]
+write.csv(out_CSD,"../../data/assoc_mapping/CSD_hits.csv",row.names=F,quote=F)
