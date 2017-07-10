@@ -32,6 +32,7 @@ all : $(POP)
 # $(SSTACK) : $(CSTACK)
 # 	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(S-SRC)
 # 	bash $(S-SRC) $<
+# 	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK)
 
 # Running populations on each family
 $(POP) : $(SSTACK) $(POP-SRC)
@@ -39,7 +40,6 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	mkdir -p $@
 	rm -rf $(DAT)/logs/populations  # Erasing logs from previous run
 	mkdir -p $(DAT)/logs/populations
-	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK)
 	sed -i "s^\(od=\).*^\1$(POP)^g" $(POP-SRC)
 	sed -i "s/\(R=\).*/\10\.$(R)/g" $(POP-SRC)
 	sed -i "s/\(D=\).*/\1$(D)/g" $(POP-SRC)

@@ -11,7 +11,7 @@ library(ggplot2)
 
 
 # Chromosome sizes
-scaffolds <- read.table("../../data/ref_genome/ordered_genome/merged.fasta.ann")
+scaffolds <- read.table("../../data/ref_genome/ordered_genome/merged.fasta.ann", stringsAsFactors = F)
 chrom_sizes <- data.frame(); chrom_names=c()
 for(row in seq(1,nrow(scaffolds))){
   if(length(grep('chr',scaffolds[row,2]))){
@@ -20,10 +20,13 @@ for(row in seq(1,nrow(scaffolds))){
   }
 }
 chrom_sizes <- cbind(chrom_names, chrom_sizes)
+rownames(chrom_sizes) <- NULL
 colnames(chrom_sizes) <- c("chrom","start","length")
+chrom_sizes$length <- as.numeric(chrom_sizes$length)
+chrom_sizes$mid <- chrom_sizes$start + (chrom_sizes$length/2)
 
 # Genome statistics
-stat_path <- '../../data/populations/d-20_r-75/'
+stat_path <- '../../data/populations/d-20_r-80/'
 # phi_path <- commandArgs(TrailingOnly=T)[1]
 sum_stat <- data.frame()
 for(fam in list.dirs(stat_path)[2:length(list.dirs(stat_path))]){  # Excluding first dir (parent)
@@ -34,11 +37,13 @@ for(fam in list.dirs(stat_path)[2:length(list.dirs(stat_path))]){  # Excluding f
 
 
 # Computing CSD-ness
-male_stat <- sum_stat[sum_stat$Pop.ID=="M",c('Chr','BP','Obs.Hom', 'fam', 'N')]
+male_stat <- sum_stat[sum_stat$Pop.ID=="M",c('Chr','BP','Obs.Hom', 'fam', 'N',"Locus.ID")]
 female_stat <- sum_stat[sum_stat$Pop.ID=="F",c('Chr','BP','Obs.Het', 'fam', 'N')]
 CSD_like <- merge(male_stat,female_stat,by=c('Chr','BP','fam'))
 #CSD_like$CSD <- (CSD_like$Obs.Hom+CSD_like$Obs.Het)*(CSD_like$N.x+CSD_like$N.y)/2
 CSD_like$CSD <- (CSD_like$Obs.Hom+CSD_like$Obs.Het)/2
+CSD_like <- rename(CSD_like, Nm=N.x,Nf=N.y, Male.Hom=Obs.Hom, Fem.Het=Obs.Het)
+CSD_like <- CSD_like[CSD_like$Nf>1 & CSD_like$Nm>1,]
 
 
 # Keeping only chromosomes (removing contigs)
@@ -55,18 +60,31 @@ genomic_pos <- function(snp){
 }
 chrom$tot_BP <-apply(X = chrom,MARGIN = 1, FUN=genomic_pos)
 
-plot(chrom$tot_BP, chrom$CSD, type="l", ylab='Fst', xlab="genomic position")
+compact_chrom <- chrom %>% 
+  group_by(Locus.ID) %>%
+  summarise(avg=mean(CSD), BP=mean(tot_BP)) %>%
+  arrange(BP)
+
+
+plot(compact_chrom$BP, compact_chrom$avg, type="l", ylab='prop. CSD', xlab="genomic position", 
+     main="Proportion of CSD individuals, averaged across families")
+abline(v=chrom_sizes$start, lty=2,col="blue")
+text(x = chrom_sizes$mid,y=0,labels = chrom_sizes$chrom)
 
 highCSD <- chrom %>%
   group_by(fam) %>%
   filter(CSD==max(CSD))
 
+top_CSD <- chrom[chrom$CSD>=0.8,]
+hist(top_CSD$tot_BP,breaks=100, main="Top CSD candidates", xlab="Genomic position", ylab="N hits >= 0.8", col="grey")
+abline(v=chrom_sizes$start, lty=2,col="blue")
+text(x = chrom_sizes$mid,y=17,labels = chrom_sizes$chrom)
 
-ggplot(data=chrom, aes(x=tot_BP, y=CSD))+ geom_line() + 
-  facet_wrap(~fam,drop = F) + geom_text(data=highCSD,aes(label=pos, y=CSD), size=1.9)+
+ggplot(data=chrom, aes(x=tot_BP, y=CSD))+ geom_line() +
+  facet_wrap(~fam,drop = F) + #geom_text(data=highCSD,aes(label=pos, y=CSD), size=1.9)+
   geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2) 
 
 ggplot(data=chrom, aes(x=tot_BP, y=CSD, col=fam))+ geom_line() + 
-  geom_text(data=highCSD,aes(label=pos, y=CSD), size=1.9)+
+  #geom_text(data=highCSD,aes(label=pos, y=CSD), size=1.9)+
   geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2) 
 

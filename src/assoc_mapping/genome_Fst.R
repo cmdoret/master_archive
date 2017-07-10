@@ -21,7 +21,7 @@ chrom_sizes <- cbind(chrom_names, chrom_sizes)
 colnames(chrom_sizes) <- c("chrom","start","length")
 
 # Genome statistics
-phi_path <- '../../data/populations/d-20_r-75/'
+phi_path <- '../../data/populations/d-20_r-80/'
 # phi_path <- commandArgs(TrailingOnly=T)[1]
 phi_stat <- data.frame()
 for(fam in list.dirs(phi_path)[2:length(list.dirs(phi_path))]){  # Excluding first dir (parent)
@@ -45,16 +45,18 @@ genomic_pos <- function(snp){
 }
 chrom$tot_BP <-apply(X = chrom,MARGIN = 1, FUN=genomic_pos)
 
-plot(chrom$tot_BP, chrom$Fst., type="l", ylab='Fst', xlab="genomic position")
+compact_chrom <- chrom %>% 
+  group_by(Locus.ID) %>%
+  summarise(avg=mean(Smoothed.Fst.), BP=mean(tot_BP)) %>%
+  arrange(BP)
+
+plot(compact_chrom$BP, compact_chrom$avg, type="l", ylab='Fst', xlab="genomic position")
+abline(v=chrom_sizes$start, lty=2,col="blue")
 
 highFST <- chrom %>%
   group_by(fam) %>%
-  filter(Fst.==max(Fst.))
+  filter(Fst.==max(Smoothed.Fst.))
 
 
-ggplot(data=chrom, aes(x=tot_BP, y=Fst.))+ geom_line() + 
-  facet_wrap(~fam,drop = F) + geom_text(data=highFST,aes(label=pos, y=Fst.+0.2), size=1.9)+
-  geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2)
-
-
-
+ggplot(data=chrom, aes(x=tot_BP, y=Smoothed.Fst.))+ geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2) + 
+  geom_line() + facet_wrap(~fam,drop = F) + geom_text(data=highFST,aes(label=pos, y=Fst.+0.2), size=1.9)

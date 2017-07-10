@@ -36,10 +36,10 @@ do
     
     echo "Populations running on family $fam, excluding $(echo $haplo | wc -w) haploid males."
     mkdir -p $od/$fam  # Prepare one output folder per family
-    populations -P data/sstacks/$fam -M data/popmap -p 2 -m $D -b 0 -r $R -f p_value -t 3 --verbose --fstats --vcf --max_obs_het 0.9
+    populations -P data/sstacks/$fam -M data/popmap -p 2 -m $D -b 0 -r $R -k -f p_value -t 3 --verbose --fstats --vcf --max_obs_het 0.9
     mv data/sstacks/$fam/batch* $od/$fam/
     # Moving all populations output file from sstacks family folder to populations family folder
-done    
+done
 
 #rm $od/batch*
 

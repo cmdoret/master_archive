@@ -30,7 +30,7 @@ do
     do
         mv $SSTACK/$indv* $SSTACK/$fam 2> /dev/null || echo "Individual $indv excluded from the analysis."
         # Moving all files of each individual to its family folder
-        cp $SSTACK/*catalog* $SSTACK/$fam/  # Copying the whole catalog for each family
     done
+    cp $SSTACK/*catalog* $SSTACK/$fam/  # Copying the whole catalog for each family
     echo "Family $fam folder ready for populations."
 done    
