@@ -420,7 +420,19 @@ Solution: I could switch to observed homozygosity, but I think it is also fine t
 	\end{center}
 \end{figure}
 
+Date: 12.07.2017
+Update: This method of ploidy separation is flawed as it will overestimate the number of haploid males in families with few females. Indeed, with a lower standard deviation of female homozygosity, the threshold tends to the mean only.
 
+Because the homozygosity of diploid offspring depends on its mother, but that of haploids are independent of mother background, I can probably use a universal threshold for all families. This way, the threshold can be equally conservative in all families and not biased towards certain of them. Plotting homozygosity of all individuals (Figure \ref{ploidy_fixed}) revealed 2 separate meta-distributtions. The one on the left is a gaussian made up of several smaller ones (each smaller distribution is a family, with the mean depending on the mother), whereas the distribution on the right is made of a single gaussian containing all (or most) haploid males.
+Choosing a fixed conservative threshold in between should allow to keep more individuals and remove bias.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{cleaning_genomic_data/ploidy_sep_fixed.pdf}
+		\caption{Distribution of the proportion of homozygous loci across all individuals. Continuous vertical black lines are the mothers values and the dashed vertical red line is the (visually) optimal threshold, fixed at 0.77.}
+		\label{ploidy_fixed}
+	\end{center}
+\end{figure}
 
 \section{Loci with 3 or more haplotypes}
 
@@ -525,14 +537,22 @@ I ran the whole pipeline on the ordered genome. Here are all statistics associat
 \section{Coarse analyses}
 Before running any association mapping analysis, I will blacklist loci that are homozygous in mothers and individuals that are defined as haploids with m2 homozygosity threshold from the populations analysis and rerun it.
 
+\section{Number of CSD loci}
+
+It is possible to approximate the number of CSD loci heterozygous in a mother using the proportion of males among diploid individuals. Provided the loci are on different chromosomes, if n CSD loci are heterozygous in the mother, there should be $\frac{1}{2^n}$ of males among diploid, because as long as heterozygosity is retained at one of these loci, the offspring should be female.
+
+I changed the method of ploidy separation to a fixed threshold of homozygosity identical for all families, since homozygosity of haploid males should not depend on their mother's genetic background. This should provide an unbiased (or equally biased) proportion of males in all families.
+
+Once the mothers have been categorized based on the proportion of males in their diploid offspring, I will use this category information to filter loci that are homozygous in mothers with more loci ? not sure...
+
 \section{TO DO}
 \begin{itemize}
-\item change the n parameter in cstacks to M+-1 (probably 3 is best)
-\item save plots with n=1 just in case (maybe?)
-\item try splitting by ploidy with observed homozygosity instead of inbreeding coefficient
-\item prepare presentation for the 12th
-\item subset very confident individuals (top x\% high hom and high het) and find set of loci always CSD-like in these.
-\item use these loci to classify ambiguous individuals
+
+
+\item look at Fst, include everything including haploid males to look at deleterious alleles in males
+\item exclude loci that are homozygous in mothers !
+\item summarize all numbers of individuals and look at proportion of diploid individuals that are males. 
+\item if n CSD loci on different chromosomes are het. in a mother, the proportion of males in diploid offspring will be $\frac{1}{2^n}$
 \item Visualize average heterozygosity (or allele frequency) at each SNPs in offpring versus in mother to assess transmission bias (hom SNPs in mothers more often het in offspring or reversse). 
 \item Validate haploid definition using haplotypes deduced from linkage map.
 \item convert VCF file into PED format using vcftools

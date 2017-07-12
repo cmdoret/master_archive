@@ -12,7 +12,7 @@ from sys import argv  # Command line arguments
 from math import sqrt
 
 
-def ploidy(indiv,mult=1,transf=None):
+def ploidy(indiv,mult=1,transf=None, fixed=False):
     """
     This function returns a table with individuals and their ploidy, inferred
     based on parameters that were passed. Haploids and diploids sons are split
@@ -25,6 +25,9 @@ def ploidy(indiv,mult=1,transf=None):
     generations and Homozygosity and inbreeding coefficients
     :param mult: Multiplier used to scale threshold
     :param transf: Optional function applied to transform threshold behaviour
+    :param fixed: If set to a number above 0, a fixed float value will be used
+    as a threshold for all families. This value should represent a proportion of
+    homozygous sites (i.e. between 0 and 1).
     :return: A pandas.DataFrame object containing information of the input table
     plus an additional column with ploidy information: Diploid (D) or Haploid
     (H)
@@ -48,14 +51,18 @@ def ploidy(indiv,mult=1,transf=None):
 
     # Subsetting haploid males in each family and filtering by threshold
     # computed from daughters.
-    if transf:  # If a transformation was passed to the function
-        haplo = males.apply(lambda g:
-                              g[g['HOM'] >= (Hom_ref.loc[g.name,'MEAN'] +
-                                    mult * transf(Hom_ref.loc[g.name,'STD']))])
+    if fixed:
+        haplo = males.apply(lambda g: g[g['HOM'] >= fixed])
     else:
-        haplo = males.apply(lambda g:
-                              g[g['HOM'] >= (Hom_ref.loc[g.name,'MEAN'] +
-                                    mult * Hom_ref.loc[g.name,'STD'])])
+        if transf:  # If a transformation was passed to the function
+            haplo = males.apply(lambda g:
+                                  g[g['HOM'] >= (Hom_ref.loc[g.name,'MEAN'] +
+                                        mult *
+                                        transf(Hom_ref.loc[g.name,'STD']))])
+        else:
+            haplo = males.apply(lambda g:
+                                  g[g['HOM'] >= (Hom_ref.loc[g.name,'MEAN'] +
+                                        mult * Hom_ref.loc[g.name,'STD'])])
 
     # Appending new column to family table with ploidy information
     # New 'ploidy' column is created in 'indiv' table, and names that are found
@@ -90,6 +97,9 @@ for m in benchmark_set['mult']:  # Looping over all combination of param values
         out_m_t.to_csv('data/ploidy/thresholds/m' + str(m) + t[1], sep='\t',
         index=False)
 
+# Fixed threshold determined visually at 77%        
+out_m = ploidy(fam_sum,fixed=0.77)
+out_m.to_csv('data/ploidy/thresholds/fixed',sep='\t',index=False)
 #out_haplo = fam_sum.loc[fam_sum.Sex == 'M',['Name','Family']]
 #out_haplo = out_haplo.merge(haplo,on='Name',how='inner')[['Name','Family_x']]
 #out_haplo.rename(columns={'Family_x':'Family'},inplace=True)

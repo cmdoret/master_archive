@@ -37,7 +37,7 @@ REF=data/ref_genome/ordered_genome/merged.fasta
 
 # Ploidy: exclude haplomales
 VCFSUM=data/ploidy/vcftools/summary_full.txt
-THRESH=data/ploidy/thresholds/m2
+THRESH=data/ploidy/thresholds/fixed
 
 # Association mapping:
 ASSOC-SRC=src/assoc_mapping/assoc_map.R

@@ -29,10 +29,10 @@ all : $(POP)
 #	bsub -K < $(C-SRC)
 
 # Running Sstacks
-# $(SSTACK) : $(CSTACK)
-# 	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(S-SRC)
-# 	bash $(S-SRC) $<
-# 	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK)
+$(SSTACK) : $(CSTACK)
+	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(S-SRC)
+	bash $(S-SRC) $<
+	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK)
 
 # Running populations on each family
 $(POP) : $(SSTACK) $(POP-SRC)
