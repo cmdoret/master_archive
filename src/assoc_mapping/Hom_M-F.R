@@ -79,7 +79,7 @@ hist(top_CSD$tot_BP,breaks=100, main="Top CSD candidates", xlab="Genomic positio
 abline(v=chrom_sizes$start, lty=2,col="blue")
 text(x = chrom_sizes$mid,y=17,labels = chrom_sizes$chrom)
 
-ggplot(data=chrom[chrom$Nm>1 & chrom$Nf>1,], aes(x=tot_BP, y=CSD))+ geom_line() +
+ggplot(data=chrom, aes(x=tot_BP, y=CSD))+ geom_line() +
   facet_wrap(~fam,drop = F) + #geom_text(data=highCSD,aes(label=pos, y=CSD), size=1.9)+
   geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2) +
   ylab("Prop.CSD")
