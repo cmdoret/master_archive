@@ -70,6 +70,10 @@ highFST <- chrom %>%
 ggplot(data=chrom, aes(x=tot_BP, y=Smoothed.Fst.))+ geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2) + 
   geom_line() + facet_wrap(~fam,drop = F) + geom_text(data=highFST,aes(label=pos, y=Fst.+0.2), size=1.9)
 
+ggplot(data=chrom, aes(x=tot_BP, y=Smoothed.Fst., col=fam))+ geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2) + 
+  geom_line()
+
+
 top_Fst<- chrom[chrom$Fst.>=0.7,]
 hist(top_Fst$tot_BP,breaks=100, main="Top CSD candidates", xlab="Genomic position", ylab="N hits >= 0.8", col="grey")
 abline(v=chrom_sizes$start, lty=2,col="blue")
