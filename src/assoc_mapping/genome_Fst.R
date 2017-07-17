@@ -9,7 +9,7 @@ library(ggplot2)
 
 
 # Chromosome sizes
-scaffolds <- read.table("../../data/ref_genome/ordered_genome/merged.fasta.ann")
+scaffolds <- read.table("../../data/ref_genome/ordered_genome/merged.fasta.ann", stringsAsFactors = F)
 chrom_sizes <- data.frame(); chrom_names=c()
 for(row in seq(1,nrow(scaffolds))){
   if(length(grep('chr',scaffolds[row,2]))){
@@ -18,10 +18,15 @@ for(row in seq(1,nrow(scaffolds))){
   }
 }
 chrom_sizes <- cbind(chrom_names, chrom_sizes)
+rownames(chrom_sizes) <- NULL
 colnames(chrom_sizes) <- c("chrom","start","length")
+chrom_sizes$length <- as.numeric(chrom_sizes$length)
+chrom_sizes$mid <- chrom_sizes$start + (chrom_sizes$length/2)
+
 
 # Genome statistics
 phi_path <- '../../data/populations/d-20_r-80/'
+# phi_path <- '../../data/populations/haplo_d-20_r-80/'
 # phi_path <- commandArgs(TrailingOnly=T)[1]
 phi_stat <- data.frame()
 for(fam in list.dirs(phi_path)[2:length(list.dirs(phi_path))]){  # Excluding first dir (parent)
@@ -52,16 +57,20 @@ compact_chrom <- chrom %>%
 
 plot(compact_chrom$BP, compact_chrom$avg, type="l", ylab='Fst', xlab="genomic position")
 abline(v=chrom_sizes$start, lty=2,col="blue")
+text(x = chrom_sizes$mid,y=-0.2,labels = chrom_sizes$chrom)
+hit_ID <-compact_chrom$Locus.ID[order(compact_chrom$avg,decreasing = T)][1:3]
+text(x = chrom$tot_BP[chrom$Locus.ID %in% hit_ID],
+     y= compact_chrom$avg[compact_chrom$Locus.ID %in% hit_ID],
+     labels = chrom$pos[chrom$Locus.ID %in% hit_ID])
 
 highFST <- chrom %>%
   group_by(fam) %>%
-  filter(Fst.==max(Smoothed.Fst.))
-
+  filter(Smoothed.Fst.==max(Smoothed.Fst.))
 
 ggplot(data=chrom, aes(x=tot_BP, y=Smoothed.Fst.))+ geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2) + 
   geom_line() + facet_wrap(~fam,drop = F) + geom_text(data=highFST,aes(label=pos, y=Fst.+0.2), size=1.9)
 
-top_Fst<- chrom[chrom$Fst.>=0.8,]
+top_Fst<- chrom[chrom$Fst.>=0.7,]
 hist(top_Fst$tot_BP,breaks=100, main="Top CSD candidates", xlab="Genomic position", ylab="N hits >= 0.8", col="grey")
 abline(v=chrom_sizes$start, lty=2,col="blue")
 

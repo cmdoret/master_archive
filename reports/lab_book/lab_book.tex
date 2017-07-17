@@ -545,6 +545,33 @@ I changed the method of ploidy separation to a fixed threshold of homozygosity i
 
 Once the mothers have been categorized based on the proportion of males in their diploid offspring, I will use this category information to filter loci that are homozygous in mothers with more loci ? not sure...
 
+\chapter{Male-Female Fst}
+
+Date: 17.07.2017\\
+During preliminary analyses, I noticed recurrent peaks in Fst between diploid males and females in different families. This could indicate the presence of male-deleterious alleles. To further investigate this possibility, I analysed Fst again using all individuals (including haploids).
+
+I first looked at Fst over all 6 chromosomes in the assembly, averaging the Fst at each SNP across family to have an overview (Figure \ref{haplo_Fst_avg}), and then splitting the families to identify recurrent peaks (Figure \ref{haplo_Fst_per_fam}).
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{association_mapping/haplo_avg_all_Fst.pdf}
+		\caption{Fst values averaged at each SNP across all families. All individuals, including haploids and mothers are included in the analysis and top scoring peaks are labelled with the SNP position in the format "chromosome\_basepair" where basepair is the position within the chromosome. Note: populations parameters set to : min depth (D)=20 and prop pop (r)=80}
+		\label{haplo_Fst_avg}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{association_mapping/haplo_Fst_per_fam.pdf}
+		\caption{Fst values at each SNP by family. All individuals, including haploids and mothers are included in the analysis and top scoring peaks are labelled with the SNP position in the format "chromosome\_basepair" where basepair is the position within the chromosome. Note: populations parameters set to : min depth (D)=20 and prop pop (r)=80}
+		\label{haplo_Fst_per_fam}
+	\end{center}
+\end{figure}
+\FloatBarrier
+
+The issue with averaging the Fst over families as in figure \ref{haplo_Fst_avg} is that some SNPs can be sequenced in only one family, therefore the averaged value will only depend on that family. If we merge all families' curve into a single plot, it appears there is no single peak common to all families. 
+This can either mean that there is no interesting signal, or if that the signal depends on the family's genetic background, possibly due to an epistatic effect. Here, however, I do not have the sample size to test for it. 
+
 \section{TO DO}
 \begin{itemize}
 
@@ -561,3 +588,4 @@ Once the mothers have been categorized based on the proportion of males in their
 
 \end{document} 
 \grid
+%                                 

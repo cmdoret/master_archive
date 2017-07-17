@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.11.16)  12 JUL 2017 16:49
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.11.16)  17 JUL 2017 21:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -772,7 +772,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
 Chapter 1.
-<flowchart.png, id=122, 400.51567pt x 887.2891pt>
+<flowchart.png, id=130, 400.51567pt x 887.2891pt>
 File: flowchart.png Graphic file (type png)
  <use flowchart.png>
 Package pdftex.def Info: flowchart.png used on input line 45.
@@ -805,14 +805,14 @@ LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10> not available
  [4
 
 ] [5]
-<param_space/mapstats.pdf, id=178, 578.16pt x 433.62pt>
+<param_space/mapstats.pdf, id=186, 578.16pt x 433.62pt>
 File: param_space/mapstats.pdf Graphic file (type pdf)
 
 <use param_space/mapstats.pdf>
 Package pdftex.def Info: param_space/mapstats.pdf used on input line 182.
 (pdftex.def)             Requested size: 289.07928pt x 216.80946pt.
  [6 <./param_space/mapstats.pdf>] [7]
-<F_d-25_r-75.pdf, id=235, 650.43pt x 505.89pt>
+<F_d-25_r-75.pdf, id=243, 650.43pt x 505.89pt>
 File: F_d-25_r-75.pdf Graphic file (type pdf)
  <use F_d-25_r-75.pdf>
 Package pdftex.def Info: F_d-25_r-75.pdf used on input line 309.
@@ -833,7 +833,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 339--341
 
  []
 
-<exclu_haplo/m2.pdf, id=262, 505.89pt x 505.89pt>
+<exclu_haplo/m2.pdf, id=270, 505.89pt x 505.89pt>
 File: exclu_haplo/m2.pdf Graphic file (type pdf)
  <use exclu_haplo/m2.pdf>
 Package pdftex.def Info: exclu_haplo/m2.pdf used on input line 361.
@@ -850,7 +850,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 
 ] [12 <./exclu_haplo/m2.pdf>]
-<exclu_haplo/d5assoc_explo/m2.pdf, id=284, 397.485pt x 397.485pt>
+<exclu_haplo/d5assoc_explo/m2.pdf, id=292, 397.485pt x 397.485pt>
 File: exclu_haplo/d5assoc_explo/m2.pdf Graphic file (type pdf)
 
 <use exclu_haplo/d5assoc_explo/m2.pdf>
@@ -858,7 +858,7 @@ Package pdftex.def Info: exclu_haplo/d5assoc_explo/m2.pdf used on input line 37
 6.
 (pdftex.def)             Requested size: 386.95897pt x 386.97316pt.
 
-<exclu_haplo/d25assoc_explo/m2.pdf, id=285, 397.485pt x 397.485pt>
+<exclu_haplo/d25assoc_explo/m2.pdf, id=293, 397.485pt x 397.485pt>
 File: exclu_haplo/d25assoc_explo/m2.pdf Graphic file (type pdf)
 
 <use exclu_haplo/d25assoc_explo/m2.pdf>
@@ -880,7 +880,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 395--397
  []
 
 
-<cleaning_genomic_data/F_r-75_d-5_m2_density.pdf, id=377, 505.89pt x 505.89pt>
+<cleaning_genomic_data/F_r-75_d-5_m2_density.pdf, id=386, 505.89pt x 505.89pt>
 File: cleaning_genomic_data/F_r-75_d-5_m2_density.pdf Graphic file (type pdf)
 
 <use cleaning_genomic_data/F_r-75_d-5_m2_density.pdf>
@@ -891,7 +891,7 @@ n input line 417.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<cleaning_genomic_data/ploidy_sep_fixed.pdf, id=379, 505.89pt x 505.89pt>
+<cleaning_genomic_data/ploidy_sep_fixed.pdf, id=388, 505.89pt x 505.89pt>
 File: cleaning_genomic_data/ploidy_sep_fixed.pdf Graphic file (type pdf)
 
 <use cleaning_genomic_data/ploidy_sep_fixed.pdf>
@@ -906,7 +906,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 
 ]
-<cleaning_genomic_data/assoc_explo_fam/B.pdf, id=392, 397.485pt x 397.485pt>
+<cleaning_genomic_data/assoc_explo_fam/B.pdf, id=400, 397.485pt x 397.485pt>
 File: cleaning_genomic_data/assoc_explo_fam/B.pdf Graphic file (type pdf)
 
 <use cleaning_genomic_data/assoc_explo_fam/B.pdf>
@@ -918,7 +918,7 @@ put line 452.
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [16 <./cleaning_genomic_data/F_r-75_d-5_m2_density.pdf>]
-<cleaning_genomic_data/assoc_explo_fam_no_mother/B.pdf, id=410, 397.485pt x 397
+<cleaning_genomic_data/assoc_explo_fam_no_mother/B.pdf, id=418, 397.485pt x 397
 .485pt>
 File: cleaning_genomic_data/assoc_explo_fam_no_mother/B.pdf Graphic file (type 
 pdf)
@@ -943,29 +943,45 @@ Underfull \hbox (badness 10000) in paragraph at lines 508--509
 
 [22
 
-]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 567.
- [23]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 567.
+] [23]
+Chapter 7.
+<association_mapping/haplo_avg_all_Fst.pdf, id=542, 680.5425pt x 465.74pt>
+File: association_mapping/haplo_avg_all_Fst.pdf Graphic file (type pdf)
+
+<use association_mapping/haplo_avg_all_Fst.pdf>
+Package pdftex.def Info: association_mapping/haplo_avg_all_Fst.pdf used on inpu
+t line 557.
+(pdftex.def)             Requested size: 386.95897pt x 264.82074pt.
+
+<association_mapping/haplo_Fst_per_fam.pdf, id=543, 752.8125pt x 610.28pt>
+File: association_mapping/haplo_Fst_per_fam.pdf Graphic file (type pdf)
+
+<use association_mapping/haplo_Fst_per_fam.pdf>
+Package pdftex.def Info: association_mapping/haplo_Fst_per_fam.pdf used on inpu
+t line 565.
+(pdftex.def)             Requested size: 483.69687pt x 392.12367pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[24
+
+ <./association_mapping/haplo_avg_all_Fst.pdf>]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 587.
+ [25 <./association_mapping/haplo_Fst_per_fam.pdf>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 587.
  (./lab_book.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 567.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 567.
-
-
-Package rerunfilecheck Warning: File `lab_book.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `lab_book.out':
-(rerunfilecheck)             Before: D004028ACA4F10CCDA252656D58541CB;1664
-(rerunfilecheck)             After:  E99E48E28CAA40B874D744EA575F2409;1729.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 567.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 587.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 587.
+Package rerunfilecheck Info: File `lab_book.out' has not changed.
+(rerunfilecheck)             Checksum: B495BFEDA8F30AE1000264E4F7EF1BAA;1780.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 587.
  ) 
 Here is how much of TeX's memory you used:
- 9644 strings out of 493029
- 146966 string characters out of 6136233
- 243040 words of memory out of 5000000
- 12931 multiletter control sequences out of 15000+600000
+ 9663 strings out of 493029
+ 147475 string characters out of 6136233
+ 243780 words of memory out of 5000000
+ 12943 multiletter control sequences out of 15000+600000
  13069 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  40i,11n,46p,980b,1236s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -988,10 +1004,10 @@ fonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
 b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share
 /texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on lab_book.pdf (24 pages, 609227 bytes).
+Output written on lab_book.pdf (26 pages, 641789 bytes).
 PDF statistics:
- 602 PDF objects out of 1000 (max. 8388607)
- 378 compressed objects within 4 object streams
- 97 named destinations out of 1000 (max. 500000)
- 267 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 635 PDF objects out of 1000 (max. 8388607)
+ 404 compressed objects within 5 object streams
+ 102 named destinations out of 1000 (max. 500000)
+ 293 words of extra memory for PDF output out of 10000 (max. 10000000)
 
