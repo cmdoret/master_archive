@@ -34,6 +34,9 @@ do
         done
     fi
     
+    ## BLACKLIST LOCI HOMOZYGOUS IN MOTHER HERE ##
+    # use list in data/SNP_lists/hom_mother
+    
     echo "Populations running on family $fam, excluding $(echo $haplo | wc -w) haploid males."
     mkdir -p $od/$fam  # Prepare one output folder per family
     populations -P data/sstacks/$fam -M data/popmap -p 2 -m $D -b 0 -r $R -k -f p_value -t 3 --verbose --fstats --vcf --max_obs_het 0.9
