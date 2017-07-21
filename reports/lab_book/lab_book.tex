@@ -252,8 +252,19 @@ I changed the number of mismatches allowed between samples between 1 and 4. Tabl
 \end{center}
 \end{table}
 
-I tried running cstacks on all (non-empty) samples, and also modifying the script so that it will first compute the mean number of tags across all samples, and exclude those with less than 10\% of this value when building the catalogue. From the 202 original samples, 4 were empty and excluding low quality ones removed 13 additional ones.
-\\
+I tried running cstacks on all (non-empty) samples, and also modifying the script so that it will first compute the mean number of tags (reads) across all samples, and exclude those with less than 10\% of this value when building the catalogue. From the 202 original samples, 4 were empty and excluding low quality ones removed 13 additional ones.\\
+
+Update: 21.07.2017\\
+When including mothers, I reach a total of 212 individuals. I use the same filtering strategy to exclude samples with low amounts of reads (Figure \ref{tags_dist}). From the 212 original samples, I excluded 17 low quality samples, among which 4 were totally empty.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{stacks_pipeline/radtags_distrib.pdf}
+		\caption{distribution of the number of radtags (reads) per sample. The red vertical dashed line indicates the cutoff value set to 10\% of the mean. Samples below this value are removed from the analysis.}
+		\label{tags_dist}
+	\end{center}
+\end{figure}
+\FloatBarrier
 Summary results with n=1:
 \begin{itemize}
 \item All non-empty samples (198): 25618 alleles in catalogue, over 7062 loci.
@@ -576,7 +587,8 @@ This can either mean that there is no interesting signal, or if that the signal 
 \begin{itemize}
 
 
-\item look at Fst, include everything including haploid males to look at deleterious alleles in males
+\item Isolate Fst peaks common to at least 2 families
+\item Find CSD peaks that are intersect in several families ?
 \item exclude loci that are homozygous in mothers !
 \item summarize all numbers of individuals and look at proportion of diploid individuals that are males. 
 \item if n CSD loci on different chromosomes are het. in a mother, the proportion of males in diploid offspring will be $\frac{1}{2^n}$
