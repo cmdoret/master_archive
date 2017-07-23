@@ -31,6 +31,7 @@ all : $(POP)
 # Running Sstacks
 $(SSTACK) : $(CSTACK)
 	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(S-SRC)
+	sed -i "s^\(wd=\).*^\1$(MAIN)/data^g" $(S-SRC)
 	bash $(S-SRC) $<
 	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK)
 

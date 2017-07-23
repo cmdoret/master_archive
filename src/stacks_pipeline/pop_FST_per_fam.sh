@@ -18,6 +18,7 @@ od=./data/populations/d-5_r-75
 R=0.75
 D=5
 thresh=data/ploidy/thresholds/m2
+hom_mother=data/SNP_lists/$(basename $thresh)_hom_mother.txt
 
 module add UHTS/Analysis/stacks/1.30;
 
@@ -32,14 +33,11 @@ do
             rm data/sstacks/$fam/$indv*
             # Remove all files related to haploids to exclude from populations run
         done
-    fi
-    
-    ## BLACKLIST LOCI HOMOZYGOUS IN MOTHER HERE ##
-    # use list in data/SNP_lists/hom_mother
     
     echo "Populations running on family $fam, excluding $(echo $haplo | wc -w) haploid males."
     mkdir -p $od/$fam  # Prepare one output folder per family
     populations -P data/sstacks/$fam -M data/popmap -p 2 -m $D -b 0 -r $R -k -f p_value -t 3 --verbose --fstats --vcf --max_obs_het 0.9
+    
     mv data/sstacks/$fam/batch* $od/$fam/
     # Moving all populations output file from sstacks family folder to populations family folder
 done

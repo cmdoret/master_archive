@@ -25,14 +25,37 @@ colnames(chrom_sizes) <- c("chrom","start","length")
 chrom_sizes$length <- as.numeric(chrom_sizes$length)
 chrom_sizes$mid <- chrom_sizes$start + (chrom_sizes$length/2)
 
+
+hom_filt <- function(fam){
+# Function for filtering loci homozygous in mother of given family
+  mother <- as.character(indv$Name[indv$Family==fam & indv$Generation=='F3'])
+  # Using mother's genotype from snps file
+  snp_gz <- gzfile(paste0('../../data/sstacks/',fam,'/',mother,'.snps.tsv.gz'),"rt")
+  snp_mother <- read.table(snp_gz); close(snp_gz)
+  # keeping all loci where all SNPs are hom
+  hom_loc <- snp_mother %>% group_by(V3) %>% filter(all(V5=='O'))
+  hom_ID_local <- unique(hom_loc$V3)
+  match_gz <- gzfile(paste0('../../data/sstacks/',fam,'/',mother,'.matches.tsv.gz'),"rt")
+  match_mother <- read.table(match_gz); close(match_gz)
+  hom_ID_global <- unique(match_mother$V3[match_mother$V4 %in% hom_ID_local])
+  return(hom_ID_global)
+}
+
+`%not in%` <- function (x, table) is.na(match(x, table, nomatch=NA_integer_))
+# Customized operator for convenience
+
 # Genome statistics
 stat_path <- '../../data/populations/d-20_r-80/'
+indv <- read.table('../../data/individuals', header=T)
 # phi_path <- commandArgs(TrailingOnly=T)[1]
 sum_stat <- data.frame()
 for(fam in list.dirs(stat_path)[2:length(list.dirs(stat_path))]){  # Excluding first dir (parent)
   tmp_stat <- read.csv(paste0(fam,'/batch_0.sumstats.tsv'),header=T,skip=2,sep='\t')
   tmp_stat$fam <- rep(basename(fam))
+  try(mother_hom <- hom_filt(basename(fam)))
+  tmp_stat <- tmp_stat[tmp_stat$Locus.ID %not in% mother_hom,]
   sum_stat <- rbind(sum_stat, tmp_stat)
+  mother_hom <- ""
 }
 
 
