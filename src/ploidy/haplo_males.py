@@ -69,10 +69,11 @@ def ploidy(indiv,mult=1,transf=None, fixed=False):
     # in the 'haplo' table are considered as haploid, other are diploid
     indiv['Ploidy'] = np.where(indiv.Name.isin(haplo.Name),
                                              'H','D')
-    return fam_sum
+    return indiv
 
 # 1: read individuals table to extract families of mothers
-fam_sum = pd.read_csv("data/individuals",sep='\t')
+fam_sum = pd.read_csv("data/individuals",sep='\t',
+converters={'Family': lambda x: str(x)})
 
 # 2: Using command line argument to load VCF file summary
 vcf_sum = pd.read_csv(argv[1], sep='\t')
@@ -86,6 +87,7 @@ def square(n):
     return n*n
 
 # 4: output list of males with ploidy information for different parameter values
+"""
 benchmark_set = {'mult':list(range(1,5)),
                  'transf':[[sqrt,'sqrt'],[square,'square']]}
 
@@ -96,8 +98,9 @@ for m in benchmark_set['mult']:  # Looping over all combination of param values
         out_m_t = ploidy(fam_sum,mult=m,transf=t[0])  # With transformation
         out_m_t.to_csv('data/ploidy/thresholds/m' + str(m) + t[1], sep='\t',
         index=False)
+"""
 
-# Fixed threshold determined visually at 77%        
+# Fixed threshold determined visually at 77% of homozygosity
 out_m = ploidy(fam_sum,fixed=0.77)
 out_m.to_csv('data/ploidy/thresholds/fixed',sep='\t',index=False)
 #out_haplo = fam_sum.loc[fam_sum.Sex == 'M',['Name','Family']]

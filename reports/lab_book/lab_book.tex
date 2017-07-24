@@ -503,6 +503,20 @@ Solution: I re-ran the explo assoc script used to generate figure \ref{SNPs_expl
 \end{figure}
 \FloatBarrier
 
+
+Date: 24.07.2017
+
+I removed loci that are homozygous in mother using a second technique: 
+\begin{itemize}
+\item For each mother: use Pstacks snps file to find sample ID of all loci for which all position are "O" (for homozygous).
+\item Look up the sstacks matches file of each mother to retrieve the matching catalog ID
+\item exclude corresponding catalog ID for the family in populations output files in downstream analyses.
+\end{itemize}
+
+I am still not sure if this technique is safe / correct, the steps described above are currently implemented in the hom_filt function of Hom_M-F.R.
+
+
+
 \subsection{Transmission bias}
 
 Here I check how frequently SNPs that are homozygous in a mother are heterozygous in its offspring and vice versa.
