@@ -10,7 +10,8 @@ output: pdf_document
 * What would be an expected genome-wide homozygosity value in mothers ?
     + Confirm: STACKS only takes non-consensus loci into account in populations ?
 
-* Technical: When blacklisting loci, is it ok to use Pstacks' snps files of mothers to find the sample IDs of all loci where all positions are homozygous and to look up the catalog ID using their respective sstacks' matches files ? (Current method)
+* Technical: When blacklisting loci, is it ok to use Pstacks' snps files of mothers to find the sample IDs of all loci where all positions are homozygous and to look up the catalog ID using their respective sstacks' matches files ?
+    + Current method: Removing all snps with no alternative allele in female population displayed (i.e. all females are homozygous) in populations Fst output. Issue: will miss SNPs where mother is homozygous and daughters are heterozygous.
 
 * Looking at the proportion of males among diploid offspring of each mother would allow inferences on the number of heterozygous CSD loci. Once we know these proportion, how can I use this information to improve my power ?
     + Thought: Use list of peaks to find intersect between families with say 2 het. loci and those with 1 het. loci, rather than between all families (i.e. not using intersect between different families with 1 het. locus.)
@@ -30,7 +31,7 @@ output: pdf_document
 * Fst probably not so interesting: peaks on averaged plot (Figure \ref{Fst_avg}) caused by a single family (Figure \ref{Fst_merged}), because some SNPs are represented in one or few families.
 
 \begin{center}
-\begin{figure}
+\begin{figure}[h]
 \includegraphics[width=6in]{./figures/haplo_avg_all_Fst.pdf}
 \caption{Fst value over genome, averaged across families at each SNPs. Haploids included, did not remove loci homozygous in mothers.}
 \label{Fst_avg}
@@ -38,7 +39,7 @@ output: pdf_document
 \end{center}
 
 \begin{center}
-\begin{figure}
+\begin{figure}[h]
 \includegraphics[width=6in]{./figures/haplo_Fst_merged.pdf}
 \caption{Fst value over genome, overlaying families. Haploids included, did not remove loci homozygous in mothers.}
 \label{Fst_merged}
@@ -46,30 +47,50 @@ output: pdf_document
 \end{center}
 
 \begin{center}
-\begin{figure}
+\begin{figure}[h]
 \includegraphics[width=6in]{./figures/haplo_Fst_per_fam.pdf}
 \caption{Fst value over genome for each family independently. Haploids included, did not remove loci homozygous in mothers.}
 \label{Fst_fam}
 \end{figure}
 \end{center}
 
-* After removing loci homozygous in mothers, CSD-prop. plot is looking quite good.
+* After removing loci homozygous in mothers, CSD-prop. plot is looking less noisy  (?).
+
 
 # General statistics
 
 ## Number of sites
+```{r echo=FALSE}
+library(ggplot2)
+fixed <- read.table("../../../data/ploidy/thresholds/fixed",header=T)
+ggplot(data=fixed,aes(x=N_SITES,fill=Family))+geom_histogram(binwidth = 10)+ggtitle("Number of sites per sample, by family (all samples)")
+ggplot(data=fixed,aes(x=N_SITES,fill=Ploidy))+geom_histogram(binwidth = 10)+ggtitle("Number of sites per sample, by ploidy (all samples)")
+```
 
 ## Depth
 
+```{r echo=FALSE}
+ggplot(data=fixed, aes(x=MEAN_DEPTH))+geom_histogram()
+ggplot(data=fixed, aes(x=MEAN_DEPTH, y=N_SITES))+geom_point()+ggtitle("Coverage versus number of sites per individual (all samples)")
+```
+
+
 ## Offpring proportion
 
-## Homozygosity
+```{r echo=FALSE}
+suppressMessages(library(dplyr))
 
+diplo_off <- fixed[fixed$Generation=="F4" & fixed$Ploidy=='D',]
+off_comp <- data.frame(table(diplo_off$Family, diplo_off$Sex))
+colnames(off_comp) <- c("Family", "Sex", "Count")
 
+off_comp <- off_comp %>%
+  group_by(Family) %>%
+  mutate(prop_males=round(Count[Sex=='M']/sum(Count),3)) %>%
+  filter(Sex=='M') %>%
+  select(-Sex)
 
-
-
-
-
-
-
+hist(off_comp$prop_males,breaks=20, main="Male proportion in each family", xlab="Proportion of males", ylab="Number of families")
+print(off_comp)
+plot(off_comp$prop_males,off_comp$Count, xlab="Proportion of males", ylab="Number of 2N offspring", main="Proportion of males versus total diploid offpsring")
+```
