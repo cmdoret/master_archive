@@ -7,13 +7,21 @@ Master project for the Molecular Life Sciences master in Bioinformatics, Univers
 ---
 In this project, we use restriction-site associated DNA-sequencing (RAD-seq) and build a custom pipeline to locate and identify the complementary sex determination (CSD) locus/loci in the parasitoid wasp species _Lysiphlebus fabarum_. This repository contains a pipeline to map the reads using BWA and build loci using the different components of STACKS with optimal parameters. It was designed to run on a distributed High Performance Computing (HPC) environment with Platform load Sharing Facility (LSF).
 
-To run the pipeline:
+## Instructions:
+To run the pipeline with the data provided:
 1. Place a copy of this repository on a cluster which supports LSF commands.
 2. Replace paths accordingly in ```config.mk```
 3. Download the `data` archive (not available yet) into the main folder
 4. ```cd``` to the main folder
 5. Untar the data using ```tar -xzvf data.tar.gz data```
 6. Type ```make``` to run the pipeline
+
+To run the pipeline with new data in the form of demultiplexed, trimmed reads:
+1. Describe your samples by writing 2 files names `popmap` and `individuals`, respectively. The structure of the `popmap` file is described on the official STACKS website (here, populations should be the sex of individuals). The `individuals` file is a tab delimited text file with 4 columns with the following headers included:
+* Name: The name of samples. This should be the prefix of their data files.
+* Sex: F for females and M for males.
+* Family: Clutches to which the individual belongs. These can be any combination of letters and numbers.
+* Generation: Useful if there are mothers and offspring. Values should be F3 for mothers and F4 for offspring.
 
 ### Status:
 
