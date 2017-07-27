@@ -3,6 +3,8 @@ title: "General statistics and progress"
 author: "Cyril Matthey-Doret"
 date: "July 24, 2017"
 output: pdf_document
+header-includes:
+- \usepackage{placeins}
 ---
 
 # Questions and ideas
@@ -21,7 +23,7 @@ output: pdf_document
 * Using fixed threshold identical in all families to separate haploids and diploids (Figure \ref{fixed}), because homozygosity of *haploids* does not depend on mother background.
 
 \begin{center}
-\begin{figure}
+\begin{figure}[h!]
 \includegraphics[width=4in]{./figures/ploidy_sep_fixed.pdf}
 \caption{Homozygosity of all samples, including haploids. The red vertical dotted line is the separation threshold. The black continuous vertical lines are the mothers' values.}
 \label{fixed}
@@ -31,7 +33,7 @@ output: pdf_document
 * Fst probably not so interesting: peaks on averaged plot (Figure \ref{Fst_avg}) caused by a single family (Figure \ref{Fst_merged}), because some SNPs are represented in one or few families.
 
 \begin{center}
-\begin{figure}[h]
+\begin{figure}[h!]
 \includegraphics[width=6in]{./figures/haplo_avg_all_Fst.pdf}
 \caption{Fst value over genome, averaged across families at each SNPs. Haploids included, did not remove loci homozygous in mothers.}
 \label{Fst_avg}
@@ -39,7 +41,7 @@ output: pdf_document
 \end{center}
 
 \begin{center}
-\begin{figure}[h]
+\begin{figure}[h!]
 \includegraphics[width=6in]{./figures/haplo_Fst_merged.pdf}
 \caption{Fst value over genome, overlaying families. Haploids included, did not remove loci homozygous in mothers.}
 \label{Fst_merged}
@@ -47,7 +49,7 @@ output: pdf_document
 \end{center}
 
 \begin{center}
-\begin{figure}[h]
+\begin{figure}[h!]
 \includegraphics[width=6in]{./figures/haplo_Fst_per_fam.pdf}
 \caption{Fst value over genome for each family independently. Haploids included, did not remove loci homozygous in mothers.}
 \label{Fst_fam}
@@ -56,6 +58,7 @@ output: pdf_document
 
 * After removing loci homozygous in mothers, CSD-prop. plot is looking less noisy  (?).
 
+\FloatBarrier
 
 # General statistics
 
@@ -63,7 +66,7 @@ output: pdf_document
 ```{r echo=FALSE}
 library(ggplot2)
 fixed <- read.table("../../../data/ploidy/thresholds/fixed",header=T)
-ggplot(data=fixed,aes(x=N_SITES,fill=Family))+geom_histogram(binwidth = 10)+ggtitle("Number of sites per sample, by family (all samples)")
+#ggplot(data=fixed,aes(x=N_SITES,fill=Family))+geom_histogram(binwidth = 10)+ggtitle("Number of sites per sample, by family (all samples)")
 ggplot(data=fixed,aes(x=N_SITES,fill=Ploidy))+geom_histogram(binwidth = 10)+ggtitle("Number of sites per sample, by ploidy (all samples)")
 ```
 
@@ -71,7 +74,8 @@ ggplot(data=fixed,aes(x=N_SITES,fill=Ploidy))+geom_histogram(binwidth = 10)+ggti
 
 ```{r echo=FALSE}
 ggplot(data=fixed, aes(x=MEAN_DEPTH))+geom_histogram()
-ggplot(data=fixed, aes(x=MEAN_DEPTH, y=N_SITES))+geom_point()+ggtitle("Coverage versus number of sites per individual (all samples)")
+ggplot(data=fixed, aes(x=N_SITES, y=MEAN_DEPTH,col=Ploidy))+geom_point()+facet_wrap(~Family)
+  ggtitle("Coverage versus number of sites per individual (all samples)")
 ```
 
 
