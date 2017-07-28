@@ -67,7 +67,7 @@ header-includes:
 library(ggplot2)
 fixed <- read.table("../../../data/ploidy/thresholds/fixed",header=T)
 #ggplot(data=fixed,aes(x=N_SITES,fill=Family))+geom_histogram(binwidth = 10)+ggtitle("Number of sites per sample, by family (all samples)")
-ggplot(data=fixed,aes(x=N_SITES,fill=Ploidy))+geom_histogram(binwidth = 10)+ggtitle("Number of sites per sample, by ploidy (all samples)")
+ggplot(data=fixed,aes(x=N_SITES,fill=Generation))+geom_histogram(binwidth = 10)+ggtitle("Number of sites per sample, by family (all samples)") + facet_grid(Family~)
 ```
 
 ## Depth
@@ -97,4 +97,24 @@ off_comp <- off_comp %>%
 hist(off_comp$prop_males,breaks=20, main="Male proportion in each family", xlab="Proportion of males", ylab="Number of families")
 print(off_comp)
 plot(off_comp$prop_males,off_comp$Count, xlab="Proportion of males", ylab="Number of 2N offspring", main="Proportion of males versus total diploid offpsring")
+```
+
+## Coverage across genome
+
+
+\begin{center}
+\begin{figure}[h!]
+\includegraphics[width=6in]{./figures/cov_avg_10kb_win.pdf}
+\caption{Coverage across genome, averaged across all individuals by 10kb windows.}
+\label{Fst_fam}
+\end{figure}
+\end{center}
+
+## Last minute plots
+
+```{r}
+# Proportion of offspring homozygous at loci heterozygous in mother
+
+
+
 ```

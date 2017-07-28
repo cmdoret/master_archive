@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.11.16)  24 JUL 2017 16:05
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.11.16)  28 JUL 2017 18:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -650,7 +650,7 @@ File: listings.cfg 2015/06/04 1.6 listings configuration
 ))
 Package: listings 2015/06/04 1.6 (Carsten Heinz)
 
-No file lab_book.aux.
+(./lab_book.aux)
 \openout1 = `lab_book.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
@@ -667,6 +667,7 @@ LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 17.
 LaTeX Font Info:    ... okay on input line 17.
 LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 17.
 LaTeX Font Info:    ... okay on input line 17.
+
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -752,6 +753,8 @@ Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 17.
 LaTeX Info: Redefining \pageref on input line 17.
 LaTeX Info: Redefining \nameref on input line 17.
+
+(./lab_book.out) (./lab_book.out)
 \@outlinefile=\write4
 \openout4 = `lab_book.out'.
 
@@ -769,13 +772,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
 Chapter 1.
-
-LaTeX Warning: Reference `table:raw_QC' on page 1 undefined on input line 23.
-
-
-LaTeX Warning: Reference `pipeline' on page 1 undefined on input line 43.
-
-<flowchart.png, id=12, 400.51567pt x 887.2891pt>
+<flowchart.png, id=130, 400.51567pt x 887.2891pt>
 File: flowchart.png Graphic file (type png)
  <use flowchart.png>
 Package pdftex.def Info: flowchart.png used on input line 45.
@@ -799,10 +796,6 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
 
 ]
 Chapter 3.
-
-LaTeX Warning: Reference `assembly_stats' on page 4 undefined on input line 82.
-
-
 LaTeX Font Info:    Try loading font information for OML+cmr on input line 98.
 (/usr/share/texlive/texmf-dist/tex/latex/base/omlcmr.fd
 File: omlcmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
@@ -812,40 +805,25 @@ LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10> not available
  [4
 
 ] [5]
-
-LaTeX Warning: Reference `map_results' on page 6 undefined on input line 179.
-
-<param_space/mapstats.pdf, id=74, 578.16pt x 433.62pt>
+<param_space/mapstats.pdf, id=186, 578.16pt x 433.62pt>
 File: param_space/mapstats.pdf Graphic file (type pdf)
 
 <use param_space/mapstats.pdf>
 Package pdftex.def Info: param_space/mapstats.pdf used on input line 182.
 (pdftex.def)             Requested size: 289.07928pt x 216.80946pt.
  [6 <./param_space/mapstats.pdf>]
-
-LaTeX Warning: Reference `pstacks_param' on page 7 undefined on input line 208.
-
-
-
-LaTeX Warning: Reference `cstacks_param' on page 7 undefined on input line 243.
-
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 255--256
 
  []
 
-
-LaTeX Warning: Reference `tags_dist' on page 7 undefined on input line 258.
-
-[7] <stacks_pipeline/radtags_distrib.pdf, id=133, 505.89pt x 505.89pt>
+[7] <stacks_pipeline/radtags_distrib.pdf, id=244, 505.89pt x 505.89pt>
 File: stacks_pipeline/radtags_distrib.pdf Graphic file (type pdf)
 
 <use stacks_pipeline/radtags_distrib.pdf>
 Package pdftex.def Info: stacks_pipeline/radtags_distrib.pdf used on input line
  262.
 (pdftex.def)             Requested size: 338.58632pt x 338.58945pt.
- [8 <./stacks_pipeline/radtags_distrib.pdf>] <F_d-25_r-75.pdf, id=146, 650.43pt
+ [8 <./stacks_pipeline/radtags_distrib.pdf>] <F_d-25_r-75.pdf, id=256, 650.43pt
  x 505.89pt>
 File: F_d-25_r-75.pdf Graphic file (type pdf)
  <use F_d-25_r-75.pdf>
@@ -869,10 +847,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 350--352
 
  []
 
-
-LaTeX Warning: Reference `haplodiplo' on page 12 undefined on input line 367.
-
-<exclu_haplo/m2.pdf, id=177, 505.89pt x 505.89pt>
+<exclu_haplo/m2.pdf, id=283, 505.89pt x 505.89pt>
 File: exclu_haplo/m2.pdf Graphic file (type pdf)
  <use exclu_haplo/m2.pdf>
 Package pdftex.def Info: exclu_haplo/m2.pdf used on input line 372.
@@ -889,21 +864,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 
 ] [13 <./exclu_haplo/m2.pdf>]
-
-LaTeX Warning: Reference `SNPs_explo5' on page 14 undefined on input line 381.
-
-
-LaTeX Warning: Reference `SNPs_explo25' on page 14 undefined on input line 381.
-
-
-
-LaTeX Warning: Reference `SNPs_explo5' on page 14 undefined on input line 381.
-
-
-LaTeX Warning: Reference `SNPs_explo25' on page 14 undefined on input line 381.
-
-
-<exclu_haplo/d5assoc_explo/m2.pdf, id=196, 397.485pt x 397.485pt>
+<exclu_haplo/d5assoc_explo/m2.pdf, id=305, 397.485pt x 397.485pt>
 File: exclu_haplo/d5assoc_explo/m2.pdf Graphic file (type pdf)
 
 <use exclu_haplo/d5assoc_explo/m2.pdf>
@@ -911,7 +872,7 @@ Package pdftex.def Info: exclu_haplo/d5assoc_explo/m2.pdf used on input line 38
 7.
 (pdftex.def)             Requested size: 386.95897pt x 386.97316pt.
 
-<exclu_haplo/d25assoc_explo/m2.pdf, id=197, 397.485pt x 397.485pt>
+<exclu_haplo/d25assoc_explo/m2.pdf, id=306, 397.485pt x 397.485pt>
 File: exclu_haplo/d25assoc_explo/m2.pdf Graphic file (type pdf)
 
 <use exclu_haplo/d25assoc_explo/m2.pdf>
@@ -933,11 +894,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 406--408
  []
 
 
-LaTeX Warning: Reference `ploidy_metric' on page 16 undefined on input line 423
-.
-
-
-<cleaning_genomic_data/F_r-75_d-5_m2_density.pdf, id=288, 505.89pt x 505.89pt>
+<cleaning_genomic_data/F_r-75_d-5_m2_density.pdf, id=399, 505.89pt x 505.89pt>
 File: cleaning_genomic_data/F_r-75_d-5_m2_density.pdf Graphic file (type pdf)
 
 <use cleaning_genomic_data/F_r-75_d-5_m2_density.pdf>
@@ -948,11 +905,7 @@ n input line 428.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-
-LaTeX Warning: Reference `ploidy_fixed' on page 16 undefined on input line 437.
-
-
-<cleaning_genomic_data/ploidy_sep_fixed.pdf, id=289, 505.89pt x 505.89pt>
+<cleaning_genomic_data/ploidy_sep_fixed.pdf, id=401, 505.89pt x 505.89pt>
 File: cleaning_genomic_data/ploidy_sep_fixed.pdf Graphic file (type pdf)
 
 <use cleaning_genomic_data/ploidy_sep_fixed.pdf>
@@ -967,25 +920,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 
 ]
-
-LaTeX Warning: Reference `SNPs_explo25' on page 17 undefined on input line 452.
-
-
-
-LaTeX Warning: Reference `SNPs_explo5' on page 17 undefined on input line 452.
-
-
-LaTeX Warning: Reference `SNPs_explo25' on page 17 undefined on input line 456.
-
-
-
-LaTeX Warning: Reference `SNPs_explo5' on page 17 undefined on input line 456.
-
-
-LaTeX Warning: Reference `SNPs_explo_fam' on page 17 undefined on input line 45
-8.
-
-<cleaning_genomic_data/assoc_explo_fam/B.pdf, id=297, 397.485pt x 397.485pt>
+<cleaning_genomic_data/assoc_explo_fam/B.pdf, id=413, 397.485pt x 397.485pt>
 File: cleaning_genomic_data/assoc_explo_fam/B.pdf Graphic file (type pdf)
 
 <use cleaning_genomic_data/assoc_explo_fam/B.pdf>
@@ -997,16 +932,7 @@ put line 463.
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [17 <./cleaning_genomic_data/F_r-75_d-5_m2_density.pdf>]
-
-LaTeX Warning: Reference `SNPs_explo_fam' on page 18 undefined on input line 47
-8.
-
-
-LaTeX Warning: Reference `SNPs_explo_nomother' on page 18 undefined on input li
-ne 478.
-
-
-<cleaning_genomic_data/assoc_explo_fam_no_mother/B.pdf, id=313, 397.485pt x 397
+<cleaning_genomic_data/assoc_explo_fam_no_mother/B.pdf, id=431, 397.485pt x 397
 .485pt>
 File: cleaning_genomic_data/assoc_explo_fam_no_mother/B.pdf Graphic file (type 
 pdf)
@@ -1020,12 +946,29 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 [18 <./cleaning_genomic_data/ploidy_sep_fixed.pdf>] [19] [20 <./cleaning_genomi
 c_data/assoc_explo_fam/B.pdf>] [21 <./cleaning_genomic_data/assoc_explo_fam_no_
-mother/B.pdf>] [22
+mother/B.pdf>]
+! Missing $ inserted.
+<inserted text> 
+                $
+l.516 ...ove are currently implemented in the hom_
+                                                  filt function of Hom_M-F.R.
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.517 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+[22
 
 ]
 Chapter 6.
 
-Underfull \hbox (badness 10000) in paragraph at lines 519--520
+Underfull \hbox (badness 10000) in paragraph at lines 533--534
 
  []
 
@@ -1033,28 +976,20 @@ Underfull \hbox (badness 10000) in paragraph at lines 519--520
 
 ] [24]
 Chapter 7.
-
-LaTeX Warning: Reference `haplo_Fst_avg' on page 25 undefined on input line 564
-.
-
-
-LaTeX Warning: Reference `haplo_Fst_per_fam' on page 25 undefined on input line
- 564.
-
-<association_mapping/haplo_avg_all_Fst.pdf, id=444, 680.5425pt x 465.74pt>
+<association_mapping/haplo_avg_all_Fst.pdf, id=556, 680.5425pt x 465.74pt>
 File: association_mapping/haplo_avg_all_Fst.pdf Graphic file (type pdf)
 
 <use association_mapping/haplo_avg_all_Fst.pdf>
 Package pdftex.def Info: association_mapping/haplo_avg_all_Fst.pdf used on inpu
-t line 568.
+t line 582.
 (pdftex.def)             Requested size: 386.95897pt x 264.82074pt.
 
-<association_mapping/haplo_Fst_per_fam.pdf, id=445, 752.8125pt x 610.28pt>
+<association_mapping/haplo_Fst_per_fam.pdf, id=557, 752.8125pt x 610.28pt>
 File: association_mapping/haplo_Fst_per_fam.pdf Graphic file (type pdf)
 
 <use association_mapping/haplo_Fst_per_fam.pdf>
 Package pdftex.def Info: association_mapping/haplo_Fst_per_fam.pdf used on inpu
-t line 576.
+t line 590.
 (pdftex.def)             Requested size: 483.69687pt x 392.12367pt.
 
 
@@ -1062,43 +997,26 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 [25
 
- <./association_mapping/haplo_avg_all_Fst.pdf>]
-
-LaTeX Warning: Reference `haplo_Fst_avg' on page 26 undefined on input line 583
-.
-
-[26 <./association_mapping/haplo_Fst_per_fam.pdf>]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 601.
+ <./association_mapping/haplo_avg_all_Fst.pdf>] [26 <./association_mapping/hapl
+o_Fst_per_fam.pdf>]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 615.
  [27]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 601.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 615.
  (./lab_book.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 601.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 601.
-
-
-Package rerunfilecheck Warning: File `lab_book.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `lab_book.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  B495BFEDA8F30AE1000264E4F7EF1BAA;1780.
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 601.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 615.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 615.
+Package rerunfilecheck Info: File `lab_book.out' has not changed.
+(rerunfilecheck)             Checksum: B495BFEDA8F30AE1000264E4F7EF1BAA;1780.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 615.
  ) 
 Here is how much of TeX's memory you used:
- 9636 strings out of 493029
- 147210 string characters out of 6136233
- 238167 words of memory out of 5000000
- 12918 multiletter control sequences out of 15000+600000
+ 9672 strings out of 493029
+ 147688 string characters out of 6136233
+ 243998 words of memory out of 5000000
+ 12948 multiletter control sequences out of 15000+600000
  13069 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 40i,11n,46p,977b,1236s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 40i,11n,46p,980b,1236s stack positions out of 5000i,500n,10000p,200000b,80000s
 pdfTeX warning (dest): name{Hfootnote.2} has been referenced but does not exi
 st, replaced by a fixed one
 
@@ -1118,10 +1036,10 @@ fonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
 b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share
 /texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on lab_book.pdf (28 pages, 645893 bytes).
+Output written on lab_book.pdf (28 pages, 652323 bytes).
 PDF statistics:
- 541 PDF objects out of 1000 (max. 8388607)
- 307 compressed objects within 4 object streams
+ 654 PDF objects out of 1000 (max. 8388607)
+ 419 compressed objects within 5 object streams
  105 named destinations out of 1000 (max. 500000)
- 66 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 298 words of extra memory for PDF output out of 10000 (max. 10000000)
 

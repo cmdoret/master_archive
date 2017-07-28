@@ -513,9 +513,12 @@ I removed loci that are homozygous in mother using a second technique:
 \item exclude corresponding catalog ID for the family in populations output files in downstream analyses.
 \end{itemize}
 
-I am still not sure if this technique is safe / correct, the steps described above are currently implemented in the hom_filt function of Hom_M-F.R.
+I am still not sure if this technique is safe / correct, the steps described above are currently implemented in the hom_filt function of Hom\_M-F.R.
 
+Date: 28.07.2017
 
+I am noww using a much simpler method which should be  relatively correct. I use the output populations file "batch_0.sumstats.tsv" to remove the SNPs that have no alternative nucleotide in the female population. I am therefore
+assuming that if the mother is homozygous, all daughters are as well. That means I might keep some SNPs that are in fact homozygous in the mother, either due to sequencing errors or point mutations, but these events should be extremely rare.
 
 \subsection{Transmission bias}
 
@@ -600,12 +603,14 @@ This can either mean that there is no interesting signal, or if that the signal 
 \section{TO DO}
 \begin{itemize}
 
-
-\item Isolate Fst peaks common to at least 2 families
+\item FOR MONDAY : nice table with all offspring numbers (1NM, 2NM, F) per family to determine with Casper where and how many individuals we need to add in existing families.
+\item identify metacentric and telocentric chromosomes using proportion of homozygous offspring at each SNP along genome. (proportion should either increase or decrease towards ends of chromosomes.
+\item use proper visualization technique with a smoothed trend line weighted by the number of offspring supporting each SNPs.
+\item classify families by proportion of males among diploid offspring. The proportion of males should indivate different combination of CSD loci. Recombination rates will vary depending on distance from centromere
 \item Find CSD peaks that are intersect in several families ?
-\item exclude loci that are homozygous in mothers !
-\item summarize all numbers of individuals and look at proportion of diploid individuals that are males. 
-\item if n CSD loci on different chromosomes are het. in a mother, the proportion of males in diploid offspring will be $\frac{1}{2^n}$
+\item if n CSD loci on different chromosomes are het. in a mother, the proportion of males in diploid offspring will be $\frac{1}{2^n}$. 
+\item Compute coverage along genome for all loci including monomorphic ones.
+\item Isolate regions of abnodmally high coverage, eventually exclude them. Watch out for overmerging of paralogs and repetitive sequences.
 \item Visualize average heterozygosity (or allele frequency) at each SNPs in offpring versus in mother to assess transmission bias (hom SNPs in mothers more often het in offspring or reversse). 
 \item Validate haploid definition using haplotypes deduced from linkage map.
 \item convert VCF file into PED format using vcftools

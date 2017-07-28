@@ -125,6 +125,9 @@ genomic_pos <- function(snp){
 }
 chrom$tot_BP <-apply(X = chrom,MARGIN = 1, FUN=genomic_pos)
 
+# Proportion of offspring homozygous at loci heterozygous in mother
+ggplot(data=chrom,aes(x=BP,y=((1-Fem.Het)+Male.Hom))) + geom_point() +facet_grid(~Chr, scales = "free_x") 
+
 compact_chrom <- chrom %>% 
   group_by(Locus.ID) %>%
   summarise(avg=mean(CSD), BP=mean(tot_BP)) %>%
