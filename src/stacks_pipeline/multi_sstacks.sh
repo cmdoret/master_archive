@@ -1,6 +1,7 @@
  
 #!/bin/bash
-
+130420546
+for i in *tags*;do if [ "$(zcat $i | wc -l)" -gt $(($tot/($n*10))) ]; then samp+="${i%%.tags*} ";fi;done;
 ## This script runs sstacks, matching samples against the catalogue.
 ## It will exclude samples with very low number of reads from the analysis (less than 10% of
 ## the mean number of reads across samples), as they were not used when building the catalogue

@@ -513,11 +513,11 @@ I removed loci that are homozygous in mother using a second technique:
 \item exclude corresponding catalog ID for the family in populations output files in downstream analyses.
 \end{itemize}
 
-I am still not sure if this technique is safe / correct, the steps described above are currently implemented in the hom_filt function of Hom\_M-F.R.
+I am still not sure if this technique is safe / correct, the steps described above are currently implemented in the hom\_filt function of Hom\_M-F.R.
 
 Date: 28.07.2017
 
-I am noww using a much simpler method which should be  relatively correct. I use the output populations file "batch_0.sumstats.tsv" to remove the SNPs that have no alternative nucleotide in the female population. I am therefore
+I am now using a much simpler method which should be  relatively correct. I use the output populations file batch\_0.sumstats.tsv to remove the SNPs that have no alternative nucleotide in the female population. I am therefore
 assuming that if the mother is homozygous, all daughters are as well. That means I might keep some SNPs that are in fact homozygous in the mother, either due to sequencing errors or point mutations, but these events should be extremely rare.
 
 \subsection{Transmission bias}
@@ -565,13 +565,17 @@ I ran the whole pipeline on the ordered genome. Here are all statistics associat
 \section{Coarse analyses}
 Before running any association mapping analysis, I will blacklist loci that are homozygous in mothers and individuals that are defined as haploids with m2 homozygosity threshold from the populations analysis and rerun it.
 
-\section{Number of CSD loci}
+\chapter{Number of CSD loci}
 
 It is possible to approximate the number of CSD loci heterozygous in a mother using the proportion of males among diploid individuals. Provided the loci are on different chromosomes, if n CSD loci are heterozygous in the mother, there should be $\frac{1}{2^n}$ of males among diploid, because as long as heterozygosity is retained at one of these loci, the offspring should be female.
 
-I changed the method of ploidy separation to a fixed threshold of homozygosity identical for all families, since homozygosity of haploid males should not depend on their mother's genetic background. This should provide an unbiased (or equally biased) proportion of males in all families.
+\section{Categorizing mothers}
 
-Once the mothers have been categorized based on the proportion of males in their diploid offspring, I will use this category information to filter loci that are homozygous in mothers with more loci ? not sure...
+The mothers can be categorized based on this proportion of male offspring. The categories will reflect different combination of heterozygous CSD loci. Assuming the recombination rate is the same in different mothers, the different categories will depend only on the distance of the heterozygous locus/loci from the centromere. Loci further from the centromere will be undergo gene conversion more frequently, which means each category should have a single combination of heterozygous loci.
+
+\section{Using categories}
+
+Once the mothers have been categorized based on the proportion of males in their diploid offspring, I will use this category information to filter CSD candidates common to mothers within one category.
 
 \chapter{Male-Female Fst}
 
@@ -600,11 +604,53 @@ I first looked at Fst over all 6 chromosomes in the assembly, averaging the Fst 
 The issue with averaging the Fst over families as in figure \ref{haplo_Fst_avg} is that some SNPs can be sequenced in only one family, therefore the averaged value will only depend on that family. If we merge all families' curve into a single plot, it appears there is no single peak common to all families. 
 This can either mean that there is no interesting signal, or if that the signal depends on the family's genetic background, possibly due to an epistatic effect. Here, however, I do not have the sample size to test for it. 
 
+This issue will be dropped from the analysis as the effect is much weaker than what we expected at first and probably just random noise.
+
+\chapter{Coverage analysis}
+
+In this section, I check wether there are individuals or genomic regions that have abnormally high or low coverage, I identify the potential reasons for these abnormalities and eventually, I will remove the concerned elements from the analysis.
+
+\section{Individual stats}
+
+I first analysed the coverage on a per individual basis. That means for each individual, it has been averaged over all polymorphic SNPs kept throughout the STACKS pipeline. The mean sample coverage is relatively high and follows a normal distribution centered around 119X with a standard deviation of 33. There are two outliers with exceptionally high coverage (at 228X and 270X, respectively) which I might consider removing. The coverage is not different across families (Figure \ref{cov_fam}). Coverage is not affected by the family of an individual (it is not affected by ploidy or sex either).
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.55\textwidth]{coverage_analysis/cov_per_sample.pdf}
+		\caption{Sample depth, averaged across all polymorphic sites which passed STACKS populations filters. Individuals of each family are plotted together and histograms are colored according to the family's mean depth.}
+		\label{sites_fam}
+	\end{center}
+\end{figure}
+
+Analyzing the number of sites (SNPs) per sample revealed that it was strongly affected by the family (Figure \ref{sites_fam}). This is likely to be caused either be caused by storage duration, reagent quality or manipulations. I cannot account for this and will either need to get rid of lowest quality families (such as I) or get more individuals.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{coverage_analysis/sites_per_sample.pdf}
+		\caption{Number of polymorphic sites (SNPs) per individual that passed the STACKS populations filters. Distribution of individuals is shown by family. There is a strong clustering of families.}
+		\label{sites_fam}
+	\end{center}
+\end{figure}
+
+\section{Genome coverage}
+
+To identify regions of high or low coverage, I extracted information about the mean coverage per family at each polymorphic site that passed the STACKS populations filters. I then binned SNPs by 1kb regions (Figure \ref{cov_genome}).
+Some SNPs have extreme coverage values (>600X) and might be caused by repetitive regions or paralogs that have been merged as a single locus.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{coverage_analysis/coverage_1kbwin.pdf}
+		\caption{Mean depth per family at every SNP that passed the populations filters.}
+		\label{cov_genome}
+	\end{center}
+\end{figure}
+
+
+\FloatBarrier
 \section{TO DO}
 \begin{itemize}
 
-\item FOR MONDAY : nice table with all offspring numbers (1NM, 2NM, F) per family to determine with Casper where and how many individuals we need to add in existing families.
-\item identify metacentric and telocentric chromosomes using proportion of homozygous offspring at each SNP along genome. (proportion should either increase or decrease towards ends of chromosomes.
+\item identify metacentric and telocentric chromosomes using proportion of homozygous offspring at each SNP (heterozygous in the mother) along genome. (proportion should either increase or decrease towards ends of chromosomes.
 \item use proper visualization technique with a smoothed trend line weighted by the number of offspring supporting each SNPs.
 \item classify families by proportion of males among diploid offspring. The proportion of males should indivate different combination of CSD loci. Recombination rates will vary depending on distance from centromere
 \item Find CSD peaks that are intersect in several families ?

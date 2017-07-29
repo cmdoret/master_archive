@@ -33,7 +33,7 @@ do
             rm data/sstacks/$fam/$indv*
             # Remove all files related to haploids to exclude from populations run
         done
-    
+    fi
     echo "Populations running on family $fam, excluding $(echo $haplo | wc -w) haploid males."
     mkdir -p $od/$fam  # Prepare one output folder per family
     populations -P data/sstacks/$fam -M data/popmap -p 2 -m $D -b 0 -r $R -k -f p_value -t 3 --verbose --fstats --vcf --max_obs_het 0.9

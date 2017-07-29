@@ -64,17 +64,40 @@ header-includes:
 
 ## Number of sites
 ```{r echo=FALSE}
-library(ggplot2)
+library(ggplot2);library(ggjoy);library(dplyr)
 fixed <- read.table("../../../data/ploidy/thresholds/fixed",header=T)
 #ggplot(data=fixed,aes(x=N_SITES,fill=Family))+geom_histogram(binwidth = 10)+ggtitle("Number of sites per sample, by family (all samples)")
-ggplot(data=fixed,aes(x=N_SITES,fill=Generation))+geom_histogram(binwidth = 10)+ggtitle("Number of sites per sample, by family (all samples)") + facet_grid(Family~)
+fixed$Family <- as.character(fixed$Family)
+fam_sites <- fixed %>%
+  select(Family,N_SITES) %>%
+  group_by(Family) %>%
+  summarise(avg=mean(N_SITES))
+
+fixed$Family <- factor(fixed$Family,levels = fam_sites$Family[order(fam_sites$avg)],ordered = T)
+
+ggplot(data=fixed,aes(x=N_SITES,y=Family))+geom_joy2(col = "grey10", fill = "grey70")+ggtitle("Number of sites per sample, by family (all samples)") + theme_minimal()
 ```
 
 ## Depth
 
 ```{r echo=FALSE}
+library(viridis)
 ggplot(data=fixed, aes(x=MEAN_DEPTH))+geom_histogram()
-ggplot(data=fixed, aes(x=N_SITES, y=MEAN_DEPTH,col=Ploidy))+geom_point()+facet_wrap(~Family)
+
+fixed$Family <- as.character(fixed$Family)
+fam_depth <- fixed %>%
+  select(Family,MEAN_DEPTH) %>%
+  group_by(Family) %>%
+  summarise(avg=mean(MEAN_DEPTH))
+
+fixed$Family <- factor(fixed$Family,levels = fam_depth$Family[order(fam_depth$avg)],ordered = T)
+fixed <- fixed %>% 
+  group_by(Family) %>% 
+  mutate(avg_depth=mean(MEAN_DEPTH))
+
+ggplot(data=fixed,aes(x=MEAN_DEPTH,y=Family, height=..density.., fill=avg_depth))+geom_joy2(stat='binline',alpha=0.4)+ggtitle("Mean sample depth by family (all samples)") + theme_minimal() + scale_fill_viridis()
+
+ggplot(data=fixed, aes(x=N_SITES, y=MEAN_DEPTH,col=Ploidy))+geom_point()+facet_wrap(~Family) +
   ggtitle("Coverage versus number of sites per individual (all samples)")
 ```
 
