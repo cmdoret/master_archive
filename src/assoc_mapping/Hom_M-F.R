@@ -85,7 +85,7 @@ sum_stat <- merged[is.na(merged$EXTRACOL),]
 sum_stat$EXTRACOL <- NULL
 }
 
-rec_hom <- read.csv("../../data/SNP_lists/fixed_hom_mother.txt",header=T)
+# removing SNPs homozygous in mother
 sum_stat <- data.frame()
 for(fam in list.dirs(stat_path)[2:length(list.dirs(stat_path))]){  # Excluding first dir (parent)
   tmp_stat <- read.csv(paste0(fam,'/batch_0.sumstats.tsv'),header=T,skip=2,sep='\t')
