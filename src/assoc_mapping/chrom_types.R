@@ -38,5 +38,43 @@ chrom_stat$weight <- chrom_stat$Nf + chrom_stat$Nm
 
 # Excluding unordered contigs
 chrom_stat <- chrom_stat[grep("chr.*", chrom_stat$Chr),]
+chrom_stat$Chr <- droplevels(chrom_stat$Chr)
 
-ggplot(chrom_stat, aes(x=BP, y=hom)) + facet_grid(~Chr, scales='free_x') + geom_smooth(method = 'lm')
+ggplot(chrom_stat, aes(x=BP, y=hom, weight=weight)) + facet_grid(~Chr, scales='free_x') + 
+  geom_point(col='grey70') + stat_smooth(fill='steelblue', method='loess', fullrange = F, span=0.4)
+
+chr_models <- list()
+for(chrom in levels(chrom_stat$Chr)){
+  chr_models[[chrom]] <- loess(data=chrom_stat[chrom_stat$Chr==chrom,], 
+                          formula=hom~BP, weights=weight, span=1, model=T)
+}
+
+
+par(mfrow=c(3,2))
+for(mod in chr_models){
+  plot(mod$x[order(mod$x)],mod$fitted[order(mod$x)], ylim=c(-0.05,1), type='l')
+  points(mod$x[mod$fitted==min(mod$fitted)],rep(-0.01,length(mod$x[mod$fitted==min(mod$fitted)])),
+       xlim=c(min(mod$x),max(mod$x)), col='red')
+  abline(h=-0.01)
+}
+
+
+
+library(viridis)
+sp_range <- seq(0.3,4,0.1)
+virilist <- viridis(n=length(sp_range))
+colindex <- 1
+par(mfrow=c(3,2))
+for(chrom in levels(chrom_stat$Chr)){
+  plot(x=c(),y=c(),xlim=c(0,max(chrom_stat$BP[chrom_stat$Chr==chrom])), ylim=c(-0.05,1))
+  abline(h=-0.01)
+  for(sp in sp_range){
+    mod <- loess(data=chrom_stat[chrom_stat$Chr==chrom,], 
+                     formula=hom~BP, weights=weight, span=sp, model=T)
+    points(mod$x[order(mod$x)],mod$fitted[order(mod$x)], type='l',col=alpha(virilist[colindex],0.4))
+    points(mod$x[mod$fitted==min(mod$fitted)],rep(-0.01,length(mod$x[mod$fitted==min(mod$fitted)])),
+           col=alpha(virilist[colindex],0.4),pch=16, cex=1.5)
+    colindex <- colindex+1
+  }
+  colindex <- 1
+}
