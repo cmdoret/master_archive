@@ -571,7 +571,23 @@ It is possible to approximate the number of CSD loci heterozygous in a mother us
 
 \section{Categorizing mothers}
 
-The mothers can be categorized based on this proportion of male offspring. The categories will reflect different combination of heterozygous CSD loci. Assuming the recombination rate is the same in different mothers, the different categories will depend only on the distance of the heterozygous locus/loci from the centromere. Loci further from the centromere will be undergo gene conversion more frequently, which means each category should have a single combination of heterozygous loci.
+The mothers can be categorized based on this proportion of male offspring. The categories will reflect different combination of heterozygous CSD loci. Assuming the recombination rate is the same in different mothers, the different categories will depend only on the distance of the heterozygous locus/loci from the centromere. Loci further from the centromere will be undergo gene conversion more frequently.
+
+There are different scenario: 
+\begin{itemize}
+\item 1 CSD locus: In this scenario, all mothers will be heterozygous at this locus and there should only be one category since the proportion of males among diploids will only depend on the distance of this locus from the centromere.
+\item 2 CSD loci, same chromosome: In this scenario, there should be 2 categories. The first category should consist of mothers that are heterozygous at the CSD locus that is furthest from the centromere and should have the lowest production of diploid males. The other category should include mothers that are heterozygous at the locus closest to the centromere or at both locus, since a recombination event proximal to the closest locus implies a transition to homozygosity for both loci.
+\item 2 CSD loci, different chromosomes: This scenario would allow for 3 categories of mothers; those heterozygous at one, the other, or both CSD loci. Those heterozygous at the furthest locus only should have the highest production of diploid males. Those with only the closest one would have a lower production. The females heterozygous at both loci would have the lowest production of diploid males (should be the product of the two other categories).
+\item 3 or more CSD loci: In case there are more than 2 loci, the number of categories would quickly increase beyond the scope of this study as we would not have enough families to detect the categories.
+\end{itemize}
+
+Update: 02.08.2017
+
+I need more families to build solid categories. The 12 families currently available seem to form distinct clusters, but more are needed to ensure a solid classification. Another issue is that we are not sequencing all offspring (for financial reasons) and we select the relative number of males and females to increase the power of all analysis (i.e. trying to balance the numbers of each). This will bias the numbers and we should account for it.\\
+
+To address the latter problem, I propose the following strategy: If $m$ out of $M$ males and $f$ out of $F$ females are selected for sequencing, compute the proportion of diploid $d$ among the $m$ males. Then, compute the proportion of males $p$ among total offspring as $p=\frac{M*d}{F+M}$, thus extrapolating the proportion of diploid males in the family to non-sequenced samples. This should not be biased as we select them irrespectively of ploidy. However, families with small number of sequenced males are vulnerable to randomness and extrapolating might be dangerous in these.
+
+To solve the issue of low number of families, we are preparing new libraries for sequencing, both expanding existing families and adding new ones. In total, we will add more than 200 individuals, but the exact number is subject to change.
 
 \section{Using categories}
 
