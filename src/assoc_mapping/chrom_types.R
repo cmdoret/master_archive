@@ -40,6 +40,7 @@ chrom_stat$weight <- chrom_stat$Nf + chrom_stat$Nm
 chrom_stat <- chrom_stat[grep("chr.*", chrom_stat$Chr),]
 chrom_stat$Chr <- droplevels(chrom_stat$Chr)
 
+# Plotting local regression of data with default parameters
 ggplot(chrom_stat, aes(x=BP, y=hom, weight=weight)) + facet_grid(~Chr, scales='free_x') + 
   geom_point(col='grey70') + stat_smooth(fill='steelblue', method='loess', fullrange = F, span=0.4)
 
@@ -49,7 +50,7 @@ for(chrom in levels(chrom_stat$Chr)){
                           formula=hom~BP, weights=weight, span=1, model=T)
 }
 
-
+if(FALSE){
 par(mfrow=c(3,2))
 for(mod in chr_models){
   plot(mod$x[order(mod$x)],mod$fitted[order(mod$x)], ylim=c(-0.05,1), type='l')
@@ -57,11 +58,11 @@ for(mod in chr_models){
        xlim=c(min(mod$x),max(mod$x)), col='red')
   abline(h=-0.01)
 }
+}
 
-
-
+# Span of local regression has a strong effect on fit.
 library(viridis)
-sp_range <- seq(0.3,4,0.1)
+sp_range <- seq(0.2,1,0.05)
 virilist <- viridis(n=length(sp_range))
 colindex <- 1
 par(mfrow=c(3,2))
@@ -69,7 +70,7 @@ for(chrom in levels(chrom_stat$Chr)){
   plot(x=c(),y=c(),xlim=c(0,max(chrom_stat$BP[chrom_stat$Chr==chrom])), ylim=c(-0.05,1))
   abline(h=-0.01)
   for(sp in sp_range){
-    mod <- loess(data=chrom_stat[chrom_stat$Chr==chrom,], 
+    mod <- loess(data=chrom_stat[chrom_stat$Chr==chrom,], degree=1,
                      formula=hom~BP, weights=weight, span=sp, model=T)
     points(mod$x[order(mod$x)],mod$fitted[order(mod$x)], type='l',col=alpha(virilist[colindex],0.4))
     points(mod$x[mod$fitted==min(mod$fitted)],rep(-0.01,length(mod$x[mod$fitted==min(mod$fitted)])),
@@ -77,4 +78,46 @@ for(chrom in levels(chrom_stat$Chr)){
     colindex <- colindex+1
   }
   colindex <- 1
+}
+
+# Need to use cross-validation to select best span objectively.
+
+
+loessGCV <- function (x) {
+  ## Modified from code by Michael Friendly
+  ## http://tolstoy.newcastle.edu.au/R/help/05/11/15899.html
+  if (!(inherits(x,"loess"))) stop("Error: argument must be a loess object")
+  ## extract values from loess object
+  span <- x$pars$span
+  n <- x$n
+  traceL <- x$trace.hat
+  sigma2 <- sum(resid(x)^2) / (n-1)
+  gcv  <- n*sigma2 / (n-traceL)^2
+  result <- list(span=span, gcv=gcv)
+  result
+}
+
+estLoess <- function(model, spans = c(.1, .95)) {
+  f <- function(span) {
+    mod <- update(model, span = span)
+    loessGCV(mod)[["gcv"]]
+  }
+  result <- optimize(f, spans)
+  result
+}
+
+library(viridis)
+sp_range <- seq(0.2,1,0.05)
+par(mfrow=c(3,2))
+for(chrom in levels(chrom_stat$Chr)){
+  plot(x=c(),y=c(),xlim=c(0,max(chrom_stat$BP[chrom_stat$Chr==chrom])), ylim=c(-0.05,1))
+  abline(h=-0.01)
+  mod <- loess(data = chrom_stat[chrom_stat$Chr==chrom,], hom ~ BP,
+               weights = weight)
+  mod.best <- estLoess(mod)
+  mod.cv <- loess(data = chrom_stat[chrom_stat$Chr==chrom,], formula=hom~BP, 
+                  degree=2, weights=weight, span=mod.best$minimum, model=T)
+  points(mod.cv$x[order(mod.cv$x)],mod.cv$fitted[order(mod.cv$x)], type='l')
+  points(mod.cv$x[mod.cv$fitted==min(mod.cv$fitted)],rep(-0.01,length(mod.cv$x[mod.cv$fitted==min(mod.cv$fitted)])),
+         pch=16, cex=1.5)
 }

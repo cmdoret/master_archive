@@ -581,6 +581,8 @@ There are different scenario:
 \item 3 or more CSD loci: In case there are more than 2 loci, the number of categories would quickly increase beyond the scope of this study as we would not have enough families to detect the categories.
 \end{itemize}
 
+Noote that scenario 2 is only happening if both loci are on the same side of the centromere, otherwise two separate recombination events would be required to cause male development.
+
 Update: 02.08.2017
 
 I need more families to build solid categories. The 12 families currently available seem to form distinct clusters, but more are needed to ensure a solid classification. Another issue is that we are not sequencing all offspring (for financial reasons) and we select the relative number of males and females to increase the power of all analysis (i.e. trying to balance the numbers of each). This will bias the numbers and we should account for it.\\
@@ -592,7 +594,11 @@ To solve the issue of low number of families, we are preparing new libraries for
 \section{Using categories}
 
 Once the mothers have been categorized based on the proportion of males in their diploid offspring, I will use this category information to filter CSD candidates common to mothers within one category.
+Assuming scenario 3, for instance, there will be 3 categories. I will first filter the best hits common to the category with the lowest production of diploid males. I will then look for overlap with the two other categories separately.
+To validate hits, I will use the information of the distance from centromere. The position of the centromere in the scaffold (i.e. metacentric vs telocentric chromosome) can be inferred from the recombination rates along the chromosome. The method I am going to use for this is to measure the proportion of offspring homozygous at each SNP that is heterozygous in the mother (i.e. proportion of recombinant offspring at that SNP).The centromere should be the region with the lowest value.
+The hits obtained for CSD candidates in the different categories should be coherent with this distance; the hit in the family with a low diploid male production should be closer to the centromere.\\
 
+Modelling the recombination rate along chromosomes using a weighted loess (lowess) curve revealed local minima that could contain centromeres, however the position of these minima can vary strongly depending on the bandwidth (smoothing parameter) allowed for local regression when building the curve. This is likely due to the too small number of individuals. Note the curve uses the proportion of recombinant offspring within a family at a given SNP weighted by the total number of offspring in that family.
 \chapter{Male-Female Fst}
 
 Date: 17.07.2017\\
@@ -627,6 +633,9 @@ This issue will be dropped from the analysis as the effect is much weaker than w
 In this section, I check wether there are individuals or genomic regions that have abnormally high or low coverage, I identify the potential reasons for these abnormalities and eventually, I will remove the concerned elements from the analysis.
 
 \section{Individual stats}
+
+Prior to coverage, I had a look at the raw reads statistics. On average,each sample has 803951 reads and the (ordered) reference genome is 140.7 Mb long. This makes for an average of $5.7*10^{-3}$ reads per basepair.
+In comparison, the 3 datasets used in the Paris 2017 paper (Roadmap to STACKS) have $9.6*10^{-4}$, $2.7*10^{-3}$ and $8.6*10^{-3}$.
 
 I first analysed the coverage on a per individual basis. That means for each individual, it has been averaged over all polymorphic SNPs kept throughout the STACKS pipeline. The mean sample coverage is relatively high and follows a normal distribution centered around 119X with a standard deviation of 33. There are two outliers with exceptionally high coverage (at 228X and 270X, respectively) which I might consider removing. The coverage is not different across families (Figure \ref{cov_fam}). Coverage is not affected by the family of an individual (it is not affected by ploidy or sex either).
 
