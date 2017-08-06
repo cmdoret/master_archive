@@ -647,7 +647,13 @@ I first analysed the coverage on a per individual basis. That means for each ind
 	\end{center}
 \end{figure}
 
-Analyzing the number of sites (SNPs) per sample revealed that it was strongly affected by the family (Figure \ref{sites_fam}). This is likely to be caused either be caused by storage duration, reagent quality or manipulations. I cannot account for this and will either need to get rid of lowest quality families (such as I) or get more individuals.
+Analyzing the number of sites (SNPs) per sample revealed that it was strongly affected by the family (Figure \ref{sites_fam}). This could be caused by storage duration, reagent quality or manipulations. If so, I cannot account for this and will either need to get rid of lowest quality families (such as I) or get more individuals.\\
+
+Update: 06.08.2017
+
+To investigate whether the inter-family variation in the number of sequenced sites was due to differing amounts of sequenced DNA, I compared the number of sequencing reads per family (Figure \ref{reads_fam}). There is interfamily variation, but it seems relatively low, compared to the number of sites in figure \ref{sites_fam}. This variation is likely due to the low number of samples and is probably not meaningful. Moreover, the order of families, when sorted from highest to lowest is different for number of sequenced sites and number of reads. 
+
+
 
 \begin{figure}[h]
 	\begin{center}
@@ -656,6 +662,16 @@ Analyzing the number of sites (SNPs) per sample revealed that it was strongly af
 		\label{sites_fam}
 	\end{center}
 \end{figure}
+
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{coverage_analysis/reads_sample.pdf}
+		\caption{Number of sequencing reads per individual, before mapping or any filter. Distribution of individuals is shown by family. The inter-family variation is not particularly high relative to intra-family variation.}
+		\label{reads_fam}
+	\end{center}
+\end{figure}
+
 
 \section{Genome coverage}
 
