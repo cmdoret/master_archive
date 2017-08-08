@@ -97,7 +97,7 @@ clean :
 .PHONY : ploidy
 ploidy:
 	mkdir -p $(DAT)/ploidy/thresholds
-	bash $(MISC)/parse_VCF.sh $(POP)
+	bash $(MISC)/parse_VCF.sh $(POP) $(GRFAM)
 	# Parsing VCF file from populations output
 	python2 src/ploidy/haplo_males.py $(VCFSUM)
 	# Building list of haploid males
