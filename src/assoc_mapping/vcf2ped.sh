@@ -4,4 +4,4 @@
 # 08.06.2017
 
 
-vcftools --vcf $1 --plink  --out data/assoc_mapping/raw
+vcftools --vcf $1 --plink  --out data/assoc_mapping/plink

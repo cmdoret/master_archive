@@ -33,7 +33,7 @@ $(SSTACK) : $(CSTACK)
 	sed -i "s/^\(M=\)[0-9]*/\1$(M)/g" $(S-SRC)
 	sed -i "s^\(wd=\).*^\1$(MAIN)/data^g" $(S-SRC)
 	bash $(S-SRC) $<
-	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK)
+	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK) $(GRFAM)
 
 # Running populations on each family
 $(POP) : $(SSTACK) $(POP-SRC)
@@ -45,6 +45,7 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	sed -i "s/\(R=\).*/\10\.$(R)/g" $(POP-SRC)
 	sed -i "s/\(D=\).*/\1$(D)/g" $(POP-SRC)
 	sed -i "s^\(thresh=\).*^\1$(THRESH)^g" $(POP-SRC)
+	sed -i "s/\(group=\).*/\1$(GRFAM)/g" $(POP-SRC)
 	# Changing parameters directly in the file
 	bsub -K <$(POP-SRC)
 	# Submitting job (-K will hang pipeline until end of job)
