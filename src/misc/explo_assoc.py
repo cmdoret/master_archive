@@ -21,6 +21,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 in_geno = argv[1]
 thresh = argv[2]
+grouped = argv[3]
 # thresh = "../../data/ploidy/thresholds/fixed"
 # in_geno = "../../data/ploidy/vcftools/"
 
@@ -56,31 +57,38 @@ for subdir, dirs, files in walk(in_geno):
         # numbers. Also giving individuals names as row names and SNPs positions
         # as column names
         try:
-            mother = list(traits.Name[(traits.Generation=='F3') &
+            if grouped == 'F':
+                mother = list(traits.Name[(traits.Generation=='F3') &
                              (traits.Family==path.basename(subdir))])
-            mo_bool = geno_mat.loc[mother,:]%2==0
-            # Boolean mask for SNPs that are homozygous in mother
-            mother_fam = pd.DataFrame(mo_bool.columns[mo_bool.iloc[0,:]],
-             columns=['merged'])
-            mother_fam[['contig', 'bp']] = mother_fam['merged'].apply(SNP_splitter)
-            mother_fam['family'] = path.basename(subdir)
-            mother_fam.drop('merged', axis=1, inplace=True)
-            # Split IDs to extract contig and base pair infos
-            mother_hom = mother_hom.append(mother_fam)
-            # Append family blacklist to overall dataframe
-            geno_mat = geno_mat.loc[:,~mo_bool.iloc[0,:]]
-            # excluding SNPs that are homozygous in mothers
+            else:
+                mother = list(traits.Name[(traits.Generation=='F3')])
+            for m in mother:
+                mo_bool = geno_mat.loc[[m],:]%2==0
+                # Boolean mask for SNPs that are homozygous in mother
+                mother_fam = pd.DataFrame(mo_bool.columns[mo_bool.iloc[0,:]],
+                columns=['merged'])
+                mother_fam[['contig', 'bp']] = mother_fam['merged'].apply(
+                    SNP_splitter)
+                mother_fam['family'] = traits.loc[traits['Name']==
+                                                  m,'Family'].iloc[0]
+                mother_fam.drop('merged', axis=1, inplace=True)
+                # Split IDs to extract contig and base pair infos
+                mother_hom = mother_hom.append(mother_fam)
+                # Append family blacklist to overall dataframe
+                fam_samples = traits.loc[traits['Family']==mother_fam.family[0],
+                                         'Name']
+
+                geno_mat.loc[fam_samples,mo_bool.iloc[0,:]] = -1
+                # excluding SNPs that are homozygous in mothers
         except IndexError:
             print("No SNP data for mother of family " + path.basename(subdir))
         fam_geno[path.basename(subdir)] = geno_mat
         # Storing genotype matrix of each family in the dictionary
-try:
-    mother_hom.sort_values(['family', 'contig', 'bp'], inplace=True)
-    mother_hom.to_csv('data/SNP_lists/' + path.basename(thresh) + '_hom_mother.txt',
+
+mother_hom.sort_values(['family', 'contig', 'bp'], inplace=True)
+mother_hom.to_csv('data/SNP_lists/' + path.basename(thresh) + '_hom_mother.txt',
                         index=False)
-except KeyError:
-    print("Not storing homozygous SNPs in mothers, ran populations on all \
-individuals")
+
 # Sorting SNPs by family and writing them to a text file
 
 ##################
@@ -92,7 +100,10 @@ individuals")
 males = {}
 females = {}
 for fam in sorted(fam_geno):  # Iterating over families
-    fam_traits = traits.loc[traits.Family==fam]
+    if grouped == "F":
+        fam_traits = traits.loc[traits.Family==fam]
+    else:
+        fam_traits = traits
     # Subsetting traits df for each family
     comp_mal = fam_traits.loc[(fam_traits.Sex=='F') |
                           (fam_traits.Ploidy == 'H'),"Name"]
@@ -202,7 +213,11 @@ for fam in sorted(fam_geno):
     axScatter.set_ylabel("Male heterozygosity")
 
     # Displaying data summary on the plot
-    m1n = len(traits.Name[(traits.Ploidy=='H') & (traits.Family==fam)])
+    if grouped == 'F':
+        m1n = len(traits.Name[(traits.Ploidy=='H') & (traits.Family==fam)])
+    else:
+        m1n = len(traits.Name[traits.Ploidy=='H'])
+        
     textstr = 'Threshold={0}\nM1N={1}\nM2N={2}\nF={3}\nSNPs={4}'.format(
         thresh.split('/')[-1], m1n, males[fam].shape[0], females[fam].shape[0],
         SNP_sum[fam].shape[0])

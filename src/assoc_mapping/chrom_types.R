@@ -8,24 +8,31 @@ library(ggplot2); library(dplyr)
 
 
 # Genome statistics
-stat_path <- '../../data/populations/d-20_r-80/'
+stat_path <- '../../data/populations/d-5_r-10/'
 indv <- read.table('../../data/individuals', header=T)
+grouped <- "T"
 # phi_path <- commandArgs(TrailingOnly=T)[1]
 
 # removing SNPs homozygous in all females (consequently in mothers)
-sum_stat <- data.frame()
-for(fam in list.dirs(stat_path)[2:length(list.dirs(stat_path))]){  # Excluding first dir (parent)
-  tmp_stat <- read.csv(paste0(fam,'/batch_0.sumstats.tsv'),header=T,skip=2,sep='\t')
-  tmp_stat$fam <- rep(basename(fam))
-  sum_stat <- rbind(sum_stat, tmp_stat)
-  mother_hom <- NULL
+if(grouped=='F'){
+  sum_stat <- data.frame()
+  for(fam in list.dirs(stat_path)[2:length(list.dirs(stat_path))]){  # Excluding first dir (parent)
+    tmp_stat <- read.csv(paste0(fam,'/batch_0.sumstats.tsv'),header=T,skip=2,sep='\t')
+    tmp_stat$fam <- rep(basename(fam))
+    sum_stat <- rbind(sum_stat, tmp_stat)
+    mother_hom <- NULL
+  }
+  rm_snps<- sum_stat %>% 
+    group_by(fam,Locus.ID,Col) %>%  # Each group contains one SNP (both male and female pop)
+    summarise(hom_mot = sum(Pop.ID=='F' & Q.Nuc=='-'))  # If all females are homozygous -> mother is homozygous
+  
+  rm_snps <- rm_snps[rm_snps$hom_mot==0, 1:3]
+  sum_stat <- merge(sum_stat,rm_snps,by=c("Locus.ID","Col","fam"))
+}else{
+  sum_stat <- read.csv(paste0(stat_path,"/batch_0.sumstats.tsv"), header=T, skip=2, sep='\t')
+  sum_stat$fam <- 'all'
 }
-rm_snps<- sum_stat %>% 
-  group_by(fam,Locus.ID,Col) %>%  # Each group contains one SNP (both male and female pop)
-  summarise(hom_mot = sum(Pop.ID=='F' & Q.Nuc=='-'))  # If all females are homozygous -> mother is homozygous
 
-rm_snps <- rm_snps[rm_snps$hom_mot==0, 1:3]
-sum_stat <- merge(sum_stat,rm_snps,by=c("Locus.ID","Col","fam"))
 
 # Computing total homozygousity and number of individuals per SNP
 male_stat <- sum_stat[sum_stat$Pop.ID=="M",c('Chr','BP','Obs.Hom', 'fam', 'N',"Locus.ID")]

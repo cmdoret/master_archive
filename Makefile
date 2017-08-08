@@ -108,7 +108,7 @@ ploidy:
 	mkdir -p reports/lab_book/assoc_explo_fam
 	mkdir -p data/SNP_lists
 	# Creating folder to store new plots if necessary
-	python2 src/misc/explo_assoc.py data/ploidy/vcftools/ $(THRESH)
+	python2 src/misc/explo_assoc.py data/ploidy/vcftools/ $(THRESH) $(GRFAM)
 	# Plotting exploratory results for het. at each SNP
 	mkdir -p reports/lab_book/ploidy_per_fam
 	# for t in data/ploidy/thresholds/*; do Rscript src/ploidy/prop_offspring.R $$t;done

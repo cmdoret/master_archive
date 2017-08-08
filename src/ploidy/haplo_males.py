@@ -13,7 +13,7 @@ from math import sqrt
 
 #===================
 # Choose a flat homozygosity threshold for ploidy separation.
-fixed_thresh = 0.77
+fixed_thresh = 0.91
 # Reminder: 0.77 if running populations per family, 0.91 otherwise
 #===================
 

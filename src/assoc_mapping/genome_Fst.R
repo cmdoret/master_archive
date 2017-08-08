@@ -7,9 +7,11 @@ library(dplyr)
 library(readr)
 library(ggplot2)
 
+scaffolds <- read.table("../../data/ref_genome/ordered_genome/merged.fasta.ann", stringsAsFactors = F)
+phi_path <- '../../data/populations/d-5_r-10/'
+grouped <- 'T'
 
 # Chromosome sizes
-scaffolds <- read.table("../../data/ref_genome/ordered_genome/merged.fasta.ann", stringsAsFactors = F)
 chrom_sizes <- data.frame(); chrom_names=c()
 for(row in seq(1,nrow(scaffolds))){
   if(length(grep('chr',scaffolds[row,2]))){
@@ -25,14 +27,16 @@ chrom_sizes$mid <- chrom_sizes$start + (chrom_sizes$length/2)
 
 
 # Genome statistics
-phi_path <- '../../data/populations/d-20_r-80/'
-# phi_path <- '../../data/populations/haplo_d-20_r-80/'
-# phi_path <- commandArgs(TrailingOnly=T)[1]
-phi_stat <- data.frame()
-for(fam in list.dirs(phi_path)[2:length(list.dirs(phi_path))]){  # Excluding first dir (parent)
-tmp_phi <- read.csv(paste0(fam,'/batch_0.phistats_F-M.tsv'),header=T,skip=2,sep='\t')
-tmp_phi$fam <- rep(basename(fam))
-phi_stat <- rbind(phi_stat, tmp_phi)
+if(grouped == 'F'){
+  phi_stat <- data.frame()
+  for(fam in list.dirs(phi_path)[2:length(list.dirs(phi_path))]){  # Excluding first dir (parent)
+    tmp_phi <- read.csv(paste0(fam,'/batch_0.phistats_F-M.tsv'),header=T,skip=2,sep='\t')
+    tmp_phi$fam <- rep(basename(fam))
+    phi_stat <- rbind(phi_stat, tmp_phi)
+  }
+}else{
+  phi_stat <- read.csv(paste0(phi_path, '/batch_0.phistats_F-M.tsv'), header=T, skip=2, sep='\t')
+  phi_stat$fam <- 'all'
 }
 
 # Keeping only chromosomes (removing contigs)
@@ -74,7 +78,7 @@ ggplot(data=chrom, aes(x=tot_BP, y=Smoothed.Fst., col=fam))+ geom_vline(data=chr
   geom_line()
 
 
-top_Fst<- chrom[chrom$Fst.>=0.7,]
+top_Fst<- chrom[chrom$Fst.>=0.15,]
 hist(top_Fst$tot_BP,breaks=100, main="Top CSD candidates", xlab="Genomic position", ylab="N hits >= 0.8", col="grey")
 abline(v=chrom_sizes$start, lty=2,col="blue")
 
