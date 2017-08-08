@@ -20,15 +20,16 @@ group=$2
 
 if [ $group = "T" ]
 then
+    mkdir -p $out_path/all/
     if [ -f $1/*.vcf ]
     then        
-        vcftools --vcf $1/*.vcf --out $out_path/all --depth;
+        vcftools --vcf $1/*.vcf --out $out_path/all/all --depth;
         # Mean read depth per individual
-        vcftools --vcf $1/*.vcf --out $out_path/all --het;
+        vcftools --vcf $1/*.vcf --out $out_path/all/all --het;
         # Mean heterozygosity per individual
-        vcftools --vcf $1/*.vcf --out $out_path/all --012;
+        vcftools --vcf $1/*.vcf --out $out_path/all/all --012;
         # Genotype matrix[SNP, individual]
-        paste $out_path/all.het $out_path/all.idepth \
+        paste $out_path/all/all.het $out_path/all/all.idepth \
         | cut -f6,7 --complement > $out_path/summary_full.txt;
         # Putting together mean depth and mean heterozygosity
     fi

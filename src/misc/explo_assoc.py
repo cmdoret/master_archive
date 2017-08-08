@@ -21,7 +21,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 in_geno = argv[1]
 thresh = argv[2]
-# thresh = "../../data/ploidy/thresholds/m2"
+# thresh = "../../data/ploidy/thresholds/fixed"
 # in_geno = "../../data/ploidy/vcftools/"
 
 SNP_splitter = lambda x: pd.Series([i for i in x.split('_')])
@@ -74,9 +74,13 @@ for subdir, dirs, files in walk(in_geno):
             print("No SNP data for mother of family " + path.basename(subdir))
         fam_geno[path.basename(subdir)] = geno_mat
         # Storing genotype matrix of each family in the dictionary
-mother_hom.sort_values(['family', 'contig', 'bp'], inplace=True)
-mother_hom.to_csv('data/SNP_lists/' + path.basename(thresh) + '_hom_mother.txt',
-                    index=False)
+try:
+    mother_hom.sort_values(['family', 'contig', 'bp'], inplace=True)
+    mother_hom.to_csv('data/SNP_lists/' + path.basename(thresh) + '_hom_mother.txt',
+                        index=False)
+except KeyError:
+    print("Not storing homozygous SNPs in mothers, ran populations on all \
+individuals")
 # Sorting SNPs by family and writing them to a text file
 
 ##################

@@ -11,12 +11,18 @@ import pandas as pd  # Convenient data frames
 from sys import argv  # Command line arguments
 from math import sqrt
 
+#===================
+# Choose a flat homozygosity threshold for ploidy separation.
+fixed_thresh = 0.77
+# Reminder: 0.77 if running populations per family, 0.91 otherwise
+#===================
 
 def ploidy(indiv,mult=1,transf=None, fixed=False):
     """
     This function returns a table with individuals and their ploidy, inferred
-    based on parameters that were passed. Haploids and diploids sons are split
-    using the homozygosity of daughters (dau):
+    based on parameters that were passed.
+    Haploids and diploids sons are split either with a flat homozygosity
+    threshold, or using the homozygosity of daughters (dau):
     haploids > mean(dau) + mult * transf(stdev(dau))
     where mean and stdev are the mean and standard deviation of homozygosity of
     daughters.
@@ -52,7 +58,7 @@ def ploidy(indiv,mult=1,transf=None, fixed=False):
     # Subsetting haploid males in each family and filtering by threshold
     # computed from daughters.
     if fixed:
-        haplo = males.apply(lambda g: g[g['HOM'] >= fixed])
+        haplo = males.apply(lambda g: g[g['HOM'] > fixed])
     else:
         if transf:  # If a transformation was passed to the function
             haplo = males.apply(lambda g:
@@ -101,7 +107,7 @@ for m in benchmark_set['mult']:  # Looping over all combination of param values
 """
 
 # Fixed threshold determined visually at 77% of homozygosity
-out_m = ploidy(fam_sum,fixed=0.77)
+out_m = ploidy(fam_sum,fixed=fixed_thresh)
 out_m.to_csv('data/ploidy/thresholds/fixed',sep='\t',index=False)
 #out_haplo = fam_sum.loc[fam_sum.Sex == 'M',['Name','Family']]
 #out_haplo = out_haplo.merge(haplo,on='Name',how='inner')[['Name','Family_x']]
