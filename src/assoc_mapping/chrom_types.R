@@ -4,7 +4,7 @@
 # 30.07.2017
 # Cyril Matthey-Doret
 
-library(ggplot2); library(dplyr)
+library(ggplot2); library(dplyr);library(viridis)
 
 
 # Genome statistics
@@ -51,25 +51,9 @@ chrom_stat$Chr <- droplevels(chrom_stat$Chr)
 ggplot(chrom_stat, aes(x=BP, y=hom, weight=weight)) + facet_grid(~Chr, scales='free_x') + 
   geom_point(col='grey70') + stat_smooth(fill='steelblue', method='loess', fullrange = F, span=0.4)
 
-chr_models <- list()
-for(chrom in levels(chrom_stat$Chr)){
-  chr_models[[chrom]] <- loess(data=chrom_stat[chrom_stat$Chr==chrom,], 
-                          formula=hom~BP, weights=weight, span=1, model=T)
-}
-
-if(FALSE){
-par(mfrow=c(3,2))
-for(mod in chr_models){
-  plot(mod$x[order(mod$x)],mod$fitted[order(mod$x)], ylim=c(-0.05,1), type='l')
-  points(mod$x[mod$fitted==min(mod$fitted)],rep(-0.01,length(mod$x[mod$fitted==min(mod$fitted)])),
-       xlim=c(min(mod$x),max(mod$x)), col='red')
-  abline(h=-0.01)
-}
-}
 
 # Span of local regression has a strong effect on fit.
-library(viridis)
-sp_range <- seq(0.2,1,0.05)
+sp_range <- seq(0.02,0.2,0.01)
 virilist <- viridis(n=length(sp_range))
 colindex <- 1
 par(mfrow=c(3,2))
@@ -104,7 +88,7 @@ loessGCV <- function (x) {
   result
 }
 
-estLoess <- function(model, spans = c(.1, .95)) {
+estLoess <- function(model, spans = c(.01, 1)) {
   f <- function(span) {
     mod <- update(model, span = span)
     loessGCV(mod)[["gcv"]]
@@ -113,7 +97,6 @@ estLoess <- function(model, spans = c(.1, .95)) {
   result
 }
 
-library(viridis)
 sp_range <- seq(0.2,1,0.05)
 par(mfrow=c(3,2))
 for(chrom in levels(chrom_stat$Chr)){

@@ -598,7 +598,7 @@ Assuming scenario 3, for instance, there will be 3 categories. I will first filt
 To validate hits, I will use the information of the distance from centromere. The position of the centromere in the scaffold (i.e. metacentric vs telocentric chromosome) can be inferred from the recombination rates along the chromosome. The method I am going to use for this is to measure the proportion of offspring homozygous at each SNP that is heterozygous in the mother (i.e. proportion of recombinant offspring at that SNP).The centromere should be the region with the lowest value.
 The hits obtained for CSD candidates in the different categories should be coherent with this distance; the hit in the family with a low diploid male production should be closer to the centromere.\\
 
-Modelling the recombination rate along chromosomes using a weighted loess (lowess) curve revealed local minima that could contain centromeres, however the position of these minima can vary strongly depending on the bandwidth (smoothing parameter) allowed for local regression when building the curve. This is likely due to the too small number of individuals. Note the curve uses the proportion of recombinant offspring within a family at a given SNP weighted by the total number of offspring in that family.
+Modelling the recombination rate along chromosomes using a weighted loess (lowess) curve revealed local minima that could contain centromeres, however the position of these minima can vary strongly depending on the span (smoothing parameter) allowed for local regression when building the curve. This is likely due to the too small number of individuals. Note the curve uses the proportion of recombinant offspring within a family at a given SNP weighted by the total number of offspring in that family.
 \chapter{Male-Female Fst}
 
 Date: 17.07.2017\\
@@ -686,6 +686,27 @@ Some SNPs have extreme coverage values (>600X) and might be caused by repetitive
 	\end{center}
 \end{figure}
 
+\section{Lowering the filters}
+
+Date: 09.08.2017
+
+The main issues I am facing in this chapter are 1) the abnormally high coverage across my samples and 2) the high variation in the number of sites between families.
+
+The reason the high mean coverage per sample was worrying is because I have about the same amount of reads per sample as the 3 datasets described in the roadmap to stacks paper (Paris et al, 2017), yet i have at least twice more coverage per sample. After re-reading the paper, I found out this was simply a consequence of my stringent filters at the populations stage, which they do not use (see citation below).\\
+
+\textit{"Despite controlling for the mini-
+mum read depth of alleles at the ustacks phase of the pipe-
+line, many studies also incorporate a minimum stack depth
+required for individuals at a locus in the populations mod-
+ule of STACKS (e.g. Gaither et al. 2015; Ivy et al. 2016; Kjeldsen
+et al. 2016). Such a method is undesirable, as read depth has
+already been accounted for by the SNP model. Once the SNP
+model has made a determination, its evaluation should be
+trusted and using further non-statistically based limits on
+depth of coverage is ill advised and will result in the arbitrary
+dropping of loci."\\}
+
+I will follow their advice since my coverage is absurdly high, and I would benefit a sharp increase in the number of loci by removing this filter. 
 
 \FloatBarrier
 \section{TO DO}
