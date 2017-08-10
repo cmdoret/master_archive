@@ -10,7 +10,7 @@ library(ggplot2); library(dplyr);library(viridis)
 # Genome statistics
 stat_path <- '../../data/populations/d-3_r-80/'
 indv <- read.table('../../data/individuals', header=T)
-grouped <- "T"
+grouped <- "F"
 # phi_path <- commandArgs(TrailingOnly=T)[1]
 
 # removing SNPs homozygous in all females (consequently in mothers)
@@ -48,18 +48,19 @@ chrom_stat <- chrom_stat[grep("chr.*", chrom_stat$Chr),]
 chrom_stat$Chr <- droplevels(chrom_stat$Chr)
 
 # Plotting local regression of data with default parameters
-
+# span = 0.75
 ggplot(chrom_stat, aes(x=BP, y=hom, weight=weight)) + facet_grid(~Chr, scales = 'free_x') + 
-  geom_point(col='grey70') + stat_smooth(fill='steelblue', method='loess')
+  geom_point(col='grey70') + geom_smooth(fill='steelblue', method='loess')
+
 
 # Span of local regression has a strong effect on fit.
 sp_range <- seq(0.1,1,0.01)
 virilist <- viridis(n=length(sp_range))
 colindex <- 1
-par(mfrow=c(3,2))
+par(mfrow=c(1,6))
 for(chrom in levels(chrom_stat$Chr)){
   plot(x=c(),y=c(),xlim=c(0,max(chrom_stat$BP[chrom_stat$Chr==chrom])), ylim=c(-0.05,1),
-       xlab="bp",ylab="Homozygosity")
+       xlab=chrom,ylab="Homozygosity")
   abline(h=-0.01)
   for(sp in sp_range){
     mod <- loess(data=chrom_stat[chrom_stat$Chr==chrom,], degree=2,
@@ -89,7 +90,7 @@ loessGCV <- function (x) {
   result
 }
 
-estLoess <- function(model, spans = c(.01, .2)) {
+estLoess <- function(model, spans = c(.1, .2)) {
   f <- function(span) {
     mod <- update(model, span = span)
     loessGCV(mod)[["gcv"]]
@@ -104,7 +105,7 @@ for(chrom in levels(chrom_stat$Chr)){
   plot(x=c(),y=c(),xlim=c(0,max(chrom_stat$BP[chrom_stat$Chr==chrom])), ylim=c(-0.05,1))
   abline(h=-0.01)
   mod <- loess(data = chrom_stat[chrom_stat$Chr==chrom,], hom ~ BP,
-               weights = weight)
+               weights = weight,degree=0)
   mod.best <- estLoess(mod)
   mod.cv <- loess(data = chrom_stat[chrom_stat$Chr==chrom,], formula=hom~BP, 
                   degree=2, weights=weight, span=mod.best$minimum, model=T)
