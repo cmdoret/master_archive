@@ -8,10 +8,10 @@
 PSTACK=$1
 CSTACK=$2
 SSTACK=$3
-group=F
+group=$4
 
 if [[ $# -eq 0 ]] ; then
-    echo 'I need 3 arguments ! The path to pstacks, cstacks and sstacks output files, respectively. Exiting.'
+    echo 'I need 4 arguments ! The path to pstacks, cstacks and sstacks output files, respectivels, and a boolean (T/F) to know whether or not all samples will be grouped in a populations run. Exiting.'
     exit 0
 fi
 
@@ -24,7 +24,7 @@ done;
 cp $CSTACK/* $SSTACK;  # Copying catalogue as well
 
 # Below: organizing subfolders to run populations separately on each family
-if [ $group = "T" ]
+if [ $group = "F" ]
 then
 
     for fam in $(cut -f3 data/individuals|tail -n +2|sort|uniq)

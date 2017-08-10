@@ -6,7 +6,7 @@
 
 indv='../../data/individuals'  
 # Contains various information about samples
-pop='../../data/populations/d-5_r-10'
+pop='../../data/populations/d-3_r-80'
 # Contains output from stacks populations module
 out='../../data/coverage/'
 # Desired output folder

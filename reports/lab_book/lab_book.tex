@@ -598,7 +598,27 @@ Assuming scenario 3, for instance, there will be 3 categories. I will first filt
 To validate hits, I will use the information of the distance from centromere. The position of the centromere in the scaffold (i.e. metacentric vs telocentric chromosome) can be inferred from the recombination rates along the chromosome. The method I am going to use for this is to measure the proportion of offspring homozygous at each SNP that is heterozygous in the mother (i.e. proportion of recombinant offspring at that SNP).The centromere should be the region with the lowest value.
 The hits obtained for CSD candidates in the different categories should be coherent with this distance; the hit in the family with a low diploid male production should be closer to the centromere.\\
 
-Modelling the recombination rate along chromosomes using a weighted loess (lowess) curve revealed local minima that could contain centromeres, however the position of these minima can vary strongly depending on the span (smoothing parameter) allowed for local regression when building the curve. This is likely due to the too small number of individuals. Note the curve uses the proportion of recombinant offspring within a family at a given SNP weighted by the total number of offspring in that family.
+Modelling the recombination rate along chromosomes using a weighted loess (lowess) curve revealed local minima that could contain centromeres, however the position of these minima can vary strongly depending on the span (smoothing parameter) allowed for local regression when building the curve. This is likely due to the small number of individuals, or rarity of recombination events. The proportion of homozygosity also tends to decrease far from centromere, this is likely due to multiple recombination events restoring heterozygosity. Note the curve uses the proportion of recombinant offspring within a family at a given SNP weighted by the total number of offspring in that family.
+
+I tried locating the centromere both by running populations with all individuals pooled together (Figure \ref{centro_all}) and separately for each family (Figure \ref{centro_fam}). If I want to use the minimum estimate of local regressions objectively to locate the centromere, I will need to use some form of cross validation to estimate the span, and eventually the polynomial degree that is most appropriate.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=1\textwidth]{Num_CSD_loci/centro_group_d3r80_degree2.pdf}
+		\caption{Modelling recombination rates along chromosomes using proportion of homozygous individuals as a proxy. Populations was run on all individuals pooled together (r80, mindepth:3).}
+		\label{centro_all}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{Num_CSD_loci/haplo_Fst_per_fam.pdf}
+		\caption{Modelling recombination rates along chromosomes using proportion of homozygous individuals as a proxy. Populations was run on separately for each family and SNPs were where the mother is homozygous was removed in each family (r80, mindepth: 3).}
+		\label{centro_fam}
+	\end{center}
+\end{figure}
+\FloatBarrier
+
 \chapter{Male-Female Fst}
 
 Date: 17.07.2017\\
@@ -608,7 +628,7 @@ I first looked at Fst over all 6 chromosomes in the assembly, averaging the Fst 
 
 \begin{figure}[h]
 	\begin{center}
-		\includegraphics[width=0.8\textwidth]{association_mapping/haplo_avg_all_Fst.pdf}
+		\includegraphics[width=0.8\textwidth]{M-F_Fst/haplo_avg_all_Fst.pdf}
 		\caption{Fst values averaged at each SNP across all families. All individuals, including haploids and mothers are included in the analysis and top scoring peaks are labelled with the SNP position in the format "chromosome\_basepair" where basepair is the position within the chromosome. Note: populations parameters set to : min depth (D)=20 and prop pop (r)=80}
 		\label{haplo_Fst_avg}
 	\end{center}
@@ -616,7 +636,7 @@ I first looked at Fst over all 6 chromosomes in the assembly, averaging the Fst 
 
 \begin{figure}[h]
 	\begin{center}
-		\includegraphics[width=\textwidth]{association_mapping/haplo_Fst_per_fam.pdf}
+		\includegraphics[width=\textwidth]{M-F_Fst/haplo_Fst_per_fam.pdf}
 		\caption{Fst values at each SNP by family. All individuals, including haploids and mothers are included in the analysis and top scoring peaks are labelled with the SNP position in the format "chromosome\_basepair" where basepair is the position within the chromosome. Note: populations parameters set to : min depth (D)=20 and prop pop (r)=80}
 		\label{haplo_Fst_per_fam}
 	\end{center}

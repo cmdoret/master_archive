@@ -8,7 +8,7 @@ library(readr)
 library(ggplot2)
 
 scaffolds <- read.table("../../data/ref_genome/ordered_genome/merged.fasta.ann", stringsAsFactors = F)
-phi_path <- '../../data/populations/d-5_r-10/'
+phi_path <- '../../data/populations/d-3_r-80/'
 grouped <- 'T'
 
 # Chromosome sizes
@@ -78,7 +78,7 @@ ggplot(data=chrom, aes(x=tot_BP, y=Smoothed.Fst., col=fam))+ geom_vline(data=chr
   geom_line()
 
 
-top_Fst<- chrom[chrom$Fst.>=0.15,]
+top_Fst<- chrom[chrom$Fst.>=0.02,]
 hist(top_Fst$tot_BP,breaks=100, main="Top CSD candidates", xlab="Genomic position", ylab="N hits >= 0.8", col="grey")
 abline(v=chrom_sizes$start, lty=2,col="blue")
 

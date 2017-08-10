@@ -8,7 +8,7 @@ library(ggplot2); library(dplyr);library(viridis)
 
 
 # Genome statistics
-stat_path <- '../../data/populations/d-5_r-10/'
+stat_path <- '../../data/populations/d-3_r-80/'
 indv <- read.table('../../data/individuals', header=T)
 grouped <- "T"
 # phi_path <- commandArgs(TrailingOnly=T)[1]
@@ -48,22 +48,23 @@ chrom_stat <- chrom_stat[grep("chr.*", chrom_stat$Chr),]
 chrom_stat$Chr <- droplevels(chrom_stat$Chr)
 
 # Plotting local regression of data with default parameters
-ggplot(chrom_stat, aes(x=BP, y=hom, weight=weight)) + facet_grid(~Chr, scales='free_x') + 
-  geom_point(col='grey70') + stat_smooth(fill='steelblue', method='loess', fullrange = F, span=0.4)
 
+ggplot(chrom_stat, aes(x=BP, y=hom, weight=weight)) + facet_grid(~Chr, scales = 'free_x') + 
+  geom_point(col='grey70') + stat_smooth(fill='steelblue', method='loess')
 
 # Span of local regression has a strong effect on fit.
-sp_range <- seq(0.02,0.2,0.01)
+sp_range <- seq(0.1,1,0.01)
 virilist <- viridis(n=length(sp_range))
 colindex <- 1
 par(mfrow=c(3,2))
 for(chrom in levels(chrom_stat$Chr)){
-  plot(x=c(),y=c(),xlim=c(0,max(chrom_stat$BP[chrom_stat$Chr==chrom])), ylim=c(-0.05,1))
+  plot(x=c(),y=c(),xlim=c(0,max(chrom_stat$BP[chrom_stat$Chr==chrom])), ylim=c(-0.05,1),
+       xlab="bp",ylab="Homozygosity")
   abline(h=-0.01)
   for(sp in sp_range){
-    mod <- loess(data=chrom_stat[chrom_stat$Chr==chrom,], degree=1,
+    mod <- loess(data=chrom_stat[chrom_stat$Chr==chrom,], degree=2,
                      formula=hom~BP, weights=weight, span=sp, model=T)
-    points(mod$x[order(mod$x)],mod$fitted[order(mod$x)], type='l',col=alpha(virilist[colindex],0.4))
+    points(mod$x[order(mod$x)],mod$fitted[order(mod$x)], type='l',col=alpha(virilist[colindex],0.4),lwd=1.3)
     points(mod$x[mod$fitted==min(mod$fitted)],rep(-0.01,length(mod$x[mod$fitted==min(mod$fitted)])),
            col=alpha(virilist[colindex],0.4),pch=16, cex=1.5)
     colindex <- colindex+1
@@ -88,7 +89,7 @@ loessGCV <- function (x) {
   result
 }
 
-estLoess <- function(model, spans = c(.01, 1)) {
+estLoess <- function(model, spans = c(.01, .2)) {
   f <- function(span) {
     mod <- update(model, span = span)
     loessGCV(mod)[["gcv"]]
@@ -97,7 +98,7 @@ estLoess <- function(model, spans = c(.01, 1)) {
   result
 }
 
-sp_range <- seq(0.2,1,0.05)
+sp_range <- seq(0.2,0.5,0.05)
 par(mfrow=c(3,2))
 for(chrom in levels(chrom_stat$Chr)){
   plot(x=c(),y=c(),xlim=c(0,max(chrom_stat$BP[chrom_stat$Chr==chrom])), ylim=c(-0.05,1))
