@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from multiprocessing import Pool, cpu_count  # Parallel computing support
 from functools import partial  # "freeze" arguments when mapping function
+from sys import argv
 
 # Genotype encoding in genomic output from populations:
 # Missing bases are encoded as 0
@@ -109,16 +110,16 @@ def parallel_func(f, df, f_args=[], chunk_size=100):
     return pd.concat(result)
 
 
-### LOADING AND PROCESSING DATA ###
+#========== LOADING AND PROCESSING DATA ==========#
 
-in_path = "../../data/populations/d-3_r-80/"  # argv1
-indv_path = "../../data/individuals"  # argv2
-out_path = "../../data/assoc_mapping/prop_hom_fixed_sites.tsv"  # argv3
-genomic = pd.read_csv(in_path + "batch_0.genomic.tsv", sep='\t', header=None,
+in_path = argv[1]  # STACKS populations folder
+out_path = argv[2] + "/prop_hom_fixed_sites.tsv"  # Path of output file
+indv_path = "data/individuals"  # family and sex information
+genomic = pd.read_csv(in_path + "/batch_0.genomic.tsv", sep='\t', header=None,
                       skiprows=1)
 # Preparing data structure to match sample names and families with columns
 indv = pd.read_csv(indv_path, sep='\t')  # Family and sex info
-samples = pd.read_csv(in_path + "batch_0.sumstats.tsv",
+samples = pd.read_csv(in_path + "/batch_0.sumstats.tsv",
             sep='\t',nrows=2, header=None)  # Names in correct order
 # Concatenating populations
 names = samples.iloc[:,1][0].split(',') + samples.iloc[:,1][1].split(',')
@@ -126,7 +127,8 @@ names = pd.DataFrame({'Name':names})
 # Adding family and sex, keeping order
 pop = names.merge(indv,on='Name',how='left')
 
-### RUNNING CODE ###
+#========== RUNNING CODE ==========#
+
 # genomic = genomic.iloc[:100,:]
 gen_indv = genomic.iloc[:,3:].T.reset_index(drop=True).T  # only samples cols
 # Decoding numeric genotypes into states (het, hom, missing)
@@ -135,7 +137,8 @@ clean = mother_hom(state, pop)  # Removing SNPs that are homozygous in mothers
 # Computing proportion of homozygous indv at each site
 prop = parallel_func(prop_hom, clean)
 
-### SAVING OUTPUT ###
+#========== SAVING OUTPUT ==========#
+
 prop = genomic.iloc[:,0:3].merge(prop,left_index=True, right_index=True)
 prop.rename(columns={0:"Locus.ID",1:"Chr",2:"BP"}, inplace=True)
 prop.to_csv(out_path, sep='\t', index=False)

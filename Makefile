@@ -51,13 +51,12 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	# Submitting job (-K will hang pipeline until end of job)
 
 # Association mapping
-# 1: convert vcf to ped
-# 2: import data in genABEL for GWAS
-#$(ASSOC) : $(POP) $(DAT)/haploid_males
-#	mkdir -p $(ASSOC)
-#	bash $(VCFPED) $(POP)/*.vcf
-#	Rscript $(ASSOC-SRC)
-	
+.PHONY : assoc_mapping
+assoc_mapping : $(ASSOC)
+	mkdir -p $(ASSOC)
+	# Processing "genomic" output from populations to get fixed sites genotype
+	python2 src/assoc_mapping/process_genomic.py $(POP) $(ASSOC)
+
 
 # Rule for building lab book figures, tables and compiling Latex script
 # Needs the all main steps to be run first
