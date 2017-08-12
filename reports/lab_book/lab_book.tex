@@ -600,12 +600,16 @@ The hits obtained for CSD candidates in the different categories should be coher
 
 Modelling the recombination rate along chromosomes using a weighted loess (lowess) curve revealed local minima that could contain centromeres, however the position of these minima can vary strongly depending on the span (smoothing parameter) allowed for local regression when building the curve. This is likely due to the small number of individuals, or rarity of recombination events. The proportion of homozygosity also tends to decrease far from centromere, this is likely due to multiple recombination events restoring heterozygosity. Note the curve uses the proportion of recombinant offspring within a family at a given SNP weighted by the total number of offspring in that family.
 
-I tried locating the centromere both by running populations with all individuals pooled together (Figure \ref{centro_all}) and separately for each family (Figure \ref{centro_fam}). If I want to use the minimum estimate of local regressions objectively to locate the centromere, I will need to use some form of cross validation to estimate the span. I could also use a visually optimal value for span; the default value used in ggplot's geom\_smooth() is 0.75 and seems reasonable on my data (does not seem too noisy).
+I tried locating the centromere both by running populations with all individuals pooled together (Figure \ref{centro_all}) and separately for each family (Figure \ref{centro_fam}). If I want to use the minimum estimate of local regressions objectively to locate the centromere, I will need to use some form of cross validation to estimate the span. I could also use a visually optimal value for span; the default value used in ggplot's geom\_smooth() is 0.75 and seems reasonable on my data (does not seem too noisy).\\
+
+Date: 12.08.2017
+
+To obtain better result when trying to locate centromeres, I used the genomic output from populations to include fixed SNPs. I subsequently removed all SNPs that are either missing or homozygous in the mother from the whole family. The variation induced by the span parameter when using local regression is now much smaller. To make sure the centromeres are called correctly, I tried a second simpler method, which consists in computing means over a sliding window on each chromosome.
 
 \begin{figure}[h]
 	\begin{center}
 		\includegraphics[width=1\textwidth]{Num_CSD_loci/centro_group_d3r80_degree2.pdf}
-		\caption{Modelling recombination rates along chromosomes using proportion of homozygous individuals as a proxy. Populations was run on all individuals pooled together (r80, mindepth:3).}
+		\caption{Modelling recombination rates along chromosomes using local regression with second degree polynomials on proportion of homozygous individuals as a proxy. Populations was run on all individuals pooled together (r80, mindepth:3).}
 		\label{centro_all}
 	\end{center}
 \end{figure}
@@ -613,7 +617,7 @@ I tried locating the centromere both by running populations with all individuals
 \begin{figure}[h]
 	\begin{center}
 		\includegraphics[width=\textwidth]{Num_CSD_loci/centro_fam_d3r80_degree2.pdf}
-		\caption{Modelling recombination rates along chromosomes using proportion of homozygous individuals as a proxy. Populations was run on separately for each family, SNPs were where the mother is homozygous were removed in each family (r80, mindepth: 3).}
+		\caption{Modelling recombination rates along chromosomes using local regression with second degree polynomials on proportion of homozygous individuals as a proxy. Populations was run on separately for each family, SNPs were where the mother is homozygous were removed in each family (r80, mindepth: 3).}
 		\label{centro_fam}
 	\end{center}
 \end{figure}
@@ -621,8 +625,8 @@ I tried locating the centromere both by running populations with all individuals
 \begin{figure}[h]
 	\begin{center}
 		\includegraphics[width=\textwidth]{Num_CSD_loci/centro_group_fix_d3r80_degree2.pdf}
-		\caption{Modelling recombination rates along chromosomes using proportion of homozygous individuals as a proxy. Populations was run on all individuals pooled together, including fixed SNPs, and SNPs were where the mother is homozygous were removed in each family (r80, mindepth: 3).}
-		\label{centro_fam}
+		\caption{Modelling recombination rates along chromosomes using local regression with second degree polynomials on proportion of homozygous individuals as a proxy. Populations was run on all individuals pooled together. Fixed SNPs are included and SNPs were where the mother is homozygous or that were absent in the mother were removed in each family (r80, mindepth: 3).}
+		\label{centro_fix}
 	\end{center}
 \end{figure}
 \FloatBarrier

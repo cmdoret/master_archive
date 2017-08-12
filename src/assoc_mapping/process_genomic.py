@@ -9,9 +9,9 @@
 
 import numpy as np
 import pandas as pd
+from sys import argv
 from multiprocessing import Pool, cpu_count  # Parallel computing support
 from functools import partial  # "freeze" arguments when mapping function
-from sys import argv
 
 # Genotype encoding in genomic output from populations:
 # Missing bases are encoded as 0
@@ -47,7 +47,7 @@ def gen_decode(encoded):
 def mother_hom(geno, pop):
     """
     This function runs on a numpy array that has already been
-    transformed with gen_decode and sets SNP that are homozygous in
+    transformed with gen_decode and sets SNP that are homozygous/missing in
     mothers to missing in their whole family. If the mother is not available,
     SNPs that are homozygous or missing in all offspring in the family are used
     instead as a proxy.
@@ -59,7 +59,7 @@ def mother_hom(geno, pop):
     for f in np.unique(pop.Family):  # Iterate over mothers
         fam = pop.loc[pop.Family == f,:]  # Subssetting samples from family
         mother_idx = fam.index[fam.Generation=='F3'].tolist()  # Get mother idx
-        fam_SNP = np.where(geno[mother_idx]=='O')[0]  # hom. mother SNPs
+        fam_SNP = np.where(geno[mother_idx]!='E')[0]  # hom./missing mother SNPs
         if not mother_idx:  # If the mother is not available
         # Use SNPs where no individual in the family is heterozygous instead
             fam_SNP = np.where(np.all(geno[fam.index].isin(['O','M']),

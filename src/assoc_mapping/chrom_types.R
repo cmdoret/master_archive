@@ -10,7 +10,7 @@ library(ggplot2); library(dplyr);library(viridis)
 # Genome statistics
 stat_path <- '../../data/populations/d-3_r-80/'
 indv <- read.table('../../data/individuals', header=T)
-grouped <- "F"
+grouped <- "T"
 # phi_path <- commandArgs(TrailingOnly=T)[1]
 
 # removing SNPs homozygous in all females (consequently in mothers)
@@ -46,12 +46,9 @@ chrom_stat$weight <- chrom_stat$Nf + chrom_stat$Nm
 # Excluding unordered contigs
 chrom_stat <- chrom_stat[grep("chr.*", chrom_stat$Chr),]
 chrom_stat$Chr <- droplevels(chrom_stat$Chr)
-# fix <- read.csv("../../data/assoc_mapping/prop_hom_fixed_sites.tsv", sep='\t',header=T)
+
 # Plotting local regression of data with default parameters
 # span = 0.75
-ggplot(chrom_stat, aes(x=BP, y=hom, weight=weight)) + facet_grid(~Chr, scales = 'free_x') + 
-  geom_point(col='grey70') + geom_smooth(fill='steelblue', method='loess')
-
 ggplot(chrom_stat, aes(x=BP, y=hom, weight=weight)) + facet_grid(~Chr, scales = 'free_x') + 
   geom_point(col='grey70') + geom_smooth(fill='steelblue', method='loess')
 
@@ -114,4 +111,36 @@ for(chrom in levels(chrom_stat$Chr)){
   points(mod.cv$x[order(mod.cv$x)],mod.cv$fitted[order(mod.cv$x)], type='l')
   points(mod.cv$x[mod.cv$fitted==min(mod.cv$fitted)],rep(-0.01,length(mod.cv$x[mod.cv$fitted==min(mod.cv$fitted)])),
          pch=16, cex=1.5)
+}
+# fix <- read.csv("../../data/assoc_mapping/prop_hom_fixed_sites.tsv", sep='\t',header=T)
+fix <- fix[fix$N.Samples>0,]
+fix <- fix[grep("chr.*",fix$Chr),]
+fix$Chr <- droplevels(fix$Chr)
+library(zoo)
+HOM = zoo(fix$Prop.Hom[fix$Chr=='chr1'])
+x = rollapply(HOM, width=50, by=1, FUN=mean, align='left')
+plot(1:length(x),x, type='l')
+
+HOM = zoo(chrom_stat$hom[chrom_stat$Chr=='chr1'])
+x = rollapply(HOM, width=50, by=1, FUN=mean, align='left')
+plot(1:length(x),x, type='l')
+
+
+sp_range <- seq(0.1,1,0.01)
+virilist <- viridis(n=length(sp_range))
+colindex <- 1
+par(mfrow=c(1,6))
+for(chrom in levels(fix$Chr)){
+  plot(x=c(),y=c(),xlim=c(0,max(fix$BP[fix$Chr==chrom])), ylim=c(-0.05,1),
+       xlab=chrom,ylab="Homozygosity")
+  abline(h=-0.01)
+  for(sp in sp_range){
+    mod <- loess(data=fix[fix$Chr==chrom,], degree=2,
+                 formula=Prop.Hom~BP, weights=N.Samples, span=sp, model=T)
+    points(mod$x[order(mod$x)],mod$fitted[order(mod$x)], type='l',col=alpha(virilist[colindex],0.4),lwd=1.3)
+    points(mod$x[mod$fitted==min(mod$fitted)],rep(-0.01,length(mod$x[mod$fitted==min(mod$fitted)])),
+           col=alpha(virilist[colindex],0.4),pch=16, cex=1.5)
+    colindex <- colindex+1
+  }
+  colindex <- 1
 }
