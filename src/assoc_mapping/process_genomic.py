@@ -1,5 +1,5 @@
 # This script process the "genomic" output from populations,
-# turning the genotype encoding into a proportion of homozygousity
+# turning the genotype encoding into a proportion of homozygosity
 # and removing SNPs that are homozygous in mothers
 # from their respective offspring. Since genomics output file from
 # populations are typically huge, the script takes quite a long time
@@ -12,6 +12,7 @@ import pandas as pd
 from multiprocessing import Pool, cpu_count  # Parallel computing support
 from functools import partial  # "freeze" arguments when mapping function
 
+# Genotype encoding in genomic output from populations:
 # Missing bases are encoded as 0
 # Homozygous genotypes are: 1,5,8,10
 # Heterozygous genotypes are all others (except 0)
@@ -46,16 +47,22 @@ def mother_hom(geno, pop):
     """
     This function runs on a numpy array that has already been
     transformed with gen_decode and sets SNP that are homozygous in
-    mothers to missing in their whole family.
+    mothers to missing in their whole family. If the mother is not available,
+    SNPs that are homozygous or missing in all offspring in the family are used
+    instead as a proxy.
     :param pop: a dataframe containing individual names and their respective
     families. The names need to be in the same order as the columns in geno.
     :param geno: a numpy array that will be processed
     """
-
+    f = np.unique(pop.Family)[1]
     for f in np.unique(pop.Family):  # Iterate over mothers
         fam = pop.loc[pop.Family == f,:]  # Subssetting samples from family
         mother_idx = fam.index[fam.Generation=='F3'].tolist()  # Get mother idx
         fam_SNP = np.where(geno[mother_idx]=='O')[0]  # hom. mother SNPs
+        if not mother_idx:  # If the mother is not available
+        # Use SNPs where no individual in the family is heterozygous instead
+            fam_SNP = np.where(np.all(geno[fam.index].isin(['O','M']),
+                                            axis=1))[0]
         # Change those SNPs to M in all indv with same family
         geno.loc[fam_SNP,fam.index] = 'M'
 
@@ -123,7 +130,6 @@ pop = names.merge(indv,on='Name',how='left')
 # genomic = genomic.iloc[:100,:]
 gen_indv = genomic.iloc[:,3:].T.reset_index(drop=True).T  # only samples cols
 # Decoding numeric genotypes into states (het, hom, missing)
-# state = gen_indv.apply(lambda r: gen_decode(r), axis=1)
 state = parallel_func(gen_decode, gen_indv)
 clean = mother_hom(state, pop)  # Removing SNPs that are homozygous in mothers
 # Computing proportion of homozygous indv at each site
