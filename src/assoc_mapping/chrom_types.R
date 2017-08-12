@@ -46,12 +46,14 @@ chrom_stat$weight <- chrom_stat$Nf + chrom_stat$Nm
 # Excluding unordered contigs
 chrom_stat <- chrom_stat[grep("chr.*", chrom_stat$Chr),]
 chrom_stat$Chr <- droplevels(chrom_stat$Chr)
-
+# fix <- read.csv("../../data/assoc_mapping/prop_hom_fixed_sites.tsv", sep='\t',header=T)
 # Plotting local regression of data with default parameters
 # span = 0.75
 ggplot(chrom_stat, aes(x=BP, y=hom, weight=weight)) + facet_grid(~Chr, scales = 'free_x') + 
   geom_point(col='grey70') + geom_smooth(fill='steelblue', method='loess')
 
+ggplot(chrom_stat, aes(x=BP, y=hom, weight=weight)) + facet_grid(~Chr, scales = 'free_x') + 
+  geom_point(col='grey70') + geom_smooth(fill='steelblue', method='loess')
 
 # Span of local regression has a strong effect on fit.
 sp_range <- seq(0.1,1,0.01)

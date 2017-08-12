@@ -1,25 +1,29 @@
 # This script process the "genomic" output from populations,
 # turning the genotype encoding into a proportion of homozygousity
 # and removing SNPs that are homozygous in mothers
-# from their respective offspring
+# from their respective offspring. Since genomics output file from
+# populations are typically huge, the script takes quite a long time
+# to run.
 # Cyril Matthey-Doret
 # 11.08.2017
 
 import numpy as np
 import pandas as pd
+from multiprocessing import Pool, cpu_count  # Parallel computing support
+from functools import partial  # "freeze" arguments when mapping function
 
 # Missing bases are encoded as 0
 # Homozygous genotypes are: 1,5,8,10
 # Heterozygous genotypes are all others (except 0)
 
-def gen_decode(row):
+def gen_decode(encoded):
     """"
     This function decodes numeric genotypes and
     replaces it with E (heterozygous), O (homozygous)
     or M (missing).
-    :param row: A pandas dataframe row, respecting the
-    genomics output structure from STACKS populations module.
-    :returns: A numpy array containing the genotype letters.
+    :param encoded: A pandas dataframe, respecting the genomics output structure
+    from STACKS populations module, only the genotype columns must be included.
+    :returns: A dataframe containing the genotype letters.
     """
 
     genodict = {}
@@ -31,9 +35,11 @@ def gen_decode(row):
             genodict[code] = 'M'
         else:
             genodict[code] = 'E'  # All others are heterozygous
-    out_row = [genodict[i] for i in row[:]]  # Translating genotypes
-
-    return np.array(out_row)
+    genodict[1090670464] = 'M'
+    # Rarely, rows are filled this value. I assume this is a STACKS issue.
+    decoded = encoded.apply(lambda r: np.array([genodict[i] for i in r])
+                             , axis=1)
+    return decoded
 
 
 def mother_hom(geno, pop):
@@ -67,9 +73,33 @@ def prop_hom(geno):
     N = geno.shape[1]  # Number of samples
     # Counting how many individuals are used to compute proportion at each SNP
     n_prop = geno.apply(lambda r: N - sum(r.str.count('M')),axis=1)
+    # Computing proportion of homozygous individuals at each SNP (O/O+E)
     prop = geno.apply(lambda r: (float(sum(r.str.count('O')))/
                       max(sum(r.str.count(r'[OE]')),1)),axis=1)
     return pd.DataFrame({"N.Samples":n_prop,"Prop.Hom":prop})
+
+def parallel_func(f, df, f_args=[], chunk_size=100):
+    """
+    Parallelizes a function that runs on a dataframe by splitting the dataframe
+    into small chunks by rows and distributing chunks across several processes.
+    :param f: Target function that will be parallelized
+    :param df: pandas dataframe to be used as input
+    :param f_args: optional arguments for the function to be parallelized. Need
+    to be an iterable (list or tuple).
+    :param chunk_size: size of the chunks in which df is split. Default=100
+    :returns: the processed dataframe reconstructed by combining output from all
+    processes
+    """
+    # Create pool of processes, size depends on number of core available
+    pool = Pool(processes = cpu_count())
+    tot_rows = df.shape[0]
+    chunks = range(0,tot_rows, chunk_size)  # Start positions of chunks
+    # Split df into chunks
+    chunked_df = [df.iloc[c:(c+min(chunk_size,tot_rows)),] for c in chunks]
+    func = partial(f, *f_args)  # Unpacking optional fixed arguments.
+    result = pool.map(func, chunked_df)  # Mapping function to chunks.
+     # Concatenating into single df. Order is preserved
+    return pd.concat(result)
 
 
 ### LOADING AND PROCESSING DATA ###
@@ -90,18 +120,16 @@ names = pd.DataFrame({'Name':names})
 pop = names.merge(indv,on='Name',how='left')
 
 ### RUNNING CODE ###
-genomic = genomic.iloc[:10,:]
+# genomic = genomic.iloc[:100,:]
 gen_indv = genomic.iloc[:,3:].T.reset_index(drop=True).T  # only samples cols
 # Decoding numeric genotypes into states (het, hom, missing)
-state = gen_indv.apply(lambda r: gen_decode(r), axis=1)
+# state = gen_indv.apply(lambda r: gen_decode(r), axis=1)
+state = parallel_func(gen_decode, gen_indv)
 clean = mother_hom(state, pop)  # Removing SNPs that are homozygous in mothers
-prop = prop_hom(clean)
+# Computing proportion of homozygous indv at each site
+prop = parallel_func(prop_hom, clean)
 
 ### SAVING OUTPUT ###
-print prop.shape
-print genomic.shape
-#prop.loc[:,["Locus.ID","Chr","BP"]] = genomic.iloc[:,0:2]
-prop = pd.concat([prop,pd.DataFrame(genomic.iloc[:,0:2],
-                         columns=["Locus.ID","Chr","BP"],
-                         index=prop.index)], axis=1)
+prop = genomic.iloc[:,0:3].merge(prop,left_index=True, right_index=True)
+prop.rename(columns={0:"Locus.ID",1:"Chr",2:"BP"}, inplace=True)
 prop.to_csv(out_path, sep='\t', index=False)
