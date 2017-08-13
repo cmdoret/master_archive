@@ -133,6 +133,7 @@ def parallel_func(f, df, f_args=[], chunk_size=100):
 # Path to STACKS populations folder and output file
 in_path = args.pop_files
 out_path = args.out + "/prop_hom_fixed_sites.tsv"
+
 indv_path = "data/individuals"  # family and sex information
 genomic = pd.read_csv(in_path + "/batch_0.genomic.tsv", sep='\t', header=None,
                       skiprows=1)
