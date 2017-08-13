@@ -602,14 +602,11 @@ Modelling the recombination rate along chromosomes using a weighted loess (lowes
 
 I tried locating the centromere both by running populations with all individuals pooled together (Figure \ref{centro_all}) and separately for each family (Figure \ref{centro_fam}). If I want to use the minimum estimate of local regressions objectively to locate the centromere, I will need to use some form of cross validation to estimate the span. I could also use a visually optimal value for span; the default value used in ggplot's geom\_smooth() is 0.75 and seems reasonable on my data (does not seem too noisy).\\
 
-Date: 12.08.2017
-
-To obtain better result when trying to locate centromeres, I used the genomic output from populations to include fixed SNPs. I subsequently removed all SNPs that are either missing or homozygous in the mother from the whole family. The variation induced by the span parameter when using local regression is now much smaller. To make sure the centromeres are called correctly, I tried a second simpler method, which consists in computing means over a sliding window on each chromosome.
 
 \begin{figure}[h]
 	\begin{center}
 		\includegraphics[width=1\textwidth]{Num_CSD_loci/centro_group_d3r80_degree2.pdf}
-		\caption{Modelling recombination rates along chromosomes using local regression with second degree polynomials on proportion of homozygous individuals as a proxy. Populations was run on all individuals pooled together (r80, mindepth:3).}
+		\caption{Modelling recombination rates along chromosomes using local regression with second degree polynomials on proportion of homozygous individuals as a proxy. Populations was run on all individuals pooled together (r80, mindepth:3). Colors represent different span value for the local regression and colored dots are the inferred centromere position (i.e. the minumum of the curve) with the corresponding span value.}
 		\label{centro_all}
 	\end{center}
 \end{figure}
@@ -617,15 +614,28 @@ To obtain better result when trying to locate centromeres, I used the genomic ou
 \begin{figure}[h]
 	\begin{center}
 		\includegraphics[width=\textwidth]{Num_CSD_loci/centro_fam_d3r80_degree2.pdf}
-		\caption{Modelling recombination rates along chromosomes using local regression with second degree polynomials on proportion of homozygous individuals as a proxy. Populations was run on separately for each family, SNPs were where the mother is homozygous were removed in each family (r80, mindepth: 3).}
+		\caption{Modelling recombination rates along chromosomes using local regression with second degree polynomials on proportion of homozygous individuals as a proxy. Populations was run on separately for each family, SNPs where the mother is homozygous were removed in each family (r80, mindepth: 3).Colors represent different span value for the local regression and colored dots are the inferred centromere position with the corresponding span value.Colors represent different span value for the local regression and colored dots are the inferred centromeres position (i.e. the minumum of the curve) with the corresponding span value.}
 		\label{centro_fam}
+	\end{center}
+\end{figure}
+
+
+Date: 12.08.2017
+
+To obtain better result when trying to locate centromeres, I used the genomic output from populations to include fixed SNPs. I subsequently removed all SNPs that are \textbf{either missing or homozygous} in the mother from its whole family (including itself). The variation induced by the span parameter when using local regression is now much smaller. To make sure the centromeres are called correctly, I tried a second simpler method, which consists in computing means over a sliding window on each chromosome. I tried both methods with several different parameter values (Figure \ref{centro_fix}). The methods yielded similar results and I visually selected reasonable parameter values for span and window size to compare the centromeres positions inferred by both methods (Figure \ref{comp_centro}). Centromeres are merely regions and have no objective precise genomic position, besides I will only be interested in relative differences in distance from centromeres to select loci, therefore the parameter values I chose will probably have little to no effect on the results. 
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{Num_CSD_loci/centro_group_fix_d3r80_range.pdf}
+		\caption{Comparing moving averages and local regression with second degree polynomials to approximate recombination rates. Populations was run on all individuals pooled together. Fixed SNPs are included and SNPs where the mother is homozygous or that were absent in the mother were removed in each family (r80, mindepth: 3). Range of parameter tested: span varied between 15\% and 100\% of observations by intervals of 1\% for local regression and window size between 3 and 80 observations with intevals of 1 for moving averages. Colors represent the different span or window size value for the local regression and colored dots are the inferred centromeres position (i.e. the minimum of the curve) with the corresponding parameter value.}
+		\label{centro_fix}
 	\end{center}
 \end{figure}
 
 \begin{figure}[h]
 	\begin{center}
-		\includegraphics[width=\textwidth]{Num_CSD_loci/centro_group_fix_d3r80_degree2.pdf}
-		\caption{Modelling recombination rates along chromosomes using local regression with second degree polynomials on proportion of homozygous individuals as a proxy. Populations was run on all individuals pooled together. Fixed SNPs are included and SNPs were where the mother is homozygous or that were absent in the mother were removed in each family (r80, mindepth: 3).}
+		\includegraphics[width=\textwidth]{Num_CSD_loci/centro_group_fix_d3r80_final.pdf}
+		\caption{Comparing moving averages and local regression with second degree polynomials to approximate recombination rates. Populations was run on all individuals pooled together. Fixed SNPs are included and SNPs where the mother is homozygous or that were absent in the mother were removed in each family (r80, mindepth: 3). Parameters selected for comparison: window size: 20, span: 0.75. Dotted lines show the inferred centromeres position (i.e. the minimum of the curve) with both methods.}
 		\label{centro_fix}
 	\end{center}
 \end{figure}
