@@ -1,22 +1,40 @@
 # This script process the "genomic" output from populations,
 # turning the genotype encoding into a proportion of homozygosity
-# and removing SNPs that are homozygous in mothers
+# and removing SNPs that are homozygous or missing in mothers
 # from their respective offspring. Since genomics output file from
 # populations are typically huge, the script takes quite a long time
-# to run.
+# to run although it is parallelized and will automatically use all
+# core available on the host. It takes 2 arguments: the path to the
+# folder containing populations files, used as input, and the folder where
+# the output will be written.
 # Cyril Matthey-Doret
 # 11.08.2017
-
+import argparse
 import numpy as np
 import pandas as pd
-from sys import argv
 from multiprocessing import Pool, cpu_count  # Parallel computing support
 from functools import partial  # "freeze" arguments when mapping function
+
+#========== PARSING COMMAND LINE ARGUMENTS ==========#
 
 # Genotype encoding in genomic output from populations:
 # Missing bases are encoded as 0
 # Homozygous genotypes are: 1,5,8,10
 # Heterozygous genotypes are all others (except 0)
+
+parser = argparse.ArgumentParser(description="This script processes the \
+                                 'genomic' output from STACKS's populations \
+                                 module to compute the proportion of homozygous\
+                                 individuals at each genomic position.")
+parser.add_argument('pop_files', type=str,
+                                 help='Path to the folder containing \
+                                 populations output files. Used as input',)
+parser.add_argument('out', type=str,
+                                 help='Folder where output will be written',)
+
+args = parser.parse_args()
+
+#========== DEFINING FUNCTIONS ==========#
 
 def gen_decode(encoded):
     """"
@@ -112,8 +130,9 @@ def parallel_func(f, df, f_args=[], chunk_size=100):
 
 #========== LOADING AND PROCESSING DATA ==========#
 
-in_path = argv[1]  # STACKS populations folder
-out_path = argv[2] + "/prop_hom_fixed_sites.tsv"  # Path of output file
+# Path to STACKS populations folder and output file
+in_path = args.pop_files
+out_path = args.out
 indv_path = "data/individuals"  # family and sex information
 genomic = pd.read_csv(in_path + "/batch_0.genomic.tsv", sep='\t', header=None,
                       skiprows=1)
