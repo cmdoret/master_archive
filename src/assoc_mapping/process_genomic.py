@@ -134,6 +134,7 @@ def parallel_func(f, df, f_args=[], chunk_size=100):
 in_path = args.pop_files
 out_path = args.out + "/prop_hom_fixed_sites.tsv"
 
+>>>>>>> 915bf7846d9c85e5384cad3c76a5f41a00ccd9e0
 indv_path = "data/individuals"  # family and sex information
 genomic = pd.read_csv(in_path + "/batch_0.genomic.tsv", sep='\t', header=None,
                       skiprows=1)
