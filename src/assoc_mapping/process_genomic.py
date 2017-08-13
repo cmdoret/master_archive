@@ -21,7 +21,6 @@ from functools import partial  # "freeze" arguments when mapping function
 # Missing bases are encoded as 0
 # Homozygous genotypes are: 1,5,8,10
 # Heterozygous genotypes are all others (except 0)
-
 parser = argparse.ArgumentParser(description="This script processes the \
                                  'genomic' output from STACKS's populations \
                                  module to compute the proportion of homozygous\
@@ -31,6 +30,9 @@ parser.add_argument('pop_files', type=str,
                                  populations output files. Used as input',)
 parser.add_argument('out', type=str,
                                  help='Folder where output will be written',)
+parser.add_argument('--keep_all', action='store_true',
+                                 help='Keep all SNPs, even if missing or\
+                                 homozygous in the mother.',)
 
 args = parser.parse_args()
 
@@ -134,7 +136,6 @@ def parallel_func(f, df, f_args=[], chunk_size=100):
 in_path = args.pop_files
 out_path = args.out + "/prop_hom_fixed_sites.tsv"
 
->>>>>>> 915bf7846d9c85e5384cad3c76a5f41a00ccd9e0
 indv_path = "data/individuals"  # family and sex information
 genomic = pd.read_csv(in_path + "/batch_0.genomic.tsv", sep='\t', header=None,
                       skiprows=1)
@@ -154,8 +155,10 @@ pop = names.merge(indv,on='Name',how='left')
 gen_indv = genomic.iloc[:,3:].T.reset_index(drop=True).T  # only samples cols
 # Decoding numeric genotypes into states (het, hom, missing)
 state = parallel_func(gen_decode, gen_indv)
-clean = mother_hom(state, pop)  # Removing SNPs that are homozygous in mothers
-# Computing proportion of homozygous indv at each site
+
+if not args.keep_all:
+    state = mother_hom(state, pop)  # Removing SNPs that are homozygous in mothers
+    # Computing proportion of homozygous indv at each site
 prop = parallel_func(prop_hom, clean)
 
 #========== SAVING OUTPUT ==========#
