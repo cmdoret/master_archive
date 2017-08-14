@@ -51,23 +51,25 @@ def unify_genomic(pop_path):
     output files.
     :returns: A DataFrame containing all sites in all individuals.
     """
-    pop_path = "/home/cyril/Documents/Master/master_project/data/populations/d-20_r-75"
+
     # Adding trailing slash if not provided
     if pop_path[-1] != '/': pop_path += '/'
     first_fam = True
     #Iterating over family subfolders
     for subdir, dirs, files in walk(pop_path):
-        if path.basename(subdir):  # Read file from subfolder
+        if path.basename(subdir):
+            # Read file from subfolder
             tmp = pd.read_csv(path.join(subdir, "batch_0.genomic.tsv"),
                               sep='\t', header=None, skiprows=1)
             if first_fam: # Assign dataframe on iteration run only
                 united = tmp
             else:
                 # Graft each family's samples onto final df as new columns
+                # Using outer merge on chromosome, bp and Locus ID
                 united = united.merge(tmp, how='outer', left_index=True,
                                       right_index=True, on=range(3))
             first_fam = False
-
+    united = united.fillna(0)  # Change all NAs to the "missing" code
     return united
 
 def gen_decode(encoded):
@@ -91,8 +93,7 @@ def gen_decode(encoded):
             genodict[code] = 'E'  # All others are heterozygous
     genodict[1090670464] = 'M'
     # Rarely, rows are filled this value. I assume this is a STACKS issue.
-    decoded = encoded.apply(lambda r: np.array([genodict[i] for i in r])
-                             , axis=1)
+    decoded = encoded.apply(lambda r: np.array([genodict[i] for i in r]),axis=1)
     return decoded
 
 
@@ -152,15 +153,17 @@ def prop_hom(pop, geno):
 
     # Building output dataframe with all relevant stats
     out_df = pd.DataFrame({
-        "N.Samples": sum(N.values()),
+        "N.Samples": sample_size['F'] + sample_size['M'],
         "Prop.Hom": (sample_size['M'] * hom['M'] +
-                    sample_size['F'] * hom['F']) / float(sum(N.values())),
+                    sample_size['F'] * hom['F']) /
+                    float(sample_size['F'] + sample_size['M']),
         "N.Males": sample_size['M'],
         "N.Females": sample_size['F'],
         "Prop.Hom.F": hom['F'],
         "Prop.Hom.M": hom['M']
         })
-
+    print("Finished computing homozygosity on {0} sites across {1} \
+          samples.".format(geno.shape[0], sum(N.values)))
     return out_df
 
 def parallel_func(f, df, f_args=[], chunk_size=100):
