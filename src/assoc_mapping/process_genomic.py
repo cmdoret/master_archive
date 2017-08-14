@@ -108,7 +108,7 @@ def mother_hom(geno, pop):
     families. The names need to be in the same order as the columns in geno.
     :param geno: a numpy array that will be processed
     """
-    f = np.unique(pop.Family)[1]
+
     for f in np.unique(pop.Family):  # Iterate over mothers
         fam = pop.loc[pop.Family == f,:]  # Subssetting samples from family
         mother_idx = fam.index[fam.Generation=='F3'].tolist()  # Get mother idx
@@ -134,6 +134,7 @@ def prop_hom(pop, geno):
     females, males and all individuals at each site and the number of individuals
     where it was present.
     """
+
     # Number of males and females
     N = {sex:pop.Sex[pop.Sex == sex].shape[0] for sex in ['M','F']}
     # Get sample indices by sex
@@ -156,14 +157,12 @@ def prop_hom(pop, geno):
         "N.Samples": sample_size['F'] + sample_size['M'],
         "Prop.Hom": (sample_size['M'] * hom['M'] +
                     sample_size['F'] * hom['F']) /
-                    float(sample_size['F'] + sample_size['M']),
+                    (sample_size['F'] + sample_size['M']),
         "N.Males": sample_size['M'],
         "N.Females": sample_size['F'],
         "Prop.Hom.F": hom['F'],
         "Prop.Hom.M": hom['M']
         })
-    print("Finished computing homozygosity on {0} sites across {1} \
-          samples.".format(geno.shape[0], sum(N.values)))
     return out_df
 
 def parallel_func(f, df, f_args=[], chunk_size=100):
@@ -178,6 +177,7 @@ def parallel_func(f, df, f_args=[], chunk_size=100):
     :returns: the processed dataframe reconstructed by combining output from all
     processes
     """
+
     # Create pool of processes, size depends on number of core available
     pool = Pool(processes = cpu_count())
     tot_rows = df.shape[0]
@@ -194,7 +194,6 @@ def parallel_func(f, df, f_args=[], chunk_size=100):
 # Path to STACKS populations folder and output file
 in_path = args.pop_files
 out_path = args.out + "/prop_hom_fixed_sites.tsv"
-
 indv_path = "data/individuals"  # family and sex information
 genomic = pd.read_csv(path.join(in_path, "batch_0.genomic.tsv"),
                       sep='\t', header=None, skiprows=1)
@@ -209,7 +208,6 @@ names = pd.DataFrame({'Name':names})
 pop = names.merge(indv,on='Name',how='left')
 
 #========== RUNNING CODE ==========#
-
 # genomic = genomic.iloc[:100,:]
 gen_indv = genomic.iloc[:,3:].T.reset_index(drop=True).T  # only samples cols
 # Decoding numeric genotypes into states (het, hom, missing)
@@ -220,7 +218,7 @@ if not args.keep_all:
     # Remove SNPs that are hom./missing in mothers from their family
     state = mother_hom(state, pop)
 # Computing proportion of homozygous indv at each site
-prop = parallel_func(prop_hom, state, f_args = [pop])
+prop = parallel_func(prop_hom, state, f_args = (pop,))
 
 #========== SAVING OUTPUT ==========#
 
