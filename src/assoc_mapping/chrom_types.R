@@ -8,8 +8,8 @@
 #==== SELECT PARAMETERS ====#
 wsize_range <- 20  # Size of the moving average window
 sp_range <- 0.75  # Proportion of SNPs to be included in each local regression
-#wsize_range <- seq(3, 80, 1)
-#sp_range <- seq(0.15, 1, 0.01)
+# wsize_range <- seq(5, 80, 1)
+# sp_range <- seq(0.15, 1, 0.01)
 #==== LOAD PACKAGES AND DATA ====#
 pack <- c("ggplot2","dplyr","viridis","zoo")
 lapply(pack, require, character.only = TRUE)
@@ -25,7 +25,7 @@ fix$Chr <- droplevels(fix$Chr)
 # Allows to try different values of window size in a range
 # Note that the step size is fixed to 1 but can be changed 
 # directly in the code if neded.
-virilist <- viridis(n=length(sp_range))
+virilist <- viridis(n=length(wsize_range))
 colindex <- 1
 par(mfrow=c(2,6))
 centrolist <- list()
@@ -36,13 +36,13 @@ for(chrom in levels(fix$Chr)){
        xlab=chrom,ylab="Homozygosity")
   abline(h=-0.01)
   for(w in wsize_range){
-    HOM = zoo(fix$Prop.Hom[fix$Chr==chrom])
+    HOM = zoo(fix$Prop.Hom[fix$Chr==chrom],order.by = fix$BP[fix$Chr==chrom])
     sliMean = rollapply(HOM, width=w, by=1, FUN=mean, partial=F)
-    bp_idx = fix$BP[index(sliMean)]
+    bp_idx = index(sliMean)
     points(bp_idx[order(bp_idx)],sliMean[order(bp_idx)], type='l',col=alpha(virilist[colindex],0.4),lwd=1.3)
-    points(fix$BP[which(sliMean==min(sliMean))],rep(-0.01,length(which(sliMean==min(sliMean)))),
+    points(bp_idx[which(sliMean==min(sliMean))],rep(-0.01,length(which(sliMean==min(sliMean)))),
            col=alpha(virilist[colindex],0.4),pch=16, cex=1.5)
-    centrolist$slideMean$pos[centrolist$slideMean$Chr==chrom] <- fix$BP[index(sliMean[sliMean==min(sliMean)])]
+    centrolist$slideMean$pos[centrolist$slideMean$Chr==chrom] <- bp_idx[which(sliMean==min(sliMean))]
     centrolist$slideMean$val[centrolist$slideMean$Chr==chrom] <- sliMean[sliMean==min(sliMean)]
     colindex <- colindex+1
   }
@@ -56,7 +56,6 @@ for(chrom in levels(fix$Chr)){
 virilist <- viridis(n=length(sp_range))
 colindex <- 1
 #par(mfrow=c(1,6))
-centrolist[['loess']] <- rep(0,6)
 centrolist[['loess']] <- data.frame(pos = rep(0,6), Chr=levels(fix$Chr), val=rep(0,6))
 for(chrom in levels(fix$Chr)){
   plot(x=c(),y=c(),xlim=c(0,max(fix$BP[fix$Chr==chrom])), ylim=c(-0.05,1),
@@ -79,22 +78,20 @@ for(chrom in levels(fix$Chr)){
 # Will only run if the user chose one single value for each parameter.
 if(length(sp_range)==1 & length(wsize_range)==1){
   zoomfactor <- 1000000  # For aesthetics
-  #slideMeanPlot <- ggplot(store_means, aes(x=BP/zoomfactor, y=S.Mean)) + facet_grid(~Chr, scales = 'free_x') + 
-  #  geom_line() + ylab("Sliding means") + xlab("") + xlim(c(0,max(fix$BP)/zoomfactor)) +
-  #  geom_vline(data=centrolist$slideMean, aes(xintercept=pos/zoomfactor), col='red', lty=2) + theme_bw()
   
   loessPlot <- ggplot(fix, aes(x=BP/zoomfactor, y=Prop.Hom, weight=N.Samples)) + facet_grid(~Chr, scales = 'free_x') + 
     geom_point(col='grey70') + geom_smooth(aes(col='Local regression'), 
                                            method='loess', span=sp_range) + 
-    xlab("Genomic position (Mb)") + ylab("Local regression") + 
+    xlab("Genomic position (Mb)") + ylab("Homozygosity") + 
     geom_segment(data=centrolist$loess, aes(x=pos/zoomfactor,xend=pos/zoomfactor, y=0, yend=val, col='Local regression'), 
                  lty=2, lwd=1.1, inherit.aes = F) + theme_bw() +
     geom_line(data=store_means, aes(x=BP/zoomfactor, y=S.Mean, col='Moving average'), lwd=1.1, inherit.aes = F) + 
     geom_segment(data=centrolist$slideMean, aes(x=pos/zoomfactor,xend=pos/zoomfactor, y=0, yend=val, col='Moving average'), 
-                 lty=2, lwd=1.1, inherit.aes = F) + 
+                 lty=2, lwd=0.9, inherit.aes = F) + 
     scale_color_brewer(palette="Set1") + scale_fill_brewer(palette="Set1") + 
-    guides(color=guide_legend(title="Method"))
+    guides(color=guide_legend(title="Method")) + 
+    geom_point(data=centrolist$slideMean, aes(x=pos/zoomfactor, y=0, col='Moving average'), inherit.aes = F, size=2) + 
+    geom_point(data=centrolist$loess, aes(x=pos/zoomfactor, y=0, col='Local regression'), inherit.aes = F, size=2)
   loessPlot
-  #grid.arrange(slideMeanPlot, loessPlot, nrow=2)
 }
 

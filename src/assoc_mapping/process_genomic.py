@@ -7,8 +7,13 @@
 # core available on the host. It takes 2 arguments: the path to the
 # folder containing populations files, used as input, and the folder where
 # the output will be written.
+# TODO: add sex-specific proportion of homozygosity and number of indv
+# in prop_hom()
+# TODO: make script compatible with per-family populations run.
 # Cyril Matthey-Doret
 # 11.08.2017
+
+from os import path, walk
 import argparse
 import numpy as np
 import pandas as pd
@@ -37,6 +42,33 @@ parser.add_argument('--keep_all', action='store_true',
 args = parser.parse_args()
 
 #========== DEFINING FUNCTIONS ==========#
+
+def unify_genomic(pop_path):
+    """
+    Reads populations "genomic" output files from each family's folder and
+    gathers them into a single pandas DataFrame object.
+    :param path: Path containing the family subfolders containing populations
+    output files.
+    :returns: A DataFrame containing all sites in all individuals.
+    """
+    pop_path = "/home/cyril/Documents/Master/master_project/data/populations/d-20_r-75"
+    # Adding trailing slash if not provided
+    if pop_path[-1] != '/': pop_path += '/'
+    first_fam = True
+    #Iterating over family subfolders
+    for subdir, dirs, files in walk(pop_path):
+        if path.basename(subdir):  # Read file from subfolder
+            tmp = pd.read_csv(path.join(subdir, "batch_0.genomic.tsv"),
+                              sep='\t', header=None, skiprows=1)
+            if first_fam: # Assign dataframe on iteration run only
+                united = tmp
+            else:
+                # Graft each family's samples onto final df as new columns
+                united = united.merge(tmp, how='outer', left_index=True,
+                                      right_index=True, on=range(3))
+            first_fam = False
+
+    return united
 
 def gen_decode(encoded):
     """"
@@ -67,9 +99,9 @@ def gen_decode(encoded):
 def mother_hom(geno, pop):
     """
     This function runs on a numpy array that has already been
-    transformed with gen_decode and sets SNP that are homozygous/missing in
+    transformed with gen_decode and sets sites that are homozygous/missing in
     mothers to missing in their whole family. If the mother is not available,
-    SNPs that are homozygous or missing in all offspring in the family are used
+    sites that are homozygous or missing in all offspring in the family are used
     instead as a proxy.
     :param pop: a dataframe containing individual names and their respective
     families. The names need to be in the same order as the columns in geno.
@@ -79,32 +111,57 @@ def mother_hom(geno, pop):
     for f in np.unique(pop.Family):  # Iterate over mothers
         fam = pop.loc[pop.Family == f,:]  # Subssetting samples from family
         mother_idx = fam.index[fam.Generation=='F3'].tolist()  # Get mother idx
-        fam_SNP = np.where(geno[mother_idx]!='E')[0]  # hom./missing mother SNPs
+        fam_SNP = np.where(geno[mother_idx]!='E')[0]  # hom/missing mother sites
         if not mother_idx:  # If the mother is not available
-        # Use SNPs where no individual in the family is heterozygous instead
+        # Use sites where no individual in the family is heterozygous instead
             fam_SNP = np.where(np.all(geno[fam.index].isin(['O','M']),
                                             axis=1))[0]
-        # Change those SNPs to M in all indv with same family
+        # Change those sites to M in all indv with same family
         geno.loc[fam_SNP,fam.index] = 'M'
 
     return geno
 
 
-def prop_hom(geno):
+def prop_hom(pop, geno):
     """
-    This function computes the proportion f homozygous individuals (columns) at
+    This function computes the proportion of homozygous individuals (columns) at
     each SNP (row) in a numpy array containing decoded allelic state (O,E,M).
-    :param geno: Numpy array with SNPs as rows and individuals as columns.
-    :returns: a new array with the proportion of homozygous individuals at each
-    SNP and the number of individuals where it was present.
+    It computes this proportion both by sex, and in all individuals.
+    :param geno: Numpy array with sites as rows and individuals as columns.
+    :param pop: Dataframe containing the sex of each individual and its name.
+    :returns: a Pandas DataFrame object with the proportion of homozygous
+    females, males and all individuals at each site and the number of individuals
+    where it was present.
     """
-    N = geno.shape[1]  # Number of samples
+    # Number of males and females
+    N = {sex:pop.Sex[pop.Sex == sex].shape[0] for sex in ['M','F']}
+    # Get sample indices by sex
+    idx = {sex:pop.index[pop.Sex == sex] for sex in ['M','F']}
+
     # Counting how many individuals are used to compute proportion at each SNP
-    n_prop = geno.apply(lambda r: N - sum(r.str.count('M')),axis=1)
-    # Computing proportion of homozygous individuals at each SNP (O/O+E)
-    prop = geno.apply(lambda r: (float(sum(r.str.count('O')))/
+    sample_size = {}  # Number of individuals in which each site is found
+    hom = {}  # proportion of individuals in which each site is homozygous
+    for sex in N:
+        # Looping over sexes
+        sample_size[sex] = geno.iloc[:,idx[sex]].apply(lambda r:
+                                       N[sex] - sum(r.str.count('M')),axis=1)
+        # Computing proportion of homozygous individuals at each SNP (O/O+E)
+        hom[sex] = geno.iloc[:,idx[sex]].apply(lambda r:
+                     (float(sum(r.str.count('O')))/
                       max(sum(r.str.count(r'[OE]')),1)),axis=1)
-    return pd.DataFrame({"N.Samples":n_prop,"Prop.Hom":prop})
+
+    # Building output dataframe with all relevant stats
+    out_df = pd.DataFrame({
+        "N.Samples": sum(N.values()),
+        "Prop.Hom": (sample_size['M'] * hom['M'] +
+                    sample_size['F'] * hom['F']) / float(sum(N.values())),
+        "N.Males": sample_size['M'],
+        "N.Females": sample_size['F'],
+        "Prop.Hom.F": hom['F'],
+        "Prop.Hom.M": hom['M']
+        })
+
+    return out_df
 
 def parallel_func(f, df, f_args=[], chunk_size=100):
     """
@@ -131,17 +188,16 @@ def parallel_func(f, df, f_args=[], chunk_size=100):
 
 
 #========== LOADING AND PROCESSING DATA ==========#
-
 # Path to STACKS populations folder and output file
 in_path = args.pop_files
 out_path = args.out + "/prop_hom_fixed_sites.tsv"
 
 indv_path = "data/individuals"  # family and sex information
-genomic = pd.read_csv(in_path + "/batch_0.genomic.tsv", sep='\t', header=None,
-                      skiprows=1)
+genomic = pd.read_csv(path.join(in_path, "batch_0.genomic.tsv"),
+                      sep='\t', header=None, skiprows=1)
 # Preparing data structure to match sample names and families with columns
 indv = pd.read_csv(indv_path, sep='\t')  # Family and sex info
-samples = pd.read_csv(in_path + "/batch_0.sumstats.tsv",
+samples = pd.read_csv(path.join(in_path, "batch_0.sumstats.tsv"),
             sep='\t',nrows=2, header=None)  # Names in correct order
 # Concatenating populations
 names = samples.iloc[:,1][0].split(',') + samples.iloc[:,1][1].split(',')
@@ -156,13 +212,16 @@ gen_indv = genomic.iloc[:,3:].T.reset_index(drop=True).T  # only samples cols
 # Decoding numeric genotypes into states (het, hom, missing)
 state = parallel_func(gen_decode, gen_indv)
 
+# Will run unless user explicitly set the --keep_all parameter
 if not args.keep_all:
-    state = mother_hom(state, pop)  # Removing SNPs that are homozygous in mothers
-    # Computing proportion of homozygous indv at each site
-prop = parallel_func(prop_hom, clean)
+    # Remove SNPs that are hom./missing in mothers from their family
+    state = mother_hom(state, pop)
+# Computing proportion of homozygous indv at each site
+prop = parallel_func(prop_hom, state, f_args = [pop])
 
 #========== SAVING OUTPUT ==========#
 
+# Merging Chromosomal positions with proportion of homozygosity into 1 df
 prop = genomic.iloc[:,0:3].merge(prop,left_index=True, right_index=True)
 prop.rename(columns={0:"Locus.ID",1:"Chr",2:"BP"}, inplace=True)
 prop.to_csv(out_path, sep='\t', index=False)
