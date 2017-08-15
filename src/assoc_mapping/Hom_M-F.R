@@ -29,7 +29,7 @@ chrom_sizes$length <- as.numeric(chrom_sizes$length)
 chrom_sizes$mid <- chrom_sizes$start + (chrom_sizes$length/2)  # Middle position in chrom. used for plotting
 
 
-sum_stat <- read.csv(hom_path, header=T, sep='\t')
+sum_stat <- read_tsv(hom_path, col_names=T)
 sum_stat <- sum_stat[sum_stat$N.Samples>0,]
 
 # Computing CSD-ness
@@ -38,8 +38,9 @@ CSD_like <- sum_stat %>% mutate(CSD=((1-Prop.Hom.F)+Prop.Hom.M)/2)
 # Keeping only chromosomes (removing contigs)
 CSD_like <- CSD_like %>% arrange(Chr, BP)
 chrom <- CSD_like[grep("chr.*", CSD_like$Chr),]
-chrom$pos = paste(chrom$Chr,chrom$BP, sep="_")
-chrom$Chr=droplevels(chrom$Chr)
+chrom$pos <- paste(chrom$Chr,chrom$BP, sep="_")
+chrom$Chr <- as.factor(chrom$Chr)
+chrom$Chr <- droplevels(chrom$Chr)
 
 # Finding genomic position of SNPs
 genomic_pos <- function(snp){
@@ -72,11 +73,11 @@ abline(v=chrom_sizes$start, lty=2,col="blue")
 text(x = chrom_sizes$mid,y=17,labels = chrom_sizes$chrom)
 
 ggplot(data=chrom, aes(x=tot_BP, y=CSD))+ geom_line() +
-  facet_wrap(~fam,drop = F) + #geom_text(data=highCSD,aes(label=pos, y=CSD), size=1.9)+
+  facet_wrap(~Family,drop = F) + #geom_text(data=highCSD,aes(label=pos, y=CSD), size=1.9)+
   geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2) +
   ylab("Prop.CSD")
 
-ggplot(data=chrom, aes(x=tot_BP, y=CSD, col=fam))+ geom_line() + 
+ggplot(data=chrom, aes(x=tot_BP, y=CSD, col=Family))+ geom_line() + 
   #geom_text(data=highCSD,aes(label=pos, y=CSD), size=1.9)+
   geom_vline(data=chrom_sizes, aes(xintercept=start), col="blue", lty=2) +
   ylab("Prop.CSD")

@@ -7,8 +7,6 @@
 # core available on the host. It takes 2 arguments: the path to the
 # folder containing populations files, used as input, and the folder where
 # the output will be written.
-# TODO: add sex-specific proportion of homozygosity and number of indv
-# in prop_hom()
 # TODO: make script compatible with per-family populations run.
 # Cyril Matthey-Doret
 # 11.08.2017
@@ -50,15 +48,18 @@ args = parser.parse_args()
 
 #========== DEFINING FUNCTIONS ==========#
 
-def unify_genomic(pop_path):
+def unify_genomic(pop_path, pop):
     """
     Reads populations "genomic" output files from each family's folder and
     gathers them into a single pandas DataFrame object.
     :param path: Path containing the family subfolders containing populations
     output files.
+    :param pop: dataframe containing name of all individuals in correct final
+    order.
     :returns: A DataFrame containing all sites in all individuals.
     """
 
+    pop['real_idx'] = pop.index
     # Adding trailing slash if not provided
     if pop_path[-1] != '/': pop_path += '/'
     first_fam = True
@@ -66,9 +67,22 @@ def unify_genomic(pop_path):
     for subdir, dirs, files in walk(pop_path):
         if path.basename(subdir):
             # Read file from subfolder
+            fam_samples = pd.read_csv(path.join(subdir, "batch_0.sumstats.tsv"),
+                        sep='\t',nrows=2, header=None)
+            # Get individual names in original order
+            fam_names = fam_samples.iloc[:,1][0].split(',') + \
+                        fam_samples.iloc[:,1][1].split(',')
+            fam_names = pd.DataFrame({'Name':fam_names})
+            # Get final index of names
+            tmp_idx = pop.merge(fam_names, on='Name', how='inner')
+            # Incrementing index by 3 since there is 3 columns before indv
+            tmp_idx = tmp_idx.real_idx + 3
             tmp = pd.read_csv(path.join(subdir, "batch_0.genomic.tsv"),
                               sep='\t', header=None, skiprows=1)
-            if first_fam: # Assign dataframe on iteration run only
+            # Rename sample columns with final indices
+            tmp.columns.values[3:] = tmp_idx
+            if first_fam:
+                # Assign dataframe on first iteration only
                 united = tmp
             else:
                 # Graft each family's samples onto final df as new columns
@@ -100,9 +114,17 @@ def gen_decode(encoded):
             genodict[code] = 'E'  # All others are heterozygous
     genodict[1090670464] = 'M'
     # Rarely, rows are filled this value. I assume this is a STACKS issue.
+    """rowlist = ["M" for i in range(encoded.shape[0])]
+    for row in range(encoded.shape[0]):
+        rowlist[row] = [[genodict[i]] for i in encoded.iloc[row,:]]
+    decoded = np.concatenate(rowlist,  axis=1)
+    decoded = decoded.T
+    decodf = pd.DataFrame(decoded)
+    if not decodf.values.flags['WRITEABLE']:
+        decodf.values.flags['WRITEABLE'] = True
+    """
     decoded = encoded.apply(lambda r: np.array([genodict[i] for i in r]),axis=1)
     return decoded
-
 
 def mother_hom(geno, pop):
     """
@@ -125,7 +147,10 @@ def mother_hom(geno, pop):
             fam_SNP = np.where(np.all(geno[fam.index].isin(['O','M']),
                                             axis=1))[0]
         # Change those sites to M in all indv with same family
-        geno.loc[fam_SNP,fam.index] = 'M'
+        for snp in fam_SNP:
+            for idx in fam.index:
+                geno.set_value(snp,idx,'M')
+        #geno.loc[fam_SNP,fam.index] = 'M'
 
     return geno
 
@@ -143,10 +168,13 @@ def prop_hom(pop, geno):
     """
 
     # Number of males and females
-    N = {sex:pop.Sex[pop.Sex == sex].shape[0] for sex in ['M','F']}
+    #N = {sex:pop.Sex[pop.Sex == sex].shape[0] for sex in ['M','F']}
+    N = {'M':pop.Sex[pop.Sex=='M'].shape[0],
+         'F':pop.Sex[pop.Sex=='F'].shape[0]}
     # Get sample indices by sex
-    idx = {sex:pop.index[pop.Sex == sex] for sex in ['M','F']}
-
+    #idx = {sex:pop.index[pop.Sex == sex] for sex in ['M','F']}
+    idx = {'M':pop.index[pop.Sex=='M'],
+           'F':pop.index[pop.Sex=='F']}
     # Counting how many individuals are used to compute proportion at each SNP
     sample_size = {}  # Number of individuals in which each site is found
     hom = {}  # proportion of individuals in which each site is homozygous
@@ -202,7 +230,7 @@ def split_fam_prop(df, pop, parallel=True):
     return pd.concat(df_list)
 
 
-def parallel_func(f, df, f_args=[], chunk_size=100):
+def parallel_func(f, df, f_args=[], chunk_size=1000):
     """
     Parallelizes a function that runs on a dataframe by splitting the dataframe
     into small chunks by rows and distributing chunks across several processes.
@@ -216,7 +244,8 @@ def parallel_func(f, df, f_args=[], chunk_size=100):
     """
 
     # Create pool of processes, size depends on number of core available
-    pool = Pool(processes = cpu_count())
+    pool = Pool(processes = 8)
+    print("pool open")
     tot_rows = df.shape[0]
     chunks = range(0,tot_rows, chunk_size)  # Start positions of chunks
     # Split df into chunks
@@ -224,47 +253,59 @@ def parallel_func(f, df, f_args=[], chunk_size=100):
     func = partial(f, *f_args)  # Unpacking optional fixed arguments.
     result = pool.map(func, chunked_df)  # Mapping function to chunks.
      # Concatenating into single df. Order is preserved
+    pool.terminate()
+    print("pool closed")
     return pd.concat(result)
-
 
 #========== LOADING AND PROCESSING DATA ==========#
 # Path to STACKS populations folder and output file
 in_path = args.pop_files
 out_path = args.out + "/prop_hom_fixed_sites.tsv"
 indv_path = "data/individuals"  # family and sex information
-if args.grouped_input == 'T':
-    genomic = pd.read_csv(path.join(in_path, "batch_0.genomic.tsv"),
-                        sep='\t', header=None, skiprows=1)
-else:
-    genomic = unify_genomic(in_path)
-# Preparing data structure to match sample names and families with columns
 indv = pd.read_csv(indv_path, sep='\t')  # Family and sex info
-samples = pd.read_csv(path.join(in_path, "batch_0.sumstats.tsv"),
-            sep='\t',nrows=2, header=None)  # Names in correct order
-# Concatenating populations
-names = samples.iloc[:,1][0].split(',') + samples.iloc[:,1][1].split(',')
-names = pd.DataFrame({'Name':names})
-# Adding family and sex, keeping order
-pop = names.merge(indv,on='Name',how='left')
+# Preparing data structure to match sample names and families with columns
+
+if args.grouped_input == 'T':  # Single populations folder
+    samples = pd.read_csv(path.join(in_path, "batch_0.sumstats.tsv"),
+                sep='\t',nrows=2, header=None)  # Names in correct order
+    # Concatenating populations
+    names = samples.iloc[:,1][0].split(',') + samples.iloc[:,1][1].split(',')
+    names = pd.DataFrame({'Name':names})
+    # Adding family and sex, keeping order
+    pop = names.merge(indv,on='Name',how='left')
+    genomic = pd.read_csv(path.join(in_path, "batch_0.genomic.tsv"),
+    sep='\t', header=None, skiprows=1)
+    #genomic = genomic.iloc[:10,]
+    print("Processing {0} sites across {1} samples.".format(genomic.shape[0],
+                                                        genomic.shape[1]))
+else:  # One populations folder per family
+    pop = indv
+    genomic = unify_genomic(in_path, pop)
+    genomic.sort_index(axis=1, inplace=True)
+print("files loaded")
 
 #========== RUNNING CODE ==========#
 # genomic = genomic.iloc[:100,:]
 gen_indv = genomic.iloc[:,3:].T.reset_index(drop=True).T  # only samples cols
 # Decoding numeric genotypes into states (het, hom, missing)
-state = parallel_func(gen_decode, gen_indv)
-
+#state = parallel_func(gen_decode, gen_indv)
+state = gen_decode(gen_indv)
+print("genotypes decoded")
 # Will run unless user explicitly set the --keep_all parameter
 if not args.keep_all:
     # Remove SNPs that are hom./missing in mothers from their family
     state = mother_hom(state, pop)
+    print("Mother homozygous and missing sites removed")
 # Computing proportion of homozygous indv at each site
 if args.pool_output:
     prop = parallel_func(prop_hom, state, f_args = (pop,))
 else:
-    prop = split_fam_prop(state, pop, parallel=True)
+    prop = split_fam_prop(state, pop, parallel=False)
+print("homozygosity stats calculated")
 
 #========== SAVING OUTPUT ==========#
 # Merging Chromosomal positions with proportion of homozygosity into 1 df
 prop = genomic.iloc[:,0:3].merge(prop,left_index=True, right_index=True)
 prop.rename(columns={0:"Locus.ID",1:"Chr",2:"BP"}, inplace=True)
 prop.to_csv(out_path, sep='\t', index=False)
+print("Output saved to {0}".format(out_path))
