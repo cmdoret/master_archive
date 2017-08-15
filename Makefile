@@ -55,7 +55,7 @@ $(POP) : $(SSTACK) $(POP-SRC)
 assoc_mapping : $(ASSOC)
 	mkdir -p $(ASSOC)
 	# Processing "genomic" output from populations to get fixed sites genotype
-	python2 src/assoc_mapping/process_genomic.py $(POP) $(ASSOC)
+	python2 src/assoc_mapping/process_genomic.py $(POP) $(ASSOC) $(GRFAM)
 
 
 # Rule for building lab book figures, tables and compiling Latex script

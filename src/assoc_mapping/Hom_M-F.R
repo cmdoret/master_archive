@@ -33,7 +33,7 @@ sum_stat <- read.csv(hom_path, header=T, sep='\t')
 sum_stat <- sum_stat[sum_stat$N.Samples>0,]
 
 # Computing CSD-ness
-sum_stat <- sum_stat %>% mutate(CSD=)
+sum_stat <- sum_stat %>% mutate(CSD=((1-Prop.Hom.F)+Prop.Hom.M)/2)
 
 # Keeping only chromosomes (removing contigs)
 CSD_like <- CSD_like %>% arrange(Chr, BP)

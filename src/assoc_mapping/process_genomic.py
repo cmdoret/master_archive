@@ -32,12 +32,19 @@ parser = argparse.ArgumentParser(description="This script processes the \
                                  individuals at each genomic position.")
 parser.add_argument('pop_files', type=str,
                                  help='Path to the folder containing \
-                                 populations output files. Used as input',)
+                                 populations output files. Used as input')
 parser.add_argument('out', type=str,
-                                 help='Folder where output will be written',)
+                                 help='Folder where output will be written')
+parser.add_argument('grouped_input', type=str,
+                                 help='If all families were grouped into a \
+                                 single populations run, set to "T", otherwise \
+                                 set to "F"')
 parser.add_argument('--keep_all', action='store_true',
                                  help='Keep all SNPs, even if missing or\
-                                 homozygous in the mother.',)
+                                 homozygous in the mother.')
+parser.add_argument('--pool_output', action='store_true',
+                                 help='Pool output instead of computing \
+                                 proportions per family')
 
 args = parser.parse_args()
 
@@ -128,11 +135,11 @@ def prop_hom(pop, geno):
     This function computes the proportion of homozygous individuals (columns) at
     each SNP (row) in a numpy array containing decoded allelic state (O,E,M).
     It computes this proportion both by sex, and in all individuals.
-    :param geno: Numpy array with sites as rows and individuals as columns.
+    :param geno: Pandas DataFrame with sites as rows and individuals as columns.
     :param pop: Dataframe containing the sex of each individual and its name.
     :returns: a Pandas DataFrame object with the proportion of homozygous
-    females, males and all individuals at each site and the number of individuals
-    where it was present.
+    females, males and all individuals at each site and the number of
+    individuals where it was present.
     """
 
     # Number of males and females
@@ -145,25 +152,55 @@ def prop_hom(pop, geno):
     hom = {}  # proportion of individuals in which each site is homozygous
     for sex in N:
         # Looping over sexes
-        sample_size[sex] = geno.iloc[:,idx[sex]].apply(lambda r:
+        sample_size[sex] = geno.loc[:,idx[sex]].apply(lambda r:
                                        N[sex] - sum(r.str.count('M')),axis=1)
         # Computing proportion of homozygous individuals at each SNP (O/O+E)
-        hom[sex] = geno.iloc[:,idx[sex]].apply(lambda r:
-                     (float(sum(r.str.count('O')))/
-                      max(sum(r.str.count(r'[OE]')),1)),axis=1)
+        hom[sex] = geno.loc[:,idx[sex]].apply(lambda r:
+                      round(float(sum(r.str.count('O')))/
+                      max(sum(r.str.count(r'[OE]')),1),3),axis=1)
 
     # Building output dataframe with all relevant stats
     out_df = pd.DataFrame({
         "N.Samples": sample_size['F'] + sample_size['M'],
-        "Prop.Hom": (sample_size['M'] * hom['M'] +
+        "Prop.Hom": ((sample_size['M'] * hom['M'] +
                     sample_size['F'] * hom['F']) /
-                    (sample_size['F'] + sample_size['M']),
+                    (sample_size['F'] + sample_size['M'])).round(3),
         "N.Males": sample_size['M'],
         "N.Females": sample_size['F'],
         "Prop.Hom.F": hom['F'],
         "Prop.Hom.M": hom['M']
         })
     return out_df
+
+def split_fam_prop(df, pop, parallel=True):
+    """
+    This function is intended as a wrapper for prop_hom, so that it will only
+    compute stats per family and return family info associated with every stat.
+    :param df: Pandas DataFrame with sites as rows and individuals as columns.
+    :param pop: Dataframe containing the sex, name and Faamily of each
+    individual in the same order as the df individuals columns.
+    :param parallel: Boolean value. Should the script exploit multiple cores if
+    available ?
+    :returns: a Pandas DataFrame object with an added family column and at each
+    site for each family, the proportion of homozygous females, males and all
+    individuals and the number of individuals where it was present.
+    """
+
+    df_list = []  # List to contain each family's df
+    for fam in pop.Family.unique():
+        # Iterating over families and subsetting df for each
+        fam_idx = pop.index[pop.Family == fam]
+        genofam = df.iloc[:,fam_idx]
+        popfam = pop.iloc[fam_idx,:]
+        if parallel:
+            fam_df = parallel_func(prop_hom, genofam, f_args = (popfam,))
+        else:
+            fam_df = prop_hom(popfam, genofam)
+        fam_df["Family"] = fam
+        df_list.append(fam_df)
+
+    return pd.concat(df_list)
+
 
 def parallel_func(f, df, f_args=[], chunk_size=100):
     """
@@ -195,8 +232,11 @@ def parallel_func(f, df, f_args=[], chunk_size=100):
 in_path = args.pop_files
 out_path = args.out + "/prop_hom_fixed_sites.tsv"
 indv_path = "data/individuals"  # family and sex information
-genomic = pd.read_csv(path.join(in_path, "batch_0.genomic.tsv"),
-                      sep='\t', header=None, skiprows=1)
+if args.grouped_input == 'T':
+    genomic = pd.read_csv(path.join(in_path, "batch_0.genomic.tsv"),
+                        sep='\t', header=None, skiprows=1)
+else:
+    genomic = unify_genomic(in_path)
 # Preparing data structure to match sample names and families with columns
 indv = pd.read_csv(indv_path, sep='\t')  # Family and sex info
 samples = pd.read_csv(path.join(in_path, "batch_0.sumstats.tsv"),
@@ -218,10 +258,12 @@ if not args.keep_all:
     # Remove SNPs that are hom./missing in mothers from their family
     state = mother_hom(state, pop)
 # Computing proportion of homozygous indv at each site
-prop = parallel_func(prop_hom, state, f_args = (pop,))
+if args.pool_output:
+    prop = parallel_func(prop_hom, state, f_args = (pop,))
+else:
+    prop = split_fam_prop(state, pop, parallel=True)
 
 #========== SAVING OUTPUT ==========#
-
 # Merging Chromosomal positions with proportion of homozygosity into 1 df
 prop = genomic.iloc[:,0:3].merge(prop,left_index=True, right_index=True)
 prop.rename(columns={0:"Locus.ID",1:"Chr",2:"BP"}, inplace=True)
