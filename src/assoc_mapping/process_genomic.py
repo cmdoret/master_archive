@@ -140,7 +140,7 @@ def mother_hom(geno, pop):
     for f in np.unique(pop.Family):  # Iterate over mothers
         fam = pop.loc[pop.Family == f,:]  # Subssetting samples from family
         mother_name = fam.Name[fam.Generation=='F3'].tolist()  # Get mother idx
-        fam_SNP = np.where(geno[mother_name]!='E')[0]  # hom/missing mother sites
+        fam_SNP = np.where(geno.loc[:,mother_name]!='E')[0]  # hom/missing mother sites
         if not mother_name:  # If the mother is not available
         # Use sites where no individual in the family is heterozygous instead
             fam_SNP = np.where(np.all(geno[fam.Name.tolist()].isin(['O','M']),
@@ -243,7 +243,7 @@ def parallel_func(f, df, f_args=[], chunk_size=1000):
     """
 
     # Create pool of processes, size depends on number of core available
-    pool = Pool(processes = (cpu_count()-1))
+    pool = Pool(processes = 4)
     print("pool open")
     tot_rows = df.shape[0]
     chunks = range(0,tot_rows, chunk_size)  # Start positions of chunks
@@ -275,22 +275,21 @@ if args.grouped_input == 'T':  # Single populations folder
     pop = names.merge(indv,on='Name',how='left')
     genomic = pd.read_csv(path.join(in_path, "batch_0.genomic.tsv"),
     sep='\t', header=None, skiprows=1)
-    pop
     # select only samples cols and reindex from 0
     gen_indv = genomic.iloc[:,3:].T.reset_index(drop=True).T
     # Replacing numeric header with corresponding sample name
     gen_indv.rename(columns=lambda x: pop.Name[x], inplace=True)
-    print("Processing {0} sites across {1} samples.".format(genomic.shape[0],
-                                                        genomic.shape[1]))
+    print("Processing {0} sites across {1} samples.".format(gen_indv.shape[0],
+                                                        gen_indv.shape[1]))
 else:  # One populations folder per family
     pop = indv
     genomic = unify_genomic(in_path, pop)
     pop.drop(pop.index[~pop.Name.isin(genomic.columns.values[3:])],
              axis=0, inplace=True)
     pop = pop.reset_index(drop=True)
+    gen_indv = genomic.iloc[:,3:]
 print("files loaded")
 #genomic = genomic.iloc[:100,:]
-gen_indv = genomic.iloc[:,3:]
 
 #========== RUNNING CODE ==========#
 # Decoding numeric genotypes into states (het, hom, missing)

@@ -39,7 +39,7 @@ done;
 # Writing scripts automatically
 for i in $samp  # Writing a script automatically for each "good" sample
 do
-    echo "Sample= $i, ID=$ID" 
+    echo "Sample $(basename $i)" 
     j=$(echo ${i##*/} | cut -f1 -d '.')
     echo "#!/bin/bash" > ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
