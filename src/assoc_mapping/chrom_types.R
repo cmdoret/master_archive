@@ -11,15 +11,21 @@ sp_range <- 0.75  # Proportion of SNPs to be included in each local regression
 # wsize_range <- seq(5, 80, 1)
 # sp_range <- seq(0.15, 1, 0.01)
 #==== LOAD PACKAGES AND DATA ====#
-pack <- c("ggplot2","dplyr","viridis","zoo")
+pack <- c("ggplot2","dplyr","viridis","zoo", "readr")
 lapply(pack, require, character.only = TRUE)
 
 indv <- read.table('../../data/individuals', header=T)
 grouped <- "T"
-fix <- read.csv("../../data/assoc_mapping/prop_hom_fixed_sites.tsv", sep='\t',header=T)
-fix <- fix[fix$N.Samples>0,]
+fix0 <- read_tsv("../../data/assoc_mapping/fam_prop_hom_fixed_sites.tsv", col_names=T)
+fix <- fix0[fix0$N.Samples>0,]
 fix <- fix[grep("chr.*",fix$Chr),]
-fix$Chr <- droplevels(fix$Chr)
+
+oldnames <- colnames(fix[,4:length(colnames(fix))])
+test <- select(fix,-Family)
+fix <- test %>% 
+  group_by(Chr, BP) %>% 
+  summarise(N.Samples=sum(N.Samples), Prop.Hom=mean(Prop.Hom))
+fix$Chr <- factor(fix$Chr)
 
 #==== COMPUTE SLIDING MEANS ====#
 # Allows to try different values of window size in a range

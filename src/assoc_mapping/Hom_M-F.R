@@ -9,7 +9,7 @@ library(dplyr)
 library(readr)
 library(ggplot2)
 
-hom_path <- "../../data/assoc_mapping/prop_hom_fixed_sites.tsv"
+hom_path <- "../../data/assoc_mapping/fam_prop_hom_fixed_sites.tsv"
 indv <- read.table('../../data/individuals', header=T)
 scaffolds <- read.table("../../data/ref_genome/ordered_genome/merged.fasta.ann", stringsAsFactors = F)
 grouped <- "T"
@@ -51,7 +51,7 @@ genomic_pos <- function(snp){
 chrom$tot_BP <-apply(X = chrom,MARGIN = 1, FUN=genomic_pos)
 
 # Proportion of offspring homozygous at loci heterozygous in mother
-ggplot(data=chrom,aes(x=BP,y=CSD)) + geom_point() +facet_grid(~Chr, scales = "free_x") 
+ggplot(data=chrom,aes(x=BP,y=CSD, col=Family)) + geom_point() +facet_grid(~Chr, scales = "free_x") 
 
 compact_chrom <- chrom %>% 
   group_by(Locus.ID) %>%
