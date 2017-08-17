@@ -29,7 +29,7 @@ GRFAM=F  # Boolean variable: group families in 1 populations run ?
 # POP-SRC=src/stacks_pipeline/pop_FST.sh
 POP-SRC=src/stacks_pipeline/populations.sh
 R=80
-D=3
+D=20
 
 # Misc: report generation
 LAB=reports/lab_book
@@ -49,5 +49,5 @@ MAP=$(DAT)/mapped/$(ALG)-$(MM)-$(K)-$(W)
 PSTACK=$(DAT)/pstacks/covmin-$(M)
 CSTACK=$(DAT)/cstacks/mm-$(LM)
 SSTACK=$(DAT)/sstacks
-POP=$(DAT)/populations/d-$(D)_r-$(R)
+POP=$(DAT)/populations/haplo_d-$(D)_r-$(R)
 ASSOC=$(DAT)/assoc_mapping

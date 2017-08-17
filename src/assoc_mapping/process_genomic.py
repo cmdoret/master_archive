@@ -147,8 +147,9 @@ def mother_hom(geno, pop):
                                             axis=1))[0]
         # Change those sites to M in all indv with same family
         for snp in fam_SNP:
-            for idx in fam.index:
+            for idx in fam.Name:
                 geno.set_value(snp,idx,'M')
+                geno.loc[:,fam.Name]
         #geno.loc[fam_SNP,fam.index] = 'M'
 
     return geno
@@ -258,7 +259,7 @@ def parallel_func(f, df, f_args=[], chunk_size=1000):
 
 #========== LOADING AND PROCESSING DATA ==========#
 # Path to STACKS populations folder and output file
-# in_path = "../../data/populations/d-3_r-80/"
+# in_path = "../../data/populations/grouped_d-3_r-80/"
 in_path = args.pop_files
 out_path = args.out + "/prop_hom_fixed_sites.tsv"
 indv_path = "data/individuals"  # family and sex information
