@@ -20,10 +20,6 @@ from functools import partial  # "freeze" arguments when mapping function
 
 #========== PARSING COMMAND LINE ARGUMENTS ==========#
 
-# Genotype encoding in genomic output from populations:
-# Missing bases are encoded as 0
-# Homozygous genotypes are: 1,5,8,10
-# Heterozygous genotypes are all others (except 0)
 parser = argparse.ArgumentParser(description="This script processes the \
                                  'genomic' output from STACKS's populations \
                                  module to compute the proportion of homozygous\
@@ -106,6 +102,10 @@ def gen_decode(encoded):
 
     genodict = {}
     for code in range(11):
+        # Genotype encoding in genomic output from populations:
+        # Missing bases are encoded as 0
+        # Homozygous genotypes are: 1,5,8,10
+        # Heterozygous genotypes are all others (except 0)
         # Building dictionary for numeric genotype translation
         if code in [1,5,8,10]:  # Homozygous codes
             genodict[code] = 'O'
@@ -140,18 +140,21 @@ def mother_hom(geno, pop):
     for f in np.unique(pop.Family):  # Iterate over mothers
         fam = pop.loc[pop.Family == f,:]  # Subssetting samples from family
         mother_name = fam.Name[fam.Generation=='F3'].tolist()  # Get mother idx
-        fam_SNP = np.where(geno.loc[:,mother_name]!='E')[0]  # hom/missing mother sites
+        # hom/missing mother sites
+        fam_SNP = np.where(geno.loc[:,mother_name]!='E')[0]
         if not mother_name:  # If the mother is not available
         # Use sites where no individual in the family is heterozygous instead
             fam_SNP = np.where(np.all(geno[fam.Name.tolist()].isin(['O','M']),
                                             axis=1))[0]
         # Change those sites to M in all indv with same family
+        geno.loc[fam_SNP,fam.Name] = 'M'
+
+        """
         for snp in fam_SNP:
             for idx in fam.Name:
-                geno.set_value(snp,idx,'M')
-                geno.loc[:,fam.Name]
-        #geno.loc[fam_SNP,fam.index] = 'M'
-
+               geno.set_value(snp,idx,'M')
+               # slow: 0.29 s / 10krows
+        """
     return geno
 
 
@@ -180,13 +183,12 @@ def prop_hom(pop, geno):
     hom = {}  # proportion of individuals in which each site is homozygous
     for sex in N:
         # Looping over sexes
-        sample_size[sex] = geno.loc[:,sex_id[sex]].apply(lambda r:
-                                       N[sex] - sum(r.str.count('M')),axis=1)
-        # Computing proportion of homozygous individuals at each SNP (O/O+E)
-        hom[sex] = geno.loc[:,sex_id[sex]].apply(lambda r:
-                      round(float(sum(r.str.count('O')))/
-                      max(sum(r.str.count(r'[OE]')),1),3),axis=1)
-
+        dff = {}
+        for t in ['O','M','E']:
+            dff[t]=(geno.loc[:,sex_id[sex]] == t).T.sum().astype(float)
+        sample_size[sex] = dff['E']+dff['O']
+        hom[sex] = np.divide(dff['O'], (dff['O'] + dff['E']))
+        #geno.loc[:,sex_id[sex]].apply(pd.Series.value_counts, axis=1)
     # Building output dataframe with all relevant stats
     out_df = pd.DataFrame({
         "N.Samples": sample_size['F'] + sample_size['M'],
@@ -245,7 +247,6 @@ def parallel_func(f, df, f_args=[], chunk_size=1000):
 
     # Create pool of processes, size depends on number of core available
     pool = Pool(processes = 4)
-    print("pool open")
     tot_rows = df.shape[0]
     chunks = range(0,tot_rows, chunk_size)  # Start positions of chunks
     # Split df into chunks
@@ -254,7 +255,6 @@ def parallel_func(f, df, f_args=[], chunk_size=1000):
     result = pool.map(func, chunked_df)  # Mapping function to chunks.
      # Concatenating into single df. Order is preserved
     pool.terminate()
-    print("pool closed")
     return pd.concat(result)
 
 #========== LOADING AND PROCESSING DATA ==========#
@@ -295,7 +295,6 @@ print("files loaded")
 #========== RUNNING CODE ==========#
 # Decoding numeric genotypes into states (het, hom, missing)
 state = parallel_func(gen_decode, gen_indv)
-#state = gen_decode(gen_indv)
 print("genotypes decoded")
 # Will run unless user explicitly set the --keep_all parameter
 if not args.keep_all:
@@ -304,9 +303,9 @@ if not args.keep_all:
     print("Mother homozygous and missing sites removed")
 # Computing proportion of homozygous indv at each site
 if args.pool_output:
-    prop = parallel_func(prop_hom, state, f_args = (pop,))
+    prop = prop_hom(pop, state)
 else:
-    prop = split_fam_prop(state, pop, parallel=True)
+    prop = split_fam_prop(state, pop, parallel=False)
 print("homozygosity stats calculated")
 
 #========== SAVING OUTPUT ==========#
