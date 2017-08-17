@@ -115,13 +115,6 @@ def gen_decode(encoded):
             genodict[code] = 'E'  # All others are heterozygous
     genodict[1090670464] = 'M'
     # Rarely, rows are filled this value. I assume this is a STACKS issue.
-    """rowlist = ["M" for i in range(encoded.shape[0])]
-    for row in range(encoded.shape[0]):
-        rowlist[row] = [[genodict[i]] for i in encoded.iloc[row,:]]
-    decoded = np.concatenate(rowlist,  axis=1)
-    decoded = decoded.T
-    decodf = pd.DataFrame(decoded)
-    """
     decoded = encoded.apply(lambda r: np.array([genodict[i] for i in r]),axis=1)
     return decoded
 
@@ -148,13 +141,6 @@ def mother_hom(geno, pop):
                                             axis=1))[0]
         # Change those sites to M in all indv with same family
         geno.loc[fam_SNP,fam.Name] = 'M'
-
-        """
-        for snp in fam_SNP:
-            for idx in fam.Name:
-               geno.set_value(snp,idx,'M')
-               # slow: 0.29 s / 10krows
-        """
     return geno
 
 
@@ -169,7 +155,8 @@ def prop_hom(pop, geno):
     females, males and all individuals at each site and the number of
     individuals where it was present.
     """
-
+    # Suppresses warning when numpy divides by 0
+    np.seterr(divide='ignore', invalid='ignore')
     # Number of males and females
     #N = {sex:pop.Sex[pop.Sex == sex].shape[0] for sex in ['M','F']}
     N = {'M':pop.Sex[pop.Sex=='M'].shape[0],
@@ -197,8 +184,8 @@ def prop_hom(pop, geno):
                     (sample_size['F'] + sample_size['M'])).round(3),
         "N.Males": sample_size['M'],
         "N.Females": sample_size['F'],
-        "Prop.Hom.F": hom['F'],
-        "Prop.Hom.M": hom['M']
+        "Prop.Hom.F": hom['F'].round(3),
+        "Prop.Hom.M": hom['M'].round(3)
         })
     return out_df
 
@@ -240,7 +227,7 @@ def parallel_func(f, df, f_args=[], chunk_size=1000):
     :param df: pandas dataframe to be used as input
     :param f_args: optional arguments for the function to be parallelized. Need
     to be an iterable (list or tuple).
-    :param chunk_size: size of the chunks in which df is split. Default=100
+    :param chunk_size: size of the chunks in which df is split. Default=1000
     :returns: the processed dataframe reconstructed by combining output from all
     processes
     """
@@ -261,7 +248,8 @@ def parallel_func(f, df, f_args=[], chunk_size=1000):
 # Path to STACKS populations folder and output file
 # in_path = "../../data/populations/grouped_d-3_r-80/"
 in_path = args.pop_files
-out_path = args.out + "/prop_hom_fixed_sites.tsv"
+out_prefix = 'grouped_' if args.grouped_input == "T" else "fam_"
+out_path = path.join(args.out, (out_prefix + "prop_hom_fixed_sites.tsv"))
 indv_path = "data/individuals"  # family and sex information
 indv = pd.read_csv(indv_path, sep='\t')  # Family and sex info
 # Preparing data structure to match sample names and families with columns
@@ -290,7 +278,6 @@ else:  # One populations folder per family
     pop = pop.reset_index(drop=True)
     gen_indv = genomic.iloc[:,3:]
 print("files loaded")
-#genomic = genomic.iloc[:100,:]
 
 #========== RUNNING CODE ==========#
 # Decoding numeric genotypes into states (het, hom, missing)
@@ -299,7 +286,7 @@ print("genotypes decoded")
 # Will run unless user explicitly set the --keep_all parameter
 if not args.keep_all:
     # Remove SNPs that are hom./missing in mothers from their family
-    state = mother_hom(state, pop)
+    state1 = mother_hom(state, pop)
     print("Mother homozygous and missing sites removed")
 # Computing proportion of homozygous indv at each site
 if args.pool_output:
@@ -312,5 +299,5 @@ print("homozygosity stats calculated")
 # Merging Chromosomal positions with proportion of homozygosity into 1 df
 prop = genomic.iloc[:,0:3].merge(prop,left_index=True, right_index=True)
 prop.rename(columns={0:"Locus.ID",1:"Chr",2:"BP"}, inplace=True)
-prop.to_csv(out_path, sep='\t', index=False)
+prop.to_csv(out_path, sep='\t', index=False, na_rep='NA')
 print("Output saved to {0}".format(out_path))

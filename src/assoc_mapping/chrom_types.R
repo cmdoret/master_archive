@@ -8,24 +8,26 @@
 #==== SELECT PARAMETERS ====#
 wsize_range <- 20  # Size of the moving average window
 sp_range <- 0.75  # Proportion of SNPs to be included in each local regression
-# wsize_range <- seq(5, 80, 1)
+# wsize_range <- seq(5, 40, 1)
 # sp_range <- seq(0.15, 1, 0.01)
 #==== LOAD PACKAGES AND DATA ====#
 pack <- c("ggplot2","dplyr","viridis","zoo", "readr")
 lapply(pack, require, character.only = TRUE)
 
 indv <- read.table('../../data/individuals', header=T)
-grouped <- "T"
-fix0 <- read_tsv("../../data/assoc_mapping/fam_prop_hom_fixed_sites.tsv", col_names=T)
+grouped <- "F"
+#fix0 <- read_tsv("../../data/assoc_mapping/fam_prop_hom_fixed_sites.tsv", col_names=T, na='NA')
+fix0 <- read.table("../../data/assoc_mapping/grouped_prop_hom_fixed_sites.tsv", header=T, na.strings='NA', sep='\t')
 fix <- fix0[fix0$N.Samples>0,]
 fix <- fix[grep("chr.*",fix$Chr),]
 
-oldnames <- colnames(fix[,4:length(colnames(fix))])
 test <- select(fix,-Family)
 fix <- test %>% 
   group_by(Chr, BP) %>% 
   summarise(N.Samples=sum(N.Samples), Prop.Hom=mean(Prop.Hom))
-fix$Chr <- factor(fix$Chr)
+fix$Chr <- droplevels(fix$Chr)
+fix <- fix[!is.na(fix$Prop.Hom),]
+#fix$Chr <- factor(fix$Chr)
 
 #==== COMPUTE SLIDING MEANS ====#
 # Allows to try different values of window size in a range
@@ -46,10 +48,10 @@ for(chrom in levels(fix$Chr)){
     sliMean = rollapply(HOM, width=w, by=1, FUN=mean, partial=F)
     bp_idx = index(sliMean)
     points(bp_idx[order(bp_idx)],sliMean[order(bp_idx)], type='l',col=alpha(virilist[colindex],0.4),lwd=1.3)
-    points(bp_idx[which(sliMean==min(sliMean))],rep(-0.01,length(which(sliMean==min(sliMean)))),
+    points(bp_idx[which(sliMean==min(sliMean, na.rm=T))],rep(-0.01,length(which(sliMean==min(sliMean, na.rm=T)))),
            col=alpha(virilist[colindex],0.4),pch=16, cex=1.5)
-    centrolist$slideMean$pos[centrolist$slideMean$Chr==chrom] <- bp_idx[which(sliMean==min(sliMean))]
-    centrolist$slideMean$val[centrolist$slideMean$Chr==chrom] <- sliMean[sliMean==min(sliMean)]
+    centrolist$slideMean$pos[centrolist$slideMean$Chr==chrom] <- bp_idx[which(sliMean==min(sliMean, na.rm=T))]
+    centrolist$slideMean$val[centrolist$slideMean$Chr==chrom] <- sliMean[sliMean==min(sliMean, na.rm=T)]
     colindex <- colindex+1
   }
   colindex <- 1

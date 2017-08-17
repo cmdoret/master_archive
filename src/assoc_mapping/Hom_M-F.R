@@ -6,10 +6,9 @@
 # Loading and formatting data
 
 library(dplyr)
-library(readr)
 library(ggplot2)
 
-hom_path <- "../../data/assoc_mapping/fam_prop_hom_fixed_sites.tsv"
+hom_path <- "../../data/assoc_mapping/grouped_prop_hom_fixed_sites.tsv"
 indv <- read.table('../../data/individuals', header=T)
 scaffolds <- read.table("../../data/ref_genome/ordered_genome/merged.fasta.ann", stringsAsFactors = F)
 grouped <- "T"
@@ -29,9 +28,9 @@ chrom_sizes$length <- as.numeric(chrom_sizes$length)
 chrom_sizes$mid <- chrom_sizes$start + (chrom_sizes$length/2)  # Middle position in chrom. used for plotting
 
 
-sum_stat <- read_tsv(hom_path, col_names=T)
+sum_stat <- read.table(hom_path, header=T, na.strings='NA', sep='\t')
 sum_stat <- sum_stat[sum_stat$N.Samples>0,]
-
+sum_stat <- sum_stat[!is.na(sum_stat$Prop.Hom),]
 # Computing CSD-ness
 CSD_like <- sum_stat %>% mutate(CSD=((1-Prop.Hom.F)+Prop.Hom.M)/2)
 
@@ -67,7 +66,7 @@ highCSD <- chrom %>%
   group_by(fam) %>%
   filter(CSD==max(CSD))
 
-top_CSD <- chrom[chrom$CSD>=0.8,]
+top_CSD <- chrom[chrom$CSD>=0.85 & chrom$Family!="J",]
 hist(top_CSD$tot_BP,breaks=100, main="Top CSD candidates", xlab="Genomic position", ylab="N hits >= 0.8", col="grey")
 abline(v=chrom_sizes$start, lty=2,col="blue")
 text(x = chrom_sizes$mid,y=17,labels = chrom_sizes$chrom)
