@@ -525,11 +525,11 @@ assuming that if the mother is homozygous, all daughters are as well. That means
 Here I check how frequently SNPs that are homozygous in a mother are heterozygous in its offspring and vice versa.
 (to be continued)
 
-\chapter{Association mapping}
+\chapter{Ordered genome}
 
 Date: 05.07.2017
 
-Now that the data is cleaner, I will start with the association mapping. Casper provided me the genome with the contigs ordered by chromosomes (but not oriented?) he obtained with his linkage map. I will use this as the new reference genome and run the pipeline all the way from the mapping with it.
+Now that the data is cleaner, I will start looking for CSD. Casper provided me the genome with the contigs ordered by chromosomes (but not necessarily oriented correctly) he obtained with his linkage map. I will use this as the new reference genome and run the pipeline all the way from the mapping with it.
 
 Date : 08.07.2017
 
@@ -562,9 +562,6 @@ I ran the whole pipeline on the ordered genome. Here are all statistics associat
 
 \FloatBarrier
 
-\section{Coarse analyses}
-Before running any association mapping analysis, I will blacklist loci that are homozygous in mothers and individuals that are defined as haploids with m2 homozygosity threshold from the populations analysis and rerun it.
-
 \chapter{Number of CSD loci}
 
 It is possible to approximate the number of CSD loci heterozygous in a mother using the proportion of males among diploid individuals. Provided the loci are on different chromosomes, if n CSD loci are heterozygous in the mother, there should be $\frac{1}{2^n}$ of males among diploid, because as long as heterozygosity is retained at one of these loci, the offspring should be female.
@@ -591,10 +588,11 @@ To address the latter problem, I propose the following strategy: If $m$ out of $
 
 To solve the issue of low number of families, we are preparing new libraries for sequencing, both expanding existing families and adding new ones. In total, we will add more than 200 individuals, but the exact number is subject to change.
 
-\section{Using categories}
-
 Once the mothers have been categorized based on the proportion of males in their diploid offspring, I will use this category information to filter CSD candidates common to mothers within one category.
 Assuming scenario 3, for instance, there will be 3 categories. I will first filter the best hits common to the category with the lowest production of diploid males. I will then look for overlap with the two other categories separately.
+
+\section{Distance to centromeres}
+
 To validate hits, I will use the information of the distance from centromere. The position of the centromere in the scaffold (i.e. metacentric vs telocentric chromosome) can be inferred from the recombination rates along the chromosome. The method I am going to use for this is to measure the proportion of offspring homozygous at each SNP that is heterozygous in the mother (i.e. proportion of recombinant offspring at that SNP).The centromere should be the region with the lowest value.
 The hits obtained for CSD candidates in the different categories should be coherent with this distance; the hit in the family with a low diploid male production should be closer to the centromere.\\
 
@@ -669,6 +667,45 @@ The issue with averaging the Fst over families as in figure \ref{haplo_Fst_avg} 
 This can either mean that there is no interesting signal, or if that the signal depends on the family's genetic background, possibly due to an epistatic effect. Here, however, I do not have the sample size to test for it. 
 
 This issue will be dropped from the analysis as the effect is much weaker than what we expected at first and probably just random noise.
+
+\chapter{Association mapping}
+
+\section{Coarse analyses}
+Before running any association mapping analysis, I will scan the genome for region that are frequently homozygous in males and heterozygous in females. This is done only after removing SNPs that are homozygous in mothers and individuals that are defined as haploids with fixed homozygosity threshold from the populations analysis.
+
+\section{Simple association test}
+
+Date: 18.08.2017
+First, I will use a simple odds ratio to identify CSD hits. I will use a case-control design without taking families into account. I will perform this test separately for each category of mother and then I will use distance to centromeres to refine the lists of hits (c.f. Chapter: Number of CSD loci").
+
+The odds ratio are computed fo each SNP using the following observed (O) contingency table where each cell is the number of genotypes corresponding to the category:
+
+\begin{table}[h!]
+\begin{tabular}{c|c c c}
+& Homozygous & Heterozygous & Total\\
+\hline
+Male & Mo & Me & Mt\\
+Female & Fo & Fe & Ft\\
+Total & To & Te & Tt\\
+\vspace{5px}
+\end{tabular}
+\end{table}
+
+Accordingly, the expected  (E) numbers are given by:
+
+\begin{table}[h!]
+\begin{tabular}{c|c c c}
+& Homozygous & Heterozygous & Total\\[5px]
+\hline\\[5px]
+Male & $\frac{Mt*To)}{Tt}$ & $\frac{Mt*Te)}{Tt}$ & Mt\\[5px]
+Female & $\frac{Ft*To)}{Tt}$ & $\frac{Ft*Te)}{Tt}$ & Ft\\[5px]
+Total & To & Te & Tt\\
+\vspace{5px}
+\end{tabular}
+\end{table}
+
+The $\chi^2$ can then be measured as follows:\\
+$\chi^2= \frac{(O(Mo)-E(Mo))}{E(Mo)} + \frac{(O(Me)-E(Me))}{E(Me)} + \frac{(O(Fo)-E(Fo))}{E(Fo)} + \frac{(O(Fe)-E(Fe))}{E(Fe)}$
 
 \chapter{Coverage analysis}
 
@@ -753,9 +790,6 @@ I will follow their advice since my coverage is absurdly high, and I would benef
 \FloatBarrier
 \section{TO DO}
 \begin{itemize}
-
-\item identify metacentric and telocentric chromosomes using proportion of homozygous offspring at each SNP (heterozygous in the mother) along genome. (proportion should either increase or decrease towards ends of chromosomes.
-\item use proper visualization technique with a smoothed trend line weighted by the number of offspring supporting each SNPs.
 \item classify families by proportion of males among diploid offspring. The proportion of males should indivate different combination of CSD loci. Recombination rates will vary depending on distance from centromere
 \item Find CSD peaks that are intersect in several families ?
 \item if n CSD loci on different chromosomes are het. in a mother, the proportion of males in diploid offspring will be $\frac{1}{2^n}$. 
@@ -765,6 +799,8 @@ I will follow their advice since my coverage is absurdly high, and I would benef
 \item Validate haploid definition using haplotypes deduced from linkage map.
 \item convert VCF file into PED format using vcftools
 \item import data into genABEL and perform association mapping
+\item make snp calling less reliant on correct mother calls and exclude SNPs only if mother is hom/missing AND less than N offspring are heterozygous (small N)
+\item automate threshold selection for inferring ploidy
 \end{itemize}
 
 \end{document} 

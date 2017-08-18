@@ -17,14 +17,14 @@ lapply(pack, require, character.only = TRUE)
 indv <- read.table('../../data/individuals', header=T)
 grouped <- "F"
 #fix0 <- read_tsv("../../data/assoc_mapping/fam_prop_hom_fixed_sites.tsv", col_names=T, na='NA')
-fix0 <- read.table("../../data/assoc_mapping/grouped_prop_hom_fixed_sites.tsv", header=T, na.strings='NA', sep='\t')
+fix0 <- read.table("../../data/assoc_mapping/fam_outpool_prop_hom_fixed_sites.tsv", header=T, na.strings='NA', sep='\t')
 fix <- fix0[fix0$N.Samples>0,]
 fix <- fix[grep("chr.*",fix$Chr),]
 
 test <- select(fix,-Family)
 fix <- test %>% 
   group_by(Chr, BP) %>% 
-  summarise(N.Samples=sum(N.Samples), Prop.Hom=mean(Prop.Hom))
+  summarise(N.Samples=sum(N.Samples, na.rm=T), Prop.Hom=mean(Prop.Hom, na.rm=T))
 fix$Chr <- droplevels(fix$Chr)
 fix <- fix[!is.na(fix$Prop.Hom),]
 #fix$Chr <- factor(fix$Chr)

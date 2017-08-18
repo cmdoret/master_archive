@@ -85,8 +85,7 @@ def unify_genomic(pop_path, pop):
             else:
                 # Graft each family's samples onto final df as new columns
                 # Using outer merge on chromosome, bp and Locus ID
-                united = united.merge(tmp, how='outer', left_index=True,
-                                      right_index=True, on=range(3))
+                united = united.merge(tmp, how='outer', on=range(3))
     united = united.fillna(0)  # Change all NAs to the "missing" code
     return united
 
@@ -161,8 +160,7 @@ def prop_hom(pop, geno):
     #N = {sex:pop.Sex[pop.Sex == sex].shape[0] for sex in ['M','F']}
     N = {'M':pop.Sex[pop.Sex=='M'].shape[0],
          'F':pop.Sex[pop.Sex=='F'].shape[0]}
-    # Get sample indices by sex
-    #idx = {sex:pop.index[pop.Sex == sex] for sex in ['M','F']}
+    # Get sample names by sex
     sex_id = {'M':pop.Name[pop.Sex=='M'],
               'F':pop.Name[pop.Sex=='F']}
     # Counting how many individuals are used to compute proportion at each SNP
@@ -175,7 +173,7 @@ def prop_hom(pop, geno):
             dff[t]=(geno.loc[:,sex_id[sex]] == t).T.sum().astype(float)
         sample_size[sex] = dff['E']+dff['O']
         hom[sex] = np.divide(dff['O'], (dff['O'] + dff['E']))
-        #geno.loc[:,sex_id[sex]].apply(pd.Series.value_counts, axis=1)
+
     # Building output dataframe with all relevant stats
     out_df = pd.DataFrame({
         "N.Samples": sample_size['F'] + sample_size['M'],
@@ -246,9 +244,10 @@ def parallel_func(f, df, f_args=[], chunk_size=1000):
 
 #========== LOADING AND PROCESSING DATA ==========#
 # Path to STACKS populations folder and output file
-# in_path = "../../data/populations/grouped_d-3_r-80/"
+# in_path = "../../data/populations/fam_d-3_r-80/"
 in_path = args.pop_files
 out_prefix = 'grouped_' if args.grouped_input == "T" else "fam_"
+if args.pool_output: out_prefix += "outpool_"
 out_path = path.join(args.out, (out_prefix + "prop_hom_fixed_sites.tsv"))
 indv_path = "data/individuals"  # family and sex information
 indv = pd.read_csv(indv_path, sep='\t')  # Family and sex info

@@ -17,11 +17,15 @@ To run the pipeline with the data provided:
 6. Type ```make``` to run the pipeline
 
 To run the pipeline with new data in the form of demultiplexed, trimmed reads:
-1. Describe your samples by writing 2 files names `popmap` and `individuals`, respectively. The structure of the `popmap` file is described on the official STACKS website (here, populations should be the sex of individuals). The `individuals` file is a tab delimited text file with 4 columns with the following headers included:
+1. Describe your samples by writing 2 files named `popmap` and `individuals`, respectively. The structure of the `popmap` file is described on the [official STACKS website](http://catchenlab.life.illinois.edu/stacks/manual/) (here, populations should be the sex of individuals). The `individuals` file is a tab delimited text file with 4 columns with the following headers included:
 * Name: The name of samples. This should be the prefix of their data files.
 * Sex: F for females and M for males.
 * Family: Clutches to which the individual belongs. These can be any combination of letters and numbers.
 * Generation: Useful if there are mothers and offspring. Values should be F3 for mothers and F4 for offspring.
+2. Create an empty folder named data and place the 2 files inside. This folder needs to be located inside the same directory as src.
+3. Place your reads in a subfolder of data named `processed` and your reference genome in a subfolder named `ref_genome`. If you wish to use different folder names, just edit the corresponding paths in `config.mk`.
+4. Type `make` in the command line. Once the pipeline has finished running, type `make ploidy` to infer ploidy from the homozygosity of variant sites. Note the threshold selected to define ploidy is adapted to the dataset presented here. You will probably need to define a threshold yourself by inspecting the distribution of homozygosity (HOM variable) in `data/ploidy/thresholds/fixed` and set the variable  `fixed_thresh` in `src/ploidy/haplo_males.py` to this value. Once you have modified the threshold, run `make ploidy` again to update the ploidy.
+5. Type `make -B` to run the pipeline again without haploids.
 
 ### Status:
 
@@ -31,7 +35,7 @@ To run the pipeline with new data in the form of demultiplexed, trimmed reads:
 
 ![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Measuring heterozygosity levels and other statistics per individual and per loci
 
-![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Excluding haploid males from the analysis.
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Excluding haploid males and loci homozygous in mothers from the analysis.
 
 ![](https://placehold.it/15/ffff00/000000?text=+) __WIP:__ Perform association mapping to locate candidate region(s) for CSD
 
@@ -47,6 +51,8 @@ To run the pipeline with new data in the form of demultiplexed, trimmed reads:
 * [VCFtools 0.1.13](https://vcftools.github.io/): Parsing VCF files
 * [R 3.3.x](https://www.r-project.org/)
   + [tidyverse 1.1.1](http://tidyverse.org/): Group of packages for data processing  (includes dplyr, ggplot2,tibble, stringr, magittr and tidyr among others)
+  + [zoo](https://cran.r-project.org/web/packages/zoo/index.html): convenient sliding window functions
+  + [viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html) Perceptually uniform and colorblind-friendly color palettes
 * [Python 2.7.x](https://www.python.org/)
   + [numpy 1.11](http://www.numpy.org/): Fast array and vectorized operations
   + [pandas 0.19](http://pandas.pydata.org/): Convenient dataframes
@@ -56,7 +62,7 @@ To run the pipeline with new data in the form of demultiplexed, trimmed reads:
 
 The `src` folders contains all scripts required to run the analysis along with other programs used for automated report generation and benchmarking. Those scripts are organized into several sub folders:
 
-* `archive`: This folder contains previous versions of scripts and code snippets which may be prove useful again.
+* `archive`: This folder contains previous versions of scripts and code snippets which may prove useful again.
 
 
 * `process_reads`: This folder contains script for demultiplexing, trimming and removing adaptors from raw sequencing reads. These are not implemented in the pipeline.
@@ -86,12 +92,12 @@ The `src` folders contains all scripts required to run the analysis along with o
   + `sub_cstacks.sh`: Constructs a catalogue of loci from `multi_pstacks.sh` output files. Only files containing at least 10% of the mean number of RAD-tags (computed over all files) are included in the catalogue to remove poor quality samples.
   + `group_sstacks.sh`: Copy pstacks and cstacks output files to the sample folder to provide a working directory for `multi_sstacks.sh`.
   + `multi_sstacks.sh`: Generates one temporary script per sample, running each of these in parallel. Each script produces a 'match' file from pstacks and cstacks output files (stacks and catalogue, respectively).
-  + `pop_FST.sh`: Uses the populations module to compute Fst and other statistics from sstacks output files.
+  + `populations.sh`: Uses the populations module to compute populations statistics and generate different outputs from sstacks output files.
 
 
 
 * `ploidy`: This folder contains scripts required to classify males as diploid or haploid based on the genomic data.
-  + `haplo_males.py`: Uses the inbreeding coefficient of daughters in each family to compute a homozygosity threshold in each family and males above this threshold are considered haploid. The implementation is flexible and allows to change the threshold formula easily. A table is then returned with the inferred ploidy of each individual.
+  + `haplo_males.py`: Uses a threshold to infer the ploidy of males.
   + `comp_thresh.R`: Plots the ploidy inferred by different threshold, using tables produces by `haplo_males.py`. Allows to visually selevt the most realistic threshold formula.
   + `prop_offspring.R`: Produces pie charts showing proportion of haploid males, diploid males and daughters for each family.
 
@@ -100,6 +106,17 @@ The `src` folders contains all scripts required to run the analysis along with o
   + `genome_Fst.R`: Computes Male-Female Fst at each locus and plots it. Does not take relative positions of SNPs into account, this is just an exploratory analysis.
   + `assoc_map.R`: Performs the actual association mapping, incorporating linkage map information. (WIP)
   + `vcf2ped.sh`: transforms vcf files into ped files, compatible with GenABEL for association mapping.
+  + `CSD_scan.R`: Genome scan to find region of both high homozygosity in males and high heterozygosity in females.
+  + `chrom_types.R`: Modelling recombination rates along chromosomes to locate centromeres and refine the list CSD hits using this information.
+  + `group_mothers.R`: Group mothers by clustering them according to diploid males production to infer the number of heterozygous CSD loci.
+  + `blast_loci.sh`: Quickly blast candidate genomic regions.
+  + `process_genomic.py`: Process genomic output from STACKS' populations module by transforming numeric encoding of genotypes into homozygous/heterozygous/missing, removing loci that are either homozygous or missing in mothers from their families and computing proportion of homozygous individuals per sex/family at each site.
+
+
+* `coverage_analysis`: Contains analyses related to genomic coverage along genome or per sample.
+  + `cov_per_site.sh`: computes average coverage per SNP in each family.
+  + `cov_plotter.R`: Plots the coverages values computed by `cov_per_site.sh`.
+  + `raw_reads.sh`: records the number of reads per sample.
 
 
 ### Data files
@@ -110,6 +127,7 @@ Once the `data.tar.gz` has been uncompressed, the data folder should contain the
 * `ref_genome`: This folder contains only the reference genome.
 * `individuals`: Detailed characteristic of each individuals: Name, Sex, Family and Generation where F4 are son/daughter and F3 is the mother.
 * `popmap`: Population map required by STACKS to match sample names to population group (i.e. male and female).
+* `ploidy`: contains information about the ploidy of individuals in the dataset.
 
 After the pipeline has been running, all intermediary and final output files will be generated and stored in their respective sub-folders inside `data`.
 
