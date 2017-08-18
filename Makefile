@@ -56,6 +56,9 @@ assoc_mapping : $(ASSOC)
 	mkdir -p $(ASSOC)
 	# Processing "genomic" output from populations to get fixed sites genotype
 	python2 src/assoc_mapping/process_genomic.py $(POP) $(ASSOC) $(GRFAM)
+	mkdir -p $(ASSOC)/plots
+	Rscript src/assoc_mapping/chrom_types.R $(ASSOC)/grouped_outpool_prop_hom_fixed_sites.tsv $(ASSOC)
+	Rscript $(ASSOC-SRC)
 
 
 # Rule for building lab book figures, tables and compiling Latex script

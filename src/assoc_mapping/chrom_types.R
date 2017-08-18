@@ -10,29 +10,32 @@ wsize_range <- 20  # Size of the moving average window
 sp_range <- 0.75  # Proportion of SNPs to be included in each local regression
 # wsize_range <- seq(5, 40, 1)
 # sp_range <- seq(0.15, 1, 0.01)
+#in_path <- "../../data/assoc_mapping/grouped_outpool_prop_hom_fixed_sites.tsv"
+in_path <- commandArgs(trailingOnly = T)[1]
+out_path <- commandArgs(trailingOnly = T)[2]
 #==== LOAD PACKAGES AND DATA ====#
 pack <- c("ggplot2","dplyr","viridis","zoo", "readr")
 lapply(pack, require, character.only = TRUE)
 
-indv <- read.table('../../data/individuals', header=T)
+indv <- read.table('data/individuals', header=T)
 grouped <- "F"
-#fix0 <- read_tsv("../../data/assoc_mapping/fam_prop_hom_fixed_sites.tsv", col_names=T, na='NA')
-fix0 <- read.table("../../data/assoc_mapping/fam_outpool_prop_hom_fixed_sites.tsv", header=T, na.strings='NA', sep='\t')
+fix0 <- read.table(in_path, header=T, na.strings='NA', sep='\t')
 fix <- fix0[fix0$N.Samples>0,]
 fix <- fix[grep("chr.*",fix$Chr),]
 
-test <- select(fix,-Family)
-fix <- test %>% 
-  group_by(Chr, BP) %>% 
-  summarise(N.Samples=sum(N.Samples, na.rm=T), Prop.Hom=mean(Prop.Hom, na.rm=T))
+#test <- select(fix,-Family)
+#fix <- test %>% 
+#  group_by(Chr, BP) %>% 
+#  summarise(N.Samples=sum(N.Samples, na.rm=T), Prop.Hom=mean(Prop.Hom, na.rm=T))
+fix$Chr <- factor(fix$Chr)
 fix$Chr <- droplevels(fix$Chr)
 fix <- fix[!is.na(fix$Prop.Hom),]
-#fix$Chr <- factor(fix$Chr)
 
 #==== COMPUTE SLIDING MEANS ====#
 # Allows to try different values of window size in a range
 # Note that the step size is fixed to 1 but can be changed 
 # directly in the code if neded.
+pdf(paste0(out_path, "/plots/param_centro.pdf"))
 virilist <- viridis(n=length(wsize_range))
 colindex <- 1
 par(mfrow=c(2,6))
@@ -81,12 +84,12 @@ for(chrom in levels(fix$Chr)){
   }
   colindex <- 1
 }
-
+dev.off()
 #==== VISUALIZE ====#
 # Will only run if the user chose one single value for each parameter.
 if(length(sp_range)==1 & length(wsize_range)==1){
+  pdf(paste0(out_path, "/plots/final_centro.pdf"))
   zoomfactor <- 1000000  # For aesthetics
-  
   loessPlot <- ggplot(fix, aes(x=BP/zoomfactor, y=Prop.Hom, weight=N.Samples)) + facet_grid(~Chr, scales = 'free_x') + 
     geom_point(col='grey70') + geom_smooth(aes(col='Local regression'), 
                                            method='loess', span=sp_range) + 
@@ -101,5 +104,7 @@ if(length(sp_range)==1 & length(wsize_range)==1){
     geom_point(data=centrolist$slideMean, aes(x=pos/zoomfactor, y=0, col='Moving average'), inherit.aes = F, size=2) + 
     geom_point(data=centrolist$loess, aes(x=pos/zoomfactor, y=0, col='Local regression'), inherit.aes = F, size=2)
   loessPlot
+  dev.off()
+  write.table(centrolist$loess, file=paste0(out_path, "/centrolist.tsv"), sep='\t',row.names = F, quote = F)
 }
 

@@ -25,7 +25,7 @@ S-SRC=src/stacks_pipeline/multi_sstacks.sh
 
 # populations: Proportion of individuals with locus (R), Minimum stack depth (D)
 GR-SRC=src/stacks_pipeline/group_sstacks.sh
-GRFAM=F  # Boolean variable: group families in 1 populations run ?
+GRFAM=T  # Boolean variable: group families in 1 populations run ?
 # POP-SRC=src/stacks_pipeline/pop_FST.sh
 POP-SRC=src/stacks_pipeline/populations.sh
 R=80
@@ -49,5 +49,5 @@ MAP=$(DAT)/mapped/$(ALG)-$(MM)-$(K)-$(W)
 PSTACK=$(DAT)/pstacks/covmin-$(M)
 CSTACK=$(DAT)/cstacks/mm-$(LM)
 SSTACK=$(DAT)/sstacks
-POP=$(DAT)/populations/fam_d-$(D)_r-$(R)
+POP=$(DAT)/populations/grouped_d-$(D)_r-$(R)
 ASSOC=$(DAT)/assoc_mapping

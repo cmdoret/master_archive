@@ -177,8 +177,8 @@ def prop_hom(pop, geno):
     # Building output dataframe with all relevant stats
     out_df = pd.DataFrame({
         "N.Samples": sample_size['F'] + sample_size['M'],
-        "Prop.Hom": ((sample_size['M'] * hom['M'] +
-                    sample_size['F'] * hom['F']) /
+        "Prop.Hom": ((sample_size['M'] * hom['M'].fillna(0) +
+                    sample_size['F'] * hom['F'].fillna(0)) /
                     (sample_size['F'] + sample_size['M'])).round(3),
         "N.Males": sample_size['M'],
         "N.Females": sample_size['F'],
