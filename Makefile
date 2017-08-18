@@ -67,7 +67,6 @@ assoc_mapping : $(ASSOC)
 lab_book : $(LAB) $(MISC)
 	rm  -f $(LAB)/*.log $(LAB)/*.synctex* $(LAB)/*.aux $(LAB)/*.out
 	# Cleaning temporary LaTeX filesjobs
-	
 	Rscript src/misc/assembly_stats.R $(REF)
 	# Producing table of genome assembly statistics
 	python2 $(MISC)/map_param.py

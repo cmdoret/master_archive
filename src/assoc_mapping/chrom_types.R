@@ -13,6 +13,7 @@ sp_range <- 0.75  # Proportion of SNPs to be included in each local regression
 #in_path <- "../../data/assoc_mapping/grouped_outpool_prop_hom_fixed_sites.tsv"
 in_path <- commandArgs(trailingOnly = T)[1]
 out_path <- commandArgs(trailingOnly = T)[2]
+
 #==== LOAD PACKAGES AND DATA ====#
 pack <- c("ggplot2","dplyr","viridis","zoo", "readr")
 lapply(pack, require, character.only = TRUE)
@@ -22,14 +23,7 @@ grouped <- "F"
 fix0 <- read.table(in_path, header=T, na.strings='NA', sep='\t')
 fix <- fix0[fix0$N.Samples>0,]
 fix <- fix[grep("chr.*",fix$Chr),]
-
-#test <- select(fix,-Family)
-#fix <- test %>% 
-#  group_by(Chr, BP) %>% 
-#  summarise(N.Samples=sum(N.Samples, na.rm=T), Prop.Hom=mean(Prop.Hom, na.rm=T))
-fix$Chr <- factor(fix$Chr)
 fix$Chr <- droplevels(fix$Chr)
-fix <- fix[!is.na(fix$Prop.Hom),]
 
 #==== COMPUTE SLIDING MEANS ====#
 # Allows to try different values of window size in a range
@@ -88,9 +82,8 @@ dev.off()
 #==== VISUALIZE ====#
 # Will only run if the user chose one single value for each parameter.
 if(length(sp_range)==1 & length(wsize_range)==1){
-  pdf(paste0(out_path, "/plots/final_centro.pdf"))
   zoomfactor <- 1000000  # For aesthetics
-  loessPlot <- ggplot(fix, aes(x=BP/zoomfactor, y=Prop.Hom, weight=N.Samples)) + facet_grid(~Chr, scales = 'free_x') + 
+  LoessPlot <- ggplot(fix, aes(x=BP/zoomfactor, y=Prop.Hom, weight=N.Samples)) + facet_grid(~Chr, scales = 'free_x') + 
     geom_point(col='grey70') + geom_smooth(aes(col='Local regression'), 
                                            method='loess', span=sp_range) + 
     xlab("Genomic position (Mb)") + ylab("Homozygosity") + 
@@ -103,8 +96,7 @@ if(length(sp_range)==1 & length(wsize_range)==1){
     guides(color=guide_legend(title="Method")) + 
     geom_point(data=centrolist$slideMean, aes(x=pos/zoomfactor, y=0, col='Moving average'), inherit.aes = F, size=2) + 
     geom_point(data=centrolist$loess, aes(x=pos/zoomfactor, y=0, col='Local regression'), inherit.aes = F, size=2)
-  loessPlot
-  dev.off()
+  ggsave(filename = paste0(out_path, "/plots/final_centro.pdf"), plot = LoessPlot, height = 10, width = 14)
   write.table(centrolist$loess, file=paste0(out_path, "/centrolist.tsv"), sep='\t',row.names = F, quote = F)
 }
 

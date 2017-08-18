@@ -4,4 +4,16 @@
 # Cyril Matthey-Doret
 # 18.08.2017
 
-read.table()
+#======== LOAD DATA =========#
+
+
+#======= PROCESS DATA =======#
+
+
+#==== COMPUTE STATISTICS ====#
+
+
+#========= VISUALISE ========#
+
+
+#======= WRITE OUTPUT =======#
