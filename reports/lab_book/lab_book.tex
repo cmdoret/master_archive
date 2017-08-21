@@ -671,7 +671,11 @@ This issue will be dropped from the analysis as the effect is much weaker than w
 \chapter{Association mapping}
 
 \section{Coarse analyses}
-Before running any association mapping analysis, I will scan the genome for region that are frequently homozygous in males and heterozygous in females. This is done only after removing SNPs that are homozygous in mothers and individuals that are defined as haploids with fixed homozygosity threshold from the populations analysis.
+Before running any association mapping analysis, I will scan the genome for region that are frequently homozygous in males and heterozygous in females. This is done only after removing SNPs that are homozygous in mothers and individuals that are defined as haploids with fixed homozygosity threshold from the populations analysis.\\
+
+Date: 21.08.2017
+
+The statistic I use when scanning the genome for CSD is $CSD=\frac{Hom_m+Het_f}{2}$ where $Hom_m$ and $Het_f$ are the proportions of homozygous males and heterozygous females respectively at each SNP. If the value is 1, all individuals respect the CSD pattern (all males are homozygous and all females are heterozygous) if it is 0, no individuals respect it (all males are heterozygous and all females homozygous). This metric should not be biased by the gradual decrease in heterozygosity along the chromosome arms as the same weight is given to males and females regardless of numbers. 
 
 \section{Simple association test}
 

@@ -55,11 +55,14 @@ $(POP) : $(SSTACK) $(POP-SRC)
 assoc_mapping : $(ASSOC)
 	mkdir -p $(ASSOC)
 	# Processing "genomic" output from populations to get fixed sites genotype
-	python2 src/assoc_mapping/process_genomic.py $(POP) $(ASSOC) $(GRFAM)
+	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM)
+	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM) --pool_output
 	mkdir -p $(ASSOC)/plots
-	Rscript src/assoc_mapping/chrom_types.R $(ASSOC)/grouped_outpool_prop_hom_fixed_sites.tsv $(ASSOC)
-	Rscript $(ASSOC-SRC)
-
+	mkdir -p $(ASSOC)/hits
+	Rscript $(ASSOC-SRC)/chrom_types.R $(ASSOC)/grouped_outpool_prop_hom_fixed_sites.tsv $(ASSOC)
+	Rscript $(ASSOC-SRC)/CSD_scan.R $(ASSOC)/grouped_prop_hom_fixed_sites.tsv $(REF) $(ASSOC) 0.85
+	#Rscript $(ASSOC-SRC)/assoc_map.R
+	
 
 # Rule for building lab book figures, tables and compiling Latex script
 # Needs the all main steps to be run first

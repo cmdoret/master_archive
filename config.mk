@@ -1,4 +1,6 @@
+# Project folder
 MAIN=/scratch/beegfs/monthly/cmatthey
+# Best not changing DAT
 DAT=./data
 PROC=$(DAT)/processed
 
@@ -34,15 +36,14 @@ D=3
 # Misc: report generation
 LAB=reports/lab_book
 MISC=src/misc
-REF=data/ref_genome/ordered_genome/merged.fasta
+REF=$(DAT)/ref_genome/ordered_genome/merged.fasta
 
 # Ploidy: exclude haplomales
-VCFSUM=data/ploidy/vcftools/summary_full.txt
-THRESH=data/ploidy/thresholds/fixed
+VCFSUM=$(DAT)/ploidy/vcftools/summary_full.txt
+THRESH=$(DAT)/ploidy/thresholds/fixed
 
 # Association mapping:
-ASSOC-SRC=src/assoc_mapping/assoc_map.R
-VCFPED=src/assoc_mapping/vcf2ped.sh
+ASSOC-SRC=src/assoc_mapping/
 
 
 MAP=$(DAT)/mapped/$(ALG)-$(MM)-$(K)-$(W)
