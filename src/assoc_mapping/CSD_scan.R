@@ -7,10 +7,10 @@
 
 library(dplyr)
 library(ggplot2)
-
+library(readr)
 #hom_path <- "../../data/assoc_mapping/grouped_prop_hom_fixed_sites.tsv"
 hom_path <- commandArgs(trailingOnly = T)[1]  # Path to process_genomic.py output
-ref_genome <- commandArgs(trailingOnly = T)[2]  # Path to reference genome
+ref_genome <- commandArgs(trailingOnly = T)[2]  # Path to reference genome ann file
 out_path <- commandArgs(trailingOnly = T)[3] # Output path
 thresh <- commandArgs(trailingOnly = T)[4]  # Hard filter for CSD hits
 scaffolds <- read.table(ref_genome, stringsAsFactors = F)
@@ -29,8 +29,8 @@ rownames(chrom_sizes) <- NULL
 colnames(chrom_sizes) <- c("chrom","start","length")
 chrom_sizes$length <- as.numeric(chrom_sizes$length)
 chrom_sizes$mid <- chrom_sizes$start + (chrom_sizes$length/2)  # Middle position in chrom. used for plotting
-
-sum_stat <- read.table(hom_path, header=T, na.strings='NA', sep='\t')
+#sum_stat <- read.table(hom_path, header=T, na.strings='NA', sep='\t')
+sum_stat <- read_tsv(file=hom_path, col_names=T, col_types = "iciddddddc")
 sum_stat <- sum_stat[sum_stat$N.Samples>0,]
 sum_stat <- sum_stat[!is.na(sum_stat$Prop.Hom),]
 # Computing CSD-ness

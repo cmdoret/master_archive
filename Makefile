@@ -55,12 +55,12 @@ $(POP) : $(SSTACK) $(POP-SRC)
 assoc_mapping : $(ASSOC)
 	mkdir -p $(ASSOC)
 	# Processing "genomic" output from populations to get fixed sites genotype
-	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM)
-	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM) --pool_output
+	#python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM)
+	#python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM) --pool_output
 	mkdir -p $(ASSOC)/plots
 	mkdir -p $(ASSOC)/hits
-	Rscript $(ASSOC-SRC)/chrom_types.R $(ASSOC)/grouped_outpool_prop_hom_fixed_sites.tsv $(ASSOC)
-	Rscript $(ASSOC-SRC)/CSD_scan.R $(ASSOC)/grouped_prop_hom_fixed_sites.tsv $(REF) $(ASSOC) 0.85
+	#Rscript $(ASSOC-SRC)/chrom_types.R $(ASSOC)/grouped_outpool_prop_hom_fixed_sites.tsv $(ASSOC)
+	Rscript $(ASSOC-SRC)/CSD_scan.R $(ASSOC)/grouped_prop_hom_fixed_sites.tsv $(REF-ANN) $(ASSOC) 0.85
 	#Rscript $(ASSOC-SRC)/assoc_map.R
 	
 
