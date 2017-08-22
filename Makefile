@@ -61,7 +61,7 @@ assoc_mapping : $(ASSOC)
 	mkdir -p $(ASSOC)/hits
 	#Rscript $(ASSOC-SRC)/chrom_types.R $(ASSOC)/grouped_outpool_prop_hom_fixed_sites.tsv $(ASSOC)
 	Rscript $(ASSOC-SRC)/CSD_scan.R $(ASSOC)/grouped_prop_hom_fixed_sites.tsv $(REF-ANN) $(ASSOC) 0.85
-	#Rscript $(ASSOC-SRC)/assoc_map.R
+	#Rscript $(ASSOC-SRC)/case_control.R
 	
 
 # Rule for building lab book figures, tables and compiling Latex script

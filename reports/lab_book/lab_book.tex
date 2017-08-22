@@ -563,11 +563,12 @@ I ran the whole pipeline on the ordered genome. Here are all statistics associat
 \FloatBarrier
 
 \chapter{Number of CSD loci}
+\label{sec:num_csd}
 
 It is possible to approximate the number of CSD loci heterozygous in a mother using the proportion of males among diploid individuals. Provided the loci are on different chromosomes, if n CSD loci are heterozygous in the mother, there should be $\frac{1}{2^n}$ of males among diploid, because as long as heterozygosity is retained at one of these loci, the offspring should be female.
 
 \section{Categorizing mothers}
-
+\label{sec:cat_mothers}
 The mothers can be categorized based on this proportion of male offspring. The categories will reflect different combination of heterozygous CSD loci. Assuming the recombination rate is the same in different mothers, the different categories will depend only on the distance of the heterozygous locus/loci from the centromere. Loci further from the centromere will be undergo gene conversion more frequently.
 
 There are different scenario: 
@@ -680,7 +681,7 @@ The statistic I use when scanning the genome for CSD is $CSD=\frac{Hom_m+Het_f}{
 \section{Simple association test}
 
 Date: 18.08.2017
-First, I will use a simple odds ratio to identify CSD hits. I will use a case-control design without taking families into account. I will perform this test separately for each category of mother and then I will use distance to centromeres to refine the lists of hits (c.f. Chapter: Number of CSD loci").
+First, I will use a simple odds ratio to identify CSD hits. I will use a case-control design without taking families into account. I will perform this test separately for each category of mother and then I will use distance to centromeres to refine the lists of hits (c.f. Chapter: \ref{sec:num_csd} Number of CSD loci").
 
 The odds ratio are computed fo each SNP using the following observed (O) contingency table where each cell is the number of genotypes corresponding to the category:
 
@@ -709,7 +710,23 @@ Total & To & Te & Tt\\
 \end{table}
 
 The $\chi^2$ can then be measured as follows:\\
-$\chi^2= \frac{(O(Mo)-E(Mo))}{E(Mo)} + \frac{(O(Me)-E(Me))}{E(Me)} + \frac{(O(Fo)-E(Fo))}{E(Fo)} + \frac{(O(Fe)-E(Fe))}{E(Fe)}$
+$\chi^2= \frac{(O(Mo)-E(Mo))^2}{E(Mo)} + \frac{(O(Me)-E(Me))^2}{E(Me)} + \frac{(O(Fo)-E(Fo))^2}{E(Fo)} + \frac{(O(Fe)-E(Fe))^2}{E(Fe)}$
+
+I applied this approach on grouped (i.e. single population run with all families) pooled (proportion of homozygous individuals calculated using all families for each SNP) data to have a first insight on the potentially interesting regions (Figure \ref{naive_case_control}). If I want to get reliable results however, I will need to use a different association mapping technique that takes family information into account and to perform the test separately on each category of family (see section: \ref{sec:cat_mothers}, "Categorizing mothers").
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{association_mapping/naive_case_control_grouped.pdf}
+		\caption{Manhattan plots with log2 p-values for the case-control association test on CSD. Populations was run on all families together and for each SNP, all individuals were pooled to compute the proportion of homozygous individuals}
+		\label{sites_fam}
+	\end{center}
+\end{figure}
+
+\section{Family-based association mapping}
+
+I will try to adapt the "generalized family-based association test for dichotomous traits" (GDT) published by Chen W.-M., Manichaikul A. and Rich S.S. in The American Journal of Human Genetics (2009). This test should work both in inbred and non-inbred families and takes family information into account.\\
+
+Here, I will modify the test presented in the publication to test for association of homozygosity with male phenotype instead of a particular allele with a disease.
 
 \chapter{Coverage analysis}
 
