@@ -30,15 +30,17 @@ ngroups <- 2^scenario-1
 #x <- 1
 #for (i in 1:scenario) { x <- c(0, x) + c(x, 0)}
 
-# NUmber of centers for k-means clustering
+# Number of centers for k-means clustering
 #centers <- sum(x[2:length(x)])  # First value is only homozygous loci
 
 km_output <- kmeans(off_comp$prop_males,centers = ngroups)
 off_comp$cluster <- km_output$cluster
-ggplot(data=off_comp, aes(x=prop_males, fill=as.factor(cluster))) + geom_histogram() +
-  ggtitle("Male proportion in each family") + xlab("Proportion of males") + 
-  ylab("Number of families") + geom_vline(data=data.frame(km_output$centers),aes(xintercept=km_output.centers), col='red', lty=2)
-abline(v=km_output$centers, col='red',lty=2)
+#ggplot(data=off_comp, aes(x=prop_males, fill=as.factor(cluster))) + geom_histogram() +
+#  ggtitle("Male proportion per family") + xlab("Proportion of males") + theme_bw() +
+#  scale_fill_discrete(name="Heterozygous loci", labels=c("a","a+b", "b")) + ylab("Number of families") +
+#  ylab("Number of families") + geom_vline(data=data.frame(km_output$centers),
+#                                          aes(xintercept=km_output.centers), col='red', lty=2)
+
 
 plot(off_comp$prop_males,off_comp$Count, xlab="Proportion of males", 
      ylab="Number of 2N offspring", main="Proportion of males versus total diploid offpsring")

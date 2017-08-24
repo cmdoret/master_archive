@@ -29,10 +29,12 @@
 \BOOKMARK [0][-]{chapter.8}{Male-Female Fst}{}% 29
 \BOOKMARK [0][-]{chapter.9}{Association mapping}{}% 30
 \BOOKMARK [1][-]{section.9.1}{Coarse analyses}{chapter.9}% 31
-\BOOKMARK [1][-]{section.9.2}{Simple association test}{chapter.9}% 32
-\BOOKMARK [1][-]{section.9.3}{Family-based association mapping}{chapter.9}% 33
-\BOOKMARK [0][-]{chapter.10}{Coverage analysis}{}% 34
-\BOOKMARK [1][-]{section.10.1}{Individual stats}{chapter.10}% 35
-\BOOKMARK [1][-]{section.10.2}{Genome coverage}{chapter.10}% 36
-\BOOKMARK [1][-]{section.10.3}{Lowering the filters}{chapter.10}% 37
-\BOOKMARK [1][-]{section.10.4}{TO DO}{chapter.10}% 38
+\BOOKMARK [1][-]{section.9.2}{Case-control association test}{chapter.9}% 32
+\BOOKMARK [2][-]{subsection.9.2.1}{Case-control on categories}{section.9.2}% 33
+\BOOKMARK [2][-]{subsection.9.2.2}{Refining hits using centromeres}{section.9.2}% 34
+\BOOKMARK [1][-]{section.9.3}{Family-based association mapping}{chapter.9}% 35
+\BOOKMARK [0][-]{chapter.10}{Coverage analysis}{}% 36
+\BOOKMARK [1][-]{section.10.1}{Individual stats}{chapter.10}% 37
+\BOOKMARK [1][-]{section.10.2}{Genome coverage}{chapter.10}% 38
+\BOOKMARK [1][-]{section.10.3}{Lowering the filters}{chapter.10}% 39
+\BOOKMARK [1][-]{section.10.4}{TO DO}{chapter.10}% 40
