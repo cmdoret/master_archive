@@ -248,7 +248,7 @@ def parallel_func(f, df, f_args=[], chunk_size=1000):
 in_path = args.pop_files
 out_prefix = 'grouped_' if args.grouped_input == "T" else "fam_"
 if args.pool_output: out_prefix += "outpool_"
-out_path = path.join(args.out, (out_prefix + "prop_hom_fixed_sites.tsv"))
+out_path = path.join(args.out, (out_prefix + "prophom.tsv"))
 indv_path = "data/individuals"  # family and sex information
 indv = pd.read_csv(indv_path, sep='\t')  # Family and sex info
 # Preparing data structure to match sample names and families with columns

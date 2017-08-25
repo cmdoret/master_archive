@@ -6,12 +6,23 @@
 
 #======== LOAD DATA =========#
 library(dplyr);library(readr);library(ggplot2)
-hom_path <- "../../data/assoc_mapping/grouped_outpool_prop_hom_fixed_sites.tsv"
+in_args <- commandArgs(trailingOnly = T)
+groups_path <- in_args[1]
+groups <- read.table(groups_path, header = T)
+hom_path <-in_args[2]
 sum_stat <- read_tsv(file=hom_path, col_names=T, col_types = "iciddddddc")
+out_folder <- in_args[3]
 
 #======= PROCESS DATA =======#
 sum_stat <- sum_stat[sum_stat$N.Males>0 & sum_stat$N.Females>0,]
 sum_stat <- sum_stat[!is.na(sum_stat$Prop.Hom),]
+
+#!!!!!! TODO !!!!!!#
+# Map families to mother categories
+# Group SNP by mother category
+# Compute assocation on each cat. separately
+# Output single file with corrected significant p-values with
+# associatied SNP and category.
 
 #==== COMPUTE STATISTICS ====#
 # Abbreviations: M: Males, F: Females, T: Male+Female, 
@@ -33,3 +44,7 @@ ggplot(data=odds_chrom, aes(x=BP, y=abs(pval))) + facet_grid(~Chr, scales='free_
   xlab("Genomic position") + ylab("-log2 p-value") + ggtitle("Case-control associaiton test for CSD")
 
 #======= WRITE OUTPUT =======#
+# Number of groups is (2^n)-1 where n is the number of CSD loci
+nloci <- log2(max(groups$cluster)+1)
+write.table(odds_chrom, paste0(out_path, "case_control_hits_", nloci , "loci.tsv"), 
+            sep='\t', row.names=F, quote=F)

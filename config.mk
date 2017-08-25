@@ -45,6 +45,8 @@ THRESH=$(DAT)/ploidy/thresholds/fixed
 
 # Association mapping:
 ASSOC-SRC=src/assoc_mapping/
+# Number of CSD loci considered
+NCSD=2
 
 
 MAP=$(DAT)/mapped/$(ALG)-$(MM)-$(K)-$(W)

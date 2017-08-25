@@ -5,8 +5,10 @@
 
 #==== LOADING DATA ====#
 library(dplyr);library(ggplot2)
-indv <- read.table("../../data/ploidy/thresholds/fixed", header=T)
-scenario <- 2  # Number of CSD loci considered
+args_list <- commandArgs(trailingOnly = T)
+scenario <- args_list[1]  # Number of CSD loci considered
+indv <- read.table(args_list[2], header=T)  # Path to input file
+out <- args_list[3]  # Output path
 
 #==== PROCESSING ====#
 diplo <- indv[indv$Generation=="F4" & indv$Ploidy=='D',]
@@ -41,8 +43,4 @@ off_comp$cluster <- km_output$cluster
 #  ylab("Number of families") + geom_vline(data=data.frame(km_output$centers),
 #                                          aes(xintercept=km_output.centers), col='red', lty=2)
 
-
-plot(off_comp$prop_males,off_comp$Count, xlab="Proportion of males", 
-     ylab="Number of 2N offspring", main="Proportion of males versus total diploid offpsring")
-
-# Arbitrary cutoff needed here
+write.table(off_comp, out, sep='\t', row.names=F, quote=F)

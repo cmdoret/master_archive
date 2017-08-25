@@ -55,14 +55,15 @@ $(POP) : $(SSTACK) $(POP-SRC)
 assoc_mapping : $(ASSOC)
 	mkdir -p $(ASSOC)
 	# Processing "genomic" output from populations to get fixed sites genotype
-	#python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM)
-	#python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM) --pool_output
+	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM) --pool_output
+	Rscript $(ASSOC-SRC)/chrom_types.R $(ASSOC)/grouped_outpool_prophom.tsv $(ASSOC)
 	mkdir -p $(ASSOC)/plots
 	mkdir -p $(ASSOC)/hits
-	#Rscript $(ASSOC-SRC)/chrom_types.R $(ASSOC)/grouped_outpool_prop_hom_fixed_sites.tsv $(ASSOC)
-	Rscript $(ASSOC-SRC)/CSD_scan.R $(ASSOC)/grouped_prop_hom_fixed_sites.tsv $(REF-ANN) $(ASSOC) 0.85
-	#Rscript $(ASSOC-SRC)/case_control.R
-	
+	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM)
+	Rscript $(ASSOC-SRC)/group_mothers.R $(NCSD) $(THRESH) $(ASSOC)/mother_groups.tsv
+	Rscript $(ASSOC-SRC)/CSD_scan.R $(ASSOC)/grouped_prophom.tsv $(REF-ANN) $(ASSOC) 0.85
+	mkdir -p $(ASSOC)/case_control
+	Rscript $(ASSOC-SRC)/case_control.R $(ASSOC)/mother_groups.tsv $(ASSOC)/grouped_prophom.tsv $(ASSOC)/case_control/
 
 # Rule for building lab book figures, tables and compiling Latex script
 # Needs the all main steps to be run first

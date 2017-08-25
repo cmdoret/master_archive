@@ -596,6 +596,11 @@ Date: 24.08.2017
 
 I used k-means clustering on proportion of males among diploid offspring to categorize families (Figure \ref{cat_mothers}). I assumed 3 clusters
 
+Date: 25.08.2017
+
+There may be an issue with the use of proportion of 2n males to categorize mothers; when we select individuals for sequencing, we try to balance the proportion of males and females to make sure we have enough of both sex. This will likely decrease the proportion of diploid males in families with many males as we do not use all of them. 
+We could solve this by using the proportion of males in all offspring instead, assuming the proportion of haploidy is the same in all families. This way, we could use the total sex ratio of the family (including non-sequenced individuals) to categorize mothers. I should ask Casper if he has this information and the opinion of Tanja on that matter.
+
 \section{Distance to centromeres}
 
 To validate hits, I will use the information of the distance from centromere. The position of the centromere in the scaffold (i.e. metacentric vs telocentric chromosome) can be inferred from the recombination rates along the chromosome. The method I am going to use for this is to measure the proportion of offspring homozygous at each SNP that is heterozygous in the mother (i.e. proportion of recombinant offspring at that SNP).The centromere should be the region with the lowest value.
@@ -826,8 +831,12 @@ dropping of loci."\\}
 
 I will follow their advice since my coverage is absurdly high, and I would benefit a sharp increase in the number of loci by removing this filter. 
 
+\chapter{Additional samples}
+
+Since out
+
 \FloatBarrier
-\section{TO DO}
+\chapter{TO DO}
 \begin{itemize}
 \item classify families by proportion of males among diploid offspring. The proportion of males should indivate different combination of CSD loci. Recombination rates will vary depending on distance from centromere
 \item Find CSD peaks that are intersect in several families ?
