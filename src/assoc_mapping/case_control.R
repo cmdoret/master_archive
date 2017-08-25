@@ -19,7 +19,17 @@ sum_stat <- sum_stat[!is.na(sum_stat$Prop.Hom),]
 
 #!!!!!! TODO !!!!!!#
 # Map families to mother categories
+sum_stat$cluster <- groups$cluster[match(sum_stat$Family, groups$Family)]
+
 # Group SNP by mother category
+cat_stat <- sum_stat %>%
+  group_by(Locus.ID, Chr, BP, cluster) %>%
+  summarise(N.Females=sum(N.Females), N.Males=sum(N.Males), 
+            N.Samples=sum(N.Samples), 
+            Prop.Hom=sum(Prop.Hom*N.Samples, na.rm=T)/sum(N.Samples, na.rm=T), 
+            Prop.Hom.F=sum(Prop.Hom.F*N.Females, na.rm=T)/sum(N.Females, na.rm=T), 
+            Prop.Hom.M=sum(Prop.Hom.M*N.Males, na.rm=T)/sum(N.Males, na.rm=T))
+
 # Compute assocation on each cat. separately
 # Output single file with corrected significant p-values with
 # associatied SNP and category.
