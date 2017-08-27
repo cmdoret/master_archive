@@ -6,7 +6,7 @@
 #==== LOADING DATA ====#
 library(dplyr);library(ggplot2)
 args_list <- commandArgs(trailingOnly = T)
-scenario <- args_list[1]  # Number of CSD loci considered
+scenario <- as.numeric(args_list[1])  # Number of CSD loci considered
 indv <- read.table(args_list[2], header=T)  # Path to input file
 out <- args_list[3]  # Output path
 

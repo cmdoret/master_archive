@@ -20,6 +20,7 @@ sum_stat <- sum_stat[!is.na(sum_stat$Prop.Hom),]
 #!!!!!! TODO !!!!!!#
 # Map families to mother categories
 sum_stat$cluster <- groups$cluster[match(sum_stat$Family, groups$Family)]
+sum_stat <- sum_stat[!is.na(sum_stat$cluster),]
 
 # Group SNP by mother category
 cat_stat <- sum_stat %>%
@@ -37,7 +38,7 @@ cat_stat <- sum_stat %>%
 #==== COMPUTE STATISTICS ====#
 # Abbreviations: M: Males, F: Females, T: Male+Female, 
 # o:homozygous, e:heterozygous, t:hom+het, E: Expected
-odds_list <- sum_stat %>% 
+odds_list <- cat_stat %>% 
   rename(Ft = N.Females, Mt = N.Males, Tt = N.Samples) %>%
   mutate(Fo = Ft * Prop.Hom.F, Mo = Mt * Prop.Hom.M, 
          Fe = Ft * (1-Prop.Hom.F), Me = Mt * (1-Prop.Hom.M),
@@ -50,11 +51,11 @@ odds_list$pval <- sapply(X = odds_list$chi2, function(x) pchisq(x, df=1, lower.t
 
 #========= VISUALISE ========#
 odds_chrom <- odds_list[grep("chr.*",odds_list$Chr),]
-ggplot(data=odds_chrom, aes(x=BP, y=abs(pval))) + facet_grid(~Chr, scales='free_x') + geom_point() + 
+ggplot(data=odds_chrom, aes(x=BP, y=abs(pval))) + facet_grid(cluster~Chr, scales='free_x') + geom_point() + 
   xlab("Genomic position") + ylab("-log2 p-value") + ggtitle("Case-control associaiton test for CSD")
 
 #======= WRITE OUTPUT =======#
 # Number of groups is (2^n)-1 where n is the number of CSD loci
 nloci <- log2(max(groups$cluster)+1)
-write.table(odds_chrom, paste0(out_path, "case_control_hits_", nloci , "loci.tsv"), 
+write.table(odds_chrom, paste0(out_folder, "case_control_hits_", nloci , "loci.tsv"), 
             sep='\t', row.names=F, quote=F)

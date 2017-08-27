@@ -61,3 +61,4 @@ else
         fi
     done
 fi
+sed -i '/nan/d' $out_path/summary_full.txt
