@@ -112,9 +112,9 @@ def gen_decode(encoded):
             genodict[code] = 'M'
         else:
             genodict[code] = 'E'  # All others are heterozygous
-    genodict[1090670464] = 'M'
     # Rarely, rows are filled this value. I assume this is a STACKS issue.
-    decoded = encoded.apply(lambda r: np.array([genodict[i] for i in r]),axis=1)
+    decoded = encoded.apply(lambda r: np.array([genodict.get(i,'M')
+                                                for i in r]),axis=1)
     return decoded
 
 def mother_hom(geno, pop):

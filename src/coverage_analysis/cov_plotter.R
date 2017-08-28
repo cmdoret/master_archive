@@ -51,3 +51,4 @@ colnames(slide) <- c("CHROM","POS","DEPTH")
 
 ggplot(data=slide,aes(x=POS,y=DEPTH)) + geom_line() + facet_wrap(~CHROM,scales = 'free_x')
 }
+

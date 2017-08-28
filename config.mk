@@ -55,3 +55,4 @@ CSTACK=$(DAT)/cstacks/mm-$(LM)
 SSTACK=$(DAT)/sstacks
 POP=$(DAT)/populations/grouped_d-$(D)_r-$(R)
 ASSOC=$(DAT)/assoc_mapping
+CENTRO=$(ASSOC)/centro

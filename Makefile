@@ -50,13 +50,16 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	bsub -K <$(POP-SRC)
 	# Submitting job (-K will hang pipeline until end of job)
 
+# Centromere identification
+$(CENTRO) :
+	mkdir -p $(CENTRO)/plots
+	# Processing "genomic" output from populations to get fixed and variant sites
+	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM) --pool_output
+	Rscript $(ASSOC-SRC)/chrom_types.R $(ASSOC)/grouped_outpool_prophom.tsv $(CENTRO)
+
 # Association mapping
 .PHONY : assoc_mapping
-assoc_mapping : $(ASSOC)
-	mkdir -p $(ASSOC)
-	# Processing "genomic" output from populations to get fixed sites genotype
-	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM) --pool_output
-	Rscript $(ASSOC-SRC)/chrom_types.R $(ASSOC)/grouped_outpool_prophom.tsv $(ASSOC)
+assoc_mapping : $(CENTRO)
 	mkdir -p $(ASSOC)/plots
 	mkdir -p $(ASSOC)/hits
 	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM)
