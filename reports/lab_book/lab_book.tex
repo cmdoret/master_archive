@@ -831,12 +831,64 @@ dropping of loci."\\}
 
 I will follow their advice since my coverage is absurdly high, and I would benefit a sharp increase in the number of loci by removing this filter. 
 
-\chapter{Additional samples}
+\chapter{Additional samples (lib10 + lib10b)}
 
-Date: 26.08.2017
+Date: 26.08.2017\\
 Libraries 10 and 10b got back from the samples and I have processed them through the pipeline. Library10 suffered a dramatic loss in read count due to an unidentified technical problem (~10x less reads than lib10b).\\
 IMPORTANT: W10 appeared twice in the name list: once in library 10b and once in what will later be library11. Therefore I shifted the numbering by 1 for family W in library11. I will need to make sure this is the case in the barcode file as well.\\
 
+Date: 28.08.2017\\
+After removing all samples from library10 (see subsection \ref{sec:add_coverage} "Coverage", below). I still have NNN diploid individuals, distributed across FFF families.
+
+\section{Data description}
+\subsection{Family composition}
+With the new samples, I now have 239 diploids across 32 families. Many families are relatively small, however (Figure \ref{off_comp}) and relying on sex ratio among diploid offspring to categorize families could be unreliable.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{add_samples/off_comp.pdf}
+		\caption{Composition of offspring per family when including new samples from library 10 and 10b.}
+		\label{off_comp}
+	\end{center}
+\end{figure}
+
+\subsection{Coverage}
+\label{sec:add_coverage}
+
+The coverage across genome (Figure \ref{cov_genome_add}) did not change much by adding the new libraries, however looking at the coverage per individuals(Figure \ref{mean_depth_add}) and number of site per individuals (Figure \ref{n_sites_add}) confirms the poor quality of library 10. These individuals barely passed the filters i have put in place, but overall they still have very low read counts and including them exposes my whole analysis to technical biases. I will therefore remove all samples from that library. Note that I'll also remove W10 since it is the only healthy sample left in the family and all females are lost (they were in lib10).
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{add_samples/library_depth.pdf}
+		\caption{Distribution of the mean sequencing depth per individuals in each library including the new ones (10 and 10b).}
+		\label{mean_depth_add}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{add_samples/cov_per_site.pdf}
+		\caption{Sequencing depth across genome. Depth is averaged over all samples at each sites and values are averaged by 1kb windows. New samples from libraries 10 and 10b are included}
+		\label{cov_genome_add}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{add_samples/library_sites.pdf}
+		\caption{Distribution of the number of sites per individuals in each library including the new ones (10 and 10b).}
+		\label{n_sites_add}
+	\end{center}
+\end{figure}
+\FloatBarrier
+
+\section{CSD}
+
+After removing all samples from library 10, I performed the downstream analyses to find CSD again.
+\subsection{Grouping mothers}
+\subsection{Finding centromeres}
+\subsection{CSD scan}
+\subsection{Association mapping}
 
 \FloatBarrier
 \chapter{TO DO}

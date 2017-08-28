@@ -37,4 +37,13 @@
 \BOOKMARK [1][-]{section.10.1}{Individual stats}{chapter.10}% 37
 \BOOKMARK [1][-]{section.10.2}{Genome coverage}{chapter.10}% 38
 \BOOKMARK [1][-]{section.10.3}{Lowering the filters}{chapter.10}% 39
-\BOOKMARK [1][-]{section.10.4}{TO DO}{chapter.10}% 40
+\BOOKMARK [0][-]{chapter.11}{Additional samples \(lib10 + lib10b\)}{}% 40
+\BOOKMARK [1][-]{section.11.1}{Data description}{chapter.11}% 41
+\BOOKMARK [2][-]{subsection.11.1.1}{Family composition}{section.11.1}% 42
+\BOOKMARK [2][-]{subsection.11.1.2}{Coverage}{section.11.1}% 43
+\BOOKMARK [1][-]{section.11.2}{CSD}{chapter.11}% 44
+\BOOKMARK [2][-]{subsection.11.2.1}{Grouping mothers}{section.11.2}% 45
+\BOOKMARK [2][-]{subsection.11.2.2}{Finding centromeres}{section.11.2}% 46
+\BOOKMARK [2][-]{subsection.11.2.3}{CSD scan}{section.11.2}% 47
+\BOOKMARK [2][-]{subsection.11.2.4}{Association mapping}{section.11.2}% 48
+\BOOKMARK [0][-]{chapter.12}{TO DO}{}% 49
