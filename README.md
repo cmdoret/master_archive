@@ -50,9 +50,15 @@ To run the pipeline with new data in the form of demultiplexed, trimmed reads:
 * [SAMtools 1.3](http://samtools.sourceforge.net/): Manipulating SAM files
 * [VCFtools 0.1.13](https://vcftools.github.io/): Parsing VCF files
 * [R 3.3.x](https://www.r-project.org/)
-  + [tidyverse 1.1.1](http://tidyverse.org/): Group of packages for data processing  (includes dplyr, ggplot2,tibble, stringr, magittr and tidyr among others)
-  + [zoo](https://cran.r-project.org/web/packages/zoo/index.html): convenient sliding window functions
-  + [viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html) Perceptually uniform and colorblind-friendly color palettes
+  + [readr 1.1.1](https://cran.r-project.org/web/packages/readr/README.html): Faster data loading
+  + [tidyr 0.7.0](https://cran.r-project.org/web/packages/tidyr/index.html): Easily tidy data
+  + [dplyr 0.7.2](https://www.rdocumentation.org/packages/dplyr/versions/0.7.2): Grammar of data manipulation
+  + [ggplot2 2.2.1](http://ggplot2.org/): Elegant data visualization using the grammar of graphics
+  + [ggjoy 0.3.0](https://cran.r-project.org/web/packages/ggjoy/index.html): Joyplots in ggplot2
+  + [stringr 1.2.0](https://cran.r-project.org/web/packages/stringr/index.html): Common string operations
+  + [reshape2 1.4.2](https://cran.r-project.org/web/packages/reshape2/index.html): Easily reshape data
+  + [zoo 1.8-0](https://cran.r-project.org/web/packages/zoo/index.html): Convenient sliding window functions
+  + [viridis 0.4.0](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html) Perceptually uniform and colorblind-friendly color palettes
 * [Python 2.7.x](https://www.python.org/)
   + [numpy 1.11](http://www.numpy.org/): Fast array and vectorized operations
   + [pandas 0.19](http://pandas.pydata.org/): Convenient dataframes

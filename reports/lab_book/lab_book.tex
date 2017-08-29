@@ -893,8 +893,9 @@ After removing all samples from library 10, I performed the downstream analyses 
 \FloatBarrier
 \chapter{TO DO}
 \begin{itemize}
-\item classify families by proportion of males among diploid offspring. The proportion of males should indivate different combination of CSD loci. Recombination rates will vary depending on distance from centromere
-\item Find CSD peaks that are intersect in several families ?
+\item Categorizing mothers: Use total number of males and infer number of diploid males from known proportion of haploids in each family.
+\item Centromere finding: look at percentage of heterozygous lociin the centromeric region of each individual separately $->$ isolate potential cases of terminal fusion automixis that could interfere with centromere localization.
+\item use Fisher exact test instead of Chi2 for association mapping: need to test for independence of rows/columns.
 \item if n CSD loci on different chromosomes are het. in a mother, the proportion of males in diploid offspring will be $\frac{1}{2^n}$. 
 \item Compute coverage along genome for all loci including monomorphic ones.
 \item Isolate regions of abnodmally high coverage, eventually exclude them. Watch out for overmerging of paralogs and repetitive sequences.
