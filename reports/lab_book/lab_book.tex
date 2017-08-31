@@ -648,6 +648,8 @@ To obtain better result when trying to locate centromeres, I used the genomic ou
 	\end{center}
 \end{figure}
 
+\FloatBarrier
+
 \subsection{Terminal or central fusion}
 
 Date: 31.08.2017\\
@@ -659,7 +661,26 @@ them to be homozygous at the centromere and affect the whole model.\\
 
 A way to test this, which has already been used in Daphnia (Svendsen et al, 2015), is to model the heterozygosity relative to the mother of each offspring as a function of the distance from the centromere.
 
-I visualize it in two ways; first using a sliding window moving away from the centromere in absolute distance. Each sliding window computes the proportion of heterozygous sites in each individual. Second, incrementally increasing the putative centromeric region and computing the proportion of heterozygous sites everytime. Under central fusion, one would expect the heterozyosity to decrease when the window moves away from the centromere, or when the putative region is enlarged. On the other hand, under terminal fusion, the value should increase when moving away or increasing the size of the centromeric region. This should allow me to single out the individuals - if any - produced by terminal fusion.
+I visualize it in two ways; first using a sliding window moving away from the centromere in absolute distance (Figure \ref{proto_slide_fusion}). Each sliding window computes the proportion of heterozygous sites in each individual. Second, choosing different sizes for the putative centromeric region and computing the proportion of heterozygous with both (Figure \ref{proto_surround_fusion}). Under central fusion, one would expect the heterozyosity to decrease when the window moves away from the centromere, or when the putative region is enlarged. On the other hand, under terminal fusion, the value should increase when moving away or increasing the size of the centromeric region. This should allow me to single out the individuals - if any - produced by terminal fusion.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=1.1\textwidth]{Num_CSD_loci/proto_centroD_term_central_usion.pdf}
+		\caption{Modeling the proportion of heterozygosity as a function of the distance from the centromere in each individual separately. The curves are obtained by local regression (loess).}
+		\label{proto_slide_fusion}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=1.1\textwidth]{Num_CSD_loci/lm_centrosize_100k_vs_3M.pdf}
+		\caption{Comparing the proportion of heterozygous sites relative to mother in region of +/- 100kb versus +/- 3Mb around centromere in each individual. Panes represent the different chromosomes and individuals are colored by family. The lines are obtained by linear a simple linear model.}
+		\label{proto_surround_fusion}
+	\end{center}
+\end{figure}
+
+Given the density of SNPs in my data, these methods cannot be used to reliably identify central or terminal fusion. To optimize the density of information, I will try pooling chromosomes together after transforming basepairs coordinates into distance from centromere.
+Note: tried this; I don't think I can pull anything useful from this either, data is too noisy. 
 
 \FloatBarrier
 
@@ -744,6 +765,9 @@ I applied this approach on grouped (i.e. single population run with all families
 		\label{naive_case_control}
 	\end{center}
 \end{figure}
+
+Date: 31.08.2017\\
+The chi2 test is not appropriate as I don't want to test just if observations are distributed equally among categories. In order
 
 \subsection{Case-control on categories}
 
