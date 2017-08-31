@@ -647,6 +647,20 @@ To obtain better result when trying to locate centromeres, I used the genomic ou
 		\label{centro_fix}
 	\end{center}
 \end{figure}
+
+\subsection{Terminal or central fusion}
+
+Date: 31.08.2017\\
+
+When modeling heterozygosity along the genome, there were interferences (waves) and the putative centromeric regions are not fully heterozygous. This could be due to several factors (inclusion of 
+haploids, sequencing errors, errors in linkage map...). One of the more likely reasons, could be that 
+some individuals are produced by terminal fusion automixis, rather than central fusion, which would cause
+them to be homozygous at the centromere and affect the whole model.\\
+
+A way to test this, which has already been used in Daphnia (Svendsen et al, 2015), is to model the heterozygosity relative to the mother of each offspring as a function of the distance from the centromere.
+
+I visualize it in two ways; first using a sliding window moving away from the centromere in absolute distance. Each sliding window computes the proportion of heterozygous sites in each individual. Second, incrementally increasing the putative centromeric region and computing the proportion of heterozygous sites everytime. Under central fusion, one would expect the heterozyosity to decrease when the window moves away from the centromere, or when the putative region is enlarged. On the other hand, under terminal fusion, the value should increase when moving away or increasing the size of the centromeric region. This should allow me to single out the individuals - if any - produced by terminal fusion.
+
 \FloatBarrier
 
 \chapter{Male-Female Fst}
@@ -894,7 +908,7 @@ After removing all samples from library 10, I performed the downstream analyses 
 \chapter{TO DO}
 \begin{itemize}
 \item Categorizing mothers: Use total number of males and infer number of diploid males from known proportion of haploids in each family.
-\item Centromere finding: look at percentage of heterozygous lociin the centromeric region of each individual separately $->$ isolate potential cases of terminal fusion automixis that could interfere with centromere localization.
+\item Centromere finding: look at percentage of heterozygous loci in the centromeric region of each individual separately $->$ isolate potential cases of terminal fusion automixis that could interfere with centromere localization.
 \item use Fisher exact test instead of Chi2 for association mapping: need to test for independence of rows/columns.
 \item if n CSD loci on different chromosomes are het. in a mother, the proportion of males in diploid offspring will be $\frac{1}{2^n}$. 
 \item Compute coverage along genome for all loci including monomorphic ones.

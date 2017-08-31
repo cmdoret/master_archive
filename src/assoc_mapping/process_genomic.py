@@ -285,7 +285,7 @@ print("genotypes decoded")
 # Will run unless user explicitly set the --keep_all parameter
 if not args.keep_all:
     # Remove SNPs that are hom./missing in mothers from their family
-    state1 = mother_hom(state, pop)
+    state = mother_hom(state, pop)
     print("Mother homozygous and missing sites removed")
 # Computing proportion of homozygous indv at each site
 if args.pool_output:
@@ -297,6 +297,11 @@ print("homozygosity stats calculated")
 #========== SAVING OUTPUT ==========#
 # Merging Chromosomal positions with proportion of homozygosity into 1 df
 prop = genomic.iloc[:,0:3].merge(prop,left_index=True, right_index=True)
+state = genomic.iloc[:,0:3].merge(state,left_index=True, right_index=True)
 prop.rename(columns={0:"Locus.ID",1:"Chr",2:"BP"}, inplace=True)
+state.rename(columns={0:"Locus.ID",1:"Chr",2:"BP"}, inplace=True)
+state_path = path.join(args.out,
+                       (out_prefix.replace("outpool_","") + "geno_EOM.tsv"))
+state.to_csv(state_path,sep='\t', index=False, na_rep='NA')
 prop.to_csv(out_path, sep='\t', index=False, na_rep='NA')
 print("Output saved to {0}".format(out_path))

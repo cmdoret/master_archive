@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2016/dev) (preloaded format=pdflatex 2016.12.31)  29 AUG 2017 12:45
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2016/dev) (preloaded format=pdflatex 2016.12.31)  31 AUG 2017 01:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -949,22 +949,32 @@ Overfull \hbox (48.37263pt too wide) in paragraph at lines 645--646
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
+
+Underfull \hbox (badness 10000) in paragraph at lines 653--654
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 655--659
+
+ []
+
 [27 <./Num_CSD_loci/centro_group_d3r80_degree2.pdf>] [28 <./Num_CSD_loci/centro
 _fam_d3r80_degree2.pdf>] [29 <./Num_CSD_loci/centro_group_fix_d3r80_range.pdf>]
 [30 <./Num_CSD_loci/centro_group_fix_d3r80_final.pdf>]
 Chapter 8.
-<M-F_Fst/haplo_avg_all_Fst.pdf, id=708, 680.5425pt x 465.74pt>
+<M-F_Fst/haplo_avg_all_Fst.pdf, id=709, 680.5425pt x 465.74pt>
 File: M-F_Fst/haplo_avg_all_Fst.pdf Graphic file (type pdf)
 
 <use M-F_Fst/haplo_avg_all_Fst.pdf>
-Package pdftex.def Info: M-F_Fst/haplo_avg_all_Fst.pdf used on input line 661.
+Package pdftex.def Info: M-F_Fst/haplo_avg_all_Fst.pdf used on input line 675.
 (pdftex.def)             Requested size: 386.95897pt x 264.82074pt.
 
-<M-F_Fst/haplo_Fst_per_fam.pdf, id=709, 752.8125pt x 610.28pt>
+<M-F_Fst/haplo_Fst_per_fam.pdf, id=710, 752.8125pt x 610.28pt>
 File: M-F_Fst/haplo_Fst_per_fam.pdf Graphic file (type pdf)
 
 <use M-F_Fst/haplo_Fst_per_fam.pdf>
-Package pdftex.def Info: M-F_Fst/haplo_Fst_per_fam.pdf used on input line 669.
+Package pdftex.def Info: M-F_Fst/haplo_Fst_per_fam.pdf used on input line 683.
 (pdftex.def)             Requested size: 483.69687pt x 392.12367pt.
 
 
@@ -976,89 +986,89 @@ LaTeX Warning: `h' float specifier changed to `ht'.
  <./M-F_Fst/haplo_avg_all_Fst.pdf>] [32 <./M-F_Fst/haplo_Fst_per_fam.pdf>]
 Chapter 9.
 
-Underfull \hbox (badness 10000) in paragraph at lines 684--685
+Underfull \hbox (badness 10000) in paragraph at lines 698--699
 
  []
 
 [33
 
 ]
-<association_mapping/naive_case_control_grouped.pdf, id=739, 1228.59pt x 361.35
+<association_mapping/naive_case_control_grouped.pdf, id=740, 1228.59pt x 361.35
 pt>
 File: association_mapping/naive_case_control_grouped.pdf Graphic file (type pdf
 )
  <use association_mapping/naive_case_control_grouped.pdf>
 Package pdftex.def Info: association_mapping/naive_case_control_grouped.pdf use
-d on input line 728.
+d on input line 742.
 (pdftex.def)             Requested size: 483.69687pt x 142.26578pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 745--746
+Underfull \hbox (badness 10000) in paragraph at lines 759--760
 
  []
 
 [34 <./association_mapping/naive_case_control_grouped.pdf>]
 Chapter 10.
 
-LaTeX Warning: Reference `cov_fam' on page 35 undefined on input line 763.
+LaTeX Warning: Reference `cov_fam' on page 35 undefined on input line 777.
 
-<coverage_analysis/cov_per_sample.pdf, id=753, 505.89pt x 505.89pt>
+<coverage_analysis/cov_per_sample.pdf, id=754, 505.89pt x 505.89pt>
 File: coverage_analysis/cov_per_sample.pdf Graphic file (type pdf)
 
 <use coverage_analysis/cov_per_sample.pdf>
 Package pdftex.def Info: coverage_analysis/cov_per_sample.pdf used on input lin
-e 767.
+e 781.
 (pdftex.def)             Requested size: 338.58632pt x 338.58945pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 773--774
+Underfull \hbox (badness 10000) in paragraph at lines 787--788
 
  []
 
-<coverage_analysis/sites_per_sample.pdf, id=757, 505.89pt x 505.89pt>
+<coverage_analysis/sites_per_sample.pdf, id=758, 505.89pt x 505.89pt>
 File: coverage_analysis/sites_per_sample.pdf Graphic file (type pdf)
 
 <use coverage_analysis/sites_per_sample.pdf>
 Package pdftex.def Info: coverage_analysis/sites_per_sample.pdf used on input l
-ine 783.
+ine 797.
 (pdftex.def)             Requested size: 338.58632pt x 338.58945pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<coverage_analysis/reads_sample.pdf, id=758, 505.89pt x 505.89pt>
+<coverage_analysis/reads_sample.pdf, id=759, 505.89pt x 505.89pt>
 File: coverage_analysis/reads_sample.pdf Graphic file (type pdf)
 
 <use coverage_analysis/reads_sample.pdf>
 Package pdftex.def Info: coverage_analysis/reads_sample.pdf used on input line 
-792.
+806.
 (pdftex.def)             Requested size: 338.58632pt x 338.58945pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<coverage_analysis/coverage_1kbwin.pdf, id=760, 578.16pt x 433.62pt>
+<coverage_analysis/coverage_1kbwin.pdf, id=761, 578.16pt x 433.62pt>
 File: coverage_analysis/coverage_1kbwin.pdf Graphic file (type pdf)
 
 <use coverage_analysis/coverage_1kbwin.pdf>
 Package pdftex.def Info: coverage_analysis/coverage_1kbwin.pdf used on input li
-ne 806.
+ne 820.
 (pdftex.def)             Requested size: 483.69687pt x 362.76945pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 818--819
+Underfull \hbox (badness 10000) in paragraph at lines 832--833
 
  []
 
 [35
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 830--831
+Underfull \hbox (badness 10000) in paragraph at lines 844--845
 
  []
 
@@ -1067,45 +1077,45 @@ r_sample.pdf>] [38 <./coverage_analysis/reads_sample.pdf>] [39 <./coverage_anal
 ysis/coverage_1kbwin.pdf>]
 Chapter 11.
 
-Underfull \hbox (badness 10000) in paragraph at lines 836--839
+Underfull \hbox (badness 10000) in paragraph at lines 850--853
 
  []
 
-<add_samples/off_comp.pdf, id=815, 569.12625pt x 301.125pt>
+<add_samples/off_comp.pdf, id=816, 569.12625pt x 301.125pt>
 File: add_samples/off_comp.pdf Graphic file (type pdf)
 
 <use add_samples/off_comp.pdf>
-Package pdftex.def Info: add_samples/off_comp.pdf used on input line 849.
+Package pdftex.def Info: add_samples/off_comp.pdf used on input line 863.
 (pdftex.def)             Requested size: 483.69687pt x 255.93446pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<add_samples/library_depth.pdf, id=819, 505.89pt x 433.62pt>
+<add_samples/library_depth.pdf, id=820, 505.89pt x 433.62pt>
 File: add_samples/library_depth.pdf Graphic file (type pdf)
 
 <use add_samples/library_depth.pdf>
-Package pdftex.def Info: add_samples/library_depth.pdf used on input line 862.
+Package pdftex.def Info: add_samples/library_depth.pdf used on input line 876.
 (pdftex.def)             Requested size: 483.69687pt x 414.60312pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<add_samples/cov_per_site.pdf, id=820, 722.7pt x 433.62pt>
+<add_samples/cov_per_site.pdf, id=821, 722.7pt x 433.62pt>
 File: add_samples/cov_per_site.pdf Graphic file (type pdf)
 
 <use add_samples/cov_per_site.pdf>
-Package pdftex.def Info: add_samples/cov_per_site.pdf used on input line 870.
+Package pdftex.def Info: add_samples/cov_per_site.pdf used on input line 884.
 (pdftex.def)             Requested size: 483.69687pt x 290.21953pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<add_samples/library_sites.pdf, id=821, 569.12625pt x 301.125pt>
+<add_samples/library_sites.pdf, id=822, 569.12625pt x 301.125pt>
 File: add_samples/library_sites.pdf Graphic file (type pdf)
 
 <use add_samples/library_sites.pdf>
-Package pdftex.def Info: add_samples/library_sites.pdf used on input line 878.
+Package pdftex.def Info: add_samples/library_sites.pdf used on input line 892.
 (pdftex.def)             Requested size: 483.69687pt x 255.93446pt.
 
 
@@ -1119,28 +1129,34 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 ]
 Chapter 12.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 910.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 924.
 [45
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 910.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 924.
  (./lab_book.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 910.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 910.
-Package rerunfilecheck Info: File `lab_book.out' has not changed.
-(rerunfilecheck)             Checksum: 8D0CBD3F08E3B2EDEE81DC8DD2D12873;3133.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 924.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 924.
 
+
+Package rerunfilecheck Warning: File `lab_book.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `lab_book.out':
+(rerunfilecheck)             Before: 8D0CBD3F08E3B2EDEE81DC8DD2D12873;3133
+(rerunfilecheck)             After:  6E648D583B8294CD2842FCFB30FF754F;3213.
 
 LaTeX Warning: There were undefined references.
 
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 910.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 924.
  ) 
 Here is how much of TeX's memory you used:
- 9733 strings out of 494968
- 150569 string characters out of 6180528
+ 9734 strings out of 494968
+ 150585 string characters out of 6180528
  242502 words of memory out of 5000000
  12646 multiletter control sequences out of 15000+600000
  13069 words of font info for 50 fonts, out of 8000000 for 9000
@@ -1166,10 +1182,10 @@ b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/
 share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/
 texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive
 /texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on lab_book.pdf (46 pages, 2611087 bytes).
+Output written on lab_book.pdf (46 pages, 2612381 bytes).
 PDF statistics:
- 960 PDF objects out of 1000 (max. 8388607)
- 677 compressed objects within 7 object streams
- 156 named destinations out of 1000 (max. 500000)
+ 962 PDF objects out of 1000 (max. 8388607)
+ 679 compressed objects within 7 object streams
+ 157 named destinations out of 1000 (max. 500000)
  523 words of extra memory for PDF output out of 10000 (max. 10000000)
 
