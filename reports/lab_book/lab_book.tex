@@ -767,13 +767,39 @@ I applied this approach on grouped (i.e. single population run with all families
 \end{figure}
 
 Date: 31.08.2017\\
-The chi2 test is not appropriate as I don't want to test just if observations are distributed equally among categories. In order
+The chi2 test is not appropriate in this case especially since I have small values in my cells, I will use Fisher-exact test instead.\\
+Date: 01.09.2017\\
+Using association mapping with the Fisher-exact test and pooling new indiviudals (including those from library 10b) together yields a few candidate regions and seems promising (Figure \ref{assoc_fisher}). I tried it both with the Benjamini-Hochberg correction (Figure \ref{fisher_BH}) and the bonferroni correction (Figure \ref{fisher_bonferroni}). The next step will be to perform this association mapping per category and to identify the genes in the candidate regions.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{association_mapping/fisher_no_corr.pdf}
+		\caption{Manhattan plots with log10 p-values for the case-control association test on CSD using Fisher exact test. Populations was run on all families together and for each SNP, all individuals were pooled to compute the proportion of homozygous individuals. P-values are not corrected for multiple testing. P-value thresholds of 0.05 and 0.01 are displayed using horizontal black and red lines respectively.}
+		\label{assoc_fisher}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{association_mapping/fisher_BH.pdf}
+		\caption{Manhattan plots with log10 p-values for the case-control association test on CSD using Fisher exact test. Populations was run on all families together and for each SNP, all individuals were pooled to compute the proportion of homozygous individuals. Benjamini-Hochberg correction for multiple testing was applied. P-value thresholds of 0.05 and 0.01 are displayed using horizontal black and red lines respectively.}
+		\label{fisher_BH}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{association_mapping/fisher_bonferroni.pdf}
+		\caption{Manhattan plots with log10 p-values for the case-control association test on CSD using Fisher exact test. Populations was run on all families together and for each SNP, all individuals were pooled to compute the proportion of homozygous individuals. Bonferroni correction for multiple testing was applied. P-value thresholds of 0.05 and 0.01 are displayed using horizontal black and red lines respectively.}
+		\label{fisher_bonferroni}
+	\end{center}
+\end{figure}
 
 \subsection{Case-control on categories}
 
 Here, I apply the test after subsetting individuals by categories, inferred using diploid male production as detailed in section \ref{sec:cat_mothers} "Categorizing mothers". 
 
-I will do it considering different number of categories, corresponding to different scenari regarding the number of CSD loci. Figure \ref{naive_case_control} already addresses the unlikely scenario of single-locus CSD. Here, I will deal with 2 and 3 loci scenari, with 3 and 
+I will do it considering different number of categories, corresponding to different scenarios regarding the number of CSD loci. Figure \ref{naive_case_control} already addresses the unlikely scenario of single-locus CSD. Here, I will deal with 2 and 3 loci scenarios, with 3 and 7 categories, respectively.
 
 \subsection{Refining hits using centromeres}
 
