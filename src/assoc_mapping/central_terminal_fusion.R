@@ -22,6 +22,7 @@ indv <- read_tsv("../../data/individuals")
 indv <- indv %>% 
   filter(Name %in% colnames(gen)[4:dim(gen)[2]]) %>%
   filter(Generation=='F4')
+
 #==== PROCESSING ===#
 
 # Excluding unordered contigs
@@ -78,7 +79,7 @@ full_win <- merge(full_win, indv, by="Name")
 full_win$centro_dist <- as.numeric(full_win$centro_dist)
 
 genofull= data.frame()
-for(size in seq(10000,1000000,10000)){
+for(size in seq(50000,5000000,50000)){
   for ( chrom in unique(gen$Chr)){
     chr_start <- centro$pos[centro$Chr==chrom] - size
     chr_end <- centro$pos[centro$Chr==chrom] + size
@@ -100,12 +101,14 @@ for(size in seq(10000,1000000,10000)){
   }
   print(size)
 }
+
 #==== VISUALISATION ====#
+
 full_win <- full_win %>% 
   group_by(Chr,Family) %>%
   mutate(norm_het = (Het. - mean(Het.))/sd(Het.))
 ggplot(data=full_win[full_win$Family %in% big_fam,], aes(x=centro_dist, y=Het., col=Name,group=Name)) + 
-  geom_line(stat='smooth', method='loess',alpha=0.3, se=T) + guides(col=FALSE) + facet_grid(Family~Chr)
+  geom_line(stat='smooth', method='loess',alpha=0.5, se=F) + guides(col=FALSE) + facet_grid(Family~Chr)
 
 # No correlation between number of loci in centromeric region and proportion of het.
 smoothScatter(genofull$Num.Loci, genofull$Het.)
@@ -118,5 +121,5 @@ genofull <- genofull %>%
   group_by(Chr, Family) %>%
   mutate(norm_het=(Het.-mean(Het., na.rm=T))/sd(Het., na.rm=T))
 
-ggplot(data=genofull[genofull$Family %in% big_fam,], aes(x=centrosize, y=Het.,col=as.factor(Name), weight=Num.Loci)) + stat_smooth(method='lm') + 
+ggplot(data=genofull[genofull$Family %in% big_fam,], aes(x=centrosize, y=Het.,col=Name, weight=Num.Loci)) + stat_smooth(method='loess') + 
   facet_grid(Family~Chr)+ guides(col=FALSE)
