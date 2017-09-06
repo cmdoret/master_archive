@@ -101,7 +101,8 @@ for(size in seq(50000,5000000,50000)){
   }
   print(size)
 }
-
+# Merge chromosomes
+genofull$Chr <- 'all_chr';full_win$Chr <- 'all_chr'
 #==== VISUALISATION ====#
 
 full_win <- full_win %>% 

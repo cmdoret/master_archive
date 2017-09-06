@@ -30,7 +30,7 @@ then
         vcftools --vcf $1/*.vcf --out $out_path/all/all --012;
         # Genotype matrix[SNP, individual]
         paste $out_path/all/all.het $out_path/all/all.idepth \
-        | cut -f6,7 --complement > $out_path/summary_full.txt;
+        | cut -f-5,8- > $out_path/summary_full.txt;
         # Putting together mean depth and mean heterozygosity
     fi
 else
@@ -48,7 +48,7 @@ else
             vcftools --vcf $folder/*.vcf --out $out_path/$fam/$fam --012;
             # Genotype matrix[SNP, individual]
             paste $out_path/$fam/$fam.het $out_path/$fam/$fam.idepth \
-            | cut -f6,7 --complement > $out_path/$fam/summary_$fam;
+            | cut -f-5,8- > $out_path/$fam/summary_$fam;
             # Putting together mean depth and mean heterozygosity
             if [[ $increm -eq 0 ]]; then
                 ((increm++))
