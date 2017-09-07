@@ -78,7 +78,7 @@ def ploidy(indiv,mult=1,transf=None, fixed=False):
     return indiv
 
 # 1: read individuals table to extract families of mothers
-fam_sum = pd.read_csv("data/individuals",sep='\t',
+fam_sum = pd.read_csv("data/individuals.tsv",sep='\t',
 converters={'Family': lambda x: str(x)})
 
 # 2: Using command line argument to load VCF file summary
@@ -108,7 +108,7 @@ for m in benchmark_set['mult']:  # Looping over all combination of param values
 
 # Fixed threshold determined visually at 77% of homozygosity
 out_m = ploidy(fam_sum,fixed=fixed_thresh)
-out_m.to_csv('data/ploidy/thresholds/fixed',sep='\t',index=False)
+out_m.to_csv('data/ploidy/thresholds/fixed.tsv',sep='\t',index=False)
 #out_haplo = fam_sum.loc[fam_sum.Sex == 'M',['Name','Family']]
 #out_haplo = out_haplo.merge(haplo,on='Name',how='inner')[['Name','Family_x']]
 #out_haplo.rename(columns={'Family_x':'Family'},inplace=True)

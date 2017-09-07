@@ -41,7 +41,7 @@ REF-ANN=$(DAT)/ref_genome/ordered_genome/merged.fasta.ann
 
 # Ploidy: exclude haplomales
 VCFSUM=$(DAT)/ploidy/vcftools/summary_full.txt
-THRESH=$(DAT)/ploidy/thresholds/fixed
+THRESH=$(DAT)/ploidy/thresholds/fixed.tsv
 
 # Association mapping:
 ASSOC-SRC=src/assoc_mapping/

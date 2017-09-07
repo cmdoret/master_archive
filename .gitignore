@@ -41,7 +41,8 @@ src/misc/vcftools/
 *-blx.bib
 *.brf
 *.run.xml
-
+# Mac dir files
+*.DS_Store
 ## Build tool auxiliary files:
 *.fdb_latexmk
 *.synctex

@@ -6,7 +6,7 @@ library(ggplot2); library(ggjoy)
 
 # Per individual
 
-indv <- read.table("../../data/ploidy/thresholds/fixed",header = T)
+indv <- read.table("../../data/ploidy/thresholds/fixed.tsv",header = T)
 indv$lib <- "Mothers"
 for(i in c("6","7","7b","10","10b")){
   tmp_lib <- read.table(paste0("../../data/barcodes/barcodes_radwasp", i))

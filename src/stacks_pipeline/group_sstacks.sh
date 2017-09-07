@@ -27,11 +27,11 @@ cp $CSTACK/* $SSTACK;  # Copying catalogue as well
 if [ $group = "F" ]
 then
 
-    for fam in $(cut -f3 data/individuals|tail -n +2|sort|uniq)
+    for fam in $(cut -f3 data/individuals.tsv|tail -n +2|sort|uniq)
     # All families in dataset (excluding header with tail)
     do
         mkdir -p $SSTACK/$fam
-        for indv in $(awk -v var="$fam" '$3 == var {print $1}' data/individuals)
+        for indv in $(awk -v var="$fam" '$3 == var {print $1}' data/individuals.tsv)
         # All individuals in each family
         do
             mv $SSTACK/$indv* $SSTACK/$fam 2> /dev/null || echo "Individual $indv excluded from the analysis."

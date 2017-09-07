@@ -19,7 +19,8 @@
 od=./data/populations/d-5_r-75
 R=0.75
 D=5
-thresh=data/ploidy/thresholds/fixed
+thresh=data/ploidy/thresholds/fixed.tsv
+
 group=F
 hom_mother=data/SNP_lists/$(basename $thresh)_hom_mother.txt
 
@@ -39,14 +40,14 @@ then  # Families are grouped into a single populations run
             echo "Populations running on all individuals, excluding $(echo $haplo | wc -w) haploid males."
         fi
     mkdir -p $od/  # Prepare one output folder per family
-    populations -P data/sstacks -M data/popmap -p 2 -m $D -b 0 -r $R -k -f p_value -t 3 --verbose --fstats --vcf --max_obs_het 0.9 --genomic --renz ecoRI
+    populations -P data/sstacks -M data/popmap.tsv -p 2 -m $D -b 0 -r $R -k -f p_value -t 3 --verbose --fstats --vcf --max_obs_het 0.9 --genomic --renz ecoRI
     
     mv data/sstacks/batch* $od/
     # Moving all populations output file from sstacks family folder to populations family folder
 
 else
 
-    for fam in $(cut -f3 data/individuals | tail -n +2 | sort | uniq)
+    for fam in $(cut -f3 data/individuals.tsv | tail -n +2 | sort | uniq)
     # All families in dataset (excluding header with tail)
     do
         if [ -f $thresh ]  # If ploidy information already available
@@ -60,7 +61,7 @@ else
         fi
         echo "Populations running on family $fam, excluding $(echo $haplo | wc -w) haploid males."
         mkdir -p $od/$fam  # Prepare one output folder per family
-        populations -P data/sstacks/$fam -M data/popmap -p 2 -m $D -b 0 -r $R -k -f p_value -t 3 --verbose --fstats --vcf --max_obs_het 0.9 --genomic --renz ecoRI
+        populations -P data/sstacks/$fam -M data/popmap.tsv -p 2 -m $D -b 0 -r $R -k -f p_value -t 3 --verbose --fstats --vcf --max_obs_het 0.9 --genomic --renz ecoRI
         
         mv data/sstacks/$fam/batch* $od/$fam/
         # Moving all populations output file from sstacks family folder to populations family folder

@@ -14,7 +14,7 @@ ref_genome <- commandArgs(trailingOnly = T)[2]  # Path to reference genome ann f
 out_path <- commandArgs(trailingOnly = T)[3] # Output path
 thresh <- commandArgs(trailingOnly = T)[4]  # Hard filter for CSD hits
 scaffolds <- read.table(ref_genome, stringsAsFactors = F)
-indv <- read.table('data/individuals', header=T)
+indv <- read.table('data/individuals.tsv', header=T)
 
 # Summarizing chromosome sizes
 chrom_sizes <- data.frame(); chrom_names=c()

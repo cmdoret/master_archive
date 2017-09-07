@@ -22,7 +22,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 in_geno = argv[1]
 thresh = argv[2]
 grouped = argv[3]
-# thresh = "../../data/ploidy/thresholds/fixed"
+# thresh = "../../data/ploidy/thresholds/fixed.tsv"
 # in_geno = "../../data/ploidy/vcftools/"
 
 SNP_splitter = lambda x: pd.Series([i for i in x.split('_')])

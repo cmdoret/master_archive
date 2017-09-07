@@ -10,7 +10,6 @@ if(!suppressMessages(require(tidyverse))){
   stopifnot(load_packages())
 }
 
-# in_path <- "../../data/ploidy/thresholds/fixed"
 in_path <- commandArgs(trailingOnly = T)[1]  # Taking ploidy list as CL argument
 in_table <- read.table(in_path, header=T)
 

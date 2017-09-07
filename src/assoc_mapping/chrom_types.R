@@ -18,7 +18,7 @@ out_path <- commandArgs(trailingOnly = T)[2]
 pack <- c("ggplot2","dplyr","viridis","zoo", "readr")
 lapply(pack, require, character.only = TRUE)
 
-indv <- read.table('data/individuals', header=T)
+indv <- read.table('data/individuals.tsv', header=T)
 grouped <- "F"
 fix0 <- read.table(in_path, header=T, na.strings='NA', sep='\t')
 fix <- fix0[fix0$N.Samples>0,]

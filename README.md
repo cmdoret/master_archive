@@ -17,14 +17,14 @@ To run the pipeline with the data provided:
 6. Type ```make``` to run the pipeline
 
 To run the pipeline with new data in the form of demultiplexed, trimmed reads:
-1. Describe your samples by writing 2 files named `popmap` and `individuals`, respectively. The structure of the `popmap` file is described on the [official STACKS website](http://catchenlab.life.illinois.edu/stacks/manual/) (here, populations should be the sex of individuals). The `individuals` file is a tab delimited text file with 4 columns with the following headers included:
+1. Describe your samples by writing 2 files named `popmap.tsv` and `individuals.tsv`, respectively. The structure of the `popmap.tsv` file is described on the [official STACKS website](http://catchenlab.life.illinois.edu/stacks/manual/) (here, populations should be the sex of individuals). The `individuals.tsv` file is a tab delimited text file with 4 columns with the following headers included:
 * Name: The name of samples. This should be the prefix of their data files.
 * Sex: F for females and M for males.
 * Family: Clutches to which the individual belongs. These can be any combination of letters and numbers.
 * Generation: Useful if there are mothers and offspring. Values should be F3 for mothers and F4 for offspring.
 2. Create an empty folder named data and place the 2 files inside. This folder needs to be located inside the same directory as src.
 3. Place your reads in a subfolder of data named `processed` and your reference genome in a subfolder named `ref_genome`. If you wish to use different folder names, just edit the corresponding paths in `config.mk`.
-4. Type `make` in the command line. Once the pipeline has finished running, type `make ploidy` to infer ploidy from the homozygosity of variant sites. Note the threshold selected to define ploidy is adapted to the dataset presented here. You will probably need to define a threshold yourself by inspecting the distribution of homozygosity (HOM variable) in `data/ploidy/thresholds/fixed` and set the variable  `fixed_thresh` in `src/ploidy/haplo_males.py` to this value. Once you have modified the threshold, run `make ploidy` again to update the ploidy.
+4. Type `make` in the command line. Once the pipeline has finished running, type `make ploidy` to infer ploidy from the homozygosity of variant sites. Note the threshold selected to define ploidy is adapted to the dataset presented here. You will probably need to define a threshold yourself by inspecting the distribution of homozygosity (HOM variable) in `data/ploidy/thresholds/fixed.tsv` and set the variable  `fixed_thresh` in `src/ploidy/haplo_males.py` to this value. Once you have modified the threshold, run `make ploidy` again to update the ploidy.
 5. Type `make -B` to run the pipeline again without haploids.
 
 ### Status:
@@ -131,8 +131,8 @@ Once the `data.tar.gz` has been uncompressed, the data folder should contain the
 
 * `processed`: This folder contains the processed RAD-tags generated for each sample using process_radtags.
 * `ref_genome`: This folder contains only the reference genome.
-* `individuals`: Detailed characteristic of each individuals: Name, Sex, Family and Generation where F4 are son/daughter and F3 is the mother.
-* `popmap`: Population map required by STACKS to match sample names to population group (i.e. male and female).
+* `individuals.tsv`: Detailed characteristic of each individuals: Name, Sex, Family and Generation where F4 are son/daughter and F3 is the mother.
+* `popmap.tsv`: Population map required by STACKS to match sample names to population group (i.e. male and female).
 * `ploidy`: contains information about the ploidy of individuals in the dataset.
 
 After the pipeline has been running, all intermediary and final output files will be generated and stored in their respective sub-folders inside `data`.
