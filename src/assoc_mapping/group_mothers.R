@@ -10,8 +10,11 @@
 library(dplyr);library(ggplot2)
 args_list <- commandArgs(trailingOnly = T)
 scenario <- as.numeric(args_list[1])  # Number of CSD loci considered
-indv <- read.table(args_list[2], header=T)  # Path to input file
+ploid <- read.table(args_list[2], header=T)  # Path to input file
 out <- args_list[3]  # Output path
+###DEBUG
+ploid <- read.table("../../data/ploidy/thresholds/fixed.tsv", header=T)  
+scenario <- 2
 
 # Loading additional files
 fam_list <- read.table(pipe("cut -f2,4 ../../data/families.txt"), header=T)
@@ -21,7 +24,7 @@ tot_off <- read.table("../../data/total_offspring.tsv", header=T)
 #==== PROCESSING ====#
 fam_list <- unique(fam_list)  # Used for mother ID - Family name correspondance
 tot_off <- merge(tot_off, fam_list, by.x='mother', by.y='parent.id', all=F)
-male_seq <- indv[indv$Sex=='M',]  # Sequenced offspring
+male_seq <- ploid[ploid$Sex=='M',]  # Sequenced offspring
 male_pl <- data.frame(table(male_seq$Family, male_seq$Ploidy))
 colnames(male_pl) <- c("Family", "Ploidy", "Count")
 
@@ -56,7 +59,7 @@ km_output <- kmeans(diplo_off$prop_male,centers = ngroups)
 diplo_off$cluster <- km_output$cluster
 ggplot(data=diplo_off, aes(x=prop_male, fill=as.factor(cluster))) + geom_histogram() +
  ggtitle("Male proportion per family") + xlab("Proportion of males") + theme_bw() +
- scale_fill_discrete(name="Heterozygous loci", labels=c("a","a+b", "b")) + ylab("Number of families") +
+ scale_fill_discrete(name="Heterozygous loci", labels=c("a","b", "a+b")) + ylab("Number of families") +
  ylab("Number of families") + geom_vline(data=data.frame(km_output$centers),
                                          aes(xintercept=km_output.centers), col='red', lty=2)
 
