@@ -17,7 +17,7 @@ all : $(POP)
 # Running Pstacks
 #$(PSTACK) : $(MAP)
 #	bash $(P-SRC) $< $(M)
-	
+
 
 # Running Cstacks
 #$(CSTACK) : $(PSTACK)
@@ -57,12 +57,15 @@ $(CENTRO) :
 	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM) --pool_output
 	Rscript $(ASSOC-SRC)/chrom_types.R $(ASSOC)/grouped_outpool_prophom.tsv $(CENTRO)
 
+# Processing genomic output for association mapping
+$(ASSOC)/grouped_prophom.tsv :
+	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM)
+
 # Association mapping
 .PHONY : assoc_mapping
-assoc_mapping : $(CENTRO)
+assoc_mapping : $(CENTRO) $(ASSOC)/grouped_prophom.tsv
 	mkdir -p $(ASSOC)/plots
 	mkdir -p $(ASSOC)/hits
-	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM)
 	Rscript $(ASSOC-SRC)/group_mothers.R $(NCSD) $(THRESH) $(ASSOC)/mother_groups.tsv
 	Rscript $(ASSOC-SRC)/CSD_scan.R $(ASSOC)/grouped_prophom.tsv $(REF-ANN) $(ASSOC) 0.85
 	mkdir -p $(ASSOC)/case_control

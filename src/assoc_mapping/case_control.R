@@ -54,16 +54,19 @@ odds_list <- cat_stat %>%
   mutate_at(funs(round(.,0)), .vars = c("Fo","Fe","Mo","Me"))
 
 odds_list$fisher <- apply(odds_list, 1,  get_fisher)
-odds_list$fisher <- p.adjust(odds_list$fisher, method = "bonferroni")
+
+odds_list$fisher <- p.adjust(odds_list$fisher, method = "BH")
 for(group in unique(odds_list$cluster)){
   odds_list$fisher[odds_list$cluster==group] <- p.adjust(odds_list$fisher[odds_list$cluster==group], method = "BH")
 }
+nloci <- log2(max(groups$cluster)+1)
 #========= VISUALISE ========#
 odds_chrom <- odds_list[grep("chr.*",odds_list$Chr),]
+pdf(paste0(out_folder, "/../plots/","case_control_hits_",nloci,"loci.pdf"), width=12, height=12)
 ggplot(data=odds_chrom, aes(x=BP, y=-log10(fisher))) + facet_grid(cluster~Chr, scales='free_x') + geom_point() + 
-  geom_hline(aes(yintercept=-log10(0.05))) + geom_hline(aes(yintercept=-log10(0.01)), lty=2, col='red') +
+  geom_hline(aes(yintercept=-log10(0.05))) + geom_hline(aes(yintercept=-log10(0.01)), lty=2, col='red') + 
   xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control associaiton test for CSD")
-
+dev.off()
 #======= WRITE OUTPUT =======#
 # Number of groups is (2^n)-1 where n is the number of CSD loci
 nloci <- log2(max(groups$cluster)+1)

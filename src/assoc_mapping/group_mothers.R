@@ -13,13 +13,13 @@ scenario <- as.numeric(args_list[1])  # Number of CSD loci considered
 ploid <- read.table(args_list[2], header=T)  # Path to input file
 out <- args_list[3]  # Output path
 ###DEBUG
-ploid <- read.table("../../data/ploidy/thresholds/fixed.tsv", header=T)  
+ploid <- read.table("data/ploidy/thresholds/fixed.tsv", header=T)  
 scenario <- 2
 
 # Loading additional files
-fam_list <- read.table(pipe("cut -f2,4 ../../data/families.txt"), header=T)
+fam_list <- read.table(pipe("cut -f2,4 data/families.txt"), header=T)
 # Total number of non-sequenced offspring in each family
-tot_off <- read.table("../../data/total_offspring.tsv", header=T)
+tot_off <- read.table("data/total_offspring.tsv", header=T)
 
 #==== PROCESSING ====#
 fam_list <- unique(fam_list)  # Used for mother ID - Family name correspondance
@@ -57,10 +57,12 @@ ngroups <- 2^scenario-1
 
 km_output <- kmeans(diplo_off$prop_male,centers = ngroups)
 diplo_off$cluster <- km_output$cluster
+pdf(paste0(dirname(out), "/plots/mother_groups.pdf"))
 ggplot(data=diplo_off, aes(x=prop_male, fill=as.factor(cluster))) + geom_histogram() +
  ggtitle("Male proportion per family") + xlab("Proportion of males") + theme_bw() +
  scale_fill_discrete(name="Heterozygous loci", labels=c("a","b", "a+b")) + ylab("Number of families") +
  ylab("Number of families") + geom_vline(data=data.frame(km_output$centers),
                                          aes(xintercept=km_output.centers), col='red', lty=2)
 
-write.table(off_comp, out, sep='\t', row.names=F, quote=F)
+dev.off()
+write.table(diplo_off, out, sep='\t', row.names=F, quote=F)

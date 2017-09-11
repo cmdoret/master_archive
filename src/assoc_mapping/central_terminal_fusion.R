@@ -17,7 +17,7 @@ gen <- read_tsv(geno_path, col_names = T)
 # Loading centromere list
 centro <- read_tsv("../../data/assoc_mapping/centro/centrolist.tsv")
 # Loading list of individuals
-indv <- read_tsv("../../data/individuals")
+indv <- read_tsv("../../data/individuals.tsv")
 # Keeping only individuals present in the genotype file and excluding mothers
 indv <- indv %>% 
   filter(Name %in% colnames(gen)[4:dim(gen)[2]]) %>%
@@ -104,13 +104,22 @@ for(size in seq(50000,5000000,50000)){
 # Merge chromosomes
 genofull$Chr <- 'all_chr';full_win$Chr <- 'all_chr'
 #==== VISUALISATION ====#
-
+# Indexing individuals separately for each family
+uniq_win <- unique(full_win[,c("Family","Name")])
+# Creating smaller dataframe for indexing
+uniq_win <- uniq_win %>% group_by(Family) %>% mutate(colindex=row_number())
+# merging dataframes for index
+full_win <- merge(full_win, uniq_win, by=c("Family","Name"))
+# Computing normalized heterozygosity (not used atm)
 full_win <- full_win %>% 
   group_by(Chr,Family) %>%
   mutate(norm_het = (Het. - mean(Het.))/sd(Het.))
-ggplot(data=full_win[full_win$Family %in% big_fam,], aes(x=centro_dist, y=Het., col=Name,group=Name)) + 
-  geom_line(stat='smooth', method='loess',alpha=0.5, se=F) + guides(col=FALSE) + facet_grid(Family~Chr)
-
+# Computing median heterozygosity per family (could be used to classify CFA/TFA)
+full_win <- full_win %>% group_by(Name) %>% mutate(medhet=median(Het., na.rm=T))
+ggplot(data=full_win, aes(x=Name, y=Het., fill=as.factor(colindex))) + geom_boxplot() + 
+  facet_wrap(~Family, scales='free_x') + guides(fill=F)
+ggplot(data=full_win, aes(x=centro_dist, y=Het., col=as.factor(colindex),group=Name)) + 
+  geom_line(stat='smooth', method='loess', se=F) + guides(col=FALSE) + facet_wrap(~Family)
 # No correlation between number of loci in centromeric region and proportion of het.
 smoothScatter(genofull$Num.Loci, genofull$Het.)
 famorder <- cen_chr %>%
