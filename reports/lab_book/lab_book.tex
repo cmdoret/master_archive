@@ -594,7 +594,7 @@ Assuming scenario 3, for instance, there will be 3 categories. I will first filt
 
 Date: 24.08.2017
 
-I used k-means clustering on proportion of males among diploid offspring to categorize families (Figure \ref{cat_mothers}). I assumed 3 clusters
+I used k-means clustering on proportion of males among diploid offspring to categorize families. I assumed 3 clusters
 
 Date: 25.08.2017
 
@@ -696,7 +696,7 @@ Second, choosing different sizes for the putative centromeric region and computi
 
 \begin{figure}[h]
 	\begin{center}
-		\includegraphics[width=1.1\textwidth]{Num_CSD_loci/pooled_chrom_centrosize_50k_5M.pdf}
+		\includegraphics[width=0.8\textwidth]{Num_CSD_loci/pooled_chrom_centrosize_50k_5M.pdf}
 		\caption{Measuring the proportion of heterozygous sites relative to mother in regions of variying size between +/- 50kb and +/- 5Mb around centromere in each individual. Panes represent families (only 5 largest ones included) and chromosomes are pooled together. The curves are obtained using a local regression (loess).}
 		\label{proto_surround_fusion}
 	\end{center}
@@ -704,9 +704,35 @@ Second, choosing different sizes for the putative centromeric region and computi
 
 Given the density of SNPs in my data, these methods cannot be used to reliably identify central or terminal fusion. There is also the possibility that some scaffolds are inverted in the linkage map, which would strongly affect the results.\\
 
-tl;dr : I don't think I can pull anything useful from this, data is too noisy. 
+tl;dr : I don't think I can pull anything useful from this, data is too noisy. \\
 
+\FloatBarrier
+Update: 13.09.2017\\
+To differentiate more reliably central vs terminal fusion individuals, I used a simpler method (Figure \ref{schema_cen_tel}). After transforming basepair coordinates in each chromosome into absolute distance from centromere, I separate each chromosome into 2 windows: "centro" for centromeric region and "telo" for telomeric region. The size of the centromeric region was set to 25\% of the maximum distance to centromere in each chromosome and the telomeric region contains all SNPs further than these 25\%. I compared the proportion of heterozygous SNPs in the two windows, first separating chromosomes (Figure \ref{cen_tel_chr}). Then, I tried pooling all chromosomes together in each individual and I compared the two windows using a linear model, weighting the value of each chromosome by the number of SNPs contained in the window (Figure \ref{cen_tel_lm}).
 
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{Num_CSD_loci/cen_tel.pdf}
+		\caption{Method used to identify central fusion or terminal fusion individuals from genome-wide heterozygosity. Central fusion individuals (red) are expected to have high heterozygosity values decreasing towards centromeres while terminal fusion (blue) individuals are expected to have low heterozygosity increasing towards centromeres. The basepair coordinates of SNPs are first transformed into absolute distance from centromere. SNPs closer than 25\% of the maximum distance to centromere in each chromosome are pooled into one "centromeric" window and those 25\% or further are pooled into another "telomeric" window. The proportion of heterozygous SNPs is then computed separately in each window and the difference between those values is used to assign fusion mechanism.}
+		\label{schema_cen_tel}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=1\textwidth]{Num_CSD_loci/line_centro25_telo_chr_fam.pdf}
+		\caption{Comparing the proportion of heterozygous SNPs in each chromosome among variant sites between the centromeric window (SNPs closer than 25\% of maximum distance to centromere) and telomeric window (SNPs further than 25\%). Only the 6 largest families are included for visualisation purpose.}
+		\label{cen_tel_chr}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=1\textwidth]{Num_CSD_loci/lm_centro25_telo_fam.pdf}
+		\caption{Comparing the proportion of heterozygous SNPs pooling all chromosomes together, between the centromeric window (SNPs closer than 25\% of maximum distance to centromere) and telomeric window (SNPs further than 25\%). A linear model is performed to compare the 2 windows and the value of each chromosome is weighted by the number of SNPs used to compute the window.}
+		\label{cen_tel_lm}
+	\end{center}
+\end{figure}
 
 \FloatBarrier
 
@@ -983,10 +1009,8 @@ After removing all samples from library 10, I performed the downstream analyses 
 \FloatBarrier
 \chapter{TO DO}
 \begin{itemize}
-\item Categorizing mothers: Use total number of males and infer number of diploid males from known proportion of haploids in each family.
-\item Centromere finding: look at percentage of heterozygous loci in the centromeric region of each individual separately $->$ isolate potential cases of terminal fusion automixis that could interfere with centromere localization.
-\item use Fisher exact test instead of Chi2 for association mapping: need to test for independence of rows/columns.
-\item if n CSD loci on different chromosomes are het. in a mother, the proportion of males in diploid offspring will be $\frac{1}{2^n}$. 
+\item compute prop.het loci in centromeric window for all individuals and isolate TFA based on distribution if bimodal.
+\item try above with different values for window sizes and select based on number of loci contained in window.
 \item Compute coverage along genome for all loci including monomorphic ones.
 \item Isolate regions of abnodmally high coverage, eventually exclude them. Watch out for overmerging of paralogs and repetitive sequences.
 \item Visualize average heterozygosity (or allele frequency) at each SNPs in offpring versus in mother to assess transmission bias (hom SNPs in mothers more often het in offspring or reversse). 
