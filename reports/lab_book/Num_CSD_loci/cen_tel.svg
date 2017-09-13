@@ -15,7 +15,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.2 5c3e80d, 2017-08-06"
-   sodipodi:docname="dessin.svg">
+   sodipodi:docname="cen_tel.svg">
   <defs
      id="defs2">
     <marker
@@ -84,8 +84,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.49497475"
-     inkscape:cx="273.69307"
-     inkscape:cy="522.4149"
+     inkscape:cx="152.47477"
+     inkscape:cy="603.2271"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -112,10 +112,10 @@
      id="layer1">
     <rect
        style="opacity:0.56099997;fill:#6d8acc;fill-opacity:1;stroke:#00003c;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       y="227.75484"
-       x="80.660126"
-       height="29.860126"
-       width="27.592266"
+       y="227.23106"
+       x="80.686989"
+       height="31.463737"
+       width="21.177799"
        id="rect4529" />
     <ellipse
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2.48491335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -201,35 +201,28 @@
        cx="143.25952"
        rx="4.0368676"
        ry="3.9471602" />
-    <rect
-       id="rect4531"
-       width="56.958786"
-       height="29.442154"
-       x="111.95655"
-       y="227.75484"
-       style="opacity:0.56099997;fill:#6d8acc;fill-opacity:1;stroke:#00003c;stroke-width:1.08000255;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="82.398804"
-       y="268.57623"
+       x="80.811302"
+       y="269.63458"
        id="text4993"><tspan
          sodipodi:role="line"
          id="tspan4991"
-         x="82.398804"
-         y="268.57623"
+         x="80.811302"
+         y="269.63458"
          style="stroke-width:0.26458332">25%</tspan></text>
     <text
        id="text4997"
-       y="268.57623"
-       x="128.43629"
+       y="269.63458"
+       x="146.42795"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        xml:space="preserve"><tspan
          style="stroke-width:0.26458332"
-         y="268.57623"
-         x="128.43629"
+         y="269.63458"
+         x="146.42795"
          id="tspan4995"
-         sodipodi:role="line">75%</tspan></text>
+         sodipodi:role="line">25%</tspan></text>
     <ellipse
        ry="3.9471602"
        rx="4.0368676"
@@ -265,12 +258,12 @@
     <text
        id="text5037"
        y="224.66141"
-       x="124.88198"
+       x="139.69849"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        xml:space="preserve"><tspan
          style="stroke-width:0.26458332"
          y="224.66141"
-         x="124.88198"
+         x="139.69849"
          id="tspan5035"
          sodipodi:role="line">&quot;telo&quot;</tspan></text>
     <path
@@ -449,5 +442,12 @@
          x="121.28931"
          y="16.393854"
          style="stroke-width:0.26458332">terminal fusion</tspan></text>
+    <rect
+       id="rect967"
+       width="21.177799"
+       height="31.463737"
+       x="144.187"
+       y="227.23106"
+       style="opacity:0.56099997;fill:#6d8acc;fill-opacity:1;stroke:#00003c;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>

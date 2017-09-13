@@ -708,12 +708,12 @@ tl;dr : I don't think I can pull anything useful from this, data is too noisy. \
 
 \FloatBarrier
 Update: 13.09.2017\\
-To differentiate more reliably central vs terminal fusion individuals, I used a simpler method (Figure \ref{schema_cen_tel}). After transforming basepair coordinates in each chromosome into absolute distance from centromere, I separate each chromosome into 2 windows: "centro" for centromeric region and "telo" for telomeric region. The size of the centromeric region was set to 25\% of the maximum distance to centromere in each chromosome and the telomeric region contains all SNPs further than these 25\%. I compared the proportion of heterozygous SNPs in the two windows, first separating chromosomes (Figure \ref{cen_tel_chr}). Then, I tried pooling all chromosomes together in each individual and I compared the two windows using a linear model, weighting the value of each chromosome by the number of SNPs contained in the window (Figure \ref{cen_tel_lm}).
+To differentiate more reliably central vs terminal fusion individuals, I used a simpler method (Figure \ref{schema_cen_tel}). After transforming basepair coordinates in each chromosome into absolute distance from centromere, I separate each chromosome into 2 windows: "centro" for centromeric region and "telo" for telomeric region. The centromeric region contains all SNP located closest to the centromere within 25\% of the maximum distance to centromere recorded in the chromosome, while the telomeric region contains those in the furthest 25\%. I compared the proportion of heterozygous SNPs in the two windows, first separating chromosomes (Figure \ref{cen_tel_chr}). Then, I tried pooling all chromosomes together in each individual and I compared the two windows using a linear model, weighting the value of each chromosome by the number of SNPs contained in the window (Figure \ref{cen_tel_lm}).
 
 \begin{figure}[h]
 	\begin{center}
 		\includegraphics[width=0.5\textwidth]{Num_CSD_loci/cen_tel.pdf}
-		\caption{Method used to identify central fusion or terminal fusion individuals from genome-wide heterozygosity. Central fusion individuals (red) are expected to have high heterozygosity values decreasing towards centromeres while terminal fusion (blue) individuals are expected to have low heterozygosity increasing towards centromeres. The basepair coordinates of SNPs are first transformed into absolute distance from centromere. SNPs closer than 25\% of the maximum distance to centromere in each chromosome are pooled into one "centromeric" window and those 25\% or further are pooled into another "telomeric" window. The proportion of heterozygous SNPs is then computed separately in each window and the difference between those values is used to assign fusion mechanism.}
+		\caption{Method used to identify central fusion or terminal fusion individuals from genome-wide heterozygosity. Central fusion individuals (red) are expected to have high heterozygosity values decreasing towards centromeres while terminal fusion (blue) individuals are expected to have low heterozygosity increasing towards centromeres. The basepair coordinates of SNPs are first transformed into absolute distance from centromere. SNPs closer to the centromere than 25\% of the maximum distance to centromere in each chromosome are pooled into one "centromeric" window and those in the 25\% closest to the telomeres are pooled into another "telomeric" window. The proportion of heterozygous SNPs is then computed separately in each window and the difference between those values is used to assign fusion mechanism.}
 		\label{schema_cen_tel}
 	\end{center}
 \end{figure}
@@ -721,7 +721,7 @@ To differentiate more reliably central vs terminal fusion individuals, I used a 
 \begin{figure}[h]
 	\begin{center}
 		\includegraphics[width=1\textwidth]{Num_CSD_loci/line_centro25_telo_chr_fam.pdf}
-		\caption{Comparing the proportion of heterozygous SNPs in each chromosome among variant sites between the centromeric window (SNPs closer than 25\% of maximum distance to centromere) and telomeric window (SNPs further than 25\%). Only the 6 largest families are included for visualisation purpose.}
+		\caption{Comparing the proportion of heterozygous SNPs in each chromosome among variant sites between the centromeric window (SNPs closer than 25\% of maximum distance to centromere) and telomeric window (SNPs further than 75\%). Only the 6 largest families are included for visualisation purpose.}
 		\label{cen_tel_chr}
 	\end{center}
 \end{figure}
@@ -729,7 +729,7 @@ To differentiate more reliably central vs terminal fusion individuals, I used a 
 \begin{figure}[h]
 	\begin{center}
 		\includegraphics[width=1\textwidth]{Num_CSD_loci/lm_centro25_telo_fam.pdf}
-		\caption{Comparing the proportion of heterozygous SNPs pooling all chromosomes together, between the centromeric window (SNPs closer than 25\% of maximum distance to centromere) and telomeric window (SNPs further than 25\%). A linear model is performed to compare the 2 windows and the value of each chromosome is weighted by the number of SNPs used to compute the window.}
+		\caption{Comparing the proportion of heterozygous SNPs pooling all chromosomes together, between the centromeric window (SNPs closer than 25\% of maximum distance to centromere) and telomeric window (SNPs further than 75\%). A linear model is performed to compare the 2 windows and the value of each chromosome is weighted by the number of SNPs used to compute the window.}
 		\label{cen_tel_lm}
 	\end{center}
 \end{figure}
