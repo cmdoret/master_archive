@@ -733,7 +733,26 @@ To differentiate more reliably central vs terminal fusion individuals, I used a 
 		\label{cen_tel_lm}
 	\end{center}
 \end{figure}
+\FloatBarrier
 
+Date: 14.09.2017
+A more robust way of separating CFA from TFA individuals would be to only use the centromeric window and rely on the distribution of heterozygosity within that window to classify individuals. Just as above, I used a window including all SNPs around the centromere located within a region of 25\% of the maximum distance from the centromere within each chromosome. I first looked at the distribution separately for each chromosome (Figure \ref{dist_het_25cen_chr}) and by pooling all chromosome together (Figure \ref{dist_het_25cen}, using a weighted mean with the number of loci in the windows as the weights.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{Num_CSD_loci/Hist_25cen_het_chr.pdf}
+		\caption{Distribution of heterozygosity in centromeric windows across all individuals from libraries 7, 7b and 10b. Centromeric windows contain all SNPs located within 25\% of the maximum distance to centromere in each chromosome.}
+		\label{dist_het_25cen_chr}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{Num_CSD_loci/Hist_25cen_het.pdf}
+		\caption{Distribution of heterozygosity in centromeric windows across all individuals from libraries 7, 7b and 10b. Centromeric windows contain all SNPs located within 25\% of the maximum distance to centromere in each chromosome. All chromosomes were pooled together for each individuals using a weighted average where the weight of each chromosome is given by the number of SNPs contained in the window.}
+		\label{dist_het_25cen}
+	\end{center}
+\end{figure}
 \FloatBarrier
 
 \chapter{Male-Female Fst}

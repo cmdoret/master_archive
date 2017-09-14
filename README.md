@@ -37,6 +37,10 @@ To run the pipeline with new data in the form of demultiplexed, trimmed reads:
 
 ![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Excluding haploid males and loci homozygous in mothers from the analysis.
 
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Locate centromeres for each chromosome.
+
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Classify families by recombination rate.
+
 ![](https://placehold.it/15/ffff00/000000?text=+) __WIP:__ Perform association mapping to locate candidate region(s) for CSD
 
 ![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Look for annotated genes in candidate region(s)

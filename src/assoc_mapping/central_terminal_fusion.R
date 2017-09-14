@@ -154,3 +154,11 @@ ggplot(telo_cen[telo_cen$Family %in% big_fam,],
 ggplot(telo_cen, aes(x=region, y=Het., group=Name, col=as.factor(colindex), weight=Num.Loci)) +
   stat_smooth(method='lm', se=F) + facet_wrap(~Family) + guides(col=F)
 
+# Distribution of centromeric heterozygosity
+pool_ct <- telo_cen %>%
+  group_by(Name,region, Sex, Family) %>%
+  summarise(Het.=weighted.mean(x=Het., w=Num.Loci,na.rm = T))
+
+ggplot(telo_cen[telo_cen$region=='centro',], aes(x=Het.)) + geom_histogram() + facet_wrap(~Chr)
+ggplot(pool_ct[pool_ct$region=='centro',], aes(x=Het.)) + geom_histogram()
+ggplot(pool_ct[pool_ct$region=='centro',], aes(x=Het., y=Family)) + geom_joy()
