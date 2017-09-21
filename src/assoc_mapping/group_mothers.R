@@ -17,7 +17,7 @@ ploid <- read.table("data/ploidy/thresholds/fixed.tsv", header=T)
 scenario <- 2
 
 # Loading additional files
-fam_list <- read.table(pipe("cut -f2,4 data/families.txt"), header=T)
+fam_list <- read.table(pipe("cut -f2,4 data/families.tsv"), header=T)
 # Total number of non-sequenced offspring in each family
 tot_off <- read.table("data/total_offspring.tsv", header=T)
 
