@@ -14,9 +14,8 @@
 module add UHTS/Aligner/bwa/0.7.2;
 module add UHTS/Analysis/samtools/1.3;
 #module add UHTS/Aligner/bowtie2/2.2.4;
-main_dir=/scratch/beegfs/monthly/cmatthey
-data_dir=$main_dir/data/processed/
-index=$main_dir/data/ref_genome/ordered_genome/merged.fasta ## path and prefix of indexed genome files
+data_dir=data/processed/
+index=data/ref_genome/ordered_genome/merged.fasta ## path and prefix of indexed genome files
 
 threads=12
 
@@ -28,14 +27,14 @@ W=100 ## band width (mem)[100]
 #D=100 ## max dist between query and ref position (mem)
 #R=1.5 ## min reseeding length (mem)
 prefix=BWA
-out_dir=$main_dir/data/mapped/$ALG-$MM-$K-$W/
+out_dir=data/mapped/$ALG-$MM-$K-$W/
 
 ## Do some work:
 mkdir -p $out_dir/bam
 
 date
 
-for sample in $(cut -f1 $main_dir/data/popmap.tsv) #this is a list of sample names (similar as the popmap file for Populations, but without reproductive mode)
+for sample in $(cut -f1 data/popmap.tsv) #this is a list of sample names (similar as the popmap file for Populations, but without reproductive mode)
 do 
         echo "\nprocessing sample $sample\n";
         #cp -v $data_dir/$sample* $sample.fq.gz
@@ -51,7 +50,7 @@ do
                 ;;
         esac
         
-	perl $main_dir/src/mapping/split_sam.pl -i $out_dir/$sample-$prefix.sam -o $out_dir/$sample-$prefix >> $out_dir/split_summary.log ## change perl script path (script removes reads which map more than once)
+	perl src/mapping/split_sam.pl -i $out_dir/$sample-$prefix.sam -o $out_dir/$sample-$prefix >> $out_dir/split_summary.log ## change perl script path (script removes reads which map more than once)
 	rm -v $out_dir/$sample-$prefix.sam
     # cd $out_dir/bam/
 	samtools view -@ $threads -bS -o $out_dir/bam/$sample-$prefix-uniq.bam $out_dir/$sample-$prefix-uniq.sam ## converts from SAM to BAM

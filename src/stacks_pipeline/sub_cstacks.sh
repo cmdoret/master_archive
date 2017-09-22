@@ -16,7 +16,7 @@
 # 22.04.2017
 
 M=3
-wd=/scratch/beegfs/monthly/cmatthey/data ## the directory containing the pstacks files
+wd=data ## the directory containing the pstacks files
 MM=1  # Mismatches allowed between samples when building loci
 declare -i n=0 tot=0  # n is the number of samples, tot will store total number of radtags
 

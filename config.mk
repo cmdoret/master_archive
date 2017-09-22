@@ -1,5 +1,3 @@
-# Project folder
-MAIN=/scratch/beegfs/monthly/cmatthey
 # Best not changing DAT
 DAT=./data
 PROC=$(DAT)/processed
