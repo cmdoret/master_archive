@@ -38,7 +38,8 @@ $(SSTACK) : $(CSTACK)
 $(POP) : $(SSTACK) $(POP-SRC)
 	rm -rf $@
 	mkdir -p $@
-	rm -rf $(DAT)/logs/populations  # Erasing logs from previous run
+	# Erasing logs from previous run
+	rm -rf $(DAT)/logs/populations
 	mkdir -p $(DAT)/logs/populations
 	sed -i'' "s^\(od=\).*^\1$(POP)^g" $(POP-SRC)
 	sed -i'' "s/\(R=\).*/\10\.$(R)/g" $(POP-SRC)

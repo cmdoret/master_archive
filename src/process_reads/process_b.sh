@@ -3,11 +3,11 @@
 # Cyril Matthey-Doret
 # 15.03.2017
 
-if [[ $# -eq 0 ]] ; then
+if [[ $# -eq 4 ]] ; then
     echo 'I need the ID of the library !'
     exit 0
 fi
-ID=$1
+ID="12b"
 if [ $# -ge 2 ]
 then
     MM=$1

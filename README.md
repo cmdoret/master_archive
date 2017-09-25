@@ -16,24 +16,25 @@ To run the pipeline with the data provided:
 5. Untar the data using ```tar -xzvf data.tar.gz data```
 6. Type ```make``` to run the pipeline
 
-To run the pipeline with new data in the form of demultiplexed, trimmed reads:
-1. Describe your samples by writing 2 files named `popmap.tsv` and `individuals.tsv`, respectively. The structure of the `popmap.tsv` file is described on the [official STACKS website](http://catchenlab.life.illinois.edu/stacks/manual/) (here, populations should be the sex of individuals). The `individuals.tsv` file is a tab delimited text file with 4 columns with the following headers included:
+To run the pipeline with new data in the form of demultiplexed, trimmed reads in compressed fastq files (.fq.gz):
+1. Describe your samples by writing 2 files named `popmap.tsv` and `individuals.tsv`, respectively. The structure of the `popmap.tsv` file is described on the [official STACKS website](http://catchenlab.life.illinois.edu/stacks/manual/) (here, populations should be the sex of individuals). The `individuals.tsv` file is a tab delimited text file with 4 columns with the following headers __included__:
 * Name: The name of samples. This should be the prefix of their data files.
 * Sex: F for females and M for males.
 * Family: Clutches to which the individual belongs. These can be any combination of letters and numbers.
 * Generation: Useful if there are mothers and offspring. Values should be F3 for mothers and F4 for offspring.
 2. Create an empty folder named data and place the 2 files inside. This folder needs to be located inside the same directory as src.
 3. Place your reads in a subfolder of data named `processed` and your reference genome in a subfolder named `ref_genome`. If you wish to use different folder names, just edit the corresponding paths in `config.mk`.
-4. Type `make` in the command line. Once the pipeline has finished running, type `make ploidy` to infer ploidy from the homozygosity of variant sites. Note the threshold selected to define ploidy is adapted to the dataset presented here. You will probably need to define a threshold yourself by inspecting the distribution of homozygosity (HOM variable) in `data/ploidy/thresholds/fixed.tsv` and set the variable  `fixed_thresh` in `src/ploidy/haplo_males.py` to this value. Once you have modified the threshold, run `make ploidy` again to update the ploidy.
+
+4. Type `make` in the command line. Once the pipeline has finished running, type `make ploidy` to infer ploidy from the homozygosity of variant sites. Note the threshold selected to define ploidy is adapted to the dataset presented here. You will probably need to define a threshold yourself by inspecting the distribution of homozygosity (HOM variable) in `data/ploidy/thresholds/fixed.tsv` and set the variable  `fixed_thresh` in `src/ploidy/haplo_males.py` to this value. Once you have modified the threshold, run `make ploidy` again to update the ploidy classification with the new threshold.
 5. Type `make -B` to run the pipeline again without haploids.
 
 ### Status:
 
-![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Quality control and Processing of RAD-seq data
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Quality control and Processing of RAD-seq data.
 
-![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Transformation of data into catalogue of loci
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Transformation of data into catalogue of loci.
 
-![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Measuring heterozygosity levels and other statistics per individual and per loci
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Measuring heterozygosity levels and other statistics per individual and per loci.
 
 ![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Excluding haploid males and loci homozygous in mothers from the analysis.
 
@@ -41,11 +42,11 @@ To run the pipeline with new data in the form of demultiplexed, trimmed reads:
 
 ![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Classify families by recombination rate.
 
-![](https://placehold.it/15/ffff00/000000?text=+) __WIP:__ Perform association mapping to locate candidate region(s) for CSD
+![](https://placehold.it/15/ffff00/000000?text=+) __WIP:__ Perform association mapping to locate candidate region(s) for CSD.
 
-![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Look for annotated genes in candidate region(s)
+![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Look for annotated genes in candidate region(s).
 
-![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Look for homologies to identify potential paralogs and orthologs
+![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Look for homologies to identify potential paralogs and orthologs.
 
 ### Dependencies:
 * [FastQC 0.11.5](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/): Quality control of sequencing data.
@@ -75,7 +76,7 @@ The `src` folders contains all scripts required to run the analysis along with o
 * `archive`: This folder contains previous versions of scripts and code snippets which may prove useful again.
 
 
-* `process_reads`: This folder contains script for demultiplexing, trimming and removing adaptors from raw sequencing reads. These are not implemented in the pipeline.
+* `process_reads`: This folder contains script for demultiplexing, trimming and removing adaptors from raw sequencing reads. These are not implemented in the pipeline as the processed reads are provided.
   + `process_reads`: Template for processing raw reads using the `process_radtags` module from STACKS, which allows to detect restriction sites from RAD-sequencing and perform all common read processing steps.
   + `qc.sh`: small template script for quality control using fastqc.
 
@@ -86,11 +87,11 @@ The `src` folders contains all scripts required to run the analysis along with o
   + `split_sam.pl`: Parses the output sam files to split single hits and multiple hits into separate files and convert the files into bam format.
 
 
-* `misc`: This folder contains various scripts that are not required for the main pipeline, but are needed for report generation, benchmarking and exploring the parameter space to optimize the pipeline.
+* `misc`: This folder contains various scripts, most of which are not required for the main pipeline, but are needed for report generation, benchmarking and exploring the parameter space to optimize the pipeline.
   + `map_param.py`: Generates a line plot to visualize the mapping statistics produced by `parse_summaries.sh` in the report.
   + `parse_pstacks.sh`: Parses the log files obtained by pstacks with different parameter values to produce a table of summary statistics for the report.
   + `parse_cstacks.sh`: Parses the cstacks output catalogue to compute summary statistics and store them in a table for the report.
-  + `parse_VCF.sh`: Uses vcftools to compute several statistics from the output VCF file returned by the populations module of STACKS and store them in text files inside the `vcftools` subfolder.
+  + `parse_VCF.sh`: Uses vcftools to compute several statistics from the output VCF file returned by the populations module of STACKS and store them in text files inside the `vcftools` subfolder. This script is used in the `ploidy` Makefile rule, when inferring the ploidy of males.
   + `plot_VCF.R`: Produces barplots to visualize the output statistics extracted by `parse_VCF.sh`: Plots are stored in the `vcftools` subfolder and used in the report.
   + `assembly_stats.R`: Generates a table with standard descriptive statistics of the assembly (N50, number of contigs...).
   + `explo_assoc.py`: Uses genotype matrices of each family to measure proportion of heterozygosity across individuals of each SNPs, and producing visualizations. Also produces a list of SNPs that are homozygous in mothers and another list of "potential CSD candidates".
@@ -117,7 +118,7 @@ The `src` folders contains all scripts required to run the analysis along with o
   + `assoc_map.R`: Performs the actual association mapping, incorporating linkage map information. (WIP)
   + `vcf2ped.sh`: transforms vcf files into ped files, compatible with GenABEL for association mapping.
   + `CSD_scan.R`: Genome scan to find region of both high homozygosity in males and high heterozygosity in females.
-  + `chrom_types.R`: Modelling recombination rates along chromosomes to locate centromeres and refine the list CSD hits using this information.
+  + `chrom_types.R`: Modeling recombination rates along chromosomes to locate centromeres and refine the list CSD hits using this information.
   + `group_mothers.R`: Group mothers by clustering them according to diploid males production to infer the number of heterozygous CSD loci.
   + `blast_loci.sh`: Quickly blast candidate genomic regions.
   + `process_genomic.py`: Process genomic output from STACKS' populations module by transforming numeric encoding of genotypes into homozygous/heterozygous/missing, removing loci that are either homozygous or missing in mothers from their families and computing proportion of homozygous individuals per sex/family at each site.
