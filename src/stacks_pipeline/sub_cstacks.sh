@@ -3,11 +3,11 @@
 #BSUB -o %J_STDOUT.log
 #BSUB -e %J_STDERR.log
 #BSUB -J Cstacks_${j}
-#BSUB -n 3
-#BSUB -R "span[ptile=3]"
-#BSUB -R "rusage[mem=30000]"
-#BSUB -M 30000000
-#BSUB -q normal
+#BSUB -n 5
+#BSUB -R "span[ptile=5]"
+#BSUB -R "rusage[mem=10000]"
+#BSUB -M 10000000
+#BSUB -q long
 
 ## This script will build a catalogue of loci using cstacks, given a set of pstacks output.
 ## It will exclude samples with very low number of reads from the catalogue (less than 10% of
@@ -38,4 +38,4 @@ done;
 
 module add UHTS/Analysis/stacks/1.30;
 
-cstacks -o $wd/cstacks/mm-$MM -n $MM -p 3 $samp;
+cstacks -o $wd/cstacks/mm-$MM -n $MM -p 5 $samp;
