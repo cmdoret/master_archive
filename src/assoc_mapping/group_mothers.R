@@ -13,13 +13,13 @@ scenario <- as.numeric(args_list[1])  # Number of CSD loci considered
 ploid <- read.table(args_list[2], header=T)  # Path to input file
 out <- args_list[3]  # Output path
 ###DEBUG
-ploid <- read.table("data/ploidy/thresholds/fixed.tsv", header=T)  
+ploid <- read.table("../../data/ploidy/thresholds/fixed.tsv", header=T)  
 scenario <- 2
 
 # Loading additional files
-fam_list <- read.table(pipe("cut -f2,4 data/families.tsv"), header=T)
+fam_list <- read.table(pipe("cut -f2,4 ../../data/families.tsv"), header=T)
 # Total number of non-sequenced offspring in each family
-tot_off <- read.table("data/total_offspring.tsv", header=T)
+tot_off <- read.table("../../data/total_offspring.tsv", header=T)
 
 #==== PROCESSING ====#
 fam_list <- unique(fam_list)  # Used for mother ID - Family name correspondance
