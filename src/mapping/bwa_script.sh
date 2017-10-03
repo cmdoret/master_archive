@@ -7,7 +7,7 @@
 #BSUB -J bam
 #BSUB -n 12
 #BSUB -R "span[ptile=12]"
-#BSUB -q normal
+#BSUB -q long
 #BSUB -R "rusage[mem=16000]"
 #BSUB -M 16000000
 
@@ -35,11 +35,11 @@ mkdir -p $out_dir/bam
 date
 
 for sample in $(cut -f1 data/popmap.tsv) #this is a list of sample names (similar as the popmap file for Populations, but without reproductive mode)
-do 
+do
         echo "\nprocessing sample $sample\n";
         #cp -v $data_dir/$sample* $sample.fq.gz
         #gunzip -v $sample.fq.gz
-        
+
         case $ALG in
             'mem')
                 bwa mem -k $K -t $threads -w $W  $index $data_dir/$sample.fq.gz > $out_dir/$sample-$prefix.sam
@@ -49,7 +49,7 @@ do
                 bwa samse -n 3 $index $out_dir/$sample.sai $data_dir/$sample.fq.gz > $out_dir/$sample-$prefix.sam # index alignment file
                 ;;
         esac
-        
+
 	perl src/mapping/split_sam.pl -i $out_dir/$sample-$prefix.sam -o $out_dir/$sample-$prefix >> $out_dir/split_summary.log ## change perl script path (script removes reads which map more than once)
 	rm -v $out_dir/$sample-$prefix.sam
     # cd $out_dir/bam/
