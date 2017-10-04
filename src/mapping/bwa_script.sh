@@ -23,7 +23,7 @@ date
 
 for sample in $(cut -f1 data/popmap.tsv) #this is a list of sample names (similar as the popmap file for Populations, but without reproductive mode)
 do
-  while [ $(bjobs -w | awk '/RUN/ {print $7}' | grep 'bam' | wc -l) -gt 20 ]
+  while [ $(bjobs -w | awk '/RUN/ {print $7}' | grep 'bam' | wc -l) -gt 40 ]
   do
     sleep 1;
   done
@@ -66,10 +66,11 @@ do
   	samtools idxstats $out_dir/bam/$sample-$prefix-uniq.sorted.bam # get index stats
   	rm -v $out_dir/bam/$sample-$prefix-uniq.bam ## remove unsorted bam file
   	date
+    gzip -v $out_dir/$sample*.sam # gzip sam files
 TMPSCRIPT
 done
 
-gzip -v $out_dir/*.sam # gzip sam files
+
 
 while [ $(bjobs -w | awk '/RUN/ {print $7}' | grep 'bam' | wc -l) -gt 0 ]
 do
