@@ -13,13 +13,13 @@ scenario <- as.numeric(args_list[1])  # Number of CSD loci considered
 ploid <- read.table(args_list[2], header=T)  # Path to input file
 out <- args_list[3]  # Output path
 ###DEBUG
-ploid <- read.table("../../data/ploidy/thresholds/fixed.tsv", header=T)  
-scenario <- 2
+scenario <- 3
+ploid <- read.table("data/ploidy/thresholds/fixed.tsv", header=T)  
 
 # Loading additional files
-fam_list <- read.table(pipe("cut -f2,4 ../../data/families.tsv"), header=T)
+fam_list <- read.table(pipe("cut -f2,4 data/families.tsv"), header=T)
 # Total number of non-sequenced offspring in each family
-tot_off <- read.table("../../data/total_offspring.tsv", header=T)
+tot_off <- read.table("data/total_offspring.tsv", header=T)
 
 #==== PROCESSING ====#
 fam_list <- unique(fam_list)  # Used for mother ID - Family name correspondance
@@ -40,7 +40,8 @@ diplo_off <- tot_off %>%
   mutate(infer_2n=sons*prop_2n) %>%
   select(-unknown, -prop_2n, -tot_M, -sons) %>%
   mutate(prop_male=round(infer_2n/(daughters+infer_2n),3))
-
+diplo_off <- diplo_off[!is.na(diplo_off$prop_male),]
+rownames(diplo_off) <- NULL
 #=== CLUSTERING ===#
 # Expected number of categories is a function of the number of CSD loci
 ngroups <- 2^scenario-1
@@ -48,7 +49,7 @@ ngroups <- 2^scenario-1
 
 # Using Pascal's triangle to get count of genotypes 
 # with n het loci where 0 < n <= scenario
-# Note: n < 0 since 0 het loci lead to male
+# Note: n > 0 since 0 het loci lead to male
 #x <- 1
 #for (i in 1:scenario) { x <- c(0, x) + c(x, 0)}
 

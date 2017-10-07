@@ -29,7 +29,7 @@ GRFAM=T  # Boolean variable: group families in 1 populations run ?
 # POP-SRC=src/stacks_pipeline/pop_FST.sh
 POP-SRC=src/stacks_pipeline/populations.sh
 R=80
-D=20
+D=5
 
 # Misc: report generation
 LAB=reports/lab_book

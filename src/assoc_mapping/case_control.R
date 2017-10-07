@@ -17,14 +17,13 @@ out_folder <- in_args[3]
 sum_stat <- sum_stat[sum_stat$N.Males>0 & sum_stat$N.Females>0,]
 sum_stat <- sum_stat[!is.na(sum_stat$Prop.Hom),]
 
-#!!!!!! TODO !!!!!!#
 # Map families to mother categories
 sum_stat$cluster <- groups$cluster[match(sum_stat$Family, groups$Family)]
 sum_stat <- sum_stat[!is.na(sum_stat$cluster),]
 
 # Group SNP by mother category
 cat_stat <- sum_stat %>%
-  group_by(Locus.ID, Chr, BP, cluster) %>%
+  group_by(Locus.ID, Chr, BP, Family) %>%
   summarise(Nf=sum(N.Females), Nm=sum(N.Males), N=sum(N.Samples), 
             Prop.Hom=sum(Prop.Hom*N.Samples, na.rm=T)/sum(N.Samples, na.rm=T), 
             Prop.Hom.F=sum(Prop.Hom.F*N.Females, na.rm=T)/sum(N.Females, na.rm=T), 
@@ -55,17 +54,17 @@ odds_list <- cat_stat %>%
 
 odds_list$fisher <- apply(odds_list, 1,  get_fisher)
 
-odds_list$fisher <- p.adjust(odds_list$fisher, method = "BH")
-for(group in unique(odds_list$cluster)){
-  odds_list$fisher[odds_list$cluster==group] <- p.adjust(odds_list$fisher[odds_list$cluster==group], method = "BH")
+#odds_list$fisher <- p.adjust(odds_list$fisher, method = "bonferroni")
+for(group in unique(odds_list$Family)){
+  odds_list$fisher[odds_list$Famly==group] <- p.adjust(odds_list$fisher[odds_list$Family==group], method = "BH")
 }
 nloci <- log2(max(groups$cluster)+1)
 #========= VISUALISE ========#
 odds_chrom <- odds_list[grep("chr.*",odds_list$Chr),]
 pdf(paste0(out_folder, "/../plots/","case_control_hits_",nloci,"loci.pdf"), width=12, height=12)
-ggplot(data=odds_chrom, aes(x=BP, y=-log10(fisher))) + facet_grid(cluster~Chr, scales='free_x') + geom_point() + 
+ggplot(data=odds_chrom, aes(x=BP, y=-log10(fisher), col=Family)) + geom_point() + facet_grid(~Chr, scales='free_x') +  
   geom_hline(aes(yintercept=-log10(0.05))) + geom_hline(aes(yintercept=-log10(0.01)), lty=2, col='red') + 
-  xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control associaiton test for CSD")
+  xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control associaiton test for CSD") + ylim(c(0,10))
 dev.off()
 #======= WRITE OUTPUT =======#
 # Number of groups is (2^n)-1 where n is the number of CSD loci
