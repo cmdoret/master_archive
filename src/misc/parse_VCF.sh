@@ -1,6 +1,6 @@
 # Parsing the output VCF file from populations runs in each family
 # into summarized tables and convenient genotype matrices.
-# Takes 2 argument: input path and whether populations was run separately 
+# Takes 2 argument: input path and whether populations was run separately
 # for each family (F), or once for all individuals (T)
 # Cyril Matthey-Doret
 # 24.06.2017
@@ -15,14 +15,14 @@ out_path=data/ploidy/vcftools
 rm -rf $out_path
 mkdir -p $out_path
 
-group=$2  
+group=$2
 # did populations run separately for each family (F) or only once for all individuals (T).
 
 if [ $group = "T" ]
 then
     mkdir -p $out_path/all/
     if [ -f $1/*.vcf ]
-    then        
+    then
         vcftools --vcf $1/*.vcf --out $out_path/all/all --depth;
         # Mean read depth per individual
         vcftools --vcf $1/*.vcf --out $out_path/all/all --het;
@@ -61,4 +61,7 @@ else
         fi
     done
 fi
-sed -i'' '/nan/d' $out_path/summary_full.txt
+
+# Removing empty lines from summary. bak file is used for BSD-sed compatibility
+sed -i '.bak' '/nan/d;' "$out_path/summary_full.txt"
+rm -f "$out_path/summary_full.txt.bak"

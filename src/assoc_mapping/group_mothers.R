@@ -59,9 +59,9 @@ ngroups <- 2^scenario-1
 km_output <- kmeans(diplo_off$prop_male,centers = ngroups)
 diplo_off$cluster <- km_output$cluster
 pdf(paste0(dirname(out), "/plots/mother_groups.pdf"))
-ggplot(data=diplo_off, aes(x=prop_male, fill=as.factor(cluster))) + geom_histogram() +
+ggplot(data=diplo_off, aes(x=prop_male, fill=as.factor(cluster))) + geom_histogram(binwidth=0.02) +
  ggtitle("Male proportion per family") + xlab("Proportion of males") + theme_bw() +
- scale_fill_discrete(name="Heterozygous loci", labels=c("a","b", "a+b")) + ylab("Number of families") +
+ scale_fill_discrete(name="Heterozygous loci", labels=c("a+b","a", "b")) + ylab("Number of families") +
  ylab("Number of families") + geom_vline(data=data.frame(km_output$centers),
                                          aes(xintercept=km_output.centers), col='red', lty=2)
 

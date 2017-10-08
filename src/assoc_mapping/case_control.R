@@ -23,7 +23,7 @@ sum_stat <- sum_stat[!is.na(sum_stat$cluster),]
 
 # Group SNP by mother category
 cat_stat <- sum_stat %>%
-  group_by(Locus.ID, Chr, BP, Family) %>%
+  group_by(Locus.ID, Chr, BP, cluster) %>%
   summarise(Nf=sum(N.Females), Nm=sum(N.Males), N=sum(N.Samples), 
             Prop.Hom=sum(Prop.Hom*N.Samples, na.rm=T)/sum(N.Samples, na.rm=T), 
             Prop.Hom.F=sum(Prop.Hom.F*N.Females, na.rm=T)/sum(N.Females, na.rm=T), 
@@ -38,8 +38,11 @@ cat_stat <- sum_stat %>%
 # o:homozygous, e:heterozygous, t:hom+het, E: Expected
 
 get_fisher <- function(df){
-  mat <- matrix(as.numeric(df[c(8:11)]), ncol=2)
-  f <- fisher.test(as.table(mat), alt="two.sided")
+  # Computes fisher exact test on one row of the dataframe.
+  # alternative=greater -> test if males are more heterozygous than females
+  # alternative=less -> test if males are more homozygous than females
+  mat <- matrix(as.numeric(df[c("Fo","Mo","Fe","Me")]), ncol=2)
+  f <- fisher.test(as.table(mat), alt="less")
   return(f$p.value)
 }
 
@@ -54,17 +57,17 @@ odds_list <- cat_stat %>%
 
 odds_list$fisher <- apply(odds_list, 1,  get_fisher)
 
-#odds_list$fisher <- p.adjust(odds_list$fisher, method = "bonferroni")
-for(group in unique(odds_list$Family)){
-  odds_list$fisher[odds_list$Famly==group] <- p.adjust(odds_list$fisher[odds_list$Family==group], method = "BH")
+#odds_list$fisher <- p.adjust(odds_list$fisher, method = "BH")
+for(group in unique(odds_list$cluster)){
+  odds_list$fisher[odds_list$cluster==group] <- p.adjust(odds_list$fisher[odds_list$cluster==group], method = "BH")
 }
 nloci <- log2(max(groups$cluster)+1)
 #========= VISUALISE ========#
 odds_chrom <- odds_list[grep("chr.*",odds_list$Chr),]
 pdf(paste0(out_folder, "/../plots/","case_control_hits_",nloci,"loci.pdf"), width=12, height=12)
-ggplot(data=odds_chrom, aes(x=BP, y=-log10(fisher), col=Family)) + geom_point() + facet_grid(~Chr, scales='free_x') +  
+ggplot(data=odds_chrom, aes(x=BP, y=-log10(fisher))) + geom_point() + facet_grid(cluster~Chr, scales='free_x') +  
   geom_hline(aes(yintercept=-log10(0.05))) + geom_hline(aes(yintercept=-log10(0.01)), lty=2, col='red') + 
-  xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control associaiton test for CSD") + ylim(c(0,10))
+  xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control association test for CSD") + ylim(c(0,10))
 dev.off()
 #======= WRITE OUTPUT =======#
 # Number of groups is (2^n)-1 where n is the number of CSD loci

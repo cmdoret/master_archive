@@ -71,6 +71,26 @@ assoc_mapping : $(CENTRO) $(ASSOC)/grouped_prophom.tsv
 	mkdir -p $(ASSOC)/case_control
 	Rscript $(ASSOC-SRC)/case_control.R $(ASSOC)/mother_groups.tsv $(ASSOC)/grouped_prophom.tsv $(ASSOC)/case_control/
 
+
+# This rule is used to split haploid and diploid males.
+# This has already been done under stringent parameters (d=25)
+.PHONY : ploidy
+ploidy:
+	mkdir -p $(DAT)/ploidy/thresholds
+	bash $(MISC)/parse_VCF.sh $(POP) $(GRFAM)
+	# Parsing VCF file from populations output
+	python2 src/ploidy/haplo_males.py $(VCFSUM) $(THRESH)
+	# Building list of haploid males
+	mkdir -p reports/lab_book/assoc_explo_fam
+	mkdir -p data/SNP_lists
+	# Creating folder to store new plots if necessary
+	#python2 src/misc/explo_assoc.py data/ploidy/vcftools/ $(THRESH) $(GRFAM)
+	# Plotting exploratory results for het. at each SNP
+	mkdir -p reports/lab_book/ploidy_per_fam
+	Rscript src/ploidy/prop_offspring.R $(THRESH)
+	# Proportion of offspring type per family
+
+
 # Rule for building lab book figures, tables and compiling Latex script
 # Needs the all main steps to be run first
 .PHONY : lab_book
@@ -102,28 +122,6 @@ clean :
 	rm -rf bam
 	rm -rf bsub_scripts
 
-
-# This rule is used to split haploid and diploid males.
-# This has already been done under stringent parameters (d=25)
-.PHONY : ploidy
-ploidy:
-	mkdir -p $(DAT)/ploidy/thresholds
-	bash $(MISC)/parse_VCF.sh $(POP) $(GRFAM)
-	# Parsing VCF file from populations output
-	python2 src/ploidy/haplo_males.py $(VCFSUM)
-	# Building list of haploid males
-	mkdir -p data/ploidy/plots/density
-	mkdir -p data/ploidy/plots/barplots
-	Rscript src/ploidy/comp_thresh.R $(THRESH)
-	# Visualize different thresholds with resulting ploidies
-	mkdir -p reports/lab_book/assoc_explo_fam
-	mkdir -p data/SNP_lists
-	# Creating folder to store new plots if necessary
-	python2 src/misc/explo_assoc.py data/ploidy/vcftools/ $(THRESH) $(GRFAM)
-	# Plotting exploratory results for het. at each SNP
-	mkdir -p reports/lab_book/ploidy_per_fam
-	# for t in data/ploidy/thresholds/*; do Rscript src/ploidy/prop_offspring.R $$t;done
-	# Proportion of offspring type per family
 
 # Saving an archive folder with all the data and parameters used.
 # Not tested, probably very slow and memory consuming. Careful with this.

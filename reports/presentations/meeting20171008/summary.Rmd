@@ -1,0 +1,89 @@
+---
+title: 'New sequencing data: Early results'
+author: "Cyril Matthey-Doret"
+date: "08/10/2017"
+header-includes:
+   - \usepackage{placeins}
+output: pdf_document
+---
+
+# General statistics
+
+## Number of individuals
+From the 768 processed samples, 704 made it to the end of the pipeline. Out of those, there were 365 haploid males. Among the 339 diploid individuals left, there are 176 males and 163 females. There is a total of 60 families among which 48 contain diploid individuals and 37 contain both diploid males and females.
+
+## Homozygosity values
+Proportion of homozygosity among variant sites was used to classify individuals as haploid or diploid. The figure below represents the distribution of homozygosity. across all individuals
+
+```{r hom_dist, echo=FALSE, fig.cap="Distribution of the proportion of homozygosity among variant sites per individuals.", out.width='60%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/hom_dist.pdf')
+```
+
+# Grouping families
+
+The goal in this section is to split families into groups that reflect the CSD genotype of the mothers. I attempted to achieve this by clusterint families according to the proportion of males among diploid offspring. Because we only sequence a fraction of the offspring in each family, I computed the rate or haploidy among sequenced males in each family and extrapolated this proportion to all (non-sequenced) males to infer the total number of diploid males. I then used these values to measure the ratio of diploid males to diploid offspring.
+
+The expected number of groups depend on the number of CSD loci we consider. Each group will reflect the number of heterozygous CSD loci in the mothers as follows.
+
+```{r prop_gr, echo=FALSE, fig.cap="Possible mother genotypes of mothers with associated proportion of diploid males when considering different number of CSD loci. The proportion of diploid males produced by a mother (Pd) depends on the recombination rate $r_x$ at the heterozygous CSD loci.", out.width='60%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/prop_table.pdf')
+```
+
+I clustered families automatically using the k-means methods in order to obtain unbiased groups. I considered 2 different scenarios: 2 CSD loci on different chromosomal arms and 3 CSD loci on different chromosomal arms. I don't have enough families to detect scenarios with more loci. The clusters are not clearly separated and this could be due to: inaccurate metric, high number of loci, high variability in recombination rates... ?
+
+
+```{r groups, echo=FALSE, fig.cap="Family groups obtained through k-means clustering based on inferred proportion of males among diploid offspring. top: scenario considering 2 loci on different chromosomal arms, genotypes corresponding to the clusters are displayed in the legend. bottom: scenario considering 3 loci on different chromosomal arms. Genorypes are not displayed as they will depend on the relative recombination rates of the loci. Piecharts show the number of families belonging to each cluster.", out.width='80%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/full_groups.pdf')
+```
+
+\FloatBarrier
+
+# Association mapping
+
+I performed association mapping both pooling all families together, or splitting them according to the two scenario above. I use one-sided Fisher exact test on each locus to test if there is a there is a positive association between heterozygosity at the locus and female sex.
+
+## 2 loci
+
+```{r C2L_nocorr, echo=FALSE, fig.cap="Association mapping considering 2 loci scenario. No correction for multiple testing was applied.", out.width='80%',fig.pos='h!', fig.align='center'}
+knitr::include_graphics('./figures/association_mapping/case_2loci_nocorr.pdf')
+```
+
+
+```{r C2L_BH, echo=FALSE, fig.cap="Association mapping considering 2 loci scenario. Benjamini-Hochberg correction for multiple testing was applied.", out.width='80%',fig.pos='h!', fig.align='center'}
+knitr::include_graphics('./figures/association_mapping/case_2loci_BH.pdf')
+```
+
+\FloatBarrier
+
+## 3 loci
+
+```{r C3L_nocorr, echo=FALSE, fig.cap="Association mapping considering 3 loci scenario. No correction for multiple testing was applied.", out.width='80%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/association_mapping/case_3loci_nocorr.pdf')
+```
+
+
+```{r C3L_BH, echo=FALSE, fig.cap="Association mapping considering 3 loci scenario. Benjamini-Hochberg correction for multiple testing was applied.", out.width='80%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/association_mapping/case_3loci_BH.pdf')
+```
+
+\FloatBarrier
+
+## Pooling all families
+
+
+```{r CP_nocorr, echo=FALSE, fig.cap="Association mapping pooling all families together. No correction for multiple testing was applied.", out.width='80%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/association_mapping/case_pooled_nocorr.pdf')
+```
+
+
+```{r CP_BH, echo=FALSE, fig.cap="Association mapping pooling all families together. Benjamini-Hochberg for multiple testing was applied.", out.width='80%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/association_mapping/case_pooled_BH.pdf')
+```
+
+```{r CP_bonferroni, echo=FALSE, fig.cap="Association mapping pooling all families together. Bonferroni for multiple testing was applied.", out.width='80%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/association_mapping/case_pooled_bonferroni.pdf')
+```
+
+\FloatBarrier
+
+# Centromeres

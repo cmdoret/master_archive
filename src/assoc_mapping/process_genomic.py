@@ -1,13 +1,14 @@
-# This script process the "genomic" output from populations,
-# turning the genotype encoding into a proportion of homozygosity
-# and removing SNPs that are homozygous or missing in mothers
-# from their respective offspring. Since genomics output file from
-# populations are typically huge, the script takes quite a long time
-# to run although it is parallelized and will automatically use all
-# core available on the host. It takes 2 arguments: the path to the
-# folder containing populations files, used as input, and the folder where
-# the output will be written.
-# TODO: make script compatible with per-family populations run.
+"""
+This script process the "genomic" output from populations,
+turning the genotype encoding into a proportion of homozygosity
+and removing SNPs that are homozygous or missing in mothers
+from their respective offspring. Since genomics output file from
+populations are typically huge, the script takes quite a long time
+to run although it is parallelized and will automatically use all
+core available on the host. It takes 2 arguments: the path to the
+folder containing populations files, used as input, and the folder where
+the output will be written.
+"""
 # Cyril Matthey-Doret
 # 11.08.2017
 
