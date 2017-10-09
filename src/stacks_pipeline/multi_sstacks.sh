@@ -52,10 +52,10 @@ do
     echo "#BSUB -q priority" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
 
-    echo "module add UHTS/Analysis/stacks/1.30" >> ./bsub_scripts/bsub_${j}_script.sh
+    echo "module add UHTS/Analysis/stacks/1.46" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
 
-    echo "sstacks -b 1 -c $1/batch_0 -s $i -o ./data/sstacks/ -p 3" >> ./bsub_scripts/bsub_${j}_script.sh
+    echo "sstacks -b 1 -c $1/batch_1 -s $i -o ./data/sstacks/ -p 3" >> ./bsub_scripts/bsub_${j}_script.sh
 
 done
 

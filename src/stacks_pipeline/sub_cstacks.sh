@@ -36,6 +36,6 @@ do
     fi;
 done;
 
-module add UHTS/Analysis/stacks/1.30;
+module add UHTS/Analysis/stacks/1.46;
 
 cstacks -o $wd/cstacks/mm-$MM -n $MM -p 5 $samp;

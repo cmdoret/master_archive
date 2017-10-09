@@ -23,7 +23,7 @@ sum_stat <- sum_stat[!is.na(sum_stat$cluster),]
 
 # Group SNP by mother category
 cat_stat <- sum_stat %>%
-  group_by(Locus.ID, Chr, BP, cluster) %>%
+  group_by(Locus.ID, Chr, BP) %>%
   summarise(Nf=sum(N.Females), Nm=sum(N.Males), N=sum(N.Samples), 
             Prop.Hom=sum(Prop.Hom*N.Samples, na.rm=T)/sum(N.Samples, na.rm=T), 
             Prop.Hom.F=sum(Prop.Hom.F*N.Females, na.rm=T)/sum(N.Females, na.rm=T), 
@@ -57,7 +57,7 @@ odds_list <- cat_stat %>%
 
 odds_list$fisher <- apply(odds_list, 1,  get_fisher)
 
-#odds_list$fisher <- p.adjust(odds_list$fisher, method = "BH")
+#odds_list$fisher <- p.adjust(odds_list$fisher, method = "bonferroni")
 for(group in unique(odds_list$cluster)){
   odds_list$fisher[odds_list$cluster==group] <- p.adjust(odds_list$fisher[odds_list$cluster==group], method = "BH")
 }
@@ -65,10 +65,19 @@ nloci <- log2(max(groups$cluster)+1)
 #========= VISUALISE ========#
 odds_chrom <- odds_list[grep("chr.*",odds_list$Chr),]
 pdf(paste0(out_folder, "/../plots/","case_control_hits_",nloci,"loci.pdf"), width=12, height=12)
-ggplot(data=odds_chrom, aes(x=BP, y=-log10(fisher))) + geom_point() + facet_grid(cluster~Chr, scales='free_x') +  
+ggplot(data=odds_chrom, aes(x=BP, y=-log10(fisher))) + geom_point() + facet_grid(~Chr, scales='free_x') +  
   geom_hline(aes(yintercept=-log10(0.05))) + geom_hline(aes(yintercept=-log10(0.01)), lty=2, col='red') + 
   xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control association test for CSD") + ylim(c(0,10))
 dev.off()
+
+# Unmapped contigs
+odds_cont <- odds_list[grep("tig.*",odds_list$Chr),]
+tigs <- unique(odds_cont$Chr[odds_cont$fisher<0.01])  # Contigs with significant hits
+odds_cont <- odds_cont[odds_cont$Chr %in% tigs,]
+ggplot(data=odds_cont, aes(x=BP, y=-log10(fisher))) + geom_point() + 
+  geom_hline(aes(yintercept=-log10(0.05))) + geom_hline(aes(yintercept=-log10(0.01)), lty=2, col='red') + 
+  xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control association test for CSD: Unordered contigs") + 
+  ylim(c(0,10)) + facet_wrap(~Chr, scales='free_x')
 #======= WRITE OUTPUT =======#
 # Number of groups is (2^n)-1 where n is the number of CSD loci
 nloci <- log2(max(groups$cluster)+1)

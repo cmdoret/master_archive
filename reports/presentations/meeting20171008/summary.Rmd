@@ -56,6 +56,7 @@ knitr::include_graphics('./figures/association_mapping/case_2loci_BH.pdf')
 \FloatBarrier
 
 ## 3 loci
+Note that group 7 is always absent because it only contains haploid mals and daughters. -> sexual mothers ?
 
 ```{r C3L_nocorr, echo=FALSE, fig.cap="Association mapping considering 3 loci scenario. No correction for multiple testing was applied.", out.width='80%',fig.pos='htb!', fig.align='center'}
 knitr::include_graphics('./figures/association_mapping/case_3loci_nocorr.pdf')
@@ -84,6 +85,79 @@ knitr::include_graphics('./figures/association_mapping/case_pooled_BH.pdf')
 knitr::include_graphics('./figures/association_mapping/case_pooled_bonferroni.pdf')
 ```
 
+### Non-mapped contigs
+
+```{r CPU_BH, echo=FALSE, fig.cap="Association mapping pooling all families together showing unordered contigs only. Benjamini-Hochberg correction for multiple testing was applied.", out.width='80%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/association_mapping/case_pool_unord_BH.pdf')
+```
+
+```{r CPU_bonferroni, echo=FALSE, fig.cap="Association mapping pooling all families together showing unordered contigs only. Bonferroni for multiple testing was applied.", out.width='80%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/association_mapping/case_pool_unord_bonferroni.pdf')
+```
+
 \FloatBarrier
 
-# Centromeres
+
+# Ideas
+
+More candidates than expected when pooling families, none when clustering. The clustering is probably wrong and different genotypes are mixed in the same groups.
+
+What I could do: Blast candidate regions. Look at what kind of genes are in there. Check for homologies across regions and with other hymenoptera.
+
+Possible to improve genome using my samples ? Linkage map etc (ALLMAPS)
+
+Fix clustering problem using different metric ? (but what, then ?)
+
+
+# Pipeline parameters
+
+mapping: BWA aln, Mismatches=4
+
+```{r mapstats, echo=F}
+mapval <- c(170435458,94668507,44531856,31235095)
+maptab <- rbind(c("tot","single","multi","miss"), 
+                c(mapval[1],
+                  round(mapval[2]/mapval[1], 3),
+                  round(mapval[3]/mapval[1], 3),
+                  round(mapval[4]/mapval[1], 3)))
+knitr::kable(maptab)
+```
+
+pstacks: mininum stack coverage=3
+
+Stats averaged across samples.
+
+```{r Pstats, echo=F}
+Psval <- c(2694.0,50.0,69.4)
+Pstab <- rbind(c("N loci","mean coverage","SD coverage"), 
+                c(Psval[1],
+                  round(Psval[2], 3),
+                  round(Psval[3], 3)))
+knitr::kable(Pstab)
+```
+
+
+
+cstacks: Mismatch=3
+
+```{r Cstats, echo=F}
+Csval <- c(12585, 56971)
+Cstab <- rbind(c("N Loci", "N alleles"), 
+                c(Csval[1],Csval[2]))
+knitr::kable(Cstab)
+```
+
+
+populations: Min proportion (R)=0.8, min depth=5
+
+```{r pop_stats, echo=F, message=F}
+library(tidyverse)
+pop_tbl <- read.table("../../../data/ploidy/thresholds/fixed_grouped_d-5_r-80.tsv", header=T)
+sum_pop <- pop_tbl %>% 
+  summarise(avg_depth=mean(MEAN_DEPTH), med_depth=median(MEAN_DEPTH), sd_depth=sd(MEAN_DEPTH), 
+            avg_SITES=mean(N_SITES), med_sites=median(N_SITES), sd_sites=sd(N_SITES))
+
+colnames(sum_pop) <- c("mean depth", "median depth", "sd depth", "mean N sites", "median N sites", "sd N sites")
+knitr::kable(sum_pop)
+
+```

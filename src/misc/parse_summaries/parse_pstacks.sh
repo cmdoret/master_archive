@@ -6,25 +6,31 @@
 # 11.04.2017
 
 
-
+# Working directory set to script location
 cd "$(dirname "$0")"
 
+# Folder containing pstacks log files
 pdir=../../data/logs/pstacks
 
+# Iterating over range of coverage parameter values
 for f in {1..6};
 do
+    # If the lofile exist for this parameter value
     if [ $(ls -l $pdir | grep "COVMIN${f}" | wc -c) -gt 0 ];
     then
+        # Sending content from all samples' STDERR to single file
         awk 'FNR==1{print ""}{print}' $pdir/PST_COVMIN${f}*ERR* > $pdir/summary_PST${f}.txt  || echo "no pstacks log files for m=$f"
     fi;
 done;
 
-
+# Writing header of summary table output file
 echo "min_cov,nloci,mean_cov,sd_cov" > pstats.csv
 
 for f in $pdir/summary*;
 do
+    # For each parameter value tested initiate line with parameter value 
     echo -n $(echo $f | sed 's/.*\([0-9]\).*/\1/')"," >> pstats.csv
+    Send the
     awk 'BEGIN {FS = "\n"; OFS = ","; RS = ""; rds = 0; meancov = 0; sdcov = 0; nloc = 0; nstacks = 0; n = 0}
     {
     { match($5,/Analyzed [0-9]+/);AR = substr($5,RSTART+9,RLENGTH-9) }

@@ -11,7 +11,7 @@ all : $(POP)
 #	sed -i'' "s/\(ALG=\)[a-z]*/\1$(ALG)/g" $(BWA-SRC)
 #	sed -i'' "s/\(K=\)[0-9]*/\1$(K)/g" $(BWA-SRC)
 #	sed -i'' "s/\(W=\)[0-9]*/\1$(W)/g" $(BWA-SRC)
-#	bsub -K <./$(BWA-SRC)
+#	bsub -J "map_gen" -K <./$(BWA-SRC)
 
 # Running Pstacks
 #$(PSTACK) : $(MAP)
@@ -47,7 +47,7 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	sed -i'' "s^\(thresh=\).*^\1$(THRESH)^g" $(POP-SRC)
 	sed -i'' "s/\(group=\).*/\1$(GRFAM)/g" $(POP-SRC)
 	# Changing parameters directly in the file
-	bsub -K <$(POP-SRC)
+	bsub -K < $(POP-SRC)
 	# Submitting job (-K will hang pipeline until end of job)
 
 # Centromere identification
@@ -99,11 +99,12 @@ lab_book : $(LAB) $(MISC)
 	# Cleaning temporary LaTeX filesjobs
 	Rscript src/misc/assembly_stats.R $(REF)
 	# Producing table of genome assembly statistics
-	python2 $(MISC)/map_param.py
+	#bash src/mapping/parse_summaries.sh
+	#python2 $(MISC)/map_param.py
 	# Plotting mapping statistics
-	bash $(MISC)/parse_pstacks.sh
+	#bash $(MISC)/parse_pstacks.sh
 	# Parsing pstacks output into summary table
-	bash $(MISC)/parse_cstacks.sh
+	#bash $(MISC)/parse_cstacks.sh
 	# Same for cstacks
 	Rscript src/misc/SNP_stats.R data/SNP_lists/m2_hom_mother.txt hom_mother.txt
 	Rscript src/misc/SNP_stats.R data/SNP_lists/m2_raw_CSD_candidates.txt CSD_like.txt

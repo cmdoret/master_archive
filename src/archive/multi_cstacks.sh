@@ -28,7 +28,7 @@ do
     echo "#BSUB -q priority" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
 
-    echo "module add UHTS/Analysis/stacks/1.30" >> ./bsub_scripts/bsub_${j}_script.sh
+    echo "module add UHTS/Analysis/stacks/1.46" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
 
     echo "cstacks -s ${i%%.*} -o ./data/cstacks/mm-$2 -n $2 -p 3" >> ./bsub_scripts/bsub_${j}_script.sh

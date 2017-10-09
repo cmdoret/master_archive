@@ -32,7 +32,7 @@ do
     echo "#BSUB -q priority" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
 
-    echo "module add UHTS/Analysis/stacks/1.30" >> ./bsub_scripts/bsub_${j}_script.sh
+    echo "module add UHTS/Analysis/stacks/1.46" >> ./bsub_scripts/bsub_${j}_script.sh
     echo "" >> ./bsub_scripts/bsub_${j}_script.sh
 
     echo "ustacks -t gzfastq -f $(pwd)/$i -i $ID -r -d -p 3 -o $wd/ustacks" >> ./bsub_scripts/bsub_${j}_script.sh
