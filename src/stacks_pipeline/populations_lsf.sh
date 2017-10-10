@@ -13,7 +13,7 @@ while [[ "$#" > 1 ]]; do case $1 in
     # Path to Sstacks files
     --sst) sst="$2";;
     # Path to "threshold" file with ploidy information
-    --thresh) cst="$2";;
+    --thresh) thresh="$2";;
     # Grouped or per-family populations run
     --group) group="$2";;
     # Minimum locus depth required
