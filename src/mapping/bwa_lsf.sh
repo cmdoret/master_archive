@@ -1,14 +1,18 @@
 # This script runs the mapping for all samples using the BWA aligner.
-# It taks 3 arguments
+# It takes 3 arguments:
+# -mm : the number of mismatches allowed in bwa-aln
+# -ref : the path to the indexed reference genome
+# -reads : the path to the input reads to map to the genome
 # Cyril Matthey-Doret
 # 11.10.2017
 
+# LSF utilities
+source src/misc/jobs_manager.sh
 # Default number of mismatches is 4
 MM=4
 threads=2
 prefix=BWA
 
-# parsing CL arguments
 while [[ "$#" > 1 ]]; do case $1 in
     # Number of mismatches allowed in BWA-aln
     --mm) MM="$2";;
@@ -21,6 +25,7 @@ while [[ "$#" > 1 ]]; do case $1 in
     *) break;;
   esac; shift; shift
 done
+
 ## create output directory for bam files:
 mkdir -p $out_dir/bam
 
@@ -31,11 +36,26 @@ do
   then
     continue
   fi
-
+  # Limit number of queued mapping jobs to 100 at a time
+  bmonitor bam 100
   echo "processing sample $sample";
   # Sending each sample as a separate jobs
-  bash <<MAPSAMPLE
+  bsub <<MAPSAMPLE
     #!/bin/bash
+
+    #BSUB -L /bin/bash
+    #BSUB -o BWA-%J-OUT.txt
+    #BSUB -e BWA-%J-ERROR.txt
+    #BSUB -u cmatthey@unil.ch
+    #BSUB -J bam
+    #BSUB -n 2
+    #BSUB -R "span[ptile=2]"
+    #BSUB -q priority
+    #BSUB -R "rusage[mem=4000]"
+    #BSUB -M 4000000
+
+    module add UHTS/Aligner/bwa/0.7.2;
+    module add UHTS/Analysis/samtools/1.3;
 
     # align reads
     bwa aln -n $MM -t $threads $index $data_dir/$sample.fq.gz > $out_dir/$sample.sai
@@ -68,3 +88,6 @@ do
     gzip -v $out_dir/$sample*.sam
 MAPSAMPLE
 done
+
+# Wait for all mapping jobs to be finished before resuming pipeline
+bmonitor bam 0

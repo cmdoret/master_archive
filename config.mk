@@ -1,33 +1,35 @@
 # Best not changing DAT
 DAT=./data
+LOG=$(DAT)/logs
 PROC=$(DAT)/processed
 
+
 ## Mapping parameters for bwa
-BWA-SRC=src/mapping/bwa_script.sh
-ALG=aln
+BWA-SRC=src/mapping/bwa_nix.sh
+BWA-LSF=src/mapping/bwa_lsf.sh
 # aln: mismatches (MM)
 MM=4
 
-# mem: min seed length(K) and band width (W)
-K=19
-W=100
-
 ## STACKS parameters
 # pstacks: minimum coverage (M)
-P-SRC=src/stacks_pipeline/multi_pstacks.sh
+P-SRC=src/stacks_pipeline/pstacks_nix.sh
+P-LSF=src/stacks_pipeline/pstacks_lsf.sh
 M=3
 # cstacks: loci mismatches (LM)
-C-SRC=src/stacks_pipeline/sub_cstacks.sh
+C-SRC=src/stacks_pipeline/cstacks_nix.sh
+C-LSF=src/stacks_pipeline/cstacks_lsf.sh
 LM=3
 
 # sstacks:
-S-SRC=src/stacks_pipeline/multi_sstacks.sh
+S-SRC=src/stacks_pipeline/sstacks_nix.sh
+S-LSF=src/stacks_pipeline/sstacks_lsf.sh
 
 # populations: Proportion of individuals with locus (R), Minimum stack depth (D)
 GR-SRC=src/stacks_pipeline/group_sstacks.sh
-GRFAM=T  # Boolean variable: group families in 1 populations run ?
-# POP-SRC=src/stacks_pipeline/pop_FST.sh
-POP-SRC=src/stacks_pipeline/populations.sh
+POP-SRC=src/stacks_pipeline/populations_nix.sh
+POP-LSF=src/stacks_pipeline/populations_lsf.sh
+# Boolean variable: group families in 1 populations run or split them
+GRFAM=T
 R=80
 D=5
 
@@ -47,7 +49,7 @@ ASSOC-SRC=src/assoc_mapping/
 NCSD=2
 
 
-MAP=$(DAT)/mapped/$(ALG)-$(MM)-$(K)-$(W)
+MAP=$(DAT)/mapped/aln-$(MM)
 PSTACK=$(DAT)/pstacks/covmin-$(M)
 CSTACK=$(DAT)/cstacks/mm-$(LM)
 SSTACK=$(DAT)/sstacks

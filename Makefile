@@ -1,54 +1,21 @@
 include config.mk
 
-.PHONY : all
-all : $(POP)
+# reference-based STACKS pipeline for LSF cluster
+ref_lsf:
+	make -f src/pipelines/Makeref.lsf
 
-# Running alignment with BWA
-#$(MAP) : $(PROC)
-#	rm -rf $@
-#	mkdir -p $@
-#	sed -i'' "s/\(MM=\)[0-9]*/\1$(MM)/g" $(BWA-SRC)
-#	sed -i'' "s/\(ALG=\)[a-z]*/\1$(ALG)/g" $(BWA-SRC)
-#	sed -i'' "s/\(K=\)[0-9]*/\1$(K)/g" $(BWA-SRC)
-#	sed -i'' "s/\(W=\)[0-9]*/\1$(W)/g" $(BWA-SRC)
-#	bsub -J "map_gen" -K <./$(BWA-SRC)
+# reference based without LSF
+.PHONY : ref_nix
+ref_nix:
+	make -f src/pipelines/Makeref.nix
 
-# Running Pstacks
-#$(PSTACK) : $(MAP)
-#	bash $(P-SRC) $< $(M)
+# denovo with LSF
+#denovo_lsf:
+#	make -f src/pipelines/Makenovo.lsf
 
-
-# Running Cstacks
-#$(CSTACK): $(PSTACK)
-#	rm -fr $@;
-#	mkdir -p $@;
-#	sed -i'' "s^\(wd=\).*^\1$(DAT)^g" $(C-SRC)
-#	sed -i'' "s/\(MM=\)[0-9]*/\1$(LM)/g" $(C-SRC)
-#	sed -i'' "s/^\(M=\)[0-9]*/\1$(M)/g" $(C-SRC)
-#	bsub -K < $(C-SRC)
-
-# Running Sstacks
-$(SSTACK) : $(CSTACK)
-	sed -i'' "s/^\(M=\)[0-9]*/\1$(M)/g" $(S-SRC)
-	sed -i'' "s^\(wd=\).*^\1$(DAT)^g" $(S-SRC)
-	bash $(S-SRC) $<
-	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK) $(GRFAM)
-
-# Running populations on each family
-$(POP) : $(SSTACK) $(POP-SRC)
-	rm -rf $@
-	mkdir -p $@
-	# Erasing logs from previous run
-	rm -rf $(DAT)/logs/populations
-	mkdir -p $(DAT)/logs/populations
-	sed -i'' "s^\(od=\).*^\1$(POP)^g" $(POP-SRC)
-	sed -i'' "s/\(R=\).*/\10\.$(R)/g" $(POP-SRC)
-	sed -i'' "s/\(D=\).*/\1$(D)/g" $(POP-SRC)
-	sed -i'' "s^\(thresh=\).*^\1$(THRESH)^g" $(POP-SRC)
-	sed -i'' "s/\(group=\).*/\1$(GRFAM)/g" $(POP-SRC)
-	# Changing parameters directly in the file
-	bsub -K < $(POP-SRC)
-	# Submitting job (-K will hang pipeline until end of job)
+# denovo without LSF
+#denovo_nix:
+#	make -f src/pipelines/Makenovo.nix
 
 # Centromere identification
 $(CENTRO) :
