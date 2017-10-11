@@ -1017,6 +1017,39 @@ The coverage across genome (Figure \ref{cov_genome_add}) did not change much by 
 \end{figure}
 \FloatBarrier
 
+\chapter{Pipeline reorganization}
+Date: 11.10.2017
+
+In order to increase the number of loci and the quality of my data, I will follow the advice from the roadmap to stacks paper and use a Ustacks + later mapping approach rather than Mapping + pstacks. For convenience, I would like to keep both options in the final pipeline, and I would also add the possibility to run it without an LSF cluster. To allow these changes, I needed to reorganize the flow of my pipeline.
+
+\section{Reorganization}
+Originally, I used a Makefile with all steps of the pipeline. I want to be able to swap all STACKS-related steps without rewriting the entire Makefile or duplicating it. The approach I used is to outsource all STACKs steps into a separate Makefile and call that secondary makefile using a rule in the main Makefile. This allows to have as many different STACKS strategies which each have their own Makefile.
+
+I currently use Makeref for the Pstacks pipeline and Makenovo for the Ustacks pipeline (Figure \ref{pipe_reorg}).
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{reorg/pipeline_reorg.pdf}
+\caption{Original structure of the pipeline (left) with data flow and dependencies, versus new structure (right) where STACKS-related tasks are delegated to separate Makefiles}
+\label{pipe_reorg}
+\end{center}
+\end{figure}
+
+\section{New STACKs strategy}
+It is shown in the roadmap to stacks paper that building stacks de novo and mapping them to the genome later on yields better results. I will therefore adopt that approach and use GSNAP to map reads, although I might try different softwares later on.
+
+The new \textit{de-novo} approach will work as follows:
+
+\begin{itemize}
+\item Build stacks \textit{de-novo} with Ustacks
+\item Build catalog with Cstacks
+\item Match samples to catalog with Sstacks
+\item Run samples through populations
+\item Map consensus sequences that passed populations filters with GSNAP
+\item integrate alignment information into catalog
+\end{itemize}
+
+\chapter{Final samples}
 \section{CSD}
 
 After removing all samples from library 10, I performed the downstream analyses to find CSD again.
