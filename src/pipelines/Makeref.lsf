@@ -43,11 +43,11 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	# Erasing logs from previous run
 	rm -rf $(LOG)/populations
 	mkdir -p $(LOG)/populations
-	# Changing parameters directly in the file
 	bash $(POP-LSF) --sst $< \
 	                --thresh $(THRESH) \
 									--group $(GRFAM) \
 									--md $(D) \
 									--r $(R) \
 									--out $@ \
-									--log $(LOG)
+									--log $(LOG) \
+									--blacklist $(BLACK)

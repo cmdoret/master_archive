@@ -15,6 +15,9 @@ MM=4
 P-SRC=src/stacks_pipeline/pstacks_nix.sh
 P-LSF=src/stacks_pipeline/pstacks_lsf.sh
 M=3
+
+# ustacks: number of mismatches allowed (MM) and minimum coverage (M)
+
 # cstacks: loci mismatches (LM)
 C-SRC=src/stacks_pipeline/cstacks_nix.sh
 C-LSF=src/stacks_pipeline/cstacks_lsf.sh
@@ -29,9 +32,9 @@ GR-SRC=src/stacks_pipeline/group_sstacks.sh
 POP-SRC=src/stacks_pipeline/populations_nix.sh
 POP-LSF=src/stacks_pipeline/populations_lsf.sh
 # Boolean variable: group families in 1 populations run or split them
-GRFAM=T
+GRFAM=F
 R=80
-D=5
+D=20
 
 # Misc: report generation
 LAB=reports/lab_book
@@ -42,6 +45,7 @@ REF-ANN=$(DAT)/ref_genome/ordered_genome/merged.fasta.ann
 # Ploidy: exclude haplomales
 VCFSUM=$(DAT)/ploidy/vcftools/summary_full.txt
 THRESH=$(DAT)/ploidy/thresholds/fixed.tsv
+BLACK=$(DAT)/ploidy/blacklist.tsv
 
 # Association mapping:
 ASSOC-SRC=src/assoc_mapping/
@@ -53,6 +57,6 @@ MAP=$(DAT)/mapped/aln-$(MM)
 PSTACK=$(DAT)/pstacks/covmin-$(M)
 CSTACK=$(DAT)/cstacks/mm-$(LM)
 SSTACK=$(DAT)/sstacks
-POP=$(DAT)/populations/grouped_d-$(D)_r-$(R)
+POP=$(DAT)/populations/fam_d-$(D)_r-$(R)
 ASSOC=$(DAT)/assoc_mapping
 CENTRO=$(ASSOC)/centro

@@ -10,8 +10,9 @@ ref_nix:
 	make -f src/pipelines/Makeref.nix
 
 # denovo with LSF
-#denovo_lsf:
-#	make -f src/pipelines/Makenovo.lsf
+.PHONY : denovo_lsf
+denovo_lsf:
+	make -f src/pipelines/Makenovo.lsf
 
 # denovo without LSF
 #denovo_nix:
@@ -22,6 +23,7 @@ $(CENTRO) :
 	mkdir -p $(CENTRO)/plots
 	# Processing "genomic" output from populations to get fixed and variant sites
 	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM) --pool_output
+	# Inferring centromere position based on recombination raes along chromosomes
 	Rscript $(ASSOC-SRC)/chrom_types.R $(ASSOC)/grouped_outpool_prophom.tsv $(CENTRO)
 
 # Processing genomic output for association mapping
@@ -31,31 +33,54 @@ $(ASSOC)/grouped_prophom.tsv :
 # Association mapping
 .PHONY : assoc_mapping
 assoc_mapping : $(CENTRO) $(ASSOC)/grouped_prophom.tsv
+  # Creating folder to store association mapping results
 	mkdir -p $(ASSOC)/plots
 	mkdir -p $(ASSOC)/hits
-	Rscript $(ASSOC-SRC)/group_mothers.R $(NCSD) $(THRESH) $(ASSOC)/mother_groups.tsv
-	Rscript $(ASSOC-SRC)/CSD_scan.R $(ASSOC)/grouped_prophom.tsv $(REF-ANN) $(ASSOC) 0.85
+	# Clustering families based on proportion of males among diploids
+	Rscript $(ASSOC-SRC)/group_mothers.R \
+	        $(NCSD) \
+					$(THRESH) \
+					$(ASSOC)/mother_groups.tsv
+	# Scanning for CSD based on heterozygosity along genome
+	Rscript $(ASSOC-SRC)/CSD_scan.R \
+	        $(ASSOC)/grouped_prophom.tsv \
+					$(REF-ANN) \
+					$(ASSOC) 0.85
+	# Genome-wide association mapping
 	mkdir -p $(ASSOC)/case_control
-	Rscript $(ASSOC-SRC)/case_control.R $(ASSOC)/mother_groups.tsv $(ASSOC)/grouped_prophom.tsv $(ASSOC)/case_control/
+	Rscript $(ASSOC-SRC)/case_control.R \
+	        $(ASSOC)/mother_groups.tsv \
+					$(ASSOC)/grouped_prophom.tsv \
+					$(ASSOC)/case_control/
 
 
 # This rule is used to split haploid and diploid males.
 # This has already been done under stringent parameters (d=25)
 .PHONY : ploidy
 ploidy:
-	mkdir -p $(DAT)/ploidy/thresholds
-	bash $(MISC)/parse_VCF.sh $(POP) $(GRFAM)
 	# Parsing VCF file from populations output
-	python2 src/ploidy/haplo_males.py $(VCFSUM) $(THRESH)
+	mkdir -p $(DAT)/ploidy/thresholds
+	bash $(MISC)/parse_VCF.sh $(POP) \
+	                          $(GRFAM)
 	# Building list of haploid males
+	python2 src/ploidy/haplo_males.py $(VCFSUM) \
+	                                  $(THRESH)
+  # Processing populations genomic output
+	python2 $(ASSOC-SRC)/process_genomic.py $(POP) \
+	                                        $(DAT)/ploidy/ \
+																					$(GRFAM)
+  # Blacklisting loci that are heterozygous in haploid males
+	python2 blacklist_haploloci.py $(DAT)/ploidy/fam_geno_EOM.tsv \
+	                               $(BLACK) \
+																 $(THRESH)
+	# Creating folder to store new plots if necessary
 	mkdir -p reports/lab_book/assoc_explo_fam
 	mkdir -p data/SNP_lists
-	# Creating folder to store new plots if necessary
-	#python2 src/misc/explo_assoc.py data/ploidy/vcftools/ $(THRESH) $(GRFAM)
 	# Plotting exploratory results for het. at each SNP
+	#python2 src/misc/explo_assoc.py data/ploidy/vcftools/ $(THRESH) $(GRFAM)
 	mkdir -p reports/lab_book/ploidy_per_fam
-	Rscript src/ploidy/prop_offspring.R $(THRESH)
 	# Proportion of offspring type per family
+	Rscript src/ploidy/prop_offspring.R $(THRESH)
 
 
 # Rule for building lab book figures, tables and compiling Latex script

@@ -193,7 +193,7 @@ def split_fam_prop(df, pop, parallel=True):
     This function is intended as a wrapper for prop_hom, so that it will only
     compute stats per family and return family info associated with every stat.
     :param df: Pandas DataFrame with sites as rows and individuals as columns.
-    :param pop: Dataframe containing the sex, name and Faamily of each
+    :param pop: Dataframe containing the sex, name and Family of each
     individual in the same order as the df individuals columns.
     :param parallel: Boolean value. Should the script exploit multiple cores if
     available ?
