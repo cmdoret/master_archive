@@ -34,7 +34,7 @@ GR-SRC=src/stacks_pipeline/group_sstacks.sh
 POP-SRC=src/stacks_pipeline/desktop_versions/populations_nix.sh
 POP-LSF=src/stacks_pipeline/populations_lsf.sh
 # Boolean variable: group families in 1 populations run or split them
-GRFAM=F
+GRFAM=T
 R=80
 D=20
 
@@ -60,6 +60,6 @@ PSTACK=$(DAT)/pstacks/covmin-$(M)
 USTACK=$(DAT)/ustacks/cov-$(M)_mm-$(MM)
 CSTACK=$(DAT)/cstacks/mm-$(LM)
 SSTACK=$(DAT)/sstacks
-POP=$(DAT)/populations/fam_d-$(D)_r-$(R)
+POP=$(DAT)/populations/grouped_d-$(D)_r-$(R)
 ASSOC=$(DAT)/assoc_mapping
 CENTRO=$(ASSOC)/centro

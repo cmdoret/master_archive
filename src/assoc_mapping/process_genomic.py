@@ -13,11 +13,13 @@ the output will be written.
 # 11.08.2017
 
 from os import path, walk
+import re
 import argparse
 import numpy as np
 import pandas as pd
 from multiprocessing import Pool, cpu_count  # Parallel computing support
 from functools import partial  # "freeze" arguments when mapping function
+
 
 #========== PARSING COMMAND LINE ARGUMENTS ==========#
 
@@ -44,7 +46,7 @@ parser.add_argument('--pool_output', action='store_true',
 args = parser.parse_args()
 
 #========== DEFINING FUNCTIONS ==========#
-
+sum_file = "../../data/populations/fam_d-20_r-80/A/batch_0.sumstats.tsv"
 def unify_genomic(pop_path, pop):
     """
     Reads populations "genomic" output files from each family's folder and
@@ -63,17 +65,27 @@ def unify_genomic(pop_path, pop):
     #Iterating over family subfolders
     for subdir, dirs, files in walk(pop_path):
         if path.basename(subdir):
-            # Read file from subfolder
-            fam_samples = pd.read_csv(path.join(subdir, "batch_1.sumstats.tsv"),sep='\t',nrows=2, header=None)
+            # Read file from subfolders
+            sum_file = path.join(subdir, "batch_1.sumstats.tsv")
+            with open(sum_file, 'r') as f:
+                # Counting population rows starting at -1 to exclude header line
+                pops = -1
+                for line in f:
+                    if re.search('^#', line): pops += 1
+            # Reading only population rows
+            fam_samples = pd.read_csv(sum_file,sep='\t',nrows=pops,header=None)
             # Get individual names in original order
-            fam_names = fam_samples.iloc[:,1][0].split(',') + \
-                        fam_samples.iloc[:,1][1].split(',')
+            f_names_nest = [fam_samples.iloc[:,1][n].split(',') for n in
+                         range(pops)]
+            # Flattening nested lists while maintaining order
+            fam_names = [item for nest in f_names_nest for item in nest]
             fam_names = pd.DataFrame({'Name':fam_names})
             # Get final index of names
             tmp_pop = fam_names.merge(pop, on='Name', how='inner')
             # Incrementing index by 3 since there is 3 columns before indv
             #tmp_idx = tmp_idx.real_idx + 3
-            tmp = pd.read_csv(path.join(subdir, "batch_1.genomic.tsv"), sep='\t', header=None, skiprows=1)
+            tmp = pd.read_csv(path.join(subdir, "batch_1.genomic.tsv"),
+                              sep='\t', header=None, skiprows=1)
             # Rename sample columns with final indices
             tmp.rename(columns={x:tmp_pop.Name[x-3] for x in
                                 range(3,tmp.shape[1])},inplace=True)
@@ -139,6 +151,11 @@ def mother_hom(geno, pop):
                                             axis=1))[0]
         # Change those sites to M in all indv with same family
         geno.loc[fam_SNP,fam.Name] = 'M'
+        # If using pandas <0.19, the above line will fail. The loop below can
+        # be used instead, but is much slower
+        # for snp in fam_SNP:
+        #    for family in fam.Name:
+        #        geno.set_value(snp, family, 'M')
     return geno
 
 

@@ -18,9 +18,10 @@ parser.add_argument('black_out', type=str,
                     help='Path to the output blacklist file.')
 parser.add_argument('ploid', type=str, help='Path to the table with ploidy \
                     information.')
-parser.add_argument('--haplo_het', type=int, help='Proportion (float between 0 \
-                    and 1) of haploid males required to be heterozygous at a \
-                    locus in order to exclude it.')
+parser.add_argument('--haplo_het', type=float, default=0.5, help='Proportion \
+                    (float between 0 and 1) of haploid males required to be \
+                    heterozygous at a locus in order to exclude it. \
+                    Default: 0.5')
 args = parser.parse_args()
 
 # Load genotype matrix and ploidy table
@@ -45,8 +46,11 @@ het = np.divide(dff['E'], (dff['O'] + dff['E']))
 het = het.fillna(0)
 
 # Extract loci above heterozygosity threshold
-het_idx = het.index[(het>haplo_het)]
+het_idx = het.index[(het>args.haplo_het)]
 blacklist = EOM.iloc[het_idx,0].unique()
+print("{0} loci were found to be heterozygous in more than {1}% of haploids and\
+were removed from the analysis.".format(blacklist.shape[0],
+                                              args.haplo_het*100))
 
 # Saving blacklisted loci to file
-pd.DataFrame(blacklist).to_csv(black_out, sep='\t', header=False, index=False)
+pd.DataFrame(blacklist).to_csv(args.black_out, sep='\t', header=False, index=False)
