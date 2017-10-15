@@ -64,8 +64,7 @@ def unify_genomic(pop_path, pop):
     for subdir, dirs, files in walk(pop_path):
         if path.basename(subdir):
             # Read file from subfolder
-            fam_samples = pd.read_csv(path.join(subdir, "batch_0.sumstats.tsv"),
-                        sep='\t',nrows=2, header=None)
+            fam_samples = pd.read_csv(path.join(subdir, "batch_1.sumstats.tsv"),sep='\t',nrows=2, header=None)
             # Get individual names in original order
             fam_names = fam_samples.iloc[:,1][0].split(',') + \
                         fam_samples.iloc[:,1][1].split(',')
@@ -74,8 +73,7 @@ def unify_genomic(pop_path, pop):
             tmp_pop = fam_names.merge(pop, on='Name', how='inner')
             # Incrementing index by 3 since there is 3 columns before indv
             #tmp_idx = tmp_idx.real_idx + 3
-            tmp = pd.read_csv(path.join(subdir, "batch_0.genomic.tsv"),
-                              sep='\t', header=None, skiprows=1)
+            tmp = pd.read_csv(path.join(subdir, "batch_1.genomic.tsv"), sep='\t', header=None, skiprows=1)
             # Rename sample columns with final indices
             tmp.rename(columns={x:tmp_pop.Name[x-3] for x in
                                 range(3,tmp.shape[1])},inplace=True)
@@ -255,14 +253,14 @@ indv = pd.read_csv(indv_path, sep='\t')  # Family and sex info
 # Preparing data structure to match sample names and families with columns
 
 if args.grouped_input == 'T':  # Single populations folder
-    samples = pd.read_csv(path.join(in_path, "batch_0.sumstats.tsv"),
+    samples = pd.read_csv(path.join(in_path, "batch_1.sumstats.tsv"),
                 sep='\t',nrows=2, header=None)  # Names in correct order
     # Concatenating populations
     names = samples.iloc[:,1][0].split(',') + samples.iloc[:,1][1].split(',')
     names = pd.DataFrame({'Name':names})
     # Adding family and sex, keeping order
     pop = names.merge(indv,on='Name',how='left')
-    genomic = pd.read_csv(path.join(in_path, "batch_0.genomic.tsv"),
+    genomic = pd.read_csv(path.join(in_path, "batch_1.genomic.tsv"),
     sep='\t', header=None, skiprows=1)
     # select only samples cols and reindex from 0
     gen_indv = genomic.iloc[:,3:].T.reset_index(drop=True).T

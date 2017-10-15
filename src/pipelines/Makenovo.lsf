@@ -1,0 +1,56 @@
+include config.mk
+
+.PHONY : all
+all : $(POP)
+
+# Building stacks de-novo with Ustacks
+$(USTACK) : $(PROC)
+	bash $(U-LSF) --reads $< \
+	              --m $(M) \
+								--mm $(MM) \
+	              --out $@ \
+								--log $(LOG)
+
+# Building loci catalog with Cstacks
+$(CSTACK): $(USTACK)
+	rm -fr $@;
+	mkdir -p $@;
+	bash $(C-LSF) --pst $< \
+	              --cst $@ \
+								--lm $(LM)
+
+# Running Sstacks
+$(SSTACK) : $(CSTACK)
+	bash $(S-LSF) --in $(PSTACK) \
+	              --cat $< \
+								--out $@ \
+								--log $(LOG)
+	# Organizing p/c/s stacks files into a common folder
+	bash $(GR-SRC) $(USTACK) $(CSTACK) $(SSTACK) $(GRFAM)
+
+# Running populations on each family
+$(POP) : $(SSTACK) $(POP-SRC)
+	rm -rf $@
+	mkdir -p $@
+	# Erasing logs from previous run
+	rm -rf $(LOG)/populations
+	mkdir -p $(LOG)/populations
+	bash $(POP-LSF) --sst $< \
+	                --thresh $(THRESH) \
+									--group $(GRFAM) \
+									--md $(D) \
+									--r $(R) \
+									--out $@ \
+									--log $(LOG) \
+									--blacklist $(BLACK)
+
+# Mapping loci with BWA
+$(MAP) : $(PROC)
+	rm -rf $@
+	mkdir -p $@
+	bash $(BWA-LSF) --mm $(MM) \
+	                --ref $(REF) \
+									--reads $(PROC) \
+									--out $(MAP)
+
+# Integrating alignments back into STACKS files

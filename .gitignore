@@ -5,6 +5,14 @@ pictures/
 data
 src/misc/vcftools/
 
+## system specific
+.directory
+.DS_Store
+
+## R hidden files
+.Rhistory
+.RData
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof

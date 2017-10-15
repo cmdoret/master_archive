@@ -45,7 +45,6 @@ het = np.divide(dff['E'], (dff['O'] + dff['E']))
 het = het.fillna(0)
 
 # Extract loci above heterozygosity threshold
-haplo_het = 0.5
 het_idx = het.index[(het>haplo_het)]
 blacklist = EOM.iloc[het_idx,0].unique()
 

@@ -51,7 +51,7 @@ bsub <<CST
 #BSUB -q long
 module add UHTS/Analysis/stacks/1.46;
 
-cstacks -o $cst -n $LM -p 5 $samp;
+cstacks -b 1 -o $cst -n $LM -p 5 $samp;
 CST
 
 bmonitor Cstacks 0

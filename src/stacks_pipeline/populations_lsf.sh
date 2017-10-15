@@ -31,7 +31,7 @@ while [[ "$#" > 1 ]]; do case $1 in
 done
 
 # Declare bl variable only if blacklist file exists at input path
-if [ -f $black ]; do bl=$black; done
+if [ -f $black ]; then bl=$black; fi
 
 if [ "$group" = "T" ]
 then  # Families are grouped into a single populations run
@@ -93,6 +93,7 @@ else
         #BSUB -R "span[ptile=3]"
 
         mkdir -p $out_dir/$fam  # Prepare one output folder per family
+        module add UHTS/Analysis/stacks/1.46;
         populations -P $sst/$fam -M data/popmap.tsv -p 2 -m $D -b 1 -r $R -k \
         -f p_value -t 3 --verbose --fstats --vcf --genomic \
         --renz ecoRI ${bl:+-B "$bl"}
