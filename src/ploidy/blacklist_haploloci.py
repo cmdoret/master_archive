@@ -18,14 +18,20 @@ parser.add_argument('black_out', type=str,
                     help='Path to the output blacklist file.')
 parser.add_argument('ploid', type=str, help='Path to the table with ploidy \
                     information.')
+parser.add_argument('grouped_input', type=str,
+                                 help='If all families were grouped into a \
+                                 single populations run, set to "T", otherwise \
+                                 set to "F"')
 parser.add_argument('--haplo_het', type=float, default=0.5, help='Proportion \
                     (float between 0 and 1) of haploid males required to be \
                     heterozygous at a locus in order to exclude it. \
                     Default: 0.5')
 args = parser.parse_args()
 
+EOM_prefix = 'grouped_' if args.grouped_input == "T" else "fam_"
+EOM_path = args.EOM_in + EOM_prefix + "geno_EOM.tsv"
 # Load genotype matrix and ploidy table
-EOM = pd.read_csv(args.EOM_in, sep='\t')
+EOM = pd.read_csv(EOM_path, sep='\t')
 ploid = pd.read_csv(args.ploid, sep='\t')
 
 # Subset haploid individuals
@@ -48,7 +54,7 @@ het = het.fillna(0)
 # Extract loci above heterozygosity threshold
 het_idx = het.index[(het>args.haplo_het)]
 blacklist = EOM.iloc[het_idx,0].unique()
-print("{0} loci were found to be heterozygous in more than {1}% of haploids and\
+print("{0} loci are heterozygous in more than {1}% of haploids and \
 were removed from the analysis.".format(blacklist.shape[0],
                                               args.haplo_het*100))
 

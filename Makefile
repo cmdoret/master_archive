@@ -70,9 +70,10 @@ ploidy:
 	                                        $(DAT)/ploidy/ \
 																					$(GRFAM)
   # Blacklisting loci that are heterozygous in haploid males
-	python2 src/ploidy/blacklist_haploloci.py $(DAT)/ploidy/fam_geno_EOM.tsv \
+	python2 src/ploidy/blacklist_haploloci.py $(DAT)/ploidy/ \
 	                               $(BLACK) \
-																 $(THRESH)
+																 $(THRESH) \
+																 $(GRFAM)
 	# Creating folder to store new plots if necessary
 	mkdir -p reports/lab_book/assoc_explo_fam
 	mkdir -p data/SNP_lists
