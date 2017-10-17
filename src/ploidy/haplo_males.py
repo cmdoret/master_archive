@@ -12,12 +12,6 @@ from sys import argv  # Command line arguments
 import argparse
 from math import sqrt
 
-#===================
-# Choose a flat homozygosity threshold for ploidy separation.
-fixed_thresh = 0.77
-# Reminder: 0.77 if running populations per family, 0.91 if pooling families.
-#===================
-
 parser = argparse.ArgumentParser(description="Infers ploidy of samples based \
                                  on a flat homozygosity value.")
 parser.add_argument('vcf_summary', type=str, help="Path to the summary file \

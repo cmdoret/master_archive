@@ -65,7 +65,7 @@ ploidy:
 	# Building list of haploid males
 	python2 src/ploidy/haplo_males.py $(VCFSUM) \
 	                                  $(THRESH) \
-																		--ploidy_thresh 0.90
+									  --ploidy_thresh 0.90
   # Processing populations genomic output
 	python2 $(ASSOC-SRC)/process_genomic.py $(POP) \
 	                                        $(DAT)/ploidy/ \
