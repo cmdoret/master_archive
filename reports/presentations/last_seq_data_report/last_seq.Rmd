@@ -1,0 +1,36 @@
+---
+title: "Last Sequencing data: Summary"
+author: "Cyril Matthey-Doret"
+date: "16/10/2017"
+output: pdf_document
+---
+
+# Context
+
+After receiving the second run of sequencing data for libraries 12 and 12b, I pooled them for demultiplexing and ran the usual STACKS pipeline per-family with stringent parameter for splitting by ploidy (min locus depth 20). The one thing I changed in the pipeline is that I removed the max_obs_het filter which excluded loci heterozygous in more than 90% of individuals. I will replace this filter by a blacklist of loci heterozygous in more than _50%_ of haploid males after inference of ploidy. The distribution of homozygosity per individuals revealed a highly homozygous cluster of individuals from the D cross forming a second mode close to the haploids (Figure 1). This is problematic because it will be hard to disentangle it from the haploid mode. After discussing with Casper, we concluded that it would be more appropriate to consider the D-cross separately as it could also cause the catalog to exclude important loci in the C cross (due to the R=0.8 filter) from the catalog.
+
+
+```{r hombg_d20perfam_CD, echo=FALSE, fig.cap="Distribution of the proportion of homozygosity among variant sites per individuals. Populations was run per-family without max-obs-het filter. Individuals are colored based on background.", out.width='60%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/hom_bg_popfam_d20_CD.pdf')
+```
+
+# First results
+
+Before running the D cross in a separate catalog, I tried running the populations program with all individuals together instead of per-family. It did remove most of the second mode (Figure 2) which now appears to be merged with the haploid one. This was just to assess the impact of per-family versus pooled populations run on homozygosity, but we will still exclude the D cross from the main pipeline, however. As it appears, most individuals in the high-homozygosity mode were in fact haploids, and removing this cross from the analysis will have little to no effect as it contains very few females.
+
+```{r hombg_d20grouped_CD, echo=FALSE, fig.cap="Distribution of the proportion of homozygosity among variant sites per individuals. Populations was run on all samples together without max-obs-het filter. Individuals are colored based on background.", out.width='60%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/hom_bg_popgroup_d20_CD.pdf')
+```
+
+# Splitting crosses
+
+## C cross
+
+## D cross
+This cross contains 186 individuals, of which 174 made it through the pipeline. They are split into 15 families. Mean number of sites per sample: 864, Average locus depth per sample: 108
+
+# Method changes
+
+Up to now, I ran populations per family to split individuals by ploidy to improve the number of loci per individuals, however this practice seems to generate highly different levels of homozygosity between families and it would be less risky to pool individuals together and have a larger overlapping set of loci between families if I want to use a universal cutoff to split by ploidy.
+
+I am now excluding loci that are found to be heterozygous in haploid males and this seems like a better strategy than using maximum proportion of heterozygous individuals. The proportion of haploids which need to be heterozygous at the locus might be subject to change however.

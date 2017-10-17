@@ -1050,6 +1050,49 @@ The new \textit{de-novo} approach will work as follows:
 \end{itemize}
 
 \chapter{Final samples}
+Date: 16.10.2017
+
+After receiving the second run of sequencing data for libraries 12 and 12b, I pooled them for demultiplexing and ran the usual STACKS pipeline with stringent parameter for splitting by ploidy (min locus depth 20). The one thing I changed in the pipeline is that I removed the $max_obs_het$ filter which excluded loci heterozygous in more than 90\% of individuals. I will replace this filter by a blacklist of loci heterozygous in more than 50\% of haploid males after inference of ploidy. The distribution of homozygosity per individuals revealed a highly homozygous cluster of individuals from the D cross forming a second mode close to the haploids (Figure \ref{CD_hom_fam}). This is problematic because it will be hard to disentangle it from the haploid mode. After discussing with Casper, we concluded that it would be more appropriate to consider the D cross separately as it could also cause the catalog to exclude important loci in the C cross (due to the R=0.8 filter) from the catalog.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{final_samples/hom_bg_popfam_d20_CD.pdf}
+\caption{Distribution of the proportion of homozygosity among variant sites per individuals. Populations was run per-family without max-obs-het filter. Individuals are colored based on background.}
+\label{CD_hom_fam}
+\end{center}
+\end{figure}
+Running the populations program will all individuals together instead of per-family removed the second mode and revealed that most individuals from the D-cross are haploids (Figure \ref{CD_hom_grouped}). This highlights the potential risks of running populations per family. Because this cross seems to have a quite divergent genetic background, it will be excluded from the analysis and analyzed separately.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{final_samples/hom_bg_popgroup_d20_CD.pdf}
+\caption{Distribution of the proportion of homozygosity among variant sites per individuals. Populations was run with all individuals together without max-obs-het filter. Individuals are colored based on background.}
+\label{CD_hom_grouped}
+\end{center}
+\end{figure}
+
+\section{Pipeline changes}
+
+Populations will now only be run with all individuals pooled to avoid non-overlapping sets of SNPs and discrepencies in homozygosity levels across families. Individuals from cross C and D will be run completely separately and I will probably not used at all given the high number of haploids and low number of females in that cross. I also stopped using the $max_obs_het$ filter in populations, in favor of a personalized method to blacklist loci found to be heterozygous in at least given proportion of haploids.
+
+\section{Splitting crosses}
+
+I separated individuals from cross D from those in C or R and ran them separately through the whole pipeline.
+
+\subsection{Cross D}
+
+This cross contains 186 individuals, of which 174 made it through the pipeline. They are split into 15 families. Mean number of sites per sample: 864, Average locus depth per sample: 108
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{final_samples/hom_Sex_popgroup_d20_D.pdf}
+\caption{Distribution of the proportion of homozygosity among variant sites per individuals. Populations was run with all individuals from cross D together without max-obs-het filter. Individuals are colored based on sex. The red dashed vertical line represent the arbitrary (conservative) threshold I defined earlier to separate ploidy from grouped populations runs.}
+\label{CD_hom_grouped}
+\end{center}
+\end{figure}
+
+\subsection{Cross C}
+
 \section{CSD}
 
 After removing all samples from library 10, I performed the downstream analyses to find CSD again.
