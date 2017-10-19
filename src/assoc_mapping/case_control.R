@@ -18,8 +18,8 @@ sum_stat <- sum_stat[sum_stat$N.Males>0 & sum_stat$N.Females>0,]
 sum_stat <- sum_stat[!is.na(sum_stat$Prop.Hom),]
 
 # Map families to mother categories
-sum_stat$cluster <- groups$cluster[match(sum_stat$Family, groups$Family)]
-sum_stat <- sum_stat[!is.na(sum_stat$cluster),]
+#sum_stat$cluster <- groups$cluster[match(sum_stat$Family, groups$Family)]
+#sum_stat <- sum_stat[!is.na(sum_stat$cluster),]
 
 # Group SNP by mother category
 cat_stat <- sum_stat %>%
@@ -57,17 +57,19 @@ odds_list <- cat_stat %>%
 
 odds_list$fisher <- apply(odds_list, 1,  get_fisher)
 
-#odds_list$fisher <- p.adjust(odds_list$fisher, method = "bonferroni")
-for(group in unique(odds_list$cluster)){
-  odds_list$fisher[odds_list$cluster==group] <- p.adjust(odds_list$fisher[odds_list$cluster==group], method = "BH")
-}
-nloci <- log2(max(groups$cluster)+1)
+odds_list$fisher <- p.adjust(odds_list$fisher, method = "bonferroni")
+#for(group in unique(odds_list$cluster)){
+#  odds_list$fisher[odds_list$cluster==group] <- p.adjust(odds_list$fisher[odds_list$cluster==group], method = "BH")
+#}
+#nloci <- log2(max(groups$cluster)+1)
+nloci=2
 #========= VISUALISE ========#
 odds_chrom <- odds_list[grep("chr.*",odds_list$Chr),]
 pdf(paste0(out_folder, "/../plots/","case_control_hits_",nloci,"loci.pdf"), width=12, height=12)
-ggplot(data=odds_chrom, aes(x=BP, y=-log10(fisher))) + geom_point() + facet_grid(~Chr, scales='free_x') +  
+ggplot(data=odds_chrom, aes(x=BP, y=-log10(fisher))) + geom_point() + facet_grid(~Chr, space='free_x', scales = 'free_x') +  
   geom_hline(aes(yintercept=-log10(0.05))) + geom_hline(aes(yintercept=-log10(0.01)), lty=2, col='red') + 
-  xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control association test for CSD") + ylim(c(0,10))
+  xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control association test for CSD") + ylim(c(0,10)) + 
+  theme_bw()
 dev.off()
 
 # Unmapped contigs

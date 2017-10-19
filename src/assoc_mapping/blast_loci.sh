@@ -1,4 +1,4 @@
- 
+
 # This script takes a list of genomic position (columns 2 and 3 need to be chromosome and position in chromosome, respectively) and blast the regions surrounding these positions against some database, storing the blast output in a separate file.
 # 11.07.2017
 # Cyril Matthey-Doret
@@ -26,5 +26,3 @@ done
 bsub -K -o "blast_log.out" -e "blast_log.err" -M 20000000 -J "blast" "blastn -task dc-megablast \
 -query $out_path/query.fasta -db refseq -outfmt 6 -max_target_seqs 1 -out blast.out"
 module rm Blast/blast/2.2.26
-
-

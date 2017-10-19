@@ -36,7 +36,7 @@ POP-LSF=src/stacks_pipeline/populations_lsf.sh
 # Boolean variable: group families in 1 populations run or split them
 GRFAM=T
 R=80
-D=20
+D=5
 
 # Misc: report generation
 LAB=reports/lab_book

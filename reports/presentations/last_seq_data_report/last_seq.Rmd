@@ -25,12 +25,64 @@ knitr::include_graphics('./figures/hom_bg_popgroup_d20_CD.pdf')
 # Splitting crosses
 
 ## C cross
+This cross contains 588 individuals, of which 530 made it through the pipeline. They are split into 45 families. 
+
+*  Mean number of sites per sample: 1439
+*  Average locus depth per sample: 127.
+*  Ploidy counts: 314 diploids, 216 haploids
+
+```{r homsex_d20grouped_C, echo=FALSE, fig.cap="Distribution of the proportion of homozygosity among variant sites per individuals. Populations was run on all samples from cross C together without max-obs-het filter. Individuals are colored based on background.", out.width='60%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/hom_sex_popgroup_d20_C.pdf')
+```
 
 ## D cross
-This cross contains 186 individuals, of which 174 made it through the pipeline. They are split into 15 families. Mean number of sites per sample: 864, Average locus depth per sample: 108
+This cross contains 186 individuals, of which 174 made it through the pipeline. They are split into 15 families. 
 
+*  Mean number of sites per sample: 864
+*  Average locus depth per sample: 108
+*  Ploidy count: 35 diploids, 139 haploids
+
+```{r hombg_d20grouped_D, echo=FALSE, fig.cap="Distribution of the proportion of homozygosity among variant sites per individuals. Populations was run on all samples from cross D together without max-obs-het filter. Individuals are colored based on background.", out.width='60%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/hom_sex_popgroup_d20_D.pdf')
+```
+
+# Association mapping
+
+The families still don't cluster by proportion of males among diploids, but when pooling them all together, it seems there are 3 good candidate regions (Figures 5, 6, 7).
+
+```{r case_nocorr, echo=FALSE, fig.cap="Manhattan plot of the case-control association mapping with fisher exact test. No correction for multiple testing was applied. Red dashed line: p=0.01, black continuous line: p=0.05", out.width='60%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/case_control_nocorr.pdff')
+```
+
+```{r case_BH, echo=FALSE, fig.cap="Manhattan plot of the case-control association mapping with fisher exact test. Benjamini-Hochberg correction for multiple testing was applied. Red dashed line: p=0.01, black continuous line: p=0.05", out.width='60%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/case_control_BH.pdf')
+```
+
+```{r case_bonferroni, echo=FALSE, fig.cap="Manhattan plot of the case-control association mapping with fisher exact test. Bonferroni correction for multiple testing was applied. Red dashed line: p=0.01, black continuous line: p=0.05", out.width='60%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/case_control_bonferroni.pdf')
+```
 # Method changes
 
 Up to now, I ran populations per family to split individuals by ploidy to improve the number of loci per individuals, however this practice seems to generate highly different levels of homozygosity between families and it would be less risky to pool individuals together and have a larger overlapping set of loci between families if I want to use a universal cutoff to split by ploidy.
 
 I am now excluding loci that are found to be heterozygous in haploid males and this seems like a better strategy than using maximum proportion of heterozygous individuals. The proportion of haploids which need to be heterozygous at the locus might be subject to change however.
+
+# Brainstorming
+
+Wavelet transform to estimate size of centromeric region
+
+# Planning: Priority
+
+1. Annotations in candidate regions -> poster / presentation
+2. Linkage map: Impossible to make a new one -> use Jens' to overlay centromeres
+3. Not sure how to nicely implement centromere into story without mother categories
+
+# PS: Figure with proportional size of chromosomes:
+
+```{r case_BH_chrprop, echo=FALSE, fig.cap="Manhattan plot of the case-control association mapping with fisher exact test. BH correction for multiple testing was applied. Chromosome sizes are proportional. Red dashed line: p=0.01, black continuous line: p=0.05", out.width='60%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/case_control_BH_chromprop.pdf')
+```
+
+```{r case_bonferroni_chr_prop, echo=FALSE, fig.cap="Manhattan plot of the case-control association mapping with fisher exact test. Bonferroni correction for multiple testing was applied. Chromosomes sizes are proportional Red dashed line: p=0.01, black continuous line: p=0.05", out.width='60%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./figures/case_control_bonferroni_chromprop.pdf')
+```
