@@ -69,6 +69,8 @@ To run the pipeline with new data in the form of demultiplexed, trimmed reads in
   + [numpy 1.11](http://www.numpy.org/): Fast array and vectorized operations
   + [pandas 0.19](http://pandas.pydata.org/): Convenient dataframes
   + [matplotlib 1.5](https://matplotlib.org/): Plotting methods
+  + [biopython 1.70](http://biopython.org/): Suite of python tools for bioinformatics
+  + [pybedtools 0.7.10](http://daler.github.io/pybedtools/): Python wrapper for bedtools with extended functionality
 
 ### Scripts
 
