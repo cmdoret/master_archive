@@ -77,10 +77,10 @@ else:
 
 
 # Setting up search scope
-qstart = bp - args.range_size
+qstart = max(0,(bp - args.range_size))
 qend = bp + args.range_size
-q_region = bed.BedTool('{0} {1} {2}'.format(Chr, qstart, qend),
-                       from_string=True)[0]
+# q_region = bed.BedTool('{0} {1} {2}'.format(Chr, qstart, qend),
+#                        from_string=True)[0]
 eprint("Looking for annotations on chromosome {0}, between \
 positions {1} and {2}".format(Chr, qstart, qend))
 
@@ -88,6 +88,7 @@ positions {1} and {2}".format(Chr, qstart, qend))
 gff = bed.BedTool(args.gff_file)
 annot = pd.read_csv(args.annot_file, sep='\t', header=None)
 annot.columns = ['ID', 'GO', 'term']
+
 # Filter features in query range
 gff_filtered = gff.filter(lambda b: (b.chrom == Chr) &
                                     (b.start >= qstart) &
@@ -99,11 +100,17 @@ annot_frame = pd.DataFrame()
 for f_id in gff_filtered:
     # Extracting ID
     f_match = re.search(feature_pattern,f_id[8])
-    # Retrieving matchine annotations
+    # Retrieving matching annotations
     try:
-        f_annot = annot.loc[annot.ID.str.contains(f_match.group(1)),]
-        annot_frame = annot_frame.append(f_annot)
+        f_annot = annot.loc[annot.ID.str.contains(f_match.group(1)),:]
+        if not f_annot.empty:
+            f_annot.insert(0, 'end', f_id[4])
+            f_annot.insert(0, 'start', f_id[3])
+            f_annot.insert(0, 'chrom', f_id[0])
+            annot_frame = annot_frame.append(f_annot)
     except AttributeError:
         eprint("{0} did not match any GO annotation.".format(f_id))
 
-print(annot_frame.to_string(index=False, index_names=False))
+if not annot_frame.empty:
+    annot_frame.drop_duplicates(subset='ID',inplace=True)
+    print(annot_frame.to_string(index=False, index_names=False))

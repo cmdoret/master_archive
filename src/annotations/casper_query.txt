@@ -1,0 +1,10 @@
+chrom   start     end           ID          GO                                               term
+tig00000459   65759   67796  LF009149-PA  GO:0044763         mitochondrial inner membrane protein oxa1l
+tig00000459  137004  142223  LF009159-PA  GO:0005488  nuclear receptor subfamily 2 group e member pa...
+tig00000459   69756   71997  LF009151-PA  GO:0004114  mitochondrial import receptor subunit tom40 ho...
+tig00000459   51474   53326  LF009145-PA  GO:0008424                       alpha-( )-fucosyltransferase
+tig00000459  132595  135288  LF009158-PA  GO:0008270              gata-binding factor a-like isoform x1
+tig00000459  106580  110208  LF009157-PA  GO:0005488               box a-binding factor-like isoform x1
+tig00000459   32152   33423  LF009141-PA  GO:0005794                         caveolin-3-like isoform x2
+tig00000459   53644   54958  LF009146-PA  GO:0016021                               dnaj-like protein 60
+tig00000459   54643   57005  LF009147-PA  GO:0016740       dopamine n-acetyltransferase-like isoform x1

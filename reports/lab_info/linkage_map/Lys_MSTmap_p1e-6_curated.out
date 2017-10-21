@@ -1,8 +1,8 @@
 ;number of linkage groups: 26
-;The size of the linkage groups are: 
-;		1	1	1	1	1	1	1	1	1	1	1	1	236	236	146	146	346	346	221	221	100	100	46	46	3	3	
-;The number of bins in each linkage group: 
-;		1	1	1	1	1	1	1	1	1	1	1	1	90	91	80	82	135	127	100	103	71	71	25	25	1	1	
+;The size of the linkage groups are:
+;		1	1	1	1	1	1	1	1	1	1	1	1	236	236	146	146	346	346	221	221	100	100	46	46	3	3
+;The number of bins in each linkage group:
+;		1	1	1	1	1	1	1	1	1	1	1	1	90	91	80	82	135	127	100	103	71	71	25	25	1	1
 
 
 
@@ -1140,4 +1140,3 @@ tig00000166_48584	96.996
 tig00000166_60953	96.996
 tig00000166_194856	99.007
 ;ENDOFGROUP
-
