@@ -83,5 +83,6 @@ ggplot(data=odds_cont, aes(x=BP, y=-log10(fisher))) + geom_point() +
 #======= WRITE OUTPUT =======#
 # Number of groups is (2^n)-1 where n is the number of CSD loci
 nloci <- log2(max(groups$cluster)+1)
-write.table(odds_chrom, paste0(out_folder, "case_control_hits_", nloci , "loci.tsv"), 
+odds_chrom_sig <- odds_chrom[odds_chrom$fisher<=0.01,]
+write.table(odds_chrom_sig, paste0(out_folder, "case_control_hits.tsv"), 
             sep='\t', row.names=F, quote=F)
