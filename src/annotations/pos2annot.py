@@ -1,7 +1,7 @@
 """
-This script takes a genomic position as input (chr BP) and a gff files based
-on the same assembly and returns either the annotations within a given region
-or the top N closest annotations.
+This script takes a genomic position as input (chr,BP), a gff file and a
+file with containing GO terms based on the same assembly and returns either \
+the annotations within a given region or the top N closest annotations.
 
 TODO: Current build of BEDtools won't compile on Sierra... Wait for fix and use
 intersect instead of filter.
@@ -113,4 +113,5 @@ for f_id in gff_filtered:
 
 if not annot_frame.empty:
     annot_frame.drop_duplicates(subset='ID',inplace=True)
-    print(annot_frame.to_string(index=False, index_names=False))
+    #print(annot_frame.to_string(index=False, index_names=False, header=False))
+    annot_frame.to_csv(sys.stdout, sep='\t', index=False, header=False)
