@@ -90,10 +90,14 @@ chromosome and has been trimmed down to {0} bp.".format(len(chrom.seq)))
         lookup_seq = chrom.seq[start_sub:end_sub]
         break
 
-fasta_out = open("store_region.fasta",'a')
-fasta_out.write('>'+Chr+'_'+str(bp)+'\n')
-fasta_out.write(str(lookup_seq)+'\n')
-fasta_out.close()
+try:
+    fasta_out = open("store_region.fasta",'a')
+    fasta_out.write('>'+Chr+'_'+str(bp)+'\n')
+    fasta_out.write(str(lookup_seq)+'\n')
+    fasta_out.close()
+except NameError:
+    eprint("Error: Your position was not found in the matching assembly.")
+    exit()
 
 # Setting up sequence with all possible combination of rev. and comp.
 # Associating boolean flag with each possibility to remember if seq. was rev.

@@ -15,7 +15,10 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.2 5c3e80d, 2017-08-06"
-   sodipodi:docname="prop_table.svg">
+   sodipodi:docname="prop_table.svg"
+   inkscape:export-filename="/Users/cyril/switchdrive/Dossiers/PhD/Pasteur/figs_presentation/DMP_geno.png"
+   inkscape:export-xdpi="600"
+   inkscape:export-ydpi="600">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -25,9 +28,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.57175929"
-     inkscape:cx="358.35986"
-     inkscape:cy="825.20802"
+     inkscape:zoom="1.1435186"
+     inkscape:cx="282.92436"
+     inkscape:cy="851.31605"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -44,7 +47,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -933,7 +936,9 @@
          y="40.697914"
          style="baseline-shift:baseline;stroke-width:0.26458332">P<tspan
    style="font-size:64.99999762%;baseline-shift:sub"
-   id="tspan1193">d</tspan>= r<tspan
+   id="tspan1193">d</tspan> <tspan
+   style="font-size:7.05555556px"
+   id="tspan1017">∝</tspan> r<tspan
    style="font-size:64.99999762%;baseline-shift:sub"
    id="tspan1195">1</tspan></tspan></text>
     <text
@@ -948,7 +953,9 @@
          id="tspan1203"
          sodipodi:role="line">P<tspan
    id="tspan1199"
-   style="font-size:64.99999762%;baseline-shift:sub">d</tspan>= r<tspan
+   style="font-size:64.99999762%;baseline-shift:sub">d </tspan><tspan
+   style="font-size:7.05555556px"
+   id="tspan1019">∝</tspan> r<tspan
    style="font-size:64.99999762%;baseline-shift:sub"
    id="tspan1215">2</tspan></tspan></text>
     <text
@@ -963,7 +970,9 @@
          y="93.614571"
          style="baseline-shift:baseline;stroke-width:0.26458332">P<tspan
    style="font-size:64.99999762%;baseline-shift:sub"
-   id="tspan1207">d</tspan>= r<tspan
+   id="tspan1207">d </tspan><tspan
+   style="font-size:7.05555534px"
+   id="tspan1021">∝</tspan> r<tspan
    style="font-size:64.99999762%;baseline-shift:sub"
    id="tspan1209">1</tspan></tspan></text>
     <text
@@ -978,7 +987,9 @@
          id="tspan1221"
          sodipodi:role="line">P<tspan
    id="tspan1217"
-   style="font-size:64.99999762%;baseline-shift:sub">d</tspan>= r<tspan
+   style="font-size:64.99999762%;baseline-shift:sub">d</tspan> <tspan
+   style="font-size:7.05555534px"
+   id="tspan1023">∝</tspan> r<tspan
    style="font-size:64.99999762%;baseline-shift:sub"
    id="tspan1229">1</tspan>*r<tspan
    style="font-size:64.99999762%;baseline-shift:sub"
@@ -995,7 +1006,9 @@
          y="149.70625"
          style="baseline-shift:baseline;stroke-width:0.26458332">P<tspan
    style="font-size:64.99999762%;baseline-shift:sub"
-   id="tspan1231">d</tspan>= r<tspan
+   id="tspan1231">d </tspan><tspan
+   style="font-size:7.05555534px"
+   id="tspan1025">∝</tspan> r<tspan
    id="tspan1233"
    style="font-size:64.99999762%;baseline-shift:sub">1</tspan></tspan></text>
     <text
@@ -1010,9 +1023,11 @@
          id="tspan1245"
          sodipodi:role="line">P<tspan
    id="tspan1241"
-   style="font-size:64.99999762%;baseline-shift:sub">d</tspan>= r<tspan
-   style="font-size:64.99999762%;baseline-shift:sub"
-   id="tspan1243">1</tspan></tspan></text>
+   style="font-size:64.99999762%;baseline-shift:sub">d</tspan> <tspan
+   style="font-size:7.05555556px"
+   id="tspan1031">∝</tspan> r<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan1029">2</tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:5.29166651px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;baseline-shift:baseline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
@@ -1128,21 +1143,6 @@
    id="tspan1323">2</tspan>*r<tspan
    style="font-size:64.99999762%;baseline-shift:sub"
    id="tspan1317">3</tspan></tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:5.29166651px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;baseline-shift:baseline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="54.164448"
-       y="166.6396"
-       id="text1550"><tspan
-         sodipodi:role="line"
-         id="tspan1548"
-         x="54.164448"
-         y="166.6396"
-         style="baseline-shift:baseline;stroke-width:0.26458332">P<tspan
-   style="font-size:64.99999762%;baseline-shift:sub"
-   id="tspan1544">d</tspan>= r<tspan
-   id="tspan1546"
-   style="font-size:64.99999762%;baseline-shift:sub">1</tspan></tspan></text>
     <flowRoot
        xml:space="preserve"
        id="flowRoot1331"
@@ -1153,7 +1153,7 @@
            height="293.82996"
            x="19.238865"
            y="263.76669" /></flowRegion><flowPara
-         id="flowPara1337"></flowPara></flowRoot>    <rect
+         id="flowPara1337" /></flowRoot>    <rect
        style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:fill markers stroke"
        id="rect1341"
        width="196.67003"
