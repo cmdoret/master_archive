@@ -117,22 +117,21 @@ Where upper-case letters represent total individuals count in each family and lo
 The proportion of males among diploid offspring was then computed using the inferred number of diploid males. The families were classified using 1-dimensional k-means clustering on the proportion of males among diploid offspring and 2 scenarios were considered to decide the number of categories of families; either 2 CSD loci, resulting in 3 categories (k=3), or 3 CSD loci resulting in 7 categories (k=7).\\
 
 \subsection*{Finding centromeres}
-All fixed and variant sites were extracted using the --genomic parameter of populations. For families where the mother was available, we excluded all sites that were either homozygous or missing in the mother. For other families, we excluded sites that were missing of homozygous in all offspring in the family. 
-The proportion of heterozygous sites was computed along the chromosomes in a sliding window containing 30 sites. In each chromosome, the centromere was considered to be in the window with the lowest proportion of heterozygous sites.
-
-\subsection*{Terminal or Central fusion automixis}
-Lysiphlebus is 
+All fixed and variant sites were extracted using the --genomic parameter of the populations STACKS module. For families where the mother was available, we excluded all sites that were either homozygous or missing in the mother from the family. For other families, we excluded sites that were missing of homozygous in all offspring in the family. 
+The proportion of heterozygous sites was computed along the chromosomes in two ways: 1) computing mean heterozygosity in a sliding window containing 30 sites with a step size of 1 site and 2) Using a local regression model with a span of 0.6 to obtain a smooth estimate curve. In each chromosome, the approximate centromere location was considered to be the minimum of the local regression curve.
 
 \subsection*{Association mapping}
-Case-control association mapping was carried separately in each category of family. The number of heterozygous males, heterozygous females, homozygous males and homozygous females was computed for every SNP and a two-sided Fisher exact-test was performed on the 2X2 contingency tables. P-values were corrected for multiple-testing using Benjamini-Hochberg correction. 
+Case-control association mapping was used to score CSD-candidate SNPs based on their segregation pattern. The number of heterozygous males, heterozygous females, homozygous males and homozygous females was computed for every SNP and a one-sided Fisher exact-test was performed on the 2X2 contingency table. The alternative hypothesis was that the proportion of homozygous males at the SNP is higher than the proportion of homozygous females. P-values were corrected for multiple-testing using Benjamini-Hochberg correction. 
 
 \section*{Acknowledgements}
 Jens Bast: Linkage map
 Casper Van der Kooi: Supervision
 Tanja Schwander: ideas and direction
+French team: genome assembly + annotations
 \section*{Supplementary Material}
 
-Code and manuscript data hosted at: [INSERT URLS]
+Code  hosted at: [INSERT Github URL]
+Data  hosted at: [INSERT DB URL]
 
 \section*{plan}
 intro: sex-det (envi-gen), role in development, evolutionary biology, arthropods, haplodiploidy, CSD, honeybee, CFA
