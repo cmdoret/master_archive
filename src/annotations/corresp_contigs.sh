@@ -21,7 +21,7 @@ corresp_gff='../../data/annotations/corresp_gff.csv'
 # Get start position of all contigs in the ordered assembly and whether
 # They have been reversed and/or complemented. Store infos in a file.
 
-echo 'tig,chr,region_size,transform' > $corresp_gff
+echo 'tig,chr,start,region_size,transform' > $corresp_gff
 
 
 grep ">" $orig_ref | while read tig
@@ -31,7 +31,7 @@ do
   do
     sleep 1
   done
-
+    # Setting region size longer than whole genome -> resized to contig
     ( tname=$(echo $tig | sed -n 's/>\([^ ]*\) .*/\1,/p' | tr -d '\n')
     new_coord=$(python2 chr2contig.py --pos1 "${tname}0" \
                           --region_size 1000000000 \

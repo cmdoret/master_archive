@@ -1,5 +1,8 @@
-
-# This script takes a list of genomic positions (columns 2 and 3 need to be chromosome and position in chromosome, respectively) and blast the regions surrounding these positions against some database, storing the blast output in a separate file.
+#!/bin/bash
+# This script takes a list of genomic positions (columns 2 and 3 need to be
+# chromosome and position in chromosome, respectively) and blast the regions
+# surrounding these positions against some database, storing the blast output
+# in a separate file.
 # 11.07.2017
 # Cyril Matthey-Doret
 

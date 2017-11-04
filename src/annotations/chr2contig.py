@@ -148,7 +148,7 @@ for comb_id, comb_seq in enumerate(lookups):
                 if comb_seq[1]:
                     # If sequence was reversed:
                     seq_match.append((str(contig.id),
-                                      str(tighit + args.region_size - offset)))
+                                      str(tighit + region_size - offset)))
                     if comb_id == 2:
                         contig_mod = 'reversed '
                         mod_flag.append('rev')

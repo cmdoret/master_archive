@@ -5,11 +5,12 @@ library(dplyr)
 
 annot <- read.table('data/annotations/csd_gwas_hit_annot.tsv', sep='\t', header=T)
 
-hits_df <- data.frame(chrom=c("tig00000010","tig00000010","tig00000010",
-                              "tig00001764","tig00000797","tig00002024"),
-                      BP=c(500869,495741,495732,10500,17843,132706))
+hits_df <- read.table('data/assoc_mapping/case_control/case_control_hits.tsv', sep='\t', header=T)
+hits_df <- hits_df %>% rename(chrom=Chr)
 annot <- annot %>% 
   group_by(chrom) %>%
-  mutate(rstart=start
-ggplot(annot) + geom_rect(aes(xmin = start, xmax = end, ymin = -1, ymax = 1)) + facet_grid(~chrom, scales='free_x') + 
-  ylim(c(-10,10)) + geom_hline(aes(yintercept=0)) + geom_point(data=hits_df,aes(x=BP,y=0),col='red')
+  mutate(rstart=start)
+ggplot(annot) + geom_rect(aes(xmin = start, xmax = end, ymin = -0.3, ymax = -0.1)) + facet_grid(~chrom, scales='free_x') + 
+  geom_hline(aes(yintercept=-0.2)) + geom_point(data=hits_df,aes(x=BP,y=-0.2),col='red') + theme_bw() + 
+  ylab("Annotations per 10kb") + geom_histogram(data=annot,aes(x=start), binwidth=10000)
+                                                                                                         

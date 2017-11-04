@@ -1,0 +1,127 @@
+chrom,start,end,ID,GO,term
+chr3,4755773,4756151,LF003046-PA,GO:0005975,chitinase-like protein idgf4
+chr3,4760373,4760594,LF003045-PA,GO:0016021,golgi integral membrane protein 4-like isoform x1
+chr3,4796906,4797511,LF003043-PA,GO:0016021,uncharacterized protein loc100879956
+chr3,4811951,4812047,LF003042-PA,GO:0016021,adenylate cyclase type 6
+chr3,4831089,4831238,LF003041-PA,GO:0016021,adenylate cyclase type 6
+chr3,4843615,4843781,LF003040-PA,GO:0016020,proton-coupled folate transporter
+chr3,4861774,4861814,LF003038-PA,GO:0016020,vasoactive intestinal polypeptide receptor 1-like isoform x1
+chr3,4870994,4871049,LF003037-PA,GO:0005507,protein sco1 mitochondrial
+chr3,4872792,4872935,LF003036-PA,GO:0032266,vacuolar protein-sorting-associated protein 36
+chr3,4888350,4888940,LF003033-PA,GO:0016021,uncharacterized protein loc107272897
+chr3,5062396,5062706,LF003027-PA,GO:0006457,prefoldin subunit 5
+chr3,5103157,5103384,LF003024-PA,GO:0016020,hig1 domain family member mitochondrial
+chr3,5103863,5104279,LF003023-PA,GO:0046872,protein rufy3
+chr3,5108354,5108613,LF003022-PA,GO:0046872,run and fyve domain-containing protein 2 isoform x3
+chr3,4755773,4756151,LF003046-PA,GO:0005975,chitinase-like protein idgf4
+chr3,4760373,4760594,LF003045-PA,GO:0016021,golgi integral membrane protein 4-like isoform x1
+chr3,4796906,4797511,LF003043-PA,GO:0016021,uncharacterized protein loc100879956
+chr3,4811951,4812047,LF003042-PA,GO:0016021,adenylate cyclase type 6
+chr3,4831089,4831238,LF003041-PA,GO:0016021,adenylate cyclase type 6
+chr3,4843615,4843781,LF003040-PA,GO:0016020,proton-coupled folate transporter
+chr3,4861774,4861814,LF003038-PA,GO:0016020,vasoactive intestinal polypeptide receptor 1-like isoform x1
+chr3,4870994,4871049,LF003037-PA,GO:0005507,protein sco1 mitochondrial
+chr3,4872792,4872935,LF003036-PA,GO:0032266,vacuolar protein-sorting-associated protein 36
+chr3,4888350,4888940,LF003033-PA,GO:0016021,uncharacterized protein loc107272897
+chr3,5062396,5062706,LF003027-PA,GO:0006457,prefoldin subunit 5
+chr3,5103157,5103384,LF003024-PA,GO:0016020,hig1 domain family member mitochondrial
+chr3,5103863,5104279,LF003023-PA,GO:0046872,protein rufy3
+chr3,5108354,5108613,LF003022-PA,GO:0046872,run and fyve domain-containing protein 2 isoform x3
+chr3,4755773,4756151,LF003046-PA,GO:0005975,chitinase-like protein idgf4
+chr3,4760373,4760594,LF003045-PA,GO:0016021,golgi integral membrane protein 4-like isoform x1
+chr3,4796906,4797511,LF003043-PA,GO:0016021,uncharacterized protein loc100879956
+chr3,4811951,4812047,LF003042-PA,GO:0016021,adenylate cyclase type 6
+chr3,4831089,4831238,LF003041-PA,GO:0016021,adenylate cyclase type 6
+chr3,4843615,4843781,LF003040-PA,GO:0016020,proton-coupled folate transporter
+chr3,4861774,4861814,LF003038-PA,GO:0016020,vasoactive intestinal polypeptide receptor 1-like isoform x1
+chr3,4870994,4871049,LF003037-PA,GO:0005507,protein sco1 mitochondrial
+chr3,4872792,4872935,LF003036-PA,GO:0032266,vacuolar protein-sorting-associated protein 36
+chr3,4888350,4888940,LF003033-PA,GO:0016021,uncharacterized protein loc107272897
+chr3,5062396,5062706,LF003027-PA,GO:0006457,prefoldin subunit 5
+chr3,5103157,5103384,LF003024-PA,GO:0016020,hig1 domain family member mitochondrial
+chr3,5103863,5104279,LF003023-PA,GO:0046872,protein rufy3
+chr3,5108354,5108613,LF003022-PA,GO:0046872,run and fyve domain-containing protein 2 isoform x3
+chr4,7662977,7662991,LF013183-PA,GO:0003677,homeobox protein hmx
+chr4,7716629,7717162,LF014636-PA,GO:0006259,uncharacterized protein loc105842614
+chr4,7719367,7719680,LF014637-PA,GO:0006259,uncharacterized protein dwil_gk22850
+chr4,7739899,7740140,LF010545-PA,GO:0005737,uncharacterized protein loc107265729
+chr4,7768779,7769106,LF010548-PA,GO:0004725,tyrosine-protein phosphatase 69d
+chr4,7783681,7784055,LF010550-PA,GO:0016020,required for meiotic nuclear division protein 1 homolog
+chr4,7810568,7810970,LF010552-PA,GO:0003676,zinc finger protein 429-like isoform x3
+chr4,7848658,7849135,LF010555-PA,GO:0016779,dna polymerase zeta catalytic subunit
+chr4,7855355,7855459,LF010556-PA,GO:0005834,guanine nucleotide-binding protein subunit gamma-1
+chr4,7889903,7890097,LF012290-PA,GO:0000166,hspb1-associated protein 1
+chr5,3104517,3104912,LF009381-PA,GO:0008236,serine protease
+chr5,3108040,3108175,LF009383-PA,GO:0016798,myrosinase 1-like
+chr5,3116758,3117130,LF009386-PA,GO:0016021,uncharacterized protein loc411888 isoform x1
+chr5,3131420,3131610,LF009387-PA,GO:0006351,aryl hydrocarbon receptor nuclear translocator-like protein 1 isoform x1
+chr5,3141323,3141587,LF009389-PA,GO:0050999,nitric oxide synthase-interacting protein homolog
+chr5,3143060,3143572,LF009390-PA,GO:0004930,protein srek1ip1-like
+chr5,3146140,3146867,LF009391-PA,GO:0016021,neuropeptide y receptor-like
+chr5,3155654,3155898,LF009394-PA,GO:0006457,peptidyl-prolyl cis-trans isomerase
+chr5,3199652,3199830,LF007432-PA,GO:0006470,tyrosine-protein phosphatase non-receptor type 2 isoform x1
+chr5,3206915,3207414,LF007434-PA,GO:0003924,hbs1-like protein
+chr5,3226585,3227226,LF007439-PA,GO:0003676,hemk methyltransferase family member 2
+chr5,3236823,3237162,LF007442-PA,GO:0016021,uncharacterized protein loc103572787
+chr5,3249984,3250160,LF007444-PA,GO:0005840,60s ribosomal protein l36
+chr5,3271009,3271058,LF007448-PA,GO:0016787,myrosinase 1
+chr5,3286072,3286241,LF007451-PA,GO:0006004,alpha-l-fucosidase isoform x1
+chr5,3288412,3288456,LF007452-PA,GO:0016021,cytosolic non-specific dipeptidase
+chr5,3300652,3301513,LF007456-PA,GO:0003779,beta-parvin
+chr5,3302820,3303027,LF007457-PA,GO:0005840,28s ribosomal protein mitochondrial
+chr5,3304171,3304212,LF007458-PA,GO:0016020,uncharacterized protein loc106793526
+chr5,3305988,3306711,LF007459-PA,GO:0044699,udp-sugar transporter ust74c-like
+chr5,3310172,3310462,LF007460-PA,GO:0004713,discoidin domain-containing receptor 2-like
+chr5,3320121,3321871,LF006413-PA,GO:0008026,atp-dependent dna helicase q1-like
+chr5,3322345,3322573,LF006414-PA,GO:0071704,hydroxyacylglutathione mitochondrial isoform x1
+chr5,3324976,3325014,LF006416-PA,GO:0008063,sorting nexin-16
+chr5,3326542,3326757,LF006417-PA,GO:0016021,b( +)-type amino acid transporter 1-like
+chr5,3329502,3329566,LF006418-PA,GO:0016021,b( +)-type amino acid transporter 1-like
+chr5,3360783,3361337,LF006421-PA,GO:0006820,serine threonine-protein kinase mos
+chr5,3366326,3368508,LF006424-PA,GO:0090501,endoribonuclease dcr-1
+chr5,3378031,3378206,LF006425-PA,GO:0008270,e3 sumo-protein ligase pias2 isoform x2
+chr5,3381501,3381630,LF006426-PA,GO:0016021,protocadherin-like wing polarity protein stan
+chr5,3724567,3724820,LF004308-PA,GO:0003824,acyl- synthetase family member mitochondrial
+chr5,3728983,3729346,LF004310-PA,GO:0007283,probable splicing factor 3b subunit 5
+chr5,3732937,3733176,LF004311-PA,GO:0005488,bub3-interacting and glebs motif-containing protein znf207
+chr5,3744015,3744382,LF004314-PA,GO:0007067,dynactin subunit 2
+chr5,3747157,3747549,LF004315-PA,GO:0008440,inositol hexakisphosphate kinase 1 isoform x1
+chr5,3755560,3758318,LF004316-PA,GO:0003779,huntingtin-interacting protein 1 isoform x2
+chr5,3766086,3766334,LF004318-PA,GO:0046872,4-hydroxyphenylpyruvate dioxygenase
+chr5,3768311,3768424,LF004319-PA,GO:0005622,probable nuclear transport factor 2 isoform x1
+chr5,3779161,3779953,LF005975-PA,GO:0046872,uncharacterized protein loc107037375
+chr5,3780850,3781113,LF005976-PA,GO:0005840,40s ribosomal protein s25
+chr5,3793064,3793372,LF005979-PA,GO:0016773,sedoheptulokinase-like isoform x2
+chr5,3802415,3802860,LF005983-PA,GO:0003676,zinc finger and scan domain-containing protein 12
+chr5,3804498,3804968,LF005984-PA,GO:0008270,protein deltex
+chr5,3807448,3808611,LF005985-PA,GO:0016787,ubiquitin carboxyl-terminal hydrolase 30 homolog
+chr5,3814282,3814521,LF005989-PA,GO:0005975,beta-glucuronidase isoform x2
+chr5,3832200,3832493,LF005992-PA,GO:0003824,phosphopantothenoylcysteine decarboxylase
+chr5,3841319,3841587,LF005994-PA,GO:0031683,guanine nucleotide-binding protein subunit alpha homolog
+chr5,3846210,3846422,LF005995-PA,GO:0030036,formin-like protein cg32138 isoform x2
+chr5,3864664,3864675,LF005996-PA,GO:0030036,formin-like protein cg32138 isoform x1
+chr5,3870961,3871267,LF005998-PA,GO:0016020,uncharacterized protein loc105433985 isoform x1
+chr5,3902992,3903180,LF006000-PA,GO:0006260,replication factor c subunit 2
+chr5,3905735,3906256,LF006002-PA,GO:0046872,superoxide dismutase
+chr5,3907282,3907402,LF006003-PA,GO:0016491,superoxide dismutase
+chr5,3912370,3912436,LF006004-PA,GO:0016020,cd63 antigen-like
+chr5,3922179,3922291,LF006006-PA,GO:0003723,cbp80 20-dependent translation initiation factor isoform x1
+chr5,3924113,3924505,LF006007-PA,GO:0016021,mitochondrial fission 1 protein
+chr5,3927645,3927723,LF006008-PA,GO:0020037,dual oxidase isoform x1
+chr5,3932611,3932932,LF006009-PA,GO:0016021,dual oxidase maturation factor 1
+chr5,3945026,3945279,LF006013-PA,GO:0016021,peroxisomal membrane protein 2
+chr5,3956512,3956708,LF006015-PA,GO:0090305,exosome complex component rrp40
+chr5,3960325,3960525,LF006016-PA,GO:0016021,contactin-2 isoform x1
+chr5,3964545,3965735,LF006018-PA,GO:0008757,probable 28s rrna (cytosine -c )-methyltransferase
+chr5,3970714,3970826,LF006599-PA,GO:0016021,aquaporin-11
+chr5,3984345,3984792,LF006603-PA,GO:0008233,sentrin-specific protease partial
+chr5,3998103,3998234,LF006606-PA,GO:0005840,60s acidic ribosomal protein p2
+chr5,4000033,4000216,LF006607-PA,GO:0035556,1-phosphatidylinositol -bisphosphate phosphodiesterase-like
+chr5,4005625,4005710,LF006608-PA,GO:0016887,atp-binding cassette sub-family c member sur
+chr5,4014860,4014985,LF006609-PA,GO:0030553,cgmp-dependent protein isozyme 1
+chr5,4020932,4021132,LF006611-PA,GO:0008889,glycerophosphodiester phosphodiesterase domain-containing protein 1-like
+chr5,4023955,4024395,LF006613-PA,GO:0005634,protein mago nashi homolog
+chr5,4079398,4079748,LF006622-PA,GO:0016021,translocator protein
+chr5,4081307,4081496,LF006623-PA,GO:0006468,serine threonine-protein kinase unc-51
+chr5,4084649,4085149,LF006624-PA,GO:0006413,density-regulated protein homolog
+chr5,4086667,4086867,LF006625-PA,GO:0005737,clustered mitochondria protein homolog

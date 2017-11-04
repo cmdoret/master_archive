@@ -6,7 +6,7 @@
 # Cyril Matthey-Doret
 
 #==== SELECT PARAMETERS ====#
-wsize_range <- 30  # Size of the moving average window
+wsize_range <- 50  # Size of the moving average window
 sp_range <- 0.60  # Proportion of SNPs to be included in each local regression
 # wsize_range <- seq(5, 40, 1)
 # sp_range <- seq(0.15, 1, 0.01)
@@ -96,7 +96,7 @@ if(length(sp_range)==1 & length(wsize_range)==1){
     guides(color=guide_legend(title="Method")) + 
     geom_point(data=centrolist$slideMean, aes(x=pos/zoomfactor, y=0, col='Moving average'), inherit.aes = F, size=2) + 
     geom_point(data=centrolist$loess, aes(x=pos/zoomfactor, y=0, col='Local regression'), inherit.aes = F, size=2)
-  #ggsave(filename = paste0(out_path, "/plots/final_centro.pdf"), plot = LoessPlot, height = 10, width = 14)
-  #write.table(centrolist$slideMean, file=paste0(out_path, "/centrolist.tsv"), sep='\t',row.names = F, quote = F)
+  ggsave(filename = paste0(out_path, "/plots/final_centro.pdf"), plot = LoessPlot, height = 10, width = 14)
+  write.table(centrolist$slideMean, file=paste0(out_path, "/centrolist.tsv"), sep='\t',row.names = F, quote = F)
 }
 
