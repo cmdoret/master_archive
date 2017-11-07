@@ -1174,9 +1174,11 @@ $ blastn -query chr4.fasta -db chr5.fasta -outfmt 6 -max_target_seqs 1 -out blas
 It seems multiple alignment programs such as CLUSTAL Omega cannot handle very long sequences (longer than 100kb). Therefore, the best strategy might be to blast regions against one another and then use an aligner on subsetted high scoring regions.
 
 Detailed strategy (Discuss with Tanja and Casper):\\
-1. Blast chrom 3v4, 4v5 and 3v5\\
-2. Transform blast output into set of intervals (e.g. GFF), only taking hits above signif threshold\\
-3. Subset the intersect of intervals so that: $inter = 3v4 \cap 4v5  \cap 3v5$\\
+1. Perform one-way pairwise blast between chromosomes. Example: 3v4, 4v5 and 3v5\\
+1. Assign each alignment in blast output a unique ID: chrQ-chrS-ID. Example: chr3-chr4-13 \\
+2. Transform blast output into set of BED files, only including alignments with an E-value below 1e-10. Each blast output generates 2 bed files: one with the query chromosome coordinates, the other with the subject chromosome coordinates.\\ Intervals in both files have the same IDs. Example: Blast output of chr3vchr4 produces $3v4.bed$ and $4v3.bed$\\
+3. Perform pairwise intersections between bed files with the same coordinates system. Example: $3v4 \cap 3v5; 4v5  \cap 4v3; 5v3 \cap 5v4$\\
+4. Each intersection operation yields 2 sets of IDs
 
 \FloatBarrier
 \chapter{TO DO}
