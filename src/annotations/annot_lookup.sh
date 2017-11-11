@@ -24,5 +24,5 @@ do
   echo $line |
   awk 'BEGIN{RS="\t";OFS=",";}{print $2,$3}' |
   tee /dev/stderr |
-  python2 pos2annot.py $gff $annot --range_size 200000 >> $out_annot
+  python2 ../convert_coord/pos2annot.py $gff $annot --range_size 200000 >> $out_annot
 done < <(tail -n +2 $hits)

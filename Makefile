@@ -84,6 +84,13 @@ ploidy:
 	# Proportion of offspring type per family
 	Rscript src/ploidy/prop_offspring.R $(THRESH)
 
+.PHONY : RNA_seq
+RNA_seq :
+	echo "get transcripts bed files"
+
+.PHONY : mult_align
+mult_align :
+	echo "Use MCScanX to align BLAST output and generate plots."
 
 # Rule for building lab book figures, tables and compiling Latex script
 # Needs the all main steps to be run first
