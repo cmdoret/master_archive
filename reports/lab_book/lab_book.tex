@@ -1180,6 +1180,52 @@ Detailed strategy (Discuss with Tanja and Casper):\\
 3. Perform pairwise intersections between bed files with the same coordinates system. Example: $3v4 \cap 3v5; 4v5  \cap 4v3; 5v3 \cap 5v4$\\
 4. Each intersection operation yields 2 sets of IDs
 
+Update: 11.11.2017
+
+In stead, I used MCScanX to retrieve blocks of collinearity in the genome. This software only takes into account alignment between genes. The software takes a blast output and a bed file with all genes coordinates as input files. I proceeded as follows:
+\begin{itemize}
+\item Retrieve features coordinates from the BIPAA. These are gene predictions from MAKER in GFF format.
+\item Extract genes from the GFF file.
+\item Convert genes coordinates to our ordered assembly using custom python script.
+\item extract genes from ordered contigs only (i.e. placed in chromosomes)
+\item retrieve gene sequences with the getfasta utility from the BEDtools suite
+\item use BLASTN on the resulting fasta with outfmt 8 to get tabular output of all vs all genes blast.
+\item run MCScanX with the extracted genes coordinates in BED format and the BLASTN output.
+
+The resulting plots show several blocks of collinearity between chromosomes, but it does not entirely correspond with the CSD regions, especially for chromosome 5. This might be caused by the homology-based predictions of MAKER. Since the software relies on accurate gene prediction, I should use more reliable coordinates. I will therefore use the BIPAA RNAseq data to call genes instead of homology based predictions.
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=\textwidth]{homology/LF_MCScanX_circle_3chr_makergenes.png}
+\caption{Circlular plot showing collinearity blocks between the 3 chromosomes containing CSD candidate hits in the GWAS. Gene coordinates are computational predictions from maker.}
+\label{collin_3chr_maker}
+\end{center}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=\textwidth]{homology/LF_MCScanX_circle_all_makergenes.png}
+\caption{Circlular plot showing collinearity blocks between the all 6 chromosomes. Gene coordinates are computational predictions from maker.}
+\label{collin_all_maker}
+\end{center}
+\end{figure}
+
+\chapter{RNA-seq}
+
+To obtain more accurate gene coordinates for the collinearity analysis above, I will use transcripts coordinates obtained with RNA-seq. Besides, this will potentially uncover trancribed genes in candidate regions.
+
+I obtained bam alignment files from RNA-seq reads from the BIPAA team. These reads were aligned to their unordered assembly with STAR. 
+
+I plan to assemble the transcriptome from the alignment file using cufflinks to have transcripts coordinates with isoforms.
+
+Here are the issues I encountered so far:
+\begin{itemize}
+\item Being able to differentiate males and females would be useful to identify sex-specific expression levels and/or alternative splicing. Because these are larva, we don't know the sex, however it might be possible to identify haploid sample from heterozygosity levels using SNPs in transcriptome (?), or to cluster samples based on dominant isoforms in candidate CSD regions (if strong sample-specific isoform expression, interesting gene). Therefore, I want to know if it is possible to \textbf{classify reads in BAM files based on their original sample.}
+\item I don't have any info on the RNA-seq protocol: single-end or paired-end ? unstranded or strand specific. Looking at the BAM flags, I found no 1, therefore I assume this is single end sequencing. I also found about 33\% of alignments had 16 (mapped to reverse strand), does it mean they use an \textbf{unstranded protocol ?}
+\item If this is indeed unstranded protocol, cufflinks requires the \textbf{XS flag}, which was not included when the  STAR alignment was performed (it requires an additional  command line parameter). Did the BIPAA team not use this parameter on purpose ? Am I missing something ?
+
+\end{itemize}
+\end{itemize}
 \FloatBarrier
 \chapter{TO DO}
 \begin{itemize}
@@ -1191,9 +1237,6 @@ Detailed strategy (Discuss with Tanja and Casper):\\
 \item Compute coverage along genome for all loci including monomorphic ones.
 \item Isolate regions of abnodmally high coverage, eventually exclude them. Watch out for overmerging of paralogs and repetitive sequences.
 \item Visualize average heterozygosity (or allele frequency) at each SNPs in offpring versus in mother to assess transmission bias (hom SNPs in mothers more often het in offspring or reversse). 
-\item Validate haploid definition using haplotypes deduced from linkage map.
-\item convert VCF file into PED format using vcftools
-\item import data into genABEL and perform association mapping
 \item make snp calling less reliant on correct mother calls and exclude SNPs only if mother is hom/missing AND less than N offspring are heterozygous (small N)
 \item automate threshold selection for inferring ploidy
 \end{itemize}
