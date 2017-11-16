@@ -37,8 +37,8 @@ eval "$run_fun" <<CORR
 #!/bin/bash
 #BSUB -J corresp_GFF
 #BSUB -q normal
-#BSUB -e ../../data/logs/gff_corresp.err
-#BSUB -o ../../data/logs/gff_corresp.out
+#BSUB -e data/logs/gff_corresp.err
+#BSUB -o data/logs/gff_corresp.out
 #BSUB -M 32000000
 #BSUB -R "rusage[mem=32000]"
 #BSUB -n 36

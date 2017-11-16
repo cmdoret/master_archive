@@ -63,8 +63,8 @@ RNA-SRC=src/rna_seq/process_rna.sh
 OLD-REF=$(DAT)/ref_genome/canu2_low_corrRE.contigs.fasta
 
 # MCScanX
-MCSX-SRC=src/homology/MCScanx_prep.sh
-MCSX-IN=$(DAT)/homology/MCScan/input
+MCSX-SRC=src/homology/MCScanX_prep.sh
+MCSX-IN=$(DAT)/homology/MCScanX/input
 CORRESP=$(DAT)/annotations/corresp_gff.csv
 
 

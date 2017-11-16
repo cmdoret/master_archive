@@ -14,3 +14,15 @@ function bmonitor {
     sleep 1;
   done
 }
+
+function prettyload {
+  # This function displays a small animation and shows real-time
+  # progress of a task.
+  case $(expr $1 % 4) in
+    0) sym="|";;
+    1) sym="/";;
+    2) sym="-";;
+    3) sym="\\";;
+  esac
+  echo -ne "  $sym $1/$2 \r"
+}
