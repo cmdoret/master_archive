@@ -81,10 +81,10 @@ echo "Converting GFF to BED."
 #      id=substr($12,RSTART,RLENGTH)
 #      print $1,$4,$5,id,0,$7}' $MC_GFF > $MC_BED
 
-module add UHTS/Analysis/BEDTools/2.26.0;
+#module add UHTS/Analysis/BEDTools/2.26.0
 #MC_SEQ="$OUT_F/MCScanX_seq.fasta"
 echo "Extracting nucleotide sequences from reference."
 #bedtools getfasta -fi $REF -bed $MC_BED > $MC_SEQ
-module rm UHTS/Analysis/BEDTools/2.26.0;
+#module rm UHTS/Analysis/BEDTools/2.26.0;
 
 #4: build blast database from sequences and all vs all blast

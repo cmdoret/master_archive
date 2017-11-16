@@ -18,11 +18,18 @@ function bmonitor {
 function prettyload {
   # This function displays a small animation and shows real-time
   # progress of a task.
+  # Spinning bar animation
   case $(expr $1 % 4) in
     0) sym="|";;
     1) sym="/";;
     2) sym="-";;
     3) sym="\\";;
   esac
-  echo -ne "  $sym $1/$2 \r"
+  # Computing fill of the progress bar
+  progress=$((($1*100)/$2))
+  fill=$(printf "%$(($progress/4))s")
+  empty=$(printf "%$((25-$progress/4))s")
+  printf "   $sym [${fill// /#}${empty// /-}] ${progress}%%"
+  # Printing progress
+  echo -ne "  $1/$2 \r"
 }

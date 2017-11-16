@@ -57,6 +57,7 @@ then
     usage
     exit 0
   fi
+  # Default path for corresp file
   CORRESP_GFF="data/annotations/corresp_gff.csv"
   bash corresp_contigs.sh -O "$OLD_REF" \
                           -N "$NEW_REF" \
@@ -87,17 +88,21 @@ eval $run_fun <<CONV_COORD
 
   source src/misc/jobs_manager.sh
   MAX_PROC=24
+  declare -i iter=0
   n_rec=\$(wc -l $GFF | awk '{print \$1}')
+  # Clean temporary files
+  tmpdir="\$(dirname $OUT_GFF)/tmp/"
+  rm -rf \$tmpdir && mkdir -p \$tmpdir
   echo -n "" > $OUT_GFF
   # iterate over lines
   while read line
   do
-    while [ \$(jobs | wc -l) -ge \$MAX_PROC ]
+    while [ \$(jobs -p | wc -l) -ge \$MAX_PROC ]
     do
+      # Stop spawning subprocesses if too many running
       sleep 1
     done
-
-    prettyload \$(wc -l $OUT_GFF | awk '{print \$1}') \$n_rec
+    prettyload \$iter \$n_rec
     ( track=( \$line )
     corresp=( \$(grep "^\${track[0]}" $CORRESP_GFF | sed 's/,/ /g') )
     track[0]=\${corresp[1]}
@@ -127,9 +132,14 @@ eval $run_fun <<CONV_COORD
         track[6]="+"
       fi
     fi    # redirect line to output gff (line >> file)
-    echo "\${track[@]}" | tr ' ' \\\\t >> $OUT_GFF ) &
+    # Write line to temporary file to avoid write conflicts
+    echo "\${track[@]}" | tr ' ' \\\\t >> \$tmpdir/line.\$iter ) &
+    ((iter++))
   done < $GFF
   wait
-
+  # Concatenate temporary files
+  find \$tmpdir/ -name "line*" -type f -maxdepth 1 | \
+      xargs cat > $OUT_GFF
+  # Sort lines according to new coordinates
   sort -k1,1 -k4,4n -o $OUT_GFF $OUT_GFF
 CONV_COORD
