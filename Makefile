@@ -84,13 +84,19 @@ ploidy:
 	# Proportion of offspring type per family
 	Rscript src/ploidy/prop_offspring.R $(THRESH)
 
-.PHONY : RNA_seq
-RNA_seq :
-	echo "get transcripts bed files"
+# Assembling transcripts and measuring coverage along genome
+$(RNA)/assembled/ :
+	bash $(RNA-SRC) -a $(BAM) -r $(OLD-REF) -o $@
 
+# Performing multiple alignment genome-wide using blocks of collinearity
 .PHONY : mult_align
-mult_align :
-	echo "Use MCScanX to align BLAST output and generate plots."
+mult_align : $(RNA)/assembled/
+	rm -rf $(MCSX-IN)
+	mkdir -p $(MCSX-IN)
+	bash $(MCSX-SRC) -g $(RNA)/assembled/transcripts.gtf \
+	                 -o $(MCSX-IN) \
+									 -r $(REF) \
+									 -c $(CORRESP)
 
 # Rule for building lab book figures, tables and compiling Latex script
 # Needs the all main steps to be run first

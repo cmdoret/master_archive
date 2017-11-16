@@ -1,7 +1,39 @@
-# The purpose of this script is to quickly get the coordinates corresponding to
-# all contigs start positions in the ordered assembly.
+# This script allows to get a correspondance file of the coordinates of all
+# contigs between 2 references. Both references must contain the same sequence,
+# but contigs can be reorded, reverse-complemented and merged in the new
+# reference.
 # Cyril Matthey-Doret
 # 31.10.2017
+
+# Help message
+function usage () {
+   cat <<EOF
+Usage: `basename $0` -O old_ref -N new_ref -c corresp [-l] [-h]
+   -O   old reference
+   -N   new reference
+   -c   output correspondance file
+   -l   local run. If specified, will not use LSF bsub command
+   -h   displays this help
+EOF
+   exit 0
+}
+
+# Parsing CL arguments
+while getopts ":O:N:lc:h" opt; do
+   case $opt in
+   O )  OLD_REF=${OPTARG} ;;
+   N )  NEW_REF=${OPTARG} ;;
+   c )  CORRESP_GFF=${OPTARG};;
+   l )  local=yes;;
+   h )  usage ;;
+   \?)  usage ;;
+   esac
+done
+
+
+if [ -z ${local+x} ];then run_fun="bsub";else run_fun="bash";fi
+
+eval "$run_fun" <<CORR
 #!/bin/bash
 #BSUB -J corresp_GFF
 #BSUB -q normal
@@ -13,9 +45,9 @@
 #BSUB -R "span[ptile=36]"
 
 MAX_PROC=32
-orig_ref="../../data/ref_genome/canu2_low_corrRE.contigs.fasta"
-order_ref="../../data/ref_genome/ordered_genome/merged.fasta"
-corresp_gff='../../data/annotations/corresp_gff.csv'
+orig_ref="$OLD_REF"
+order_ref="$NEW_REF"
+corresp_gff="$CORRESP_GFF"
 
 
 # Get start position of all contigs in the ordered assembly and whether
@@ -40,3 +72,4 @@ do
     echo ${tname}${new_coord} >> $corresp_gff ) &
 done
 wait
+CORR

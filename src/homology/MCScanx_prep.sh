@@ -13,7 +13,7 @@
 function usage () {
    cat <<EOF
 Usage: `basename $0` -g genes -o output_folder -r ref [-p prev_ref] [-c corresp] [-l] [-h]
-   -g   gff file with genes coordinates
+   -g   gtf file with genes coordinates
    -o   output folder for MCScanX files
    -r   reference genome
    -c   contig correspondance file, if gff coordinates need to be converted
@@ -26,10 +26,6 @@ EOF
 }
 
 
-
-genes='../../data/annotations/OGS1.0_20170110.gff'
-out_f='../../data/homology/MCScan/'
-feature_key='transcript'
 
 # Parsing CL arguments
 while getopts ":g:o:r:p:c:lh" opt; do
@@ -47,7 +43,7 @@ done
 
 # Testing if mandatory have been provided
 if [ "x" == "x$REF" ] || [ "x" == "x$GFF" ] || \
-   [ "x" == "x$OUT_GFF" ] || [ "x" == "x$feature_key" ];
+   [ "x" == "x$OUT_F" ];
 then
   echo "Error: At least a reference genome, input GFF file and output folder \
   are required."
@@ -56,36 +52,39 @@ then
 fi
 
 #1: Extract records for features of interest from gff file
-MC_GFF="$out_f/MCScanX_genes.gff"
-grep "$feature_key" $genes > $MC_GFF
-
+echo -n "Extracting transcripts coordinates from the gff file..."
+MC_GFF="$OUT_F/MCScanX_genes.gff"
+grep "transcript" $GFF > $MC_GFF
+echo "...transcripts extracted"
 #2: If necessary, convert coordinates of GFF file to new assembly
 if [ "x" == "x$PREV" ] || [ "x" == "x$CORRESP" ];
 then
+  echo -n "Converting transcripts coordinates to new assembly..."
   OUT_GFF="${MC_GFF%.*}_conv.gff"
-  bash ../convert_coord/convert_GFF_coord.sh -i "$GFF" \
-                                             -o "$OUT_GFF" \
-                                             ${PREV:+-O "$PREV"} \
-                                             ${REF:+-N "$REF"} \
-                                             ${CORRESP_GFF:+-c "$CORRESP_GFF"} \
-                                             ${local:+-l}
+
+  bash src/convert_coord/convert_GFF_coord.sh -i "$MC_GFF" \
+                                              -o "$OUT_GFF" \
+                                              ${PREV:+-O "$PREV"} \
+                                              ${REF:+-N "$REF"} \
+                                              ${CORRESP_GFF:+-c "$CORRESP_GFF"} \
+                                              ${local:+-l}
+ echo "coordinates converted !"
 else
   OUT_GFF=$MC_GFF
 fi
-substr( $0, RSTART, RLENGTH )
+
 #3: convert GFF to BED format and extract sequence
-MC_BED="${GFF_OUT%.*}.bed"
-awk 'BEGIN
-     {
-       OFS="\t"}
-     {
-       id_match=match($12,/[^;]*/)
-       id=substr($12,RSTART,RLENGTH)
-       print $1,$4,$5,id,0,$7}' $MC_GFF > $MC_BED
+echo "Converting GFF to BED."
+#MC_BED="${GFF_OUT%.*}.bed"
+#awk 'BEGIN{OFS="\t"}
+#     {id_match=match($12,/[^;]*/)
+#      id=substr($12,RSTART,RLENGTH)
+#      print $1,$4,$5,id,0,$7}' $MC_GFF > $MC_BED
 
 module add UHTS/Analysis/BEDTools/2.26.0;
-MC_SEQ="../../data/homology/MCScan/input/MCScanX_seq.fasta"
-bedtools getfasta -fi $REF -bed $MC_BED > $MC_SEQ
+#MC_SEQ="$OUT_F/MCScanX_seq.fasta"
+echo "Extracting nucleotide sequences from reference."
+#bedtools getfasta -fi $REF -bed $MC_BED > $MC_SEQ
 module rm UHTS/Analysis/BEDTools/2.26.0;
 
 #4: build blast database from sequences and all vs all blast

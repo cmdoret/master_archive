@@ -1163,6 +1163,7 @@ I will look for sequence homology between candidate regions. There are several o
 \item Pairwise blast/alignment between chromosomes 3,4 and 5.
 \end{itemize}
 
+\subsection{pairwise BLAST}
 Update: 04.11.2017
 First strategy: Blasting chromosome 3 vs chromosome 4, 3vs5 and 4vs5.
 Using the following commands:
@@ -1179,7 +1180,7 @@ Detailed strategy (Discuss with Tanja and Casper):\\
 2. Transform blast output into set of BED files, only including alignments with an E-value below 1e-10. Each blast output generates 2 bed files: one with the query chromosome coordinates, the other with the subject chromosome coordinates.\\ Intervals in both files have the same IDs. Example: Blast output of chr3vchr4 produces $3v4.bed$ and $4v3.bed$\\
 3. Perform pairwise intersections between bed files with the same coordinates system. Example: $3v4 \cap 3v5; 4v5  \cap 4v3; 5v3 \cap 5v4$\\
 4. Each intersection operation yields 2 sets of IDs
-
+\subsection{MCScanX}
 Update: 11.11.2017
 
 In stead, I used MCScanX to retrieve blocks of collinearity in the genome. This software only takes into account alignment between genes. The software takes a blast output and a bed file with all genes coordinates as input files. I proceeded as follows:

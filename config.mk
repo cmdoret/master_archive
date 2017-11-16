@@ -56,6 +56,17 @@ ASSOC-SRC=src/assoc_mapping/
 # Number of CSD loci considered
 NCSD=2
 
+#RNA-seq data processing
+RNA=$(DAT)/rna_seq/
+BAM=$(RNA)/STAR_larvae_aligned.sort.bam.bam
+RNA-SRC=src/rna_seq/process_rna.sh
+OLD-REF=$(DAT)/ref_genome/canu2_low_corrRE.contigs.fasta
+
+# MCScanX
+MCSX-SRC=src/homology/MCScanx_prep.sh
+MCSX-IN=$(DAT)/homology/MCScan/input
+CORRESP=$(DAT)/annotations/corresp_gff.csv
+
 
 MAP=$(DAT)/mapped/aln-$(MM)
 PSTACK=$(DAT)/pstacks/covmin-$(M)
