@@ -8,7 +8,7 @@
 # 12.11.2017
 # Cyril Matthey-Doret
 
-
+:<<m
 # Help message
 function usage () {
    cat <<EOF
@@ -51,11 +51,15 @@ then
   exit 0
 fi
 
+# If on cluster, use bsub to submit jobs, otherwise run directly
+if [ -z ${local+x} ];then run_fun="bsub -I -tty";else run_fun="";fi
+
 #1: Extract records for features of interest from gff file
 echo -n "Extracting transcripts coordinates from the gff file..."
 MC_GFF="$OUT_F/MCScanX_genes.gff"
 awk '$3 ~ "transcript" {print $0}' "$GFF" > "$MC_GFF"
 echo "transcripts extracted !"
+
 #2: If necessary, convert coordinates of GFF file to new assembly
 if [ "x" == "x$PREV" ] || [ "x" == "x$CORRESP" ];
 then
@@ -68,10 +72,14 @@ then
                                               ${REF:+-N "$REF"} \
                                               ${CORRESP_GFF:+-c "$CORRESP_GFF"} \
                                               ${local:+-l}
- echo "coordinates converted !"
+  echo "coordinates converted !"
 else
   OUT_GFF=$MC_GFF
 fi
+# Extracting only transcripts that mapped to ordered corresp_contigs
+# (i.e. in chromosomes)
+awk '$1 ~ "chr" {print $0}' "$OUT_GFF" > "$OUT_GFF.tmp" && \
+    mv "$OUT_GFF.tmp" "$OUT_GFF"
 
 #3: convert GFF to BED format and extract sequence
 echo "Converting GFF to BED."
@@ -81,19 +89,44 @@ awk 'BEGIN{OFS="\t"}
       id=substr($12,RSTART,RLENGTH)
       print $1,$4,$5,id,0,$7}' $OUT_GFF > $MC_BED
 
-module add UHTS/Analysis/BEDTools/2.26.0 2> /dev/null || echo "Not on LSF " \
-  "system, make sure bedtools is added to the path if you encounter an error."
-MC_SEQ="$OUT_F/MCScanX_seq.fasta"
-echo "Extracting nucleotide sequences from reference."
-bedtools getfasta -fi "$REF" -bed "$MC_BED" > "$MC_SEQ"
 
+MC_SEQ="$OUT_F/MCScanX_seq.fasta"
+
+# If local is declared, expands to "x", otherwise, to nothing
+if [ -z ${local+x} ]
+then
+  module add UHTS/Analysis/BEDTools/2.26.0
+  module add Blast/ncbi-blast/2.6.0+
+fi
+
+eval $run_fun "bedtools getfasta -fi $REF -bed $MC_BED -fo $MC_SEQ"
 
 #4: build blast database from sequences and all vs all blast
-module add Blast/ncbi-blast/2.6.0+ 2> /dev/null || echo "Not on LSF system, "\
-  "make sure ncbi-blast is added to the path if you encounter an error."
-makeblastdb -in "$MC_SEQ" -dbtype nucl
-blastn -query "$MC_SEQ" \
-       -db "$MC_SEQ" \
-       -outfmt 6 \
-       -max_target_seqs 5 \
-       -out "$MC_SEQ.blast"
+eval $run_fun "makeblastdb -in $MC_SEQ -dbtype nucl"
+
+echo "Blasting transcriptome against itself."
+eval $run_fun "blastn -query $MC_SEQ \
+                      -db $MC_SEQ \
+                      -outfmt 6 \
+                      -max_target_seqs 5 \
+                      -out $MC_SEQ.blast"
+m
+CORRESP="data/annotations/corresp_gff.csv"
+REF="data/ref_genome/ordered_genome/merged.fasta"
+echo "All input files are ready, you can run MCScanX"
+
+echo "Estimating appropriate parameters..."
+tigs=()
+tail -n +2 data/assoc_mapping/case_control/case_control_hits.tsv | while read line
+do
+  tig=$(echo -n "$line" | awk 'BEGIN{OFS=","}{print $2,$3}' |
+    python2 src/convert_coord/chr2contig.py $REF \
+       "data/ref_genome/canu2_low_corrRE.contigs.fasta" |
+    awk 'BEGIN{FS=","}{print $1}')
+    echo "!!!!!!! $tig !!!!!!!!!"
+    if [[ ! " ${tigs[@]} " =~ " ${tig} " ]]; then
+      echo "$tig"
+      tigs+=( "$tig" )
+    fi
+done
+echo "${tigs[@]}"

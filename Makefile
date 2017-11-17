@@ -51,8 +51,7 @@ assoc_mapping : $(CENTRO) $(ASSOC)/grouped_prophom.tsv
 	# Genome-wide association mapping
 	mkdir -p $(ASSOC)/case_control
 	Rscript $(ASSOC-SRC)/case_control.R \
-	        $(ASSOC)/mother_groups.tsv \
-					$(ASSOC)/grouped_prophom.tsv \
+					$(ASSOC)/grouped_outpool_prophom.tsv \
 					$(ASSOC)/case_control/
 
 

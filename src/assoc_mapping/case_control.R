@@ -5,35 +5,24 @@
 # 18.08.2017
 
 #======== LOAD DATA =========#
+# Loading libraries for data processing and visualisation
 library(dplyr);library(readr);library(ggplot2)
 in_args <- commandArgs(trailingOnly = T)
-groups_path <- in_args[1]
-groups <- read.table(groups_path, header = T)
-hom_path <-in_args[2]
-sum_stat <- read_tsv(file=hom_path, col_names=T, col_types = "iciddddddc")
-out_folder <- in_args[3]
+# Input table with proportion of homozygous individuals
+hom_path <-in_args[1]
+sum_stat <- read_tsv(file=hom_path, col_names=T, col_types = "icidddddd")
+# Output folder
+out_folder <- in_args[2]
 
 #======= PROCESS DATA =======#
+# Cleaning input table: removing SNPS absent in all samples
 sum_stat <- sum_stat[sum_stat$N.Males>0 & sum_stat$N.Females>0,]
 sum_stat <- sum_stat[!is.na(sum_stat$Prop.Hom),]
 
-# Map families to mother categories
-#sum_stat$cluster <- groups$cluster[match(sum_stat$Family, groups$Family)]
-#sum_stat <- sum_stat[!is.na(sum_stat$cluster),]
-
-# Group SNP by mother category
-cat_stat <- sum_stat %>%
-  group_by(Locus.ID, Chr, BP) %>%
-  summarise(Nf=sum(N.Females), Nm=sum(N.Males), N=sum(N.Samples), 
-            Prop.Hom=sum(Prop.Hom*N.Samples, na.rm=T)/sum(N.Samples, na.rm=T), 
-            Prop.Hom.F=sum(Prop.Hom.F*N.Females, na.rm=T)/sum(N.Females, na.rm=T), 
-            Prop.Hom.M=sum(Prop.Hom.M*N.Males, na.rm=T)/sum(N.Males, na.rm=T))
-
-# Compute assocation on each cat. separately
-# Output single file with corrected significant p-values with
-# associatied SNP and category.
 
 #==== COMPUTE STATISTICS ====#
+# Output single file with corrected significant p-values with
+# associatied SNP and category.
 # Abbreviations: M: Males, F: Females, T: Male+Female, 
 # o:homozygous, e:heterozygous, t:hom+het, E: Expected
 
@@ -46,26 +35,36 @@ get_fisher <- function(df){
   return(f$p.value)
 }
 
-
-odds_list <- cat_stat %>% 
-  rename(Ft = Nf, Mt = Nm, Tt = N) %>%
+# Generating dataframe containing input values for the fisher test
+# for a SNP in each row: Fo, Fe, Mo, Me. Original number of samples 
+# in each category is obtained by multiplying the prop. of homozygosity 
+# from the table by the total number of samples, and rounding to 
+# closest integer.
+odds_list <- sum_stat %>% 
+  rename(Ft = N.Females, Mt = N.Males, Tt = N.Samples) %>%
   mutate(Fo = Ft * Prop.Hom.F, Mo = Mt * Prop.Hom.M, 
          Fe = Ft * (1-Prop.Hom.F), Me = Mt * (1-Prop.Hom.M),
          To = Tt * Prop.Hom, Te = Tt * (1-Prop.Hom)) %>%
   select(-Prop.Hom, -Prop.Hom.F, -Prop.Hom.M) %>%
   mutate_at(funs(round(.,0)), .vars = c("Fo","Fe","Mo","Me"))
 
+# Applying the fisher test to each row. Each row gets converted
+# into the 2x2 contingency table:
+# Fo Fe
+# Mo Me
+# And one sided fisher test is performed to test if the odds ratio:
+# (Fo/Fe)/(Mo/Me)
+# is significantly less than 1.
 odds_list$fisher <- apply(odds_list, 1,  get_fisher)
 
+# Correcting p-values for multiple testing
 odds_list$fisher <- p.adjust(odds_list$fisher, method = "bonferroni")
-#for(group in unique(odds_list$cluster)){
-#  odds_list$fisher[odds_list$cluster==group] <- p.adjust(odds_list$fisher[odds_list$cluster==group], method = "BH")
-#}
-#nloci <- log2(max(groups$cluster)+1)
-nloci=2
+
 #========= VISUALISE ========#
+# Only including contigs that have been placed into chromosomes
 odds_chrom <- odds_list[grep("chr.*",odds_list$Chr),]
-pdf(paste0(out_folder, "/../plots/","case_control_hits_",nloci,"loci.pdf"), width=12, height=12)
+# Saving manhattan plot to pdf
+pdf(paste0(out_folder, "/../plots/","case_control_hits.pdf"), width=12, height=12)
 ggplot(data=odds_chrom, aes(x=BP, y=-log10(fisher))) + geom_point() + facet_grid(~Chr, space='free_x', scales = 'free_x') +  
   geom_hline(aes(yintercept=-log10(0.05))) + geom_hline(aes(yintercept=-log10(0.01)), lty=2, col='red') + 
   xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control association test for CSD") + ylim(c(0,10)) + 
@@ -81,8 +80,7 @@ ggplot(data=odds_cont, aes(x=BP, y=-log10(fisher))) + geom_point() +
   xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control association test for CSD: Unordered contigs") + 
   ylim(c(0,10)) + facet_wrap(~Chr, scales='free_x')
 #======= WRITE OUTPUT =======#
-# Number of groups is (2^n)-1 where n is the number of CSD loci
-nloci <- log2(max(groups$cluster)+1)
+# Writing table of significant hits to text file
 odds_chrom_sig <- odds_chrom[odds_chrom$fisher<=0.05,]
 write.table(odds_chrom_sig, paste0(out_folder, "case_control_hits.tsv"), 
             sep='\t', row.names=F, quote=F)
