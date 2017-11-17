@@ -1,6 +1,6 @@
 #!/bin/bash
-# This script converts the coordinates in the original GFF file to coordinates
-# corresponding to the new assembly. It uses the correspondence file generated
+# This script converts the coordinates in an original GFF file to coordinates
+# corresponding to another assembly. It uses a correspondence file generated
 # by corresp_contigs.sh to retrieve contig coordinates in the new assembly.
 # Cyril Matthey-Doret
 # 02.11.2017
@@ -70,9 +70,8 @@ else if [ ! -f "$CORRESP_GFF" ];
 fi
 
 # Run main code with bsub or directly, depending on -l flag
-# Note many variables are escaped to force remote expansion
+# Note: many variables are escaped to force remote expansion of heredoc
 echo "Job submitted !"
-
 eval $run_fun <<CONV_COORD
 
   #!/bin/bash
@@ -87,58 +86,72 @@ eval $run_fun <<CONV_COORD
   #BSUB -R "span[ptile=28]"
 
   source src/misc/jobs_manager.sh
-  MAX_PROC=24
-  declare -i iter=0
+
+  # Performance tuning parameters
+  MAX_PROC=24;CHUNK_SIZE=200
   n_rec=\$(wc -l $GFF | awk '{print \$1}')
+  n_chunk=\$((\$n_rec / \$CHUNK_SIZE + 1))
   # Clean temporary files
   tmpdir="\$(dirname $OUT_GFF)/tmp/"
   rm -rf \$tmpdir && mkdir -p \$tmpdir
   echo -n "" > $OUT_GFF
-  # iterate over lines
-  while read line
+  for ((chunk=0;chunk < n_chunk; chunk++))
   do
-    while [ \$(jobs -p | wc -l) -ge \$MAX_PROC ]
+    # Line boundaries of the chunk (1-indexed)
+    c_start=\$(( \$chunk * \$CHUNK_SIZE + 1))
+    c_end=\$((\$c_start + (\$CHUNK_SIZE - 1)))
+    # Stop spawning subprocesses if too many running
+    [ \$( jobs -p | wc -l ) -ge \$MAX_PROC ] && wait
+
+    # spawning one parallel subprocess per chunk
+    # each subprocess iterates over lines of its chunk
+    (
+    sed -n "\${c_start},\${c_end}p" $GFF | while read line
     do
-      # Stop spawning subprocesses if too many running
-      sleep 1
-    done
-    prettyload \$iter \$n_rec
-    ( track=( \$line )
-    corresp=( \$(grep "^\${track[0]}" $CORRESP_GFF | sed 's/,/ /g') )
-    track[0]=\${corresp[1]}
-    # Shift start and end if necessary and flip,
-    # depending if contig was reversed or not
-    if [[ \${corresp[4]} == *"rev"* ]]
-    then
-      # Reversed: corresp[2] will match the end of the contig
-      # start -> contig_end-track_end, end -> contig_end-track_start
-      start=\$((\${corresp[2]}-\${track[4]}))
-      end=\$((\${corresp[2]}-\${track[3]}))
-      track[3]=\$start
-      track[4]=\$end
-    else
-      # not reversed: start shifted, end -> start + contig size
-      let "track[3] += \${corresp[2]}"
-      let "track[4] += \${corresp[2]}"
-    fi
-    # If complementary and not strand agnostic -> complement track
-    if [[ \${corresp[4]} == *"comp"* && \${track[6]} != "." ]]
-    then
-      # Reverse strand
-      if [[ \${track[6]} == "+" ]]
+      # Storing line of GFF file into bash array
+      track=( \$line )
+      # Getting line of corresp file for the contig on current line
+      corresp=( \$(grep "^\${track[0]}" $CORRESP_GFF | sed 's/,/ /g') )
+      # Replacing contig of current record in memory
+      track[0]=\${corresp[1]}
+      # Shift start and end if necessary and flip,
+      # depending if contig was reversed or not
+      if [[ \${corresp[4]} == *"rev"* ]]
       then
-        track[6]="-"
+        # Reversed: corresp[2] will match the end of the contig
+        # start -> contig_end-track_end, end -> contig_end-track_start
+        start=\$((\${corresp[2]}-\${track[4]}))
+        end=\$((\${corresp[2]}-\${track[3]}))
+        track[3]=\$start
+        track[4]=\$end
       else
-        track[6]="+"
+        # not reversed: start shifted, end -> start + contig size
+        let "track[3] += \${corresp[2]}"
+        let "track[4] += \${corresp[2]}"
       fi
-    fi    # redirect line to output gff (line >> file)
-    # Write line to temporary file to avoid write conflicts
-    echo "\${track[@]}" | tr ' ' \\\\t >> \$tmpdir/line.\$iter ) &
-    ((iter++))
-  done < $GFF
+      # If complementary and not strand agnostic -> complement track
+      if [[ \${corresp[4]} == *"comp"* && \${track[6]} != "." ]]
+      then
+        # Reverse strand
+        if [[ \${track[6]} == "+" ]]
+        then
+          track[6]="-"
+        else
+          track[6]="+"
+        fi
+      fi    # redirect line to output gff (line >> file)
+      # Write line to temporary file to avoid write conflicts
+      echo "\${track[@]}" | tr ' ' \\\\t >> "\$tmpdir/chunk.\$chunk";
+    done
+    ) &
+    # Displaying progress bar
+    prettyload \$c_start \$n_rec
+  done
   wait
-  # Concatenate temporary files
-  find \$tmpdir/ -name "line*" -type f -maxdepth 1 | \
+
+  # Concatenate temporary files (this syntax allows to get over
+  # cat's maximum number of argument)
+  find \$tmpdir/ -name "chunk*" -type f -maxdepth 1 | \
       xargs cat > $OUT_GFF
   # Sort lines according to new coordinates
   sort -k1,1 -k4,4n -o $OUT_GFF $OUT_GFF

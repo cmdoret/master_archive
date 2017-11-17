@@ -54,8 +54,8 @@ fi
 #1: Extract records for features of interest from gff file
 echo -n "Extracting transcripts coordinates from the gff file..."
 MC_GFF="$OUT_F/MCScanX_genes.gff"
-grep "transcript" $GFF > $MC_GFF
-echo "...transcripts extracted"
+awk '$3 ~ "transcript" {print $0}' "$GFF" > "$MC_GFF"
+echo "transcripts extracted !"
 #2: If necessary, convert coordinates of GFF file to new assembly
 if [ "x" == "x$PREV" ] || [ "x" == "x$CORRESP" ];
 then
@@ -75,16 +75,25 @@ fi
 
 #3: convert GFF to BED format and extract sequence
 echo "Converting GFF to BED."
-#MC_BED="${GFF_OUT%.*}.bed"
-#awk 'BEGIN{OFS="\t"}
-#     {id_match=match($12,/[^;]*/)
-#      id=substr($12,RSTART,RLENGTH)
-#      print $1,$4,$5,id,0,$7}' $MC_GFF > $MC_BED
+MC_BED="${OUT_GFF%.*}.bed"
+awk 'BEGIN{OFS="\t"}
+     {id_match=match($12,/[^;]*/)
+      id=substr($12,RSTART,RLENGTH)
+      print $1,$4,$5,id,0,$7}' $OUT_GFF > $MC_BED
 
-#module add UHTS/Analysis/BEDTools/2.26.0
-#MC_SEQ="$OUT_F/MCScanX_seq.fasta"
+module add UHTS/Analysis/BEDTools/2.26.0 2> /dev/null || echo "Not on LSF " \
+  "system, make sure bedtools is added to the path if you encounter an error."
+MC_SEQ="$OUT_F/MCScanX_seq.fasta"
 echo "Extracting nucleotide sequences from reference."
-#bedtools getfasta -fi $REF -bed $MC_BED > $MC_SEQ
-#module rm UHTS/Analysis/BEDTools/2.26.0;
+bedtools getfasta -fi "$REF" -bed "$MC_BED" > "$MC_SEQ"
+
 
 #4: build blast database from sequences and all vs all blast
+module add Blast/ncbi-blast/2.6.0+ 2> /dev/null || echo "Not on LSF system, "\
+  "make sure ncbi-blast is added to the path if you encounter an error."
+makeblastdb -in "$MC_SEQ" -dbtype nucl
+blastn -query "$MC_SEQ" \
+       -db "$MC_SEQ" \
+       -outfmt 6 \
+       -max_target_seqs 5 \
+       -out "$MC_SEQ.blast"

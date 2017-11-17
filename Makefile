@@ -1,5 +1,7 @@
 include config.mk
-
+ifdef $(LOCAL)
+	LOCAL='$(LOCAL)';
+endif
 # reference-based STACKS pipeline for LSF cluster
 ref_lsf:
 	make -f src/pipelines/Makeref.lsf
@@ -91,12 +93,15 @@ $(RNA)/assembled/ :
 # Performing multiple alignment genome-wide using blocks of collinearity
 .PHONY : mult_align
 mult_align : $(RNA)/assembled/
-	rm -rf $(MCSX-IN)
-	mkdir -p $(MCSX-IN)
+	LOCAL='$(LOCAL)'
+	rm -rf $(MCSX-IN)/
+	mkdir -p $(MCSX-IN)/
 	bash $(MCSX-SRC) -g $(RNA)/assembled/transcripts.gtf \
 	                 -o $(MCSX-IN) \
 									 -r $(REF) \
-									 -c $(CORRESP)
+									 -c $(CORRESP) \
+									 $${LOCAL:+-l}
+
 
 # Rule for building lab book figures, tables and compiling Latex script
 # Needs the all main steps to be run first
