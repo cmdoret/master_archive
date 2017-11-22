@@ -58,7 +58,7 @@ odds_list <- sum_stat %>%
 odds_list$fisher <- apply(odds_list, 1,  get_fisher)
 
 # Correcting p-values for multiple testing
-odds_list$fisher <- p.adjust(odds_list$fisher, method = "bonferroni")
+odds_list$fisher <- p.adjust(odds_list$fisher, method = "BH")
 
 #========= VISUALISE ========#
 # Only including contigs that have been placed into chromosomes
@@ -66,9 +66,8 @@ odds_chrom <- odds_list[grep("chr.*",odds_list$Chr),]
 # Saving manhattan plot to pdf
 pdf(paste0(out_folder, "/../plots/","case_control_hits.pdf"), width=12, height=12)
 ggplot(data=odds_chrom, aes(x=BP, y=-log10(fisher))) + geom_point() + facet_grid(~Chr, space='free_x', scales = 'free_x') +  
-  geom_hline(aes(yintercept=-log10(0.05))) + geom_hline(aes(yintercept=-log10(0.01)), lty=2, col='red') + 
-  xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control association test for CSD") + ylim(c(0,10)) + 
-  theme_bw()
+  geom_hline(aes(yintercept=-log10(0.01)), lty=2, col='red') + xlab("Genomic position") + ylab("-log10 p-value") + 
+  ggtitle("Case-control association test for CSD") + ylim(c(0,10)) + theme_bw()
 dev.off()
 
 # Unmapped contigs
@@ -83,4 +82,7 @@ ggplot(data=odds_cont, aes(x=BP, y=-log10(fisher))) + geom_point() +
 # Writing table of significant hits to text file
 odds_chrom_sig <- odds_chrom[odds_chrom$fisher<=0.05,]
 write.table(odds_chrom_sig, paste0(out_folder, "case_control_hits.tsv"), 
+            sep='\t', row.names=F, quote=F)
+odds_chrom$fisher <- round(-log10(odds_chrom$fisher),4)
+write.table(odds_chrom, paste0(out_folder, "case_control_all.tsv"), 
             sep='\t', row.names=F, quote=F)

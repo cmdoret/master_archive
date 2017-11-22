@@ -5,8 +5,8 @@
 
 
 function bmonitor {
-  # This function limits hangs the script when the number of queued bjobs
-  # containing a given pattern in their namereaches a limit.
+  # This function hangs the script when the number of queued bjobs
+  # containing a given pattern in their name reaches a limit.
   # First argument is the name pattern of jobs to monitor
   # Second argument is the maximum of joobs that can be queued at a time.
   while [ $(bjobs -w | grep "$1" | wc -l) -gt $2 ]
@@ -16,9 +16,10 @@ function bmonitor {
 }
 
 function prettyload {
-  # This function displays a small animation and shows real-time
+  # This function displays a simple animation and shows real-time
   # progress of a task.
-  # Spinning bar animation
+
+  # Spinner animation
   case $(expr $1 % 4) in
     0) sym="|";;
     1) sym="/";;

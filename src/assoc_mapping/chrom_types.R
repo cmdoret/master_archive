@@ -57,6 +57,7 @@ for(chrom in levels(fix$Chr)){
 }
 
 #==== COMPUTE LOCAL REGRESSIONS ====#
+
 # Allows to try all different values of span in a range.
 virilist <- viridis(n=length(sp_range))
 colindex <- 1
@@ -99,4 +100,5 @@ if(length(sp_range)==1 & length(wsize_range)==1){
   ggsave(filename = paste0(out_path, "/plots/final_centro.pdf"), plot = LoessPlot, height = 10, width = 14)
   write.table(centrolist$slideMean, file=paste0(out_path, "/centrolist.tsv"), sep='\t',row.names = F, quote = F)
 }
+
 

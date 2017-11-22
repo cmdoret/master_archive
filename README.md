@@ -47,8 +47,13 @@ To run the pipeline with new data in the form of demultiplexed, trimmed reads in
 
 ![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Look for annotated proteins in candidate region(s).
 
-![](https://placehold.it/15/ffff00/000000?text=+) __WIP:__ Look for homologies to identify potential paralogs and orthologs.
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Assemble transcriptome from larvae reference-aligned RNA-seq reads.
+
+![](https://placehold.it/15/ffff00/000000?text=+) __WIP:__ Analyse collinearity of transcripts across genome to identify potential duplicated genes between candidate CSD regions.
+
 ![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Look for annotated transcripts from larvae RNA-seq data.
+
+![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Streamline pipeline and use a docker container.
 
 
 ### Dependencies:
@@ -57,7 +62,11 @@ To run the pipeline with new data in the form of demultiplexed, trimmed reads in
 * [STACKS 1.46](http://catchenlab.life.illinois.edu/stacks/): RAD-seq data processing
 * [SAMtools 1.3](http://samtools.sourceforge.net/): Manipulating SAM files
 * [VCFtools 0.1.13](https://vcftools.github.io/): Parsing VCF files
-* [BEDtools 2.26](http://bedtools.readthedocs.io/): Genome arithmetic with BED files
+* [BEDtools 2.25](http://bedtools.readthedocs.io/): Genome arithmetic with BED files
+* [DeepTools 2.4.2](http://deeptools.readthedocs.io/): Tools for exploring deep sequencing data
+* [CuffLinks 2.2.1](http://cole-trapnell-lab.github.io/cufflinks/): Transcriptome assembly and differential expression analysis for RNA-Seq
+* [ncbi-BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi): Suite of command-line tools to run BLAST
+* [MCScanX](http://chibba.pgml.uga.edu/mcscan2/): Multiple Collinearity Scan toolkit
 * [R 3.3.x](https://www.r-project.org/)
   + [readr 1.1.1](https://cran.r-project.org/web/packages/readr/README.html): Faster data loading
   + [tidyr 0.7.0](https://cran.r-project.org/web/packages/tidyr/index.html): Easily tidy data
