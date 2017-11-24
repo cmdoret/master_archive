@@ -8,7 +8,8 @@
 # Help message
 function usage () {
    cat <<EOF
-Usage: `basename $0` -i input_gff -o output_gff [-c corresp_file] [-O old] [-N new] [-l] [-h]
+Usage: `basename $0` -i input_gff -o output_gff [-c corresp_file] \
+[-O old] [-N new] [-l] [-h]
    -i   gff file to be converted
    -o   output converted gff file
    -c   csv file for correspondance between contigs
@@ -37,8 +38,8 @@ done
 
 if [ "x" == "x$GFF" ] || [ "x" == "x$OUT_GFF" ];
 then
-  echo "Error: Input and output GFF files must be provided along with either a \
-  contig correspondance file or both references."
+  echo "Error: Input and output GFF files must be provided \
+  along with either a contig correspondance file or both references."
   usage
   exit 0
 fi

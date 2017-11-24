@@ -93,13 +93,13 @@ $(RNA)/assembled/ :
 .PHONY : mult_align
 mult_align : $(RNA)/assembled/
 	LOCAL='$(LOCAL)'
-	#rm -rf $(MCSX-IN)/
-	#mkdir -p $(MCSX-IN)/
-	#bash $(MCSX-SRC) -g $(RNA)/assembled/transcripts.gtf \
-	#                 -o $(MCSX-IN) \
-	#								 -r $(REF) \
-	#								 -c $(CORRESP) \
-	#								 $${LOCAL:+-l}
+	rm -rf $(MCSX-IN)/
+	mkdir -p $(MCSX-IN)/
+	bash $(MCSX-SRC) -g $(RNA)/assembled/transcripts.gtf \
+	                 -o $(MCSX-IN) \
+									 -r $(REF) \
+									 -c $(CORRESP) \
+									 $${LOCAL:+-l}
 	bash src/circos_conf/circos_input_gen.sh $(REF)
 
 # Rule for building lab book figures, tables and compiling Latex script

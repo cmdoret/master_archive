@@ -76,6 +76,19 @@ then
 else
   OUT_GFF=$MC_GFF
 fi
+
+# If local is declared, expands to "x", otherwise, to nothing
+if [ -z ${local+x} ]
+then
+  module add UHTS/Analysis/BEDTools/2.22.1
+  module add Blast/ncbi-blast/2.6.0+
+  export PATH="~/scratch/softwares/MCScanX/:$PATH"
+else
+  export PATH="~/Public/ncbi-blast-2.7.1+/bin:$PATH"
+  export PATH="~/Public/bedtools2/bin:$PATH"
+  export PATH="~/Public/MCScanX/:$PATH"
+fi
+
 # Extracting only transcripts that mapped to ordered corresp_contigs
 # (i.e. in chromosomes) and removing double quotes from identifiers
 awk 'BEGIN{FS="\t"} $1 ~ "chr" {print $0}' "$OUT_GFF" | \
@@ -92,17 +105,13 @@ awk 'BEGIN{OFS="\t"}
 awk 'BEGIN{OFS="\t"}{print $1,$4,$2,$3}' "$OUT_BED" > "$OUT_GFF"
 OUT_SEQ="$OUT_BED.fasta"
 
-# If local is declared, expands to "x", otherwise, to nothing
-if [ -z ${local+x} ]
-then
-  module add UHTS/Analysis/BEDTools/2.22.1
-  module add Blast/ncbi-blast/2.6.0+
-  export PATH="~/scratch/softwares/MCScanX/:$PATH"
-else
-  export PATH="~/Public/ncbi-blast-2.7.1+/bin:$PATH"
-  export PATH="~/Public/bedtools2/bin:$PATH"
-  export PATH="~/Public/MCScanX/:$PATH"
-fi
+#TEMPORARY MOD: Merging annotation prediction from Maker with transcriptome track
+cut -f1-4 "data/annotations/ord_simple_gene_chrom.gff" >> "$OUT_GFF"
+sort -k1,1 -k3n "$OUT_GFF" | cut -f1,3-4 > "$MC_IN.sorted.gff"
+bedtools merge -i "$MC_IN.sorted.gff" |
+  awk 'BEGIN{N=0}{N+=1;print $1,"MCSX"N,$2,$3}' > "$MC_IN.gff"
+
+
 echo "Extracting gene sequences from reference genome"
 eval $run_fun "bedtools getfasta -fi $REF -bed $OUT_BED -fo $OUT_SEQ -name"
 
@@ -126,7 +135,7 @@ echo "  - BLAST output: $MC_IN.blast"
 echo "  - GFF file: $MC_IN.gff"
 
 echo "Running MCScanX"
-eval $run_fun "MCScanX $MC_IN"
+eval $run_fun "MCScanX -m 25 -s 3 $MC_IN"
 
 echo "Generating graphics control file for circle plotter"
 # 800 pixels, displaying all chromosomes in the input GFF file
