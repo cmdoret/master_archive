@@ -1211,7 +1211,7 @@ The resulting plots show several blocks of collinearity between chromosomes, but
 \end{center}
 \end{figure}
 
-\chapter{RNA-seq}
+\section{RNA-seq}
 
 To obtain more accurate gene coordinates for the collinearity analysis above, I will use transcripts coordinates obtained with RNA-seq. Besides, this will potentially uncover trancribed genes in candidate regions.
 
@@ -1228,6 +1228,29 @@ Here are the issues I encountered so far:
 \end{itemize}
 \end{itemize}
 \FloatBarrier
+Update: 25.11.2017
+Issues resolved, larvae are from a stranded library and adults from an unstranded one. Both are single end. I cannot differentiate males and females because all individuals are pooled together without barcodes.
+
+\subsection{Data processing}
+
+I assembled the transcriptome from the reads alignment (BAM) file. The alignment was constructed with STAR and I assembled the transcriptome with cufflinks. I then extracted the transcripts coordinates and worked with these to identify gene coordinates.\\
+Collinearity analyses were performed again with MCScanX using the merged tracks from maker genes and cufflinks transcripts to have a more complete set of genes.
+
+\chapter{Circos}
+
+To combine the different layers of informations I have obtained, I produce circular plots using circos. The aforementioned layers include: Association mapping results for CSD, recombination rates (estimated from homozygosity relative to mother), MCScanX collinearity and the original contigs that were anchored into chromosomes. 
+
+Circos allows to integrate all these infos into a single plot, thus we can see whether CSD candidate regions show homologies with each other, if they are close to centromeres and if the contigs where they are found are small.\\
+
+\section{Collinearity blocks}
+Because the genome is highly fragmented and uncomlete (53\% of length anchored to chromosomes), collinearity blocks will often be interrupted. We can also not be sure the CSD locus originate from a genomic duplication, and it might therefore not show collinearity. Changing MCScanX parameters (reducing minimum block size from 5 to 3 and varying the maximum gap between 10 and 30) did not improve the results much.
+
+\section{BLAST hits}
+To circumvent this issue, I tried to use direct blast hits between transcripts to build the links in the circos plot. I chose all \textbf{interchromosomal} significant blast hits using combined tracks of maker genes and cufflinks transcripts.
+
+\section{Non-coding homologies}
+I still need to do the same with noncoding regions (i.e. using all interchromosomal hits between noncoding regions).
+
 \chapter{TO DO}
 \begin{itemize}
 \item remove max het threshold and instead exclude loci that are heterozygous in haploids from diploids

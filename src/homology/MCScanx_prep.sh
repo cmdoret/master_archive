@@ -135,7 +135,7 @@ echo "  - BLAST output: $MC_IN.blast"
 echo "  - GFF file: $MC_IN.gff"
 
 echo "Running MCScanX"
-eval $run_fun "MCScanX -m 25 -s 3 $MC_IN"
+eval $run_fun "MCScanX -s 3 $MC_IN"
 
 echo "Generating graphics control file for circle plotter"
 # 800 pixels, displaying all chromosomes in the input GFF file

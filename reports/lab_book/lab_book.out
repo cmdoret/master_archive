@@ -58,5 +58,10 @@
 \BOOKMARK [1][-]{section.14.2}{Homologies}{chapter.14}% 58
 \BOOKMARK [2][-]{subsection.14.2.1}{pairwise BLAST}{section.14.2}% 59
 \BOOKMARK [2][-]{subsection.14.2.2}{MCScanX}{section.14.2}% 60
-\BOOKMARK [0][-]{chapter.15}{RNA-seq}{}% 61
-\BOOKMARK [0][-]{chapter.16}{TO DO}{}% 62
+\BOOKMARK [1][-]{section.14.3}{RNA-seq}{chapter.14}% 61
+\BOOKMARK [2][-]{subsection.14.3.1}{Data processing}{section.14.3}% 62
+\BOOKMARK [0][-]{chapter.15}{Circos}{}% 63
+\BOOKMARK [1][-]{section.15.1}{Collinearity blocks}{chapter.15}% 64
+\BOOKMARK [1][-]{section.15.2}{BLAST hits}{chapter.15}% 65
+\BOOKMARK [1][-]{section.15.3}{Non-coding homologies}{chapter.15}% 66
+\BOOKMARK [0][-]{chapter.16}{TO DO}{}% 67

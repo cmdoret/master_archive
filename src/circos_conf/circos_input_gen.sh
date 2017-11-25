@@ -13,7 +13,7 @@ cir_dir="data/circos/"
 rm -rf "$cir_dir"
 mkdir -p "$cir_dir"
 # power of 10 to consider hits significant
-sigpow=2
+sigpow=3
 
 #---FORMAT DATA FILES---#
 
@@ -83,13 +83,18 @@ do
 done < <(grep -v "^#" $mcsx | tr -d ' ' | tr '\t' ' ' | cut -d$' ' -f2,3) |
   sed 's/chr/lf/g' > "$cir_dir/mcsx.lf.txt"
 
-# Filtering links in/outside CSD contigs
-echo -n "" > "$cir_dir/mcsx_csd.lf.txt"
-echo -n "" > "$cir_dir/mcsx_out.lf.txt"
-while read -a line
-do
-  echo $lineawk
-done < "$cir_dir/mcsx.lf.txt"
+# Alternative links: BLAST hits of transcripts
+python2 src/circos_conf/blast_gene_circos.py
+sed 's/chr/lf/g' "data/circos/blast.lf.txt" > "tmp" && \
+  mv "tmp" "data/circos/blast.lf.txt"
+
+rm "data/circos/csd_blast.lf.txt"
+rm "data/circos/out_blast.lf.txt"
+python2 src/circos_conf/CSD_blast.py
+# Computing homozygosity along chromosomes (centromere approximation)
+Rscript src/circos_conf/centro_heatmap.R
+sed 's/chr/lf/' "$cir_dir/centro.lf.txt" > "tmp_centro" && \
+  mv "tmp_centro" "$cir_dir/centro.lf.txt"
 
 
 #---GENERATE CONFIGURATION---#
@@ -132,6 +137,7 @@ label_font       = default
 label_radius     = 1r + 75p
 label_size       = 50
 label_parallel   = yes
+label_format   = eval(sprintf("chr%s",var(label)))
 
 </ideogram>
 
@@ -164,7 +170,7 @@ type = highlight
 fill_color = red_a5
 stroke_color = red_a5
 file       = "$cir_dir/csd_tig.lf.txt"
-r0   = 0.80r
+r0   = 0.65r
 r1   = 1r
 z    = 10
 </plot>
@@ -174,6 +180,21 @@ z    = 10
 
 IDEOGRAM
 
+cat << CENTRO > $cir_dir/lf.centro.conf
+<plot>
+show = yes
+type = heatmap
+file = $cir_dir/centro.lf.txt
+r1= 0.70r
+r0 = 0.65r
+min = 0.3
+max = 0.5
+#color = blues-9-seq-rev
+color = ylgnbu-6-seq
+
+</plot>
+CENTRO
+
 cat << GWAS > $cir_dir/lf.gwas.conf
 #GWAS p-values (scatter plot)
 <plot>
@@ -182,21 +203,21 @@ show  = yes
 type  = scatter
 
 file  = $cir_dir/gwas.lf.txt
-r1    = 0.98r
-r0    = 0.80r
-max   = 6.2.0
+r1    = 1r - 55p
+r0    = 0.70r + 10p
+max   = 6.2
 min   = 0.0
 orientation = in
 
 glyph            = circle
-glyph_size       = 8
-color            = lgrey
-stroke_color     = lgrey
+glyph_size       = 12
+color            = vdgrey
+stroke_color     = vdgrey
 stroke_thickness = 1
 
 <axes>
 <axis>
-color = grey
+color = vlgrey
 thickness = 3
 position = $sigpow
 </axis>
@@ -222,9 +243,6 @@ glyph_size       = 18
 
 GWAS
 
-cat << CENTRO > $cir_dir/lf.centro.conf
-# Centromere loess (line)
-CENTRO
 
 cat << MCSCANX > $cir_dir/lf.mcscanx.conf
 # Collinearity blocks
@@ -232,14 +250,60 @@ cat << MCSCANX > $cir_dir/lf.mcscanx.conf
 
 <link>
 file          = "$cir_dir/mcsx.lf.txt"
-radius        = 0.8r
+radius        = 0.65r
 bezier_radius = 0r
-color         = dgrey_a4
+color         = lgrey_a4
 thickness     = 2
 </link>
-
 </links>
+
 MCSCANX
+
+cat << BLAST > $cir_dir/lf.blast.conf
+# BLAST hits outside CSD regions
+<links>
+
+<link>
+file = $cir_dir/out_blast.lf.txt
+radius        = 0.65r
+bezier_radius = 0r
+color         = lgrey_a4
+thickness     = 2
+<rules>
+<rule>
+condition     = var(intrachr)
+
+# Any links that are intra-chromosomal will not be shown. Further rules are not tested.
+
+show          = no
+</rule>
+</rules>
+
+</link>
+
+<link>
+# BLAST hits in CSD reginos
+file = $cir_dir/csd_blast.lf.txt
+radius        = 0.65r
+bezier_radius = 0r
+color         = red_a3
+thickness     = 2
+z = 30
+
+<rules>
+<rule>
+condition     = var(intrachr)
+
+# Any links that are intra-chromosomal will not be shown. Further rules are not tested.
+
+show          = no
+</rule>
+</rules>
+
+</link>
+</links>
+
+BLAST
 
 # OPTIONAL
 # coverage / FPKM ?
