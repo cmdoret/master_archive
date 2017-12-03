@@ -139,5 +139,5 @@ eval $run_fun "MCScanX -s 3 $MC_IN"
 
 echo "Generating graphics control file for circle plotter"
 # 800 pixels, displaying all chromosomes in the input GFF file
-echo "800" > $OUT_F/circle.ctl
+echo "1920" > $OUT_F/circle.ctl
 cut -f1 "$MC_IN.gff" | uniq | paste -s -d, - >> $OUT_F/circle.ctl

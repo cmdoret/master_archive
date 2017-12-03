@@ -101,4 +101,3 @@ if(length(sp_range)==1 & length(wsize_range)==1){
   write.table(centrolist$slideMean, file=paste0(out_path, "/centrolist.tsv"), sep='\t',row.names = F, quote = F)
 }
 
-

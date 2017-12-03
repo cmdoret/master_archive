@@ -66,18 +66,18 @@ odds_chrom <- odds_list[grep("chr.*",odds_list$Chr),]
 # Saving manhattan plot to pdf
 pdf(paste0(out_folder, "/../plots/","case_control_hits.pdf"), width=12, height=12)
 ggplot(data=odds_chrom, aes(x=BP, y=-log10(fisher))) + geom_point() + facet_grid(~Chr, space='free_x', scales = 'free_x') +  
-  geom_hline(aes(yintercept=-log10(0.01)), lty=2, col='red') + xlab("Genomic position") + ylab("-log10 p-value") + 
+  geom_hline(aes(yintercept=-log10(0.001)), lty=2, col='red') + xlab("Genomic position") + ylab("-log10 p-value") + 
   ggtitle("Case-control association test for CSD") + ylim(c(0,10)) + theme_bw()
 dev.off()
 
 # Unmapped contigs
 odds_cont <- odds_list[grep("tig.*",odds_list$Chr),]
-tigs <- unique(odds_cont$Chr[odds_cont$fisher<0.01])  # Contigs with significant hits
+tigs <- unique(odds_cont$Chr[odds_cont$fisher<0.001])  # Contigs with significant hits
 odds_cont <- odds_cont[odds_cont$Chr %in% tigs,]
 ggplot(data=odds_cont, aes(x=BP, y=-log10(fisher))) + geom_point() + 
-  geom_hline(aes(yintercept=-log10(0.05))) + geom_hline(aes(yintercept=-log10(0.01)), lty=2, col='red') + 
+  geom_hline(aes(yintercept=-log10(0.05))) + geom_hline(aes(yintercept=-log10(0.001)), lty=2, col='red') + 
   xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control association test for CSD: Unordered contigs") + 
-  ylim(c(0,10)) + facet_wrap(~Chr, scales='free_x')
+  ylim(c(0,10)) + facet_grid(~Chr, scales='free_x', space='free_x') + theme_bw()
 #======= WRITE OUTPUT =======#
 # Writing table of significant hits to text file
 odds_chrom$fisher <- round(-log10(odds_chrom$fisher),4)

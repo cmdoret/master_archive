@@ -1248,12 +1248,13 @@ Because the genome is highly fragmented and uncomlete (53\% of length anchored t
 \section{BLAST hits}
 To circumvent this issue, I tried to use direct blast hits between transcripts to build the links in the circos plot. I chose all \textbf{interchromosomal} significant blast hits using combined tracks of maker genes and cufflinks transcripts.
 
-\section{Non-coding homologies}
-I still need to do the same with noncoding regions (i.e. using all interchromosomal hits between noncoding regions).
+\section{Sequence homology}
+I will use minimap2 to compute whole genome alignements and investigate gene-agnostic homologies.
 
 \chapter{TO DO}
 \begin{itemize}
-\item remove max het threshold and instead exclude loci that are heterozygous in haploids from diploids
+\item identify over represented repeats (centromeric repeats) and delimit centromeres from the region they span
+\item assemblers tend to put duplicated genes in separate contig (multiple graph paths going through it). Use original Illumina paired end reads to retrieve unanchored contigs neighbouring anchored contigs: potentially recovering multiple occurrences of CSD duplicated feature (if any)
 \item get centimorgans coordinates from bp using linkage map and place centrosomes.
 \item look at the proportion of recombination for different GWAS hits: does it match the mode (assuming single mode) in the prop males among 2n offspring plot.
 \item compute prop.het loci in centromeric window for all individuals and isolate TFA based on distribution if bimodal.

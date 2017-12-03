@@ -104,7 +104,7 @@ cat << CFG > $cir_dir/lf.main.conf
 <<include etc/housekeeping.conf>>
 <<include $cir_dir/lf.ideogram.conf>>
 <<include $cir_dir/lf.ticks.conf>>
-<<include $cir_dir/lf.mcscanx.conf>>
+<<include $cir_dir/lf.blast.conf>>
 karyotype = "$cir_dir/karyotype.lf.txt"
 chromosomes_units = 1000000
 # Standard stuff:
@@ -234,7 +234,7 @@ y0 = 0
 <rule>
 condition    = var(value) > $sigpow
 color        = dred
-fill_color   = dred_a1
+fill_color   = dred
 glyph_size       = 18
 </rule>
 </rules>
@@ -269,15 +269,7 @@ radius        = 0.65r
 bezier_radius = 0r
 color         = lgrey_a4
 thickness     = 2
-<rules>
-<rule>
-condition     = var(intrachr)
 
-# Any links that are intra-chromosomal will not be shown. Further rules are not tested.
-
-show          = no
-</rule>
-</rules>
 
 </link>
 
@@ -290,15 +282,7 @@ color         = red_a3
 thickness     = 2
 z = 30
 
-<rules>
-<rule>
-condition     = var(intrachr)
 
-# Any links that are intra-chromosomal will not be shown. Further rules are not tested.
-
-show          = no
-</rule>
-</rules>
 
 </link>
 </links>
