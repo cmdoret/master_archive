@@ -17,8 +17,7 @@ out_folder <- in_args[2]
 #======= PROCESS DATA =======#
 # Cleaning input table: removing SNPS absent in all samples
 sum_stat <- sum_stat[sum_stat$N.Males>0 & sum_stat$N.Females>0,]
-sum_stat <- sum_stat[!is.na(sum_stat$Prop.Hom),]
-
+sum_stat <- sum_stat[sum_stat$Prop.Hom<1,]
 
 #==== COMPUTE STATISTICS ====#
 # Output single file with corrected significant p-values with

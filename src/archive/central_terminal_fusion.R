@@ -106,12 +106,13 @@ max_dist <- data.frame(Chr=names(max_dist), size=array(max_dist))
 for ( chrom in unique(gen$Chr)){
   # Computing proportion of heterozygous sites in 25% of the chromosomes 
   # closest to centromere and in 75% further, separately
-  chr_lim <- max_dist$size[max_dist$Chr==chrom]*0.25
+  cen_lim <- max_dist$size[max_dist$Chr==chrom]*0.25
+  telo_lim <- max_dist$size[max_dist$Chr==chrom]-cen_lim
   cen_chr <- gen %>% 
-    filter(Chr == chrom & centroD < chr_lim) %>%
+    filter(Chr == chrom & centroD < cen_lim) %>%
     select(indv$Name[indv$Generation=='F4'])
   tel_chr <- gen %>% 
-    filter(Chr == chrom & centroD > chr_lim) %>%
+    filter(Chr == chrom & centroD > telo_lim) %>%
     select(indv$Name[indv$Generation=='F4'])
   cen_chr <- compute_prophet(cen_chr, "centro")
   tel_chr <- compute_prophet(tel_chr, "telo")
@@ -119,34 +120,8 @@ for ( chrom in unique(gen$Chr)){
 }
 telo_cen$Het. <- as.numeric(as.character(telo_cen$Het.))
 telo_cen$Num.Loci <- as.numeric(as.character(telo_cen$Num.Loci))
+full_win$Chr <- 'all_chr'
 
-genofull= data.frame()
-for(size in seq(50000,5000000,50000)){
-  # Progressively increasing the size of centromere region and
-  # computing proportion of heterozygous sites with different values.
-  for ( chrom in unique(gen$Chr)){
-    chr_start <- centro$pos[centro$Chr==chrom] - size
-    chr_end <- centro$pos[centro$Chr==chrom] + size
-    cen_chr <- gen %>% 
-      filter(Chr == chrom & BP > chr_start & BP < chr_end) %>%
-      select(indv$Name[indv$Generation=='F4'])
-    chr_prop <- cen_chr %>% 
-      summarise_all(function(x){sum(x=='E')/sum(x %in% c('E','O'))})
-    chr_loci <- cen_chr %>% 
-      summarise_all(function(x){sum(x %in% c('E','O'))})
-    cen_chr <- data.frame(t(rbind(chr_prop, chr_loci)))
-    colnames(cen_chr) <- c("Het.", "Num.Loci")
-    cen_chr <- cen_chr %>%
-      tibble::rownames_to_column(var = "Name")%>%
-      merge(indv, by="Name")
-    cen_chr <- cen_chr %>%
-      mutate(centrosize=size, Chr=chrom)
-    genofull <- rbind(genofull, cen_chr)
-  }
-  print(size)
-}
-# Merge chromosomes
-genofull$Chr <- 'all_chr';full_win$Chr <- 'all_chr'
 #==== VISUALISATION ====#
 
 # SLIDING WINDOW
@@ -167,7 +142,7 @@ ggplot(data=full_win, aes(x=Name, y=Het., fill=as.factor(colindex))) + geom_boxp
 ggplot(data=full_win, aes(x=centro_dist, y=Het., col=as.factor(colindex),group=Name)) + 
   geom_line(stat='smooth', method='loess', se=F) + guides(col=FALSE) + facet_wrap(~Family)
 
-# CENTROMERE VS REST OF CHROMOSOME
+# CENTROMERE VS TELOMERE
 # Creating smaller dataframe for indexing
 unique_tc <- unique(telo_cen[,c("Family","Name")])
 unique_tc <- unique_tc %>% group_by(Family) %>% mutate(colindex=row_number())
@@ -179,20 +154,11 @@ ggplot(telo_cen[telo_cen$Family %in% big_fam,],
 ggplot(telo_cen, aes(x=region, y=Het., group=Name, col=as.factor(colindex), weight=Num.Loci)) +
   stat_smooth(method='lm', se=F) + facet_wrap(~Family) + guides(col=F)
 
-# INCREASING CENTROSIZE
-ggplot(data=genofull, aes(x=Het., y=Family)) + geom_joy()
-genofull <- genofull %>% 
-  group_by(Chr, Family) %>%
-  mutate(norm_het=(Het.-mean(Het., na.rm=T))/sd(Het., na.rm=T))
+# Distribution of centromeric heterozygosity
+pool_ct <- telo_cen %>%
+  group_by(Name,region, Sex, Family) %>%
+  summarise(Het.=weighted.mean(x=Het., w=Num.Loci,na.rm = T))
 
-ggplot(data=genofull[genofull$Family %in% big_fam,], aes(x=centrosize, y=Het.,col=Name, weight=Num.Loci)) + stat_smooth(method='loess') + 
-  facet_grid(Family~Chr)+ guides(col=FALSE)
-
-# MISC
-# No correlation between number of loci in centromeric region and proportion of het.
-smoothScatter(genofull$Num.Loci, genofull$Het.)
-famorder <- cen_chr %>%
-  group_by(Family) %>%
-  summarise(avg=mean(Het.))
-cen_chr$Family <- factor(cen_chr$Family, ordered = T, 
-                         levels = famorder$Family[order(famorder$avg)])
+ggplot(telo_cen[telo_cen$region=='centro',], aes(x=Het.)) + geom_histogram() + facet_wrap(~Chr)
+ggplot(pool_ct[pool_ct$region=='centro',], aes(x=Het.)) + geom_histogram()
+ggplot(pool_ct[pool_ct$region=='centro',], aes(x=Het., y=Family)) + geom_joy()

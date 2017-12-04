@@ -1236,21 +1236,77 @@ Issues resolved, larvae are from a stranded library and adults from an unstrande
 I assembled the transcriptome from the reads alignment (BAM) file. The alignment was constructed with STAR and I assembled the transcriptome with cufflinks. I then extracted the transcripts coordinates and worked with these to identify gene coordinates.\\
 Collinearity analyses were performed again with MCScanX using the merged tracks from maker genes and cufflinks transcripts to have a more complete set of genes.
 
-\chapter{Circos}
+\section{gene homology: continued}
 
+\subsection{visualisation}
 To combine the different layers of informations I have obtained, I produce circular plots using circos. The aforementioned layers include: Association mapping results for CSD, recombination rates (estimated from homozygosity relative to mother), MCScanX collinearity and the original contigs that were anchored into chromosomes. 
 
 Circos allows to integrate all these infos into a single plot, thus we can see whether CSD candidate regions show homologies with each other, if they are close to centromeres and if the contigs where they are found are small.\\
 
-\section{Collinearity blocks}
+\subsection{Collinearity parameters}
 Because the genome is highly fragmented and uncomlete (53\% of length anchored to chromosomes), collinearity blocks will often be interrupted. We can also not be sure the CSD locus originate from a genomic duplication, and it might therefore not show collinearity. Changing MCScanX parameters (reducing minimum block size from 5 to 3 and varying the maximum gap between 10 and 30) did not improve the results much.
 
-\section{BLAST hits}
-To circumvent this issue, I tried to use direct blast hits between transcripts to build the links in the circos plot. I chose all \textbf{interchromosomal} significant blast hits using combined tracks of maker genes and cufflinks transcripts.
+\subsection{BLAST hits}
+To circumvent this issue, I tried to use direct blast hits between transcripts to build the links in the circos plot. I chose all \textbf{interchromosomal} significant blast hits using combined tracks of maker genes and cufflinks transcripts.\\
 
-\section{Sequence homology}
-I will use minimap2 to compute whole genome alignements and investigate gene-agnostic homologies.
+The combination of genome fragmentation and low rate of anchoring might pose a real issur to detect gene homologies in CSD regions.
 
+\chapter{Sequence homology}
+In this chapter, I try to work around the drawbacks of genome incompleteness and unanchored contigs by measuring sequence homology and not only gene. There are several possible approaches and I will list those I can think of so that we can filter them later and find the most appropriate.\\
+The different approaches will combine the following elements and ideas in different ways and orders.
+\begin{itemize}
+\item Whole genome alignment using minimap2.
+\item List of transformer orthologs from different hymenoptera species from orthoDB to identify its presence in the genome more reliably.
+\item Use original illumina reads from the assembly procedure to measure coverage and identify duplicated genes.
+\item list of single copy orthologs in hymenoptera/arthropods to have a coverage baseline
+\item During the assembly, duplicated genes are likely cut-off into single contigs. Use the paired end info from illumina reads to identify which are the neighbouring contigs of these genes.
+\end{itemize}
+
+\section{Neighbours first}
+Strength: No expectations, can discover new stuff
+Weakness: Not very powerful, feature of interest will be missed if not in 1st neighbour
+\begin{enumerate}
+\item identify contigs neighbouring CSD region using pair end info
+\item use original assembly reads to measure coverage of single copy orthologous genes in arthropods and compare it to genes in CSD contig and its neighbours to assess number of copies.
+\item if N copies of a contig is more than 1, retrieve other neighbours in the assembly graph using pair end.
+\item do these neighbours include other CSD regions ?
+\item what is the concerned duplicated feature (\textit{transformer} homologs) or other ?
+\end{enumerate}
+
+\section{transformer assumption}
+Strength: will likely yield results if a transformer homolog is responsible for CSD
+Weakness: Will be useless in finding any other factor
+
+\begin{enumerate}
+\item Look for transformer homologies in genome
+\item do those homologies overlap CSD contigs ?
+\item use single copy orthologs and original reads to assess number of copies of transformer homolog.
+\item use pairs to find neighbouring contifs
+\item do neighbouring contigs include CSD ones ?
+\end{enumerate}
+
+\section{Self-alignment}
+Strength: Assumption free
+Weakness: Will miss duplicated genes merged into single contig
+\begin{enumerate}
+\item Whole genome alignment using minimap2
+\item find all contigs with multiple alignments.
+\item do they include CSD contigs ?
+\item retrieve their neighbouring contigs. Do they include CSD contigs ?
+\end{enumerate}
+
+\chapter{Validating association results}
+
+\section{reconsidering set of SNPs}
+Following Casper suggestions and comments, I tried running the association mapping procedure again without removing SNPs that are homozygous or missing in mothers from their family. This proved very useful, by allowing to keep many more SNPs in the analysis and it might be wiser to keep them as they should pose no harm to the analysis. The only drawback of including them is that CSD loci that are only heterozygous in few mothers will have a weaker signal. \\
+From now on, I will be considering all SNPs for the association mapping. For the centromere identification however, I need to keep the aforementioned SNPs out as the metric used is heterozygosity relative to mothers.
+
+\section{identifying false positives}
+We can use the assumptions of the CSD model to identify false positive CSD hits. This can be done by counting the number of females that are heterozygous at 0, 1, 2,...,N of the N CSD candidates.
+
+\section{pushing parameters}
+
+To minimize the part of the effect that is due to differing number of individuals, I will try increasing the minimum proportion of samples in which SNPs must be found (currently 0.8). I will also try with a coverage of 10, to have more confident calls.
 \chapter{TO DO}
 \begin{itemize}
 \item identify over represented repeats (centromeric repeats) and delimit centromeres from the region they span

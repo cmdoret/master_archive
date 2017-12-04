@@ -1,7 +1,9 @@
 include config.mk
+
 ifdef $(LOCAL)
 	LOCAL='$(LOCAL)';
 endif
+
 # reference-based STACKS pipeline for LSF cluster
 ref_lsf:
 	make -f src/pipelines/Makeref.lsf
@@ -24,13 +26,16 @@ denovo_lsf:
 $(CENTRO) :
 	mkdir -p $(CENTRO)/plots
 	# Processing "genomic" output from populations to get fixed and variant sites
-	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM) --pool_output
+	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM) \
+	                                        --pool_output
 	# Inferring centromere position based on recombination raes along chromosomes
-	Rscript $(ASSOC-SRC)/chrom_types.R $(ASSOC)/grouped_outpool_prophom.tsv $(CENTRO)
+	Rscript $(ASSOC-SRC)/chrom_types.R $(ASSOC)/grouped_outpool_prophom.tsv \
+	                                   $(CENTRO)
 
 # Processing genomic output for association mapping
 $(ASSOC)/grouped_prophom.tsv :
-	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM)
+	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM) \
+	                                        --keep_all --pool_output
 
 # Association mapping
 .PHONY : assoc_mapping
@@ -38,20 +43,10 @@ assoc_mapping : $(CENTRO) $(ASSOC)/grouped_prophom.tsv
   # Creating folder to store association mapping results
 	mkdir -p $(ASSOC)/plots
 	mkdir -p $(ASSOC)/hits
-	# Clustering families based on proportion of males among diploids
-	Rscript $(ASSOC-SRC)/group_mothers.R \
-	        $(NCSD) \
-					$(THRESH) \
-					$(ASSOC)/mother_groups.tsv
-	# Scanning for CSD based on heterozygosity along genome
-	Rscript $(ASSOC-SRC)/CSD_scan.R \
-	        $(ASSOC)/grouped_prophom.tsv \
-					$(REF-ANN) \
-					$(ASSOC) 0.85
 	# Genome-wide association mapping
 	mkdir -p $(ASSOC)/case_control
 	Rscript $(ASSOC-SRC)/case_control.R \
-					$(ASSOC)/grouped_outpool_prophom.tsv \
+					$(ASSOC)/grouped_outpool_keep_prophom.tsv \
 					$(ASSOC)/case_control/
 
 
@@ -66,8 +61,9 @@ ploidy:
 	# Building list of haploid males
 	python2 src/ploidy/haplo_males.py $(VCFSUM) \
 	                                  $(THRESH) \
-									  --ploidy_thresh 0.90
-  # Processing populations genomic output
+									                  --ploidy_thresh 0.90
+  # Processing populations genomic output (excluding hom/missing SNPs in
+	# mothers from their families)
 	python2 $(ASSOC-SRC)/process_genomic.py $(POP) \
 	                                        $(DAT)/ploidy/ \
 																					$(GRFAM)
@@ -76,14 +72,8 @@ ploidy:
 	                               $(BLACK) \
 																 $(THRESH) \
 																 $(GRFAM)
-	# Creating folder to store new plots if necessary
-	mkdir -p reports/lab_book/assoc_explo_fam
+
 	mkdir -p data/SNP_lists
-	# Plotting exploratory results for het. at each SNP
-	#python2 src/misc/explo_assoc.py data/ploidy/vcftools/ $(THRESH) $(GRFAM)
-	mkdir -p reports/lab_book/ploidy_per_fam
-	# Proportion of offspring type per family
-	Rscript src/ploidy/prop_offspring.R $(THRESH)
 
 # Assembling transcripts and measuring coverage along genome
 $(RNA)/assembled/ :
@@ -92,7 +82,7 @@ $(RNA)/assembled/ :
 # Preparing input file for collinearity analysis. Run MCScanX on files manually
 .PHONY : mult_align
 mult_align : $(RNA)/assembled/
-	LOCAL='$(LOCAL)'
+	#LOCAL='$(LOCAL)'
 	rm -rf $(MCSX-IN)/
 	mkdir -p $(MCSX-IN)/
 	bash $(MCSX-SRC) -g $(RNA)/assembled/transcripts.gtf \
@@ -102,24 +92,13 @@ mult_align : $(RNA)/assembled/
 									 $${LOCAL:+-l}
 	bash src/circos_conf/circos_input_gen.sh $(REF)
 
-# Rule for building lab book figures, tables and compiling Latex script
-# Needs the all main steps to be run first
+# Rule for building lab book
 .PHONY : lab_book
 lab_book : $(LAB) $(MISC)
 	rm  -f $(LAB)/*.log $(LAB)/*.synctex* $(LAB)/*.aux $(LAB)/*.out
-	# Cleaning temporary LaTeX filesjobs
+	# Cleaning temporary LaTeX files
 	Rscript src/misc/assembly_stats.R $(REF)
 	# Producing table of genome assembly statistics
-	#bash src/mapping/parse_summaries.sh
-	#python2 $(MISC)/map_param.py
-	# Plotting mapping statistics
-	#bash $(MISC)/parse_pstacks.sh
-	# Parsing pstacks output into summary table
-	#bash $(MISC)/parse_cstacks.sh
-	# Same for cstacks
-	Rscript src/misc/SNP_stats.R data/SNP_lists/m2_hom_mother.txt hom_mother.txt
-	Rscript src/misc/SNP_stats.R data/SNP_lists/m2_raw_CSD_candidates.txt CSD_like.txt
-	# Summarizing number of SNPs
 	texi2pdf -b $(LAB)/lab_book.tex -c
 	mv lab_book.pdf $(LAB)
 	# Compiling LaTeX report and moving it to appropriate folder

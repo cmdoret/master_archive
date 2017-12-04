@@ -60,8 +60,13 @@
 \BOOKMARK [2][-]{subsection.14.2.2}{MCScanX}{section.14.2}% 60
 \BOOKMARK [1][-]{section.14.3}{RNA-seq}{chapter.14}% 61
 \BOOKMARK [2][-]{subsection.14.3.1}{Data processing}{section.14.3}% 62
-\BOOKMARK [0][-]{chapter.15}{Circos}{}% 63
-\BOOKMARK [1][-]{section.15.1}{Collinearity blocks}{chapter.15}% 64
-\BOOKMARK [1][-]{section.15.2}{BLAST hits}{chapter.15}% 65
-\BOOKMARK [1][-]{section.15.3}{Non-coding homologies}{chapter.15}% 66
-\BOOKMARK [0][-]{chapter.16}{TO DO}{}% 67
+\BOOKMARK [1][-]{section.14.4}{gene homology: continued}{chapter.14}% 63
+\BOOKMARK [2][-]{subsection.14.4.1}{visualisation}{section.14.4}% 64
+\BOOKMARK [2][-]{subsection.14.4.2}{Collinearity parameters}{section.14.4}% 65
+\BOOKMARK [2][-]{subsection.14.4.3}{BLAST hits}{section.14.4}% 66
+\BOOKMARK [0][-]{chapter.15}{Sequence homology}{}% 67
+\BOOKMARK [1][-]{section.15.1}{Neighbours first}{chapter.15}% 68
+\BOOKMARK [1][-]{section.15.2}{transformer assumption}{chapter.15}% 69
+\BOOKMARK [1][-]{section.15.3}{Self-alignment}{chapter.15}% 70
+\BOOKMARK [0][-]{chapter.16}{reconsidering set of SNPs}{}% 71
+\BOOKMARK [0][-]{chapter.17}{TO DO}{}% 72

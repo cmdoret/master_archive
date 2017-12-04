@@ -264,6 +264,7 @@ def parallel_func(f, df, f_args=[], chunk_size=1000):
 in_path = args.pop_files
 out_prefix = 'grouped_' if args.grouped_input == "T" else "fam_"
 if args.pool_output: out_prefix += "outpool_"
+if args.keep_all: out_prefix += "keep_"
 out_path = path.join(args.out, (out_prefix + "prophom.tsv"))
 indv_path = "data/individuals.tsv"  # family and sex information
 indv = pd.read_csv(indv_path, sep='\t')  # Family and sex info
