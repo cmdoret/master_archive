@@ -1,0 +1,63 @@
+---
+title: "The end"
+author: "Cyril Matthey-Doret"
+date: "07/12/2017"
+output: pdf_document
+---
+
+# Various stuff
+
+*  Set a date for the master defense (last possible date: 2 feb)
+*  Chose an expert for the defense
+*  report deadline: 12 jan
+*  FBM Fellowships: 10 min presentation of master project. What to include in there ?
+*  FBM Fellowships: More details for potential PhD project
+
+# Current stuff
+
+## Identify false positive loci
+Looking at number of females that are heterozygous ONLY at each of the peaks identified, or at any combination of two of them, or at none of them. If we have a false positive, there should be very few females that are heterozygous at it, but no other CSD peak (because it cannot complement them).
+
+I used only the most significant SNP of each candidate peak to measure this.
+
+Advantages: allows to exclude GWAS signals using info from CSD model
+Issues: The strongest peak showed identified by the GWAS (chr3) has very few females that are heterozygous ONLY at it. This might be caused by the distance between SNPs and the restriction site (recombination in between).
+
+```{r false_pos, echo=FALSE, fig.cap="Heatmap of co-occurrence for heterozygous genotypes of CSD peaks in females. The colorscale represent the number of females in the peaks are found in heterozygous state exclusively (diagonal) or in combination of 2 (out of diagonal). Only the most significant SNP of each CSD peak in the association mapping was used to compute co-occurences..", out.width='60%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./valid_CSD_peaks.pdf')
+```
+
+## Miscall rates
+I use two different metrics to measure wrong genotype calls. Both genotypes rely on the assumption that transition from homozygosity to heterozygosity are biologically impossible from mother to offspring. For both metrics, I therefore only take SNPs that are homozygous in mothers into account.
+
+The first metric assumes the genotype call is correct in the mother, and simply measures the proportion of heterozygous calls among offspring. This is computed as:
+
+$P(F4:E|F3:O) = \frac{N_{F4:E}}{N_{F4:O}+N_{F4:E}}$
+
+where N are the number of calls, in mothers (F3) or offspring (F4), which can either be homozygous (O) or heterozygous (E).
+
+The second metric does not assume correct calls in mothers, but assumes at most 1 wrong genotype call per SNP per family. It measures the proportion of SNPs where a wrong genotype call happened. If at least one offspring is heterozygous, the SNP is counted as a wrong call in the family. The underlying logic is that if only 1 offspring is heterozygous, its genotype is wrong. If there are more than one offspring, then the mother's genotype is wrong and it was in fact heterozygous. It is computed as:  
+
+\begin{equation} P(F4:E > 0) = \left \{
+  \begin{aligned}
+    &0, && \text{if}\ N_{F4:E} < 1 \\
+    &1, && \text{otherwise}
+  \end{aligned} \right.
+\end{equation}
+
+```{r wrong_calls, echo=FALSE, fig.cap="Two different metrics of wrong genotype calls using unlikely mother-homozygous to (F3:O) offspring-heterozygous (F4:E) transitions. The miscall rate was computed in each family where the mother was available separately. Number of offspring in each family are shown on the X-axis.", out.width='60%',fig.pos='htb!', fig.align='center'}
+knitr::include_graphics('./wrong_calls.pdf')
+```
+
+# Future stuff
+
+## Before report
+
+Get all transformer orthologs and look for it in the _L. fabarum_ genome. Are the same regions conserved ? Does it fall in CSD candidates ?
+
+## After report
+
+Use original paired-end illumina reads used in the assembly to:
+  
+  1. Retrieve neighbouring contigs from regions with CSD signal. Duplicated regions are often collapsed into a single contig.
+  2. Identify coverage of single copy orthologs in Hymenoptera and compare mean value to genes of interest to assess number of copies

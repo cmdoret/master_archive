@@ -5,6 +5,8 @@
 # Cyril Matthey-Doret
 # 24.06.2017
 
+module add UHTS/Analysis/vcftools/0.1.14 || echo "oops... could not load VCFtools on cluster"
+
 if [[ $# -eq 0 ]]; then
     echo "No argument given, exiting now."
     echo "I need the folder where populations output files are stored."
@@ -17,7 +19,6 @@ mkdir -p $out_path
 
 group=$2
 # did populations run separately for each family (F) or only once for all individuals (T).
-
 if [ $group = "T" ]
 then
     mkdir -p $out_path/all/

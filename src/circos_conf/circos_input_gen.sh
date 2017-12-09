@@ -88,8 +88,6 @@ python2 src/circos_conf/blast_gene_circos.py
 sed 's/chr/lf/g' "data/circos/blast.lf.txt" > "tmp" && \
   mv "tmp" "data/circos/blast.lf.txt"
 
-rm "data/circos/csd_blast.lf.txt"
-rm "data/circos/out_blast.lf.txt"
 python2 src/circos_conf/CSD_blast.py
 # Computing homozygosity along chromosomes (centromere approximation)
 Rscript src/circos_conf/centro_heatmap.R
@@ -104,7 +102,7 @@ cat << CFG > $cir_dir/lf.main.conf
 <<include etc/housekeeping.conf>>
 <<include $cir_dir/lf.ideogram.conf>>
 <<include $cir_dir/lf.ticks.conf>>
-<<include $cir_dir/lf.blast.conf>>
+<<include $cir_dir/lf.mcscanx.conf>>
 karyotype = "$cir_dir/karyotype.lf.txt"
 chromosomes_units = 1000000
 # Standard stuff:
