@@ -103,6 +103,7 @@ cat << CFG > $cir_dir/lf.main.conf
 <<include $cir_dir/lf.ideogram.conf>>
 <<include $cir_dir/lf.ticks.conf>>
 <<include $cir_dir/lf.mcscanx.conf>>
+#<<include $cir_dir/lf.blast.conf>>
 karyotype = "$cir_dir/karyotype.lf.txt"
 chromosomes_units = 1000000
 # Standard stuff:
@@ -267,20 +268,30 @@ radius        = 0.65r
 bezier_radius = 0r
 color         = lgrey_a4
 thickness     = 2
-
+<rules>
+<rule>
+condition     = var(intrachr)
+show = no
+</rule>
+</rules>
 
 </link>
 
 <link>
-# BLAST hits in CSD reginos
+# BLAST hits in CSD regions
 file = $cir_dir/csd_blast.lf.txt
 radius        = 0.65r
 bezier_radius = 0r
 color         = red_a3
-thickness     = 2
+thickness     = 8
 z = 30
 
-
+<rules>
+<rule>
+condition     = var(intrachr)
+show = no
+</rule>
+</rules>
 
 </link>
 </links>

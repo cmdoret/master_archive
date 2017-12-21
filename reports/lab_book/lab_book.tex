@@ -1304,11 +1304,64 @@ From now on, I will be considering all SNPs for the association mapping. For the
 \section{identifying false positives}
 We can use the assumptions of the CSD model to identify false positive CSD hits. This can be done by counting the number of females that are heterozygous at 0, 1, 2,...,N of the N CSD candidates. If a candidate is actually a false positive, there should be no (or very few) females that are heterozygous at it, but at no other CSD locus.
 
-\section{pushing parameters}
+\section{Estimating genotype miscall rate}
+I am using unlikely mother-homozygous to offspring-heterozygous tansitions to obtain an estimate of the miscall rate.
 
+\section{sequentially dropping loci}
+To estimate the "importance" of csd loci, we can measure the number of females that are homozygous at all CSD loci, and repeat the operation after sequentially dropping different loci. If a loci is not really CSD, the count should not be strongly affected when we drop it.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{l c}
+Dropped & Hom. Females \\
+ \hline
+0 & 7 \\
+1 & 13 \\
+2 & 19 \\
+3 & 10 \\
+4 & 21 \\
+1+2 & 31\\
+1+3 & 18\\
+1+4 & 38\\
+2+3 & 24 \\
+2+4 & 48\\
+3+4 & 29\\
+1+2+3 & 44\\
+1+2+4 & 97\\
+1+3+4 & 53\\
+2+3+4 & 62\\
+\end{tabular}
+\caption{Number of females homozygous at all CSD loci after sequentially dropping loci.}
+\label{table:drop_loci}
+\end{center}
+\end{table}
+
+\section{pushing parameters}
+Low priority, on hold
 To minimize the part of the effect that is due to differing number of individuals, I will try increasing the minimum proportion of samples in which SNPs must be found (currently 0.8). I will also try with a coverage of 10, to have more confident calls.
+
+\chapter{Comparison with bee CSD players}
+
+\section{Feminizer}
+I retrieved the feminizer protein sequence for 8 Hymenopteran species, including bees and wasps. These sequences were retrieved from UniprotKB using a BLAST search from the \textit{Nasonia vitripennis} feminizer. The list of gene IDs is: 
+\begin{itemize}
+\item B3VN92 (Nasonia vitripennis)
+\item D9MZ89 (Euglossa hemichlora)
+\item B4Y115 (Bombus terrestris)
+\item B4XU23 (Melipona compressipes)
+\item A0A0H4URN0 (Apis florea)
+\item B1NW84 (Apis cerana)
+\item Q6V5L4 (Apis mellifera)
+\item B1NW85 (Apis dorsata)
+\end{itemize}
+
+I tblastn'd these protein sequences against the l.fabarum genome.
+
 \chapter{TO DO}
 \begin{itemize}
+\item Measure error rates (recombinations between SNP and CSD) using number of males that are heterozygous at each CSD peak
+\item Number of females homozygous at all CSD loci by consecutively dropping loci to assess "importance" of locus.
+\item Cleanly annotate transformer using apollo and reads from RNA-seq
 \item identify over represented repeats (centromeric repeats) and delimit centromeres from the region they span
 \item assemblers tend to put duplicated genes in separate contig (multiple graph paths going through it). Use original Illumina paired end reads to retrieve unanchored contigs neighbouring anchored contigs: potentially recovering multiple occurrences of CSD duplicated feature (if any)
 \item get centimorgans coordinates from bp using linkage map and place centrosomes.

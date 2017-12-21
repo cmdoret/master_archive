@@ -68,5 +68,12 @@
 \BOOKMARK [1][-]{section.15.1}{Neighbours first}{chapter.15}% 68
 \BOOKMARK [1][-]{section.15.2}{transformer assumption}{chapter.15}% 69
 \BOOKMARK [1][-]{section.15.3}{Self-alignment}{chapter.15}% 70
-\BOOKMARK [0][-]{chapter.16}{reconsidering set of SNPs}{}% 71
-\BOOKMARK [0][-]{chapter.17}{TO DO}{}% 72
+\BOOKMARK [0][-]{chapter.16}{Validating association results}{}% 71
+\BOOKMARK [1][-]{section.16.1}{reconsidering set of SNPs}{chapter.16}% 72
+\BOOKMARK [1][-]{section.16.2}{identifying false positives}{chapter.16}% 73
+\BOOKMARK [1][-]{section.16.3}{Estimating genotype miscall rate}{chapter.16}% 74
+\BOOKMARK [1][-]{section.16.4}{sequentially dropping loci}{chapter.16}% 75
+\BOOKMARK [1][-]{section.16.5}{pushing parameters}{chapter.16}% 76
+\BOOKMARK [0][-]{chapter.17}{Comparison with bee CSD players}{}% 77
+\BOOKMARK [1][-]{section.17.1}{Feminizer}{chapter.17}% 78
+\BOOKMARK [0][-]{chapter.18}{TO DO}{}% 79

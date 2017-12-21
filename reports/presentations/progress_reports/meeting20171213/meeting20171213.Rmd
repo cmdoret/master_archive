@@ -49,13 +49,33 @@ The second metric does not assume correct calls in mothers, but assumes at most 
 knitr::include_graphics('./wrong_calls.pdf')
 ```
 
+## Feminizer homology
+
+Get all transformer A (Feminizer) orthologs and look for it in the _L. fabarum_ genome. Are the same regions conserved ? Does it fall in CSD candidates ?
+
+
+### Orthologs
+
+Found 8 proteins on UniprotKB:
+
+*  B3VN92 (Nasonia vitripennis)
+*  D9MZ89 (Euglossa hemichlora)
+*  B4Y115 (Bombus terrestris)
+*  B4XU23 (Melipona compressipes)
+*  A0A0H4URN0 (Apis florea)
+*  B1NW84 (Apis cerana)
+*  Q6V5L4 (Apis mellifera)
+*  B1NW85 (Apis dorsata)
+
+They all match at a single place in the genome (example match for _A.mellifera_):
+*  Genome match: chr1 7006657 7006839
+*  Protein match: 111  171
+*  E-value: 2.91e-07
+
+Extracting and translating the genomic sequence around match and aligning it to orthologs -> conserved domains ? Which ones ?
+
+
 # Future stuff
-
-## Before report
-
-Get all transformer orthologs and look for it in the _L. fabarum_ genome. Are the same regions conserved ? Does it fall in CSD candidates ?
-
-## After report
 
 Use original paired-end illumina reads used in the assembly to:
   

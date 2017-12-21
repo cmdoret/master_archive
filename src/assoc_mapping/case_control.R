@@ -6,7 +6,7 @@
 
 #======== LOAD DATA =========#
 # Loading libraries for data processing and visualisation
-library(dplyr);library(readr);library(ggplot2)
+library(dplyr);library(readr);library(ggplot2); library(gridExtra)
 in_args <- commandArgs(trailingOnly = T)
 # Input table with proportion of homozygous individuals
 hom_path <-in_args[1]
@@ -62,13 +62,49 @@ odds_list$fisher <- p.adjust(odds_list$fisher, method = "BH")
 #========= VISUALISE ========#
 # Only including contigs that have been placed into chromosomes
 odds_chrom <- odds_list[grep("chr.*",odds_list$Chr),]
+
+# Computing raw effect size:
+# Direction: effect stronger in females or males ?
+#odds_chrom$effect_dir <- as.factor(ifelse(odds_chrom$Fe/odds_chrom$Fo > odds_chrom$Mo/odds_chrom$Me, yes="Female", no="Male"))
+# Ratio Female effect size / Male effect size
+odds_chrom$effect_dir <- (odds_chrom$Fe/odds_chrom$Ft)/(odds_chrom$Mo/odds_chrom$Mt)
+odds_chrom$effect_str <- ((odds_chrom$Fe/odds_chrom$Ft)*(odds_chrom$Mo/odds_chrom$Mt))
+# Setting boundaries of 2X ratio for easy visualisation
+odds_chrom$effect_dir[odds_chrom$effect_dir > 2] <- 2
+odds_chrom$effect_dir[odds_chrom$effect_dir < 0.5] <- 0.5
+femcol <- "#ffff00"; malecol <- "#0000ff"
+# IDEA: Map effect ratio between sex to hue (M=blue;F=red) and sum of effect strengths to saturation.
 # Saving manhattan plot to pdf
 pdf(paste0(out_folder, "/../plots/","case_control_hits.pdf"), width=12, height=12)
-ggplot(data=odds_chrom, aes(x=BP, y=-log10(fisher))) + geom_point() + facet_grid(~Chr, space='free_x', scales = 'free_x') +  
-  geom_hline(aes(yintercept=-log10(0.001)), lty=2, col='red') + xlab("Genomic position") + ylab("-log10 p-value") + 
-  ggtitle("Case-control association test for CSD") + ylim(c(0,10)) + theme_bw()
-dev.off()
+manhattan <- ggplot(data=odds_chrom, aes(x=BP/1000000, y=-log10(fisher))) + 
+  geom_point(aes(col=log10(effect_dir)), size = 2) + 
+  facet_grid(~Chr, space='free_x', scales = 'free_x') +  
+  geom_hline(aes(yintercept=-log10(0.001)), lty=2, col='red') + xlab("Genomic position (Mb)") + 
+  ylab("-log10 p-value") + ggtitle("Case-control association test for CSD") + 
+  ylim(c(0,10)) + theme_bw() + guides(col=guide_colorbar(title="Strongest effect")) + 
+  scale_colour_gradient(low = malecol, high = femcol,
+                        space = "Lab", na.value = "grey50") + 
+  geom_point(aes(alpha=1-effect_str),col="#444444") + theme(legend.position = "none")
+direct <- range(odds_chrom$effect_dir)
+strength <- range(1-(odds_chrom$effect_str))
+legdata <- expand.grid(direct = seq(direct[1],direct[2],(direct[2]-direct[1])/20), 
+                       strength = seq(strength[1], strength[2], (strength[2]-strength[1])/20))
 
+legend <- ggplot(legdata) + geom_tile(aes(direct, strength, fill = direct)) + 
+  scale_fill_gradient(low = malecol, high = femcol) + 
+  geom_tile(aes(direct, strength, alpha = 1-strength)) + 
+  scale_x_continuous(expand=c(0,0)) + 
+  scale_y_continuous(expand=c(0,0)) + 
+  theme(panel.background=element_blank(), panel.grid=element_blank(), 
+        legend.position = "none", axis.ticks = element_blank(), 
+        axis.text = element_blank()) + 
+  coord_fixed(ratio = 4) + labs(title="Legend")
+
+plt <- arrangeGrob(manhattan, legend, nrow=1, widths=c(3,0.8))  
+grid.arrange(plt)
+#grid.arrange(manhattan, legend)
+dev.off()
+#low = "#00bfc4", high = "#f8766d"
 # Unmapped contigs
 odds_cont <- odds_list[grep("tig.*",odds_list$Chr),]
 tigs <- unique(odds_cont$Chr[odds_cont$fisher<0.001])  # Contigs with significant hits

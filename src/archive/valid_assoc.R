@@ -9,7 +9,7 @@ pack <- c("ggplot2","dplyr", "readr", "viridis", "reshape2", "tibble")
 lapply(pack, require, character.only = TRUE)
 # Loading genotype matrix
 hom_path <- "data/assoc_mapping/grouped_keep_geno_EOM.tsv"
-sum_stat <- read_tsv(file=hom_path, col_names=T)
+sum_stat <- read_tsv(file=hom_path, col_names=T,)
 # Loading list of individuals
 indv <- read.table("data/individuals.tsv", header=T, sep='\t', stringsAsFactors = F)
 # Loading list of significant p-values
@@ -49,38 +49,85 @@ for ( i in 1:nrow(csd_stat) ) {
   }
 }
 csd_plot <- melt(csd_mat)
-ggplot(data=csd_plot,aes(Var1,Var2,fill=value)) + geom_tile() + scale_fill_viridis()
+ggplot(data=csd_plot,aes(Var1,Var2,fill=value)) + geom_tile() + 
+  scale_fill_viridis() + labs(fill = "Females") + xlab("") + ylab("")
+
 
 # Estimating mis-calling rate using portion of unlikely homo -> het transitions
+# 2 METRICS:
+#=== ASSUMING CORRECT CALLS IN MOTHERS ===# --> wrong_F4
+# For all mother-homozygous SNPs, count the proportion of offspring calls that are heterozygous.
+#=== "NOT ASSUMPTION", THRESHOLD INSTEAD ===# --> wrong_any
+# Each SNP can have at most 1 wrong call. Either it is wrong in an offspring, or in the mother (where it was
+# in fact homozygous). Small assumption: Unlikely to have genotype miscalls twice at the same SNP.
 
+# Excluding chromosome and bp infos
 snps <-sum_stat[,4:ncol(sum_stat)] %>% 
-  # Excluding chromosome and bp infos
+  # Exclude uninformative fixed homozygous sites (will speed up next step)
   filter(rowSums(.=='E')>0) %>%
-  # Excluding SNPs that are fixed-homozygous
+  # filter only those where at least one mother is heterozygous
+  filter_at(vars(one_of(indv$Name[indv$Generation=='F3'])), any_vars(. == 'O')) %>%
+  # Transposing data -> snps are columns, samples are rows
   t(.) %>%
-  # Set names as rows and SNPs as columns
-  data.frame(.) %>%
+  data.frame(.,stringsAsFactors = F) %>%
+  # Names used to merge with individuals to add Sex, generation and family infos
   rownames_to_column("Name") %>% 
   merge(indv,by="Name")
 
-trgen <- data.frame(transition=rep(0,4),counts=rep(0,4))
-i=1
-for(tr in c("EE","EO","OO","OE")){
-   Pgen <- substr(tr,1,1)  # Parent genotype
-   Ogen <- substr(tr,2,2)  # Offspring genotype
-   tmp <- snps %>%
-      group_by(Family) %>%
-      .[sapply(.[.$Generation == "F3",], 
-               function(x) "F3" %in% x | Pgen %in% x)] %>%
-      .[sapply(.[.$Generation == "F4",], 
-               function(x) Ogen %in% x)] %>%
-      ungroup() %>%
-      select(starts_with('X')) %>%
-      summarise(c = sum(. == Ogen))
-   print(tmp)
-   trgen[i,] <- c(tr,tmp[1,1])
-   i <- i+1
+
+# Total number of offspring samples per family  
+stat_snp <- snps %>%
+  group_by(Family) %>% 
+  summarise(samples=n()) %>%
+  mutate(wrong_any = 0, wrong_F4 = 0, correct = 0)
+for ( fam in unique(snps$Family)){
+  
+  tidy_snp <- snps %>%
+    filter(Family==fam) %>%
+    select(-Name, -Family, -Sex) %>%
+    reshape2::melt(id.vars = "Generation")
+  
+  F3O <-  tidy_snp %>% 
+    filter(value == "O" & Generation == "F3") %>% 
+    select(variable)
+  
+  F4E <- tidy_snp %>%
+    filter(value == "E" & Generation == "F4") %>% 
+    select(variable)
+  
+  F4O <- tidy_snp %>%
+    filter(value == "O" & Generation == "F4") %>% 
+    select(variable)
+  
+  wrong_snps <- intersect(unique(F4E$variable),unique(F3O$variable))
+  correct_snps <- intersect(unique(F4O$variable),unique(F3O$variable))
+  
+  wrong <- snps %>% 
+    filter(Generation == "F4" & Family == fam) %>%
+    select(wrong_snps)
+  
+  correct <- snps %>% 
+    filter(Generation == "F4" & Family == fam) %>%
+    select(correct_snps)
+  
+  stat_snp$wrong_F4[stat_snp$Family==fam] <- sum(apply(wrong, MARGIN = 2,function(x) sum(x == "E")))
+  stat_snp$correct[stat_snp$Family==fam] <- sum(apply(correct, MARGIN = 2,function(x) sum(x == "O")))
+  stat_snp$wrong_any[stat_snp$Family==fam] <- sum(apply(wrong, MARGIN = 2,function(x) any(x == "E")))
+
 }
 
-test <- snps[,c(1:1000,356666, 356667, 356668)]
-by(test[test$Generation=="F3",], INDICES = "Generation", function(x) 'E' %in% x)
+stat_snp <- filter(stat_snp, wrong_any > 0 | correct > 0)
+
+plt_snp <- stat_snp %>% 
+  mutate(wrong_F4 = wrong_F4/(wrong_F4+correct), 
+         wrong_any = wrong_any/(wrong_any+correct)
+         ) %>% 
+  select(-correct, -samples) %>%
+  melt(id.vars = "Family",
+     variable.name = "Measurement",
+     value.name = "Miscalls")
+
+ggplot(data=plt_snp, aes(x=Family,fill=Measurement, y=Miscalls)) + 
+  geom_bar(stat="identity", position="dodge") + theme_bw() + ggtitle("Proportion of wrong genotype calls") + 
+  scale_x_discrete(labels=sprintf("%s: %i", Family, stat_snp$samples)) + 
+  scale_fill_brewer(palette = "Paired", labels=c("P(F4:E > 0)","P(F4:E | F3:O)")) 
