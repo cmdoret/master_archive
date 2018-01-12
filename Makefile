@@ -103,6 +103,10 @@ lab_book : $(LAB) $(MISC)
 	mv lab_book.pdf $(LAB)
 	# Compiling LaTeX report and moving it to appropriate folder
 
+.PHONY : wgs_wild_mothers
+wgs_wild_mothers :
+	bash src/wgs_wild_mothers/bwa_wgs.sh --workdir $(WGS) --ref $(REF)
+	bash src/wgs_wild_mothers/snps_wgs.sh --workdir $(WGS) --ref $(REF) --winsize 100
 
 # When it gets too messy
 .PHONY : clean

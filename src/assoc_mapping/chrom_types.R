@@ -6,7 +6,7 @@
 # Cyril Matthey-Doret
 
 #==== SELECT PARAMETERS ====#
-wsize_range <- 50  # Size of the moving average window
+wsize_range <- 30  # Size of the moving average window
 sp_range <- 0.60  # Proportion of SNPs to be included in each local regression
 # wsize_range <- seq(5, 40, 1)
 # sp_range <- seq(0.15, 1, 0.01)
@@ -85,16 +85,16 @@ dev.off()
 if(length(sp_range)==1 & length(wsize_range)==1){
   zoomfactor <- 1000000  # For aesthetics
   LoessPlot <- ggplot(fix, aes(x=BP/zoomfactor, y=Prop.Hom, weight=N.Samples)) + facet_grid(~Chr, scales = 'free_x',space='free_x') + 
-    geom_point(col='grey70') + geom_smooth(aes(col='Local regression'), 
-                                           method='loess', span=sp_range) + 
+    geom_point(col='grey66',aes(size=N.Samples), alpha=0.2) + geom_smooth(aes(col='Local regression'), 
+                                           method='loess', span=sp_range, fill='#EE9999') + 
     xlab("Genomic position (Mb)") + ylab("Homozygosity") + 
     geom_segment(data=centrolist$loess, aes(x=pos/zoomfactor,xend=pos/zoomfactor, y=0, yend=val, col='Local regression'), 
                  lty=2, lwd=1.1, inherit.aes = F) + theme_bw() +
     geom_line(data=store_means, aes(x=BP/zoomfactor, y=S.Mean, col='Moving average'), lwd=1.1, inherit.aes = F) + 
     geom_segment(data=centrolist$slideMean, aes(x=pos/zoomfactor,xend=pos/zoomfactor, y=0, yend=val, col='Moving average'), 
-                 lty=2, lwd=0.9, inherit.aes = F) + 
+                 lty=2, lwd=0.9, inherit.aes = F) + scale_size_continuous(range = c(0,5))+
     scale_color_brewer(palette="Set1") + scale_fill_brewer(palette="Set1") + 
-    guides(color=guide_legend(title="Method")) + 
+    guides(color=guide_legend(title="Method",override.aes=list(fill=NA))) + 
     geom_point(data=centrolist$slideMean, aes(x=pos/zoomfactor, y=0, col='Moving average'), inherit.aes = F, size=2) + 
     geom_point(data=centrolist$loess, aes(x=pos/zoomfactor, y=0, col='Local regression'), inherit.aes = F, size=2)
   ggsave(filename = paste0(out_path, "/plots/final_centro.pdf"), plot = LoessPlot, height = 10, width = 14)

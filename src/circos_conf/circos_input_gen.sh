@@ -173,7 +173,7 @@ r0   = 0.65r
 r1   = 1r
 z    = 10
 </plot>
-<<include $cir_dir/lf.centro.conf>>
+#<<include $cir_dir/lf.centro.conf>>
 <<include $cir_dir/lf.gwas.conf>>
 </plots>
 
@@ -249,10 +249,10 @@ cat << MCSCANX > $cir_dir/lf.mcscanx.conf
 
 <link>
 file          = "$cir_dir/mcsx.lf.txt"
-radius        = 0.65r
+radius        = 0.7r
 bezier_radius = 0r
 color         = lgrey_a4
-thickness     = 2
+thickness     = 3
 </link>
 </links>
 
