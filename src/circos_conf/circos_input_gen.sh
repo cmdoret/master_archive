@@ -173,7 +173,7 @@ r0   = 0.65r
 r1   = 1r
 z    = 10
 </plot>
-#<<include $cir_dir/lf.centro.conf>>
+<<include $cir_dir/lf.centro.conf>>
 <<include $cir_dir/lf.gwas.conf>>
 </plots>
 

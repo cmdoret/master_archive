@@ -24,7 +24,7 @@ To run the pipeline with new data in the form of demultiplexed, trimmed reads in
 * Family: Clutches to which the individual belongs. These can be any combination of letters and numbers.
 * Generation: Useful if there are mothers and offspring. Values should be F3 for mothers and F4 for offspring.
 2. Create an empty folder named data and place the 2 files inside. This folder needs to be located inside the same directory as src.
-3. Place your reads in a subfolder of data named `processed` and your reference genome in a subfolder named `ref_genome`. If you wish to use different folder names, just edit the corresponding paths in `config.mk`.
+3. Place your (trimmed, demultiplexed) reads in a subfolder of data named `processed` and your reference genome in a subfolder named `ref_genome`. If you wish to use different folder names, just edit the corresponding paths in `config.mk`.
 
 4. Type `make` in the command line. Once the pipeline has finished running, type `make ploidy` to infer ploidy from the homozygosity of variant sites. Note the threshold selected to define ploidy is adapted to the dataset presented here. You will probably need to define a threshold yourself by inspecting the distribution of homozygosity (HOM variable) in `data/ploidy/thresholds/fixed.tsv` and set the variable  `fixed_thresh` in `src/ploidy/haplo_males.py` to this value. Once you have modified the threshold, run `make ploidy` again to update the ploidy classification with the new threshold.
 5. Type `make -B` to run the pipeline again without haploids.
@@ -41,19 +41,20 @@ To run the pipeline with new data in the form of demultiplexed, trimmed reads in
 
 ![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Locate centromeres for each chromosome.
 
-![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Classify families by recombination rate.
-
 ![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Perform association mapping to locate candidate region(s) for CSD.
 
 ![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Look for annotated proteins in candidate region(s).
 
 ![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Assemble transcriptome from larvae reference-aligned RNA-seq reads.
 
-![](https://placehold.it/15/ffff00/000000?text=+) __WIP:__ Analyse collinearity of transcripts across genome to identify potential duplicated genes between candidate CSD regions.
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Analyse collinearity of transcripts across genome to identify potential duplicated genes between candidate CSD regions.
+
+![](https://placehold.it/15/ffff00/000000?text=+) __WIP:__ Validate CSD loci using signatures of balancing selection in whole genome sequencing from wild females.
+
 
 ![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Look for annotated transcripts from larvae RNA-seq data.
 
-![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Streamline pipeline and use a docker container.
+![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Streamline pipeline, add option to run without HPC and use a docker container for dependencies.
 
 
 ### Dependencies:
@@ -159,6 +160,6 @@ After the pipeline has been running, all intermediary and final output files wil
 
 ### Flowchart
 
-Here is a visual summary of how the pipeline works. Rectangles represent operations/programs, diamonds represent data. Unlike blue ones, red rectangles are not implemented here. This is still WIP.
+Visual summary of how the pipeline works. Rectangles show operations/programs, diamonds represent data files. Red items are not included in the repository. Green fields are completed, yellow fields are still WIP.
 
 <img src="reports/lab_book/flowchart.png" width="400">
