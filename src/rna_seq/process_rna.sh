@@ -39,9 +39,6 @@ mkdir -p $OUT
 if [ -z ${local+x} ];
 then
   run_fun="bsub"
-  # Loading programs into path
-  module add UHTS/Assembler/cufflinks/2.2.1
-  module add UHTS/Analysis/deepTools/2.4.2
 else
   run_fun="bash"
 fi

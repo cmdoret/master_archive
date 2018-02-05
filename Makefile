@@ -13,14 +13,6 @@ ref_lsf:
 ref_nix:
 	make -f src/pipelines/Makeref.nix
 
-# denovo with LSF
-.PHONY : denovo_lsf
-denovo_lsf:
-	make -f src/pipelines/Makenovo.lsf
-
-# denovo without LSF
-#denovo_nix:
-#	make -f src/pipelines/Makenovo.nix
 
 # Centromere identification
 $(CENTRO) :

@@ -6,8 +6,8 @@
 
 
 # Parsing CL arguments
-while [[ "$#" > 1 ]]; 
-do 
+while [[ "$#" > 1 ]];
+do
     case $1 in
         # Working directory. Must contain a "raw" folder with reads
         --workdir) WGS="$2";;
@@ -55,10 +55,10 @@ mkdir -p "$logs"
 
 for sample in ${samples[@]};
 do
-        
+
 # Hang script if too many parallel jobs running
 bmonitor "WGSBWA" $MAXPROC
-        
+
 # Submit the mapping of each sample as an independent job
 bsub << EOF
 #!/bin/bash
@@ -74,8 +74,8 @@ bsub << EOF
 #BSUB -M 64000000
 
 
-module add UHTS/Aligner/bwa/0.7.13;
-module add UHTS/Analysis/samtools/1.3;
+module add UHTS/Aligner/bwa/0.7.15
+module add UHTS/Analysis/samtools/1.3
 
 forward="${wgs}/merged/${sample}_R1.fastq.gz"
 reverse="${wgs}/merged/${sample}_R2.fastq.gz"
@@ -85,7 +85,7 @@ find "${in_dir}" -name "*${sample}*R1*" -type f | xargs cat > "\$forward"
 find "${in_dir}" -name "*${sample}*R2*" -type f | xargs cat > "\$reverse"
 
 # Mapping paired ends reads
-bwa mem -M -t $threads $index \$forward \$reverse > "${map_dir}/${sample}.sam
+bwa mem -M -t $threads $index \$forward \$reverse > "${map_dir}/${sample}.sam"
 
 # Convert SAM files to BAM
 samtools view -@ $threads -bS -o "${map_dir}/${sample}.bam" "${map_dir}/${sample}.sam"

@@ -12,7 +12,7 @@ len_query=1000  # desired size of sequences to blast
 out_path=../../data/assoc_mapping/blast_files
 mkdir -p $out_path
 rm -rf $out_path/query.fasta
-module add Blast/ncbi-blast/2.6.0+
+
 
 for pos in $loci;  # iterating over queries
 do
@@ -28,4 +28,3 @@ do
 done
 bsub -K -o "blast_log.out" -e "blast_log.err" -M 20000000 -J "blast" "blastn -task dc-megablast \
 -query $out_path/query.fasta -db refseq -outfmt 6 -max_target_seqs 1 -out blast.out"
-module rm Blast/blast/2.2.26

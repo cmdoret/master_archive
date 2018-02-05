@@ -85,7 +85,7 @@ dev.off()
 if(length(sp_range)==1 & length(wsize_range)==1){
   zoomfactor <- 1000000  # For aesthetics
   LoessPlot <- ggplot(fix, aes(x=BP/zoomfactor, y=Prop.Hom, weight=N.Samples)) + facet_grid(~Chr, scales = 'free_x',space='free_x') + 
-    geom_point(col='grey66',aes(size=N.Samples), alpha=0.2) + geom_smooth(aes(col='Local regression'), 
+    geom_point(col='grey66',aes(size=N.Samples), alpha=0.4) + geom_smooth(aes(col='Local regression'), 
                                            method='loess', span=sp_range, fill='#EE9999') + 
     xlab("Genomic position (Mb)") + ylab("Homozygosity") + 
     geom_segment(data=centrolist$loess, aes(x=pos/zoomfactor,xend=pos/zoomfactor, y=0, yend=val, col='Local regression'), 

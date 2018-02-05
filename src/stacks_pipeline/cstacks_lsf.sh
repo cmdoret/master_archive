@@ -49,7 +49,6 @@ bsub <<CST
 #BSUB -R "rusage[mem=10000]"
 #BSUB -M 10000000
 #BSUB -q long
-module add UHTS/Analysis/stacks/1.46;
 
 cstacks -b 1 -o $cst -n $LM -p 5 $samp;
 CST

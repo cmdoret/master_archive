@@ -77,17 +77,6 @@ else
   OUT_GFF=$MC_GFF
 fi
 
-# If local is declared, expands to "x", otherwise, to nothing
-if [ -z ${local+x} ]
-then
-  module add UHTS/Analysis/BEDTools/2.22.1
-  module add Blast/ncbi-blast/2.6.0+
-  export PATH="~/scratch/softwares/MCScanX/:$PATH"
-else
-  export PATH="~/Public/ncbi-blast-2.7.1+/bin:$PATH"
-  export PATH="~/Public/bedtools2/bin:$PATH"
-  export PATH="~/Public/MCScanX/:$PATH"
-fi
 
 # Extracting only transcripts that mapped to ordered corresp_contigs
 # (i.e. in chromosomes) and removing double quotes from identifiers

@@ -5,33 +5,33 @@ PROC=$(DAT)/processed
 
 
 ## Mapping parameters for bwa
-BWA-SRC=src/mapping/desktop_versions/bwa_nix.sh
+BWA-SRC=src/mapping/desktop_versions/bwa.sh
 BWA-LSF=src/mapping/bwa_lsf.sh
 # aln: mismatches (MM)
 MM=4
 
 ## STACKS parameters
 # pstacks: minimum coverage (M)
-P-SRC=src/stacks_pipeline/desktop_versions/pstacks_nix.sh
+P-SRC=src/stacks_pipeline/desktop_versions/pstacks.sh
 P-LSF=src/stacks_pipeline/pstacks_lsf.sh
 M=3
 
 # ustacks: number of mismatches allowed (MM) and minimum coverage (M)
-U-SRC=src/stacks_pipeline/desktop_versions/ustacks_nix.sh
+U-SRC=src/stacks_pipeline/desktop_versions/ustacks.sh
 U-LSF=src/stacks_pipeline/ustacks_lsf.sh
 
 # cstacks: loci mismatches (LM)
-C-SRC=src/stacks_pipeline/desktop_versions/cstacks_nix.sh
+C-SRC=src/stacks_pipeline/desktop_versions/cstacks.sh
 C-LSF=src/stacks_pipeline/cstacks_lsf.sh
 LM=3
 
 # sstacks:
-S-SRC=src/stacks_pipeline/desktop_versions/sstacks_nix.sh
+S-SRC=src/stacks_pipeline/desktop_versions/sstacks.sh
 S-LSF=src/stacks_pipeline/sstacks_lsf.sh
 
 # populations: Proportion of individuals with locus (R), Minimum stack depth (D)
 GR-SRC=src/stacks_pipeline/group_sstacks.sh
-POP-SRC=src/stacks_pipeline/desktop_versions/populations_nix.sh
+POP-SRC=src/stacks_pipeline/desktop_versions/populations.sh
 POP-LSF=src/stacks_pipeline/populations_lsf.sh
 # Boolean variable: group families in 1 populations run or split them
 GRFAM=T

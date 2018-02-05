@@ -16,8 +16,8 @@
 
 
 # Parsing CL arguments
-while [[ "$#" > 1 ]]; 
-do 
+while [[ "$#" > 1 ]];
+do
     case $1 in
         # Working directory. Must contain folder with bam files
         --workdir) WGS="$2";;
@@ -29,8 +29,8 @@ do
 esac; shift; shift
 done
 
-module add UHTS/Analysis/vcftools/0.1.14
-module add UHTS/Analysis/freebayes/0.9.9.2
+module add UHTS/Analysis/vcftools/0.1.15
+module add UHTS/Analysis/freebayes/1.0.0
 
 snps="$WGS/variant/"
 mkdir -p "$snps"

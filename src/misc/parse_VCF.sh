@@ -5,7 +5,6 @@
 # Cyril Matthey-Doret
 # 24.06.2017
 
-module add UHTS/Analysis/vcftools/0.1.14 || echo "oops... could not load VCFtools on cluster"
 
 if [[ $# -eq 0 ]]; then
     echo "No argument given, exiting now."
