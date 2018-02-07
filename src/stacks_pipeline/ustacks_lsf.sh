@@ -46,7 +46,8 @@ do
     #BSUB -M 2000000
     #BSUB -q priority
 
-    module add UHTS/Analysis/stacks/1.46
+    # Loading softwares
+    source src/misc/dependencies.sh
     ustacks -f $i -i $ID -o $out_dir -m $M -M $MM -p 3
 UST
     ID+=1

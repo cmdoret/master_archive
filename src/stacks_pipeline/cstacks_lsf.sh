@@ -50,6 +50,9 @@ bsub <<CST
 #BSUB -M 10000000
 #BSUB -q long
 
+# Loading softwares
+source src/misc/dependencies.sh
+
 cstacks -b 1 -o $cst -n $LM -p 5 $samp;
 CST
 

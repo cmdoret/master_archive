@@ -58,7 +58,8 @@ then  # Families are grouped into a single populations run
     #BSUB -n 3
     #BSUB -R "span[ptile=3]"
 
-    module add UHTS/Analysis/stacks/1.46;
+    # Loading softwares
+    source src/misc/dependencies.sh
     populations -P $sst -M data/popmap.tsv -p 2 -m $D -b 1 -r $R -k -f p_value \
     -t 3 --verbose --fstats --vcf --genomic --renz ecoRI ${bl:+-B "$bl"}
 
@@ -93,7 +94,8 @@ else
         #BSUB -R "span[ptile=3]"
 
         mkdir -p $out_dir/$fam  # Prepare one output folder per family
-        module add UHTS/Analysis/stacks/1.46;
+        # Loading softwares
+        source src/misc/dependencies.sh
         populations -P $sst/$fam -M data/popmap.tsv -p 2 -m $D -b 1 -r $R -k \
         -f p_value -t 3 --verbose --fstats --vcf --genomic \
         --renz ecoRI ${bl:+-B "$bl"}

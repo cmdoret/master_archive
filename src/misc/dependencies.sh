@@ -12,9 +12,10 @@ module add UHTS/Aligner/bwa/0.7.15 \
            UHTS/Analysis/BEDTools/2.26.0 \
            UHTS/Quality_control/fastqc/0.11.5 \
            UHTS/Analysis/deepTools/2.5.4 \
-           UHTS/Assembler/cufflinks/2.2.1 \
            SequenceAnalysis/GenePrediction/augustus/3.2.3 \
-           SequenceAnalysis/HMM-Profile/hmmer/3.1b2
+           SequenceAnalysis/HMM-Profile/hmmer/3.1b2 \
+           UHTS/Analysis/freebayes/1.0.0 \
+           UHTS/Analysis/stacks/1.48
 
 # Loaded from local install
 export PATH=$PATH:"~/scratch/softwares/MCScanX/"

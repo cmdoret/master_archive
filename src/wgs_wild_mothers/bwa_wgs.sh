@@ -73,9 +73,8 @@ bsub << EOF
 #BSUB -R "rusage[mem=64000]"
 #BSUB -M 64000000
 
-
-module add UHTS/Aligner/bwa/0.7.15
-module add UHTS/Analysis/samtools/1.3
+# Loading softwares
+source src/misc/dependencies.sh
 
 forward="${wgs}/merged/${sample}_R1.fastq.gz"
 reverse="${wgs}/merged/${sample}_R2.fastq.gz"
@@ -84,7 +83,7 @@ reverse="${wgs}/merged/${sample}_R2.fastq.gz"
 find "${in_dir}" -name "*${sample}*R1*" -type f | xargs cat > "\$forward"
 find "${in_dir}" -name "*${sample}*R2*" -type f | xargs cat > "\$reverse"
 
-# Mapping paired ends reads
+# Mapping paired ends reads<
 bwa mem -M -t $threads $index \$forward \$reverse > "${map_dir}/${sample}.sam"
 
 # Convert SAM files to BAM
@@ -100,8 +99,8 @@ samtools index "${map_dir}/${sample}.sorted.bam"
 samtools idxstats "${map_dir}/${sample}.sorted.bam"
 
 # Remove sam and unsorted bam files
-rm -v "${map_bam}/${sample}.sam"
-rm -v "${map_bam}/${sample}.bam"
+rm -v "${map_dir}/${sample}.sam"
+rm -v "${map_dir}/${sample}.bam"
 
 EOF
 done

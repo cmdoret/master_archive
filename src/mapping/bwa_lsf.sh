@@ -54,8 +54,8 @@ do
     #BSUB -R "rusage[mem=4000]"
     #BSUB -M 4000000
 
-    #module add UHTS/Aligner/bwa/0.7.2;
-    #module add UHTS/Analysis/samtools/1.3;
+    # Loading softwares
+    source src/misc/dependencies.sh
 
     # align reads
     bwa aln -n $MM -t $threads $index $data_dir/$sample.fq.gz > $out_dir/$sample.sai

@@ -52,6 +52,9 @@ eval "$run_fun" <<RNA
 #BSUB -R "span[ptile=36]"
 #BSUB -R "rusage[mem=32000]"
 
+# Loading softwares
+source src/misc/dependencies.sh
+
 # Generate bigwig file with coverage along genome
 bamCoverage -b $BAM -o $OUT/coverage.bw
 

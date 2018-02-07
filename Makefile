@@ -97,7 +97,7 @@ lab_book : $(LAB) $(MISC)
 
 .PHONY : wgs_wild_mothers
 wgs_wild_mothers :
-	bash src/wgs_wild_mothers/bwa_wgs.sh --workdir $(WGS) --ref $(REF)
+	bash src/wgs_wild_mothers/bwa_wgs.sh --workdir $(WGS) --ref $(REF) --out
 	bash src/wgs_wild_mothers/snps_wgs.sh --workdir $(WGS) --ref $(REF) --winsize 100
 
 # When it gets too messy
