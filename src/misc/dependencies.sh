@@ -15,9 +15,13 @@ module add UHTS/Aligner/bwa/0.7.15 \
            SequenceAnalysis/GenePrediction/augustus/3.2.3 \
            SequenceAnalysis/HMM-Profile/hmmer/3.1b2 \
            UHTS/Analysis/freebayes/1.0.0 \
-           UHTS/Analysis/stacks/1.48
+           UHTS/Analysis/stacks/1.48 \
+           UHTS/Analysis/htslib/1.6
 
 # Loaded from local install
 export PATH=$PATH:"~/scratch/softwares/MCScanX/"
 export PATH=$PATH:"~/scratch/softwares/busco/3.0.2b/scripts/"
 export PATH=$PATH:"~/scratch/softwares/cufflinks-2.2.1/"
+
+# Necessary for VCFtools perl scripts
+export PERL5LIB=$PERL5LIB/software/UHTS/Analysis/vcftools/0.1.15/lib64/perl5/site_perl/5.24.0/
