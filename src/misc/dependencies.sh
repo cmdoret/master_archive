@@ -5,7 +5,7 @@
 
 # Loaded from LFS system
 module add UHTS/Aligner/bwa/0.7.15 \
-           UHTS/Analysis/samtools/1.3 \
+           UHTS/Analysis/samtools/1.4 \
            UHTS/Analysis/vcftools/0.1.15 \
            R/3.4.2 \
            Blast/ncbi-blast/2.6.0+ \
@@ -24,4 +24,4 @@ export PATH=$PATH:"~/scratch/softwares/busco/3.0.2b/scripts/"
 export PATH=$PATH:"~/scratch/softwares/cufflinks-2.2.1/"
 
 # Necessary for VCFtools perl scripts
-export PERL5LIB=$PERL5LIB/software/UHTS/Analysis/vcftools/0.1.15/lib64/perl5/site_perl/5.24.0/
+export PERL5LIB=/software/UHTS/Analysis/vcftools/0.1.15/lib64/perl5/site_perl/5.24.0/
