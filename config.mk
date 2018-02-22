@@ -75,5 +75,6 @@ CSTACK=$(DAT)/cstacks/mm-$(LM)
 SSTACK=$(DAT)/sstacks
 POP=$(DAT)/populations/grouped_d-$(D)_r-$(R)
 ASSOC=$(DAT)/assoc_mapping
+HITS=data/assoc_mapping/case_control/case_control_hits.tsv
 CENTRO=$(ASSOC)/centro
 WGS=$(DAT)/wgs_wild_mothers/

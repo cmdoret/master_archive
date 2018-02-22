@@ -25,3 +25,6 @@ export PATH=$PATH:"~/scratch/softwares/cufflinks-2.2.1/"
 
 # Necessary for VCFtools perl scripts
 export PERL5LIB=/software/UHTS/Analysis/vcftools/0.1.15/lib64/perl5/site_perl/5.24.0/
+
+# AUGUSTUS config required to use BUSCO
+export AUGUSTUS_CONFIG_PATH=/path/to/your/augustus_config

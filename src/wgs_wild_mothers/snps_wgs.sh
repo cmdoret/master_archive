@@ -76,11 +76,6 @@ bsub << VAR > /dev/null
 # Loading softwares
 source src/misc/dependencies.sh
 
-#samtools mpileup -f "$REF" \
-#                 -b <(find  "${WGS}/mapped/" -name "*sorted.bam" -type f ) \
-#                 -r "$region" \
-#                 -v > "${snps}/$region.tmp.vcf.gz"
-
 # SNP calling in given region for all samples (keeps only variant sites)
 bcftools mpileup -Ou \
                  -f "$REF" \
@@ -120,4 +115,4 @@ rm -rf $stats
 mkdir -p $stats
 
 # Computing allelic diversity along genome
-vcftools --window-pi $WIN --vcf ${snps}/wild_mothers.vcf --out $stats/nucleo_div
+vcftools --window-pi $WIN --vcf ${snps}/wild_mothers.sorted.vcf --out $stats/nucleo_div

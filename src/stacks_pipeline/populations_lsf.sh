@@ -61,7 +61,7 @@ then  # Families are grouped into a single populations run
     # Loading softwares
     source src/misc/dependencies.sh
     populations -P $sst -M data/popmap.tsv -p 2 -m $D -b 1 -r $R -k -f p_value \
-    -t 3 --verbose --fstats --vcf --genomic --renz ecoRI ${bl:+-B "$bl"}
+    -t 3 --verbose --fstats --vcf --genomic --min_maf 0.1 --renz ecoRI ${bl:+-B "$bl"}
 
     mv $sst/batch* $out_dir/
     # Moving all populations output file from sstacks family folder to populations family folder
@@ -97,7 +97,7 @@ else
         # Loading softwares
         source src/misc/dependencies.sh
         populations -P $sst/$fam -M data/popmap.tsv -p 2 -m $D -b 1 -r $R -k \
-        -f p_value -t 3 --verbose --fstats --vcf --genomic \
+        -f p_value -t 3 --verbose --fstats --vcf --genomic --min_maf 0.1 \
         --renz ecoRI ${bl:+-B "$bl"}
 
         mv $sst/$fam/batch* $out_dir/$fam/

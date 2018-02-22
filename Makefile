@@ -98,7 +98,13 @@ lab_book : $(LAB) $(MISC)
 .PHONY : wgs_wild_mothers
 wgs_wild_mothers :
 	#bash src/wgs_wild_mothers/bwa_wgs.sh --workdir $(WGS) --ref $(REF) --out
-	bash src/wgs_wild_mothers/snps_wgs.sh --workdir $(WGS) --ref $(REF) --winsize 100
+	#bash src/wgs_wild_mothers/snps_wgs.sh --workdir $(WGS) --ref $(REF) --winsize 100
+	bash src/convert_coord/CSD_contig.sh $(HITS) \
+																			 3 \
+																			 $(CORRESP) \
+																			 $(ASSOC)
+
+
 
 # When it gets too messy
 .PHONY : clean
