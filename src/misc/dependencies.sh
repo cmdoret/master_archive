@@ -11,6 +11,7 @@ module add UHTS/Aligner/bwa/0.7.15 \
            Blast/ncbi-blast/2.6.0+ \
            UHTS/Analysis/BEDTools/2.26.0 \
            UHTS/Quality_control/fastqc/0.11.5 \
+           UHTS/Analysis/MultiQC/1.3 \
            UHTS/Analysis/deepTools/2.5.4 \
            SequenceAnalysis/GenePrediction/augustus/3.2.3 \
            SequenceAnalysis/HMM-Profile/hmmer/3.1b2 \

@@ -80,8 +80,8 @@ forward="${wgs}/merged/${sample}_R1.fastq.gz"
 reverse="${wgs}/merged/${sample}_R2.fastq.gz"
 
 # Merge lanes, keep forward and reverse separated
-find "${in_dir}" -name "*${sample}*R1*" -type f | xargs cat > "\$forward"
-find "${in_dir}" -name "*${sample}*R2*" -type f | xargs cat > "\$reverse"
+find "${in_dir}" -name "*${sample}*R1*" -type f | sort | xargs cat > "\$forward"
+find "${in_dir}" -name "*${sample}*R2*" -type f | sort | xargs cat > "\$reverse"
 
 # Mapping paired ends reads<
 bwa mem -M -t $threads $index \$forward \$reverse > "${map_dir}/${sample}.sam"
@@ -96,7 +96,7 @@ samtools sort -@ $threads "${map_dir}/${sample}.bam" -o "${map_dir}/${sample}.so
 samtools index "${map_dir}/${sample}.sorted.bam"
 
 # Output index statistics
-samtools idxstats "${map_dir}/${sample}.sorted.bam"
+samtools stats -r $index "${map_dir}/${sample}.sorted.bam"
 
 # Remove sam and unsorted bam files
 rm -v "${map_dir}/${sample}.sam"

@@ -1357,6 +1357,18 @@ I retrieved the feminizer protein sequence for 8 Hymenopteran species, including
 
 I tblastn'd these protein sequences against the l.fabarum genome.
 
+\chapter{Nucleotidic diversity in wild individuals}
+Whole genome amplification and paired-end sequencing with Illumina Hiseq on 11 males and 4 females from the wild yielded between 32 and 80 million reads per sample.
+
+\section{Quality control}
+Before proceeding to nucleotidic diversity analysis, we need to ensure the WGS data is not heavily biased. Specifically, I will assess whether the whole genome amplification generates strong bias and look at mapping statistics.
+
+\subsection{Duplicated reads}
+The process of PCR amplification can introduce biases by over-amplifying some regions. For example, regions with poor GC-content are preferentially amplified. Samples can have duplicated reads: Exact same reads originating from a single PCR reaction, but ending up in different Illumina wells. Samples with lower amounts of starting material will have more PCR duplicates.
+
+\subsection{Mapping statistics}
+Proportion of reads mapping to the genome can be useful to estimate issues such as contamination or high amounts of chimeric reads. Here I record different mapping statistics.
+
 \chapter{TO DO}
 \begin{itemize}
 \item Measure error rates (recombinations between SNP and CSD) using number of males that are heterozygous at each CSD peak
@@ -1374,7 +1386,6 @@ I tblastn'd these protein sequences against the l.fabarum genome.
 \item make snp calling less reliant on correct mother calls and exclude SNPs only if mother is hom/missing AND less than N offspring are heterozygous (small N)
 \item automate threshold selection for inferring ploidy
 \end{itemize}
-
 \end{document} 
 \grid
 %                                 
