@@ -10,9 +10,9 @@ while [[ "$#" > 1 ]];
 do
     case $1 in
         # Working directory. Must contain a "raw" folder with reads
-        --workdir) WGS="$2";;
+        --workdir) wgs="$2";;
         # Reference genome. Must be indexed beforehand
-        --ref) IDX="$2";;
+        --ref) index="$2";;
         *) break;;
 esac; shift; shift
 done
@@ -20,16 +20,12 @@ done
 # #Mismatches allowed per read for mapping
 MM=4
 # #threads used when mapping
-threads=4
+threads=16
 # Max number of parallel jobs
-MAXPROC=5
+MAXPROC=15
 
 # Allows to cap # parallel jobs and wait for their execution
 source src/misc/jobs_manager.sh
-
-
-wgs="$WGS"
-index="$IDX"
 
 in_dir="${wgs}/raw/"
 
@@ -67,8 +63,8 @@ bsub << EOF
 #BSUB -e ${logs}/${sample}-ERROR.txt
 #BSUB -u cmatthey@unil.ch
 #BSUB -J WGSBWA-${sample}
-#BSUB -n 4
-#BSUB -R "span[ptile=4]"
+#BSUB -n 16
+#BSUB -R "span[ptile=16]"
 #BSUB -q normal
 #BSUB -R "rusage[mem=64000]"
 #BSUB -M 64000000
@@ -80,23 +76,54 @@ forward="${wgs}/merged/${sample}_R1.fastq.gz"
 reverse="${wgs}/merged/${sample}_R2.fastq.gz"
 
 # Merge lanes, keep forward and reverse separated
-find "${in_dir}" -name "*${sample}*R1*" -type f | sort | xargs cat > "\$forward"
-find "${in_dir}" -name "*${sample}*R2*" -type f | sort | xargs cat > "\$reverse"
+find "${in_dir}" -name "*${sample}*R1*" -type f | \
+  sort | xargs cat > "\$forward"
+
+find "${in_dir}" -name "*${sample}*R2*" -type f | \
+  sort | xargs cat > "\$reverse"
+
+# Trimmed reads filenames
+
+# Paired:
+trimF=\$(echo \$forward | sed 's%/\([^/]*\)$%/trim.\1%')
+trimR=\$(echo \$reverse | sed 's%/\([^/]*\)$%/trim.\1%')
+
+# Unpaired:
+trimFU=\$(echo \$trimF | sed 's/R1.fastq.gz$/R1U.fastq.gz/')
+trimRU=\$(echo \$trimR | sed 's/R2.fastq.gz$/R2U.fastq.gz/')
+
+# Trim low quality ends
+trimmomatic PE \$forward \$reverse \$trimF \$trimFU \$trimR \$trimRU \
+            -trimlog ${logs}/${sample}-trim.log \
+            LEADING:20 TRAILING:20
 
 # Mapping paired ends reads<
-bwa mem -M -t $threads $index \$forward \$reverse > "${map_dir}/${sample}.sam"
+bwa mem -M -t $threads $index \$trimF \$trimR > "${map_dir}/${sample}.sam"
 
 # Convert SAM files to BAM
 samtools view -@ $threads -bS -o "${map_dir}/${sample}.bam" "${map_dir}/${sample}.sam"
 
+# Sort alignments by read name
+samtools sort -@ $threads -n "${map_dir}/${sample}.bam" -o "${map_dir}/${sample}.name-sorted.bam"
+
+# Fix mate information (adds ms and MC tags for markdup)
+samtools fixmate "${map_dir}/${sample}.name-sorted.bam" "${map_dir}/${sample}.fixed.bam"
+
 # Sort alignments by leftmost coordinate
-samtools sort -@ $threads "${map_dir}/${sample}.bam" -o "${map_dir}/${sample}.sorted.bam"
+samtools sort -@ $threads "${map_dir}/${sample}.fixed.bam" -o "${map_dir}/${sample}.coord-sorted.bam"
 
 # Index BAM files
-samtools index "${map_dir}/${sample}.sorted.bam"
+samtools index "${map_dir}/${sample}.coord-sorted.bam"
 
-# Output index statistics
-samtools stats -r $index "${map_dir}/${sample}.sorted.bam"
+# Remove PCR duplicates
+#samtools rmdup "${map_dir}/${sample}.coord-sorted.bam" "${map_dir}/${sample}.nodup.bam"
+picard MarkDuplicates \
+      I="${map_dir}/${sample}.coord-sorted.bam" \
+      O="${map_dir}/${sample}.nodup.bam" \
+      M="${map_dir}/${sample}.dup_metrics.txt"
+      REMOVE_DUPLICATES=true \
+      CREATE_INDEX=true
+
 
 # Remove sam and unsorted bam files
 rm -v "${map_dir}/${sample}.sam"
