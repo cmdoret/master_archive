@@ -120,7 +120,7 @@ samtools index "${map_dir}/${sample}.coord-sorted.bam"
 picard MarkDuplicates \
       I="${map_dir}/${sample}.coord-sorted.bam" \
       O="${map_dir}/${sample}.nodup.bam" \
-      M="${map_dir}/${sample}.dup_metrics.txt"
+      M="${map_dir}/${sample}.dup_metrics.txt" \
       REMOVE_DUPLICATES=true \
       CREATE_INDEX=true
 
