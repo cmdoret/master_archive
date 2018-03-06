@@ -71,6 +71,14 @@ ploidy:
 $(RNA)/assembled/ :
 	bash $(RNA-SRC) -a $(BAM) -r $(OLD-REF) -o $@
 
+# Contig correspondance file between old (unanchored)
+# and new (anchored) assembly
+$(CORRESP):
+	bash src/convert_coord/corresp_contigs.sh -O $(OLD-REF) \
+																						-N $(REF) \
+																						-c $(CORRESP) \
+																						2> $(LOG)/corresp.log
+
 # Preparing input file for collinearity analysis. Run MCScanX on files manually
 .PHONY : mult_align
 mult_align : $(RNA)/assembled/
@@ -96,7 +104,7 @@ lab_book : $(LAB) $(MISC)
 	# Compiling LaTeX report and moving it to appropriate folder
 
 .PHONY : wgs_wild_mothers
-wgs_wild_mothers :
+wgs_wild_mothers : $(CORRESP)
 	bash src/wgs_wild_mothers/bwa_wgs.sh --workdir $(WGS) --ref $(REF)
 	bash src/wgs_wild_mothers/qc_gen.sh --workdir $(WGS) --ref $(REF) --out $(WGS)/qc_output
 	bash src/wgs_wild_mothers/snps_wgs.sh --workdir $(WGS) --ref $(REF) --winsize 100

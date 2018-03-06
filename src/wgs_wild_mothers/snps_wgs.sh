@@ -79,7 +79,7 @@ source src/misc/dependencies.sh
 # SNP calling in given region for all samples (keeps only variant sites)
 bcftools mpileup -Ou \
                  -f "$REF" \
-                 -b <(find  "${WGS}/mapped/" -name "*nodup.bam" -type f ) \
+                 -b <(find  "${WGS}/mapped/" -name "*dedup-sorted.bam" -type f ) \
                  -r "$region" | bcftools call -vmO z -o "${snps}/$region.tmp.vcf.gz"
 # Index vcf file
 tabix -p vcf "${snps}/$region.tmp.vcf.gz"

@@ -1363,11 +1363,24 @@ Whole genome amplification and paired-end sequencing with Illumina Hiseq on 11 m
 \section{Quality control}
 Before proceeding to nucleotidic diversity analysis, we need to ensure the WGS data is not heavily biased. Specifically, I will assess whether the whole genome amplification generates strong bias and look at mapping statistics.
 
+MultiQC reports showed no particular issue, except a small GC bias in the first few basepairs of the reads for all samples. This bias is apparently due to the amplification process: The pairing is not random and GC-poor regions seem to be favoured. Because the quality scores remained high throughout the whole sequence, I did not apply a fixed trimming, but I still applied left and right trimming if quality score drops below 20.
+
 \subsection{Duplicated reads}
-The process of PCR amplification can introduce biases by over-amplifying some regions. For example, regions with poor GC-content are preferentially amplified. Samples can have duplicated reads: Exact same reads originating from a single PCR reaction, but ending up in different Illumina wells. Samples with lower amounts of starting material will have more PCR duplicates.
+The process of PCR amplification can introduce biases by over-amplifying some regions. For example, regions with poor GC-content are preferentially amplified. Samples can have duplicated reads: Exact same reads originating from a single PCR reaction, but ending up in different Illumina wells. Samples with lower amounts of starting material will have more PCR duplicates. Samples with high duplication rates should have lower library complexity (Figure \ref{PCR_dup})
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/qc/PCR_duplicates.png}
+\caption{Comparison of coverage before vs after removal of duplicates in genome browser view.}
+\label{PCR_dup}
+\end{figure}
+
+According to multiQC, some samples contained up to 45\% duplicated reads. To address this issue, I removed duplicated reads using Picard MarkDuplicates tool.
 
 \subsection{Mapping statistics}
 Proportion of reads mapping to the genome can be useful to estimate issues such as contamination or high amounts of chimeric reads. Here I record different mapping statistics.
+
+Multiqc reports all samples with 99\% mapped reads or more. The reason for this extremely high proportion (as compared to the stats for the RADseq data in chapter 3) is that I use the mem algorithm from BWA, whereas the aln algorithm was used for the RADseq. mem performs local alignments, whereas aln requires end-to-end mapping of the reads.
+Note: I had to use the -M flag in bwa-mem for downstream compatibility with picard. This marks split alignments as secondary alignments
 
 \chapter{TO DO}
 \begin{itemize}

@@ -65,14 +65,10 @@ sample_fq="${tmp_dir}/${sample}.fastq.gz"
 find "${in_dir}" -name "*${sample}*" -type f | sort | xargs cat > "\$sample_fq"
 
 # Fastqc on each sample
-fastqc $sample_fq -o $out_folder &
+fastqc \$sample_fq -o $out_folder
 
 # mapping stats with samtools stats
-samtools stats -r $index "${map_dir}/${sample}.nodup.bam" > $out_folder/${sample}_stat.txt
-
-# Remove sam and unsorted bam files
-rm -v "${map_dir}/${sample}.sam"
-rm -v "${map_dir}/${sample}.bam"
+samtools stats -r $index "${map_dir}/${sample}.dedup-sorted.bam" > $out_folder/${sample}_stat.txt
 
 EOF
 done
@@ -80,6 +76,7 @@ done
 bmonitor "WGSQC" 0
 
 # MultiQC for all samples: Incorporating samtools picard and fastqc output
-multiqc ${out_folder}/* -o $out_folder ${map_dir}/*dup_metrics*
-# remove temporary fq files
+multiqc ${out_folder}/* ${map_dir}/*dup_metrics* -o $out_folder
+
+# remove temporary fq
 rm -rf "$tmp_dir"
