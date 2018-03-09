@@ -1368,6 +1368,8 @@ MultiQC reports showed no particular issue, except a small GC bias in the first 
 \subsection{Duplicated reads}
 The process of PCR amplification can introduce biases by over-amplifying some regions. For example, regions with poor GC-content are preferentially amplified. Samples can have duplicated reads: Exact same reads originating from a single PCR reaction, but ending up in different Illumina wells. Samples with lower amounts of starting material will have more PCR duplicates. Samples with high duplication rates should have lower library complexity (Figure \ref{PCR_dup})
 
+Actually, I might want to keep duplicate reads. According to Ebbert et al, 2016 (doi: 10.1186/s12859-016-1097-3), PCR duplicates have minimal effect on SNP calling. It mostly matters for RNAseq.
+
 \begin{figure}
 \includegraphics[width=\textwidth]{nucleo_div_wgs/qc/PCR_duplicates.png}
 \caption{Comparison of coverage before vs after removal of duplicates in genome browser view.}
@@ -1380,7 +1382,7 @@ According to multiQC, some samples contained up to 45\% duplicated reads. To add
 Proportion of reads mapping to the genome can be useful to estimate issues such as contamination or high amounts of chimeric reads. Here I record different mapping statistics.
 
 Multiqc reports all samples with 99\% mapped reads or more. The reason for this extremely high proportion (as compared to the stats for the RADseq data in chapter 3) is that I use the mem algorithm from BWA, whereas the aln algorithm was used for the RADseq. mem performs local alignments, whereas aln requires end-to-end mapping of the reads.
-Note: I had to use the -M flag in bwa-mem for downstream compatibility with picard. This marks split alignments as secondary alignments
+Note: I had to use the -M flag in bwa-mem for downstream compatibility with picard. This marks split alignments as secondary alignments. Picard then needs to be given a queryname-sorted bam to include secondary alignments in the duplicates (coord-sorted does not work)
 
 \chapter{TO DO}
 \begin{itemize}

@@ -34,16 +34,16 @@ in_dir="${wgs}/raw/"
 samples=( $(find "$in_dir" | grep "fastq" | sed 's/.*\(HYI-[0-9]*\)_R.*/\1/g' | sort | uniq) )
 
 # Reinitializing folders
-rm -rf "${wgs}/merged/"
-mkdir -p "${wgs}/merged/"
+#rm -rf "${wgs}/merged/"
+#mkdir -p "${wgs}/merged/"
 
 tmp_dir="${wgs}/tmp/"
 rm -rf "$tmp_dir"
 mkdir -p "$tmp_dir"
 
 map_dir="${wgs}/mapped/"
-rm -rf "$map_dir"
-mkdir -p "$map_dir"
+#rm -rf "$map_dir"
+#mkdir -p "$map_dir"
 
 logs="${wgs}/log"
 rm -rf "$logs"
@@ -104,32 +104,33 @@ bwa mem -M -t $threads $index \$trimF \$trimR > "${map_dir}/${sample}.sam"
 samtools view -@ $threads -b -o "${map_dir}/${sample}.bam" "${map_dir}/${sample}.sam"
 
 # Sort alignments by read name
-samtools sort -@ $threads -n "${map_dir}/${sample}.bam" -o "${map_dir}/${sample}.name-sorted.bam"
+samtools sort -@ $threads -n "${map_dir}/${sample}.bam" -o "${map_dir}/${sample}.nsort.bam"
 
 # Fix mate information (adds ms and MC tags for markdup)
-samtools fixmate "${map_dir}/${sample}.name-sorted.bam" "${map_dir}/${sample}.fixed.bam"
+samtools fixmate "${map_dir}/${sample}.nsort.bam" "${map_dir}/${sample}.fixed.bam"
+
+# Sort alignments by read name
+#samtools sort -@ $threads -n "${map_dir}/${sample}.fixed.bam" -o "${map_dir}/${sample}.fixed.nsort.bam"
 
 # Remove PCR duplicates (input needs to be name-sorted, otherwise secondary
 # alignments are not considered in the duplicates)
-picard MarkDuplicates \
-      I="${map_dir}/${sample}.fixed.bam" \
-      O="${map_dir}/${sample}.nodup.bam" \
-      M="${map_dir}/${sample}.dup_metrics.txt" \
-      ASSUME_SORT_ORDER=queryname \
-      REMOVE_DUPLICATES=true
+#picard MarkDuplicates \
+#      I="${map_dir}/${sample}.nsort.bam" \
+#      O="${map_dir}/${sample}.dedup.bam" \
+#      M="${map_dir}/${sample}.dup_metrics.txt" \
+#      ASSUME_SORT_ORDER=queryname \
+#      REMOVE_DUPLICATES=true
 
 # Sort alignments by leftmost coordinate
-samtools sort -@ $threads "${map_dir}/${sample}.dedup.bam" \
-              -o "${map_dir}/${sample}.dedup-sorted.bam"
+samtools sort -@ $threads "${map_dir}/${sample}.fixed.bam" \
+              -o "${map_dir}/${sample}.fixed.csort.bam"
 # Index BAM files
-samtools index "${map_dir}/${sample}.dedup-sorted.bam"
+samtools index "${map_dir}/${sample}.fixed.csort.bam"
 
 # Remove sam and unsorted/temporary bam files
 rm -v "${map_dir}/${sample}.sam" \
-      "${map_dir}/${sample}.bam" \
-      "${map_dir}/${sample}*fixed*" \
-      "${map_dir}/${sample}*name-sorted*" \
-      "${map_dir}/${sample}*dedup.bam"
+#      "${map_dir}/${sample}.bam" \
+      "${map_dir}/${sample}*nsort*"
 
 EOF
 done

@@ -2,7 +2,7 @@
 # Cyril Matthey-Doret
 # 11.02.2018
 
-packs <- c("ggplot2","Rwave","dplyr", "gridExtra")
+packs <- c("ggplot2","dplyr", "gridExtra")
 lapply(packs, require, character.only=T)
 
 # Coordinates of CSD GWAS hits

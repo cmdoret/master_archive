@@ -68,7 +68,7 @@ find "${in_dir}" -name "*${sample}*" -type f | sort | xargs cat > "\$sample_fq"
 fastqc \$sample_fq -o $out_folder
 
 # mapping stats with samtools stats
-samtools stats -r $index "${map_dir}/${sample}.dedup-sorted.bam" > $out_folder/${sample}_stat.txt
+samtools stats -r $index "${map_dir}/${sample}.fixed.csort.bam" > $out_folder/${sample}_stat.txt
 
 EOF
 done
