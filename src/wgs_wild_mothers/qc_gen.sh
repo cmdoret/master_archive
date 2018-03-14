@@ -19,6 +19,7 @@ esac; shift; shift
 done
 
 source src/misc/jobs_manager.sh
+source src/misc/dependencies.sh
 MAXPROC=15
 
 # Folder containing input raw reads files
@@ -52,7 +53,7 @@ bsub << EOF
 #BSUB -J WGSQC-${sample}
 #BSUB -n 4
 #BSUB -R "span[ptile=4]"
-#BSUB -q priority
+#BSUB -q normal
 #BSUB -R "rusage[mem=8000]"
 #BSUB -M 8000000
 

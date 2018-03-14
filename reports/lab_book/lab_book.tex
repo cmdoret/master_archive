@@ -1384,6 +1384,15 @@ Proportion of reads mapping to the genome can be useful to estimate issues such 
 Multiqc reports all samples with 99\% mapped reads or more. The reason for this extremely high proportion (as compared to the stats for the RADseq data in chapter 3) is that I use the mem algorithm from BWA, whereas the aln algorithm was used for the RADseq. mem performs local alignments, whereas aln requires end-to-end mapping of the reads.
 Note: I had to use the -M flag in bwa-mem for downstream compatibility with picard. This marks split alignments as secondary alignments. Picard then needs to be given a queryname-sorted bam to include secondary alignments in the duplicates (coord-sorted does not work)
 
+\subsection{Genome completeness}
+BUSCO revealed a very poor genome completeness (50\% missing). I will try to reassemble the genome from the haplotype of a single male from WGS Illumina and compare the quality to the current assembly.
+
+quick TODO:
+* assemble haplotype from good male
+* redo BUSCO with nasonia as augustus species
+* remove crap samples
+* Plot PI vs p-value for all SNPs in RADseq data. PI needs to be computed at for all RADseq sites from WGS data. Use this to filter loci
+
 \chapter{TO DO}
 \begin{itemize}
 \item Measure error rates (recombinations between SNP and CSD) using number of males that are heterozygous at each CSD peak

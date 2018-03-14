@@ -17,8 +17,9 @@ module add UHTS/Aligner/bwa/0.7.15 \
            SequenceAnalysis/HMM-Profile/hmmer/3.1b2 \
            UHTS/Analysis/freebayes/1.0.0 \
            UHTS/Analysis/stacks/1.48 \
-           UHTS/Analysis/htslib/1.6 \
+           UHTS/Analysis/HTSlib/1.6 \
            UHTS/Analysis/trimmomatic/0.36
+
 
 # Loaded from local install
 export PATH=$PATH:"~/scratch/softwares/MCScanX/"
@@ -29,7 +30,7 @@ export PATH=$PATH:"~/scratch/softwares/cufflinks-2.2.1/"
 export PERL5LIB=/software/UHTS/Analysis/vcftools/0.1.15/lib64/perl5/site_perl/5.24.0/
 
 # AUGUSTUS config required to use BUSCO
-export AUGUSTUS_CONFIG_PATH=/path/to/your/augustus_config
+export AUGUSTUS_CONFIG_PATH=/home/cmatthey/scratch/softwares/busco/3.0.2b/augustus_config/
 
 # Alias to java class for picard
 function picard {

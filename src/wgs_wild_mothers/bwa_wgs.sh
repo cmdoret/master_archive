@@ -20,9 +20,9 @@ done
 # #Mismatches allowed per read for mapping
 MM=4
 # #threads used when mapping
-threads=16
+threads=8
 # Max number of parallel jobs
-MAXPROC=15
+MAXPROC=30
 
 # Allows to cap # parallel jobs and wait for their execution
 source src/misc/jobs_manager.sh
@@ -34,16 +34,16 @@ in_dir="${wgs}/raw/"
 samples=( $(find "$in_dir" | grep "fastq" | sed 's/.*\(HYI-[0-9]*\)_R.*/\1/g' | sort | uniq) )
 
 # Reinitializing folders
-#rm -rf "${wgs}/merged/"
-#mkdir -p "${wgs}/merged/"
+rm -rf "${wgs}/merged/"
+mkdir -p "${wgs}/merged/"
 
 tmp_dir="${wgs}/tmp/"
 rm -rf "$tmp_dir"
 mkdir -p "$tmp_dir"
 
 map_dir="${wgs}/mapped/"
-#rm -rf "$map_dir"
-#mkdir -p "$map_dir"
+rm -rf "$map_dir"
+mkdir -p "$map_dir"
 
 logs="${wgs}/log"
 rm -rf "$logs"
@@ -63,8 +63,8 @@ bsub << EOF
 #BSUB -e ${logs}/${sample}-ERROR.txt
 #BSUB -u cmatthey@unil.ch
 #BSUB -J WGSBWA-${sample}
-#BSUB -n 16
-#BSUB -R "span[ptile=16]"
+#BSUB -n 8
+#BSUB -R "span[ptile=8]"
 #BSUB -q normal
 #BSUB -R "rusage[mem=64000]"
 #BSUB -M 64000000

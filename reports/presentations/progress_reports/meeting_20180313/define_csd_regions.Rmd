@@ -1,0 +1,99 @@
+---
+title: "Defining CSD loci"
+author: "Cyril Matthey-Doret"
+date: "12/03/2018"
+output: pdf_document
+---
+```{r setup, echo=F, include=F}
+# LOAD
+# Packages
+packs <- c("ggplot2","dplyr", "gridExtra", "readr")
+lapply(packs, require, character.only=T)
+# Data
+setwd("~/Documents/UNIL/Master/master_project/")
+snps <- read.table("data/assoc_mapping/case_control/case_control_all.tsv", header=T)
+# User defined p-value significance threshold, in -log10(pvalue)
+thresh <- 3
+```
+
+```{r process, echo=F}
+
+# PROCESS
+# Mark significant SNPs as part of CSD region
+snps <- snps %>%
+  mutate(csd_locus = ifelse(fisher>thresh, yes=1, no=0)) %>%
+  arrange(Chr, BP)
+
+region <- 1
+# Iterate over all snps
+for(row in 1:nrow(snps)){
+  # If snps is significant
+  if(snps$csd_locus[row]){
+    # Assign it a region number
+  if(snps$csd_locus[row+1]){
+    snps$csd_locus[row] <- region
+  }
+  # When region ends set new region number
+  else{region <- region + 1}
+  }
+}
+
+region <- 1
+for(row in 1:nrow(snps)){
+  # If SNP is significant
+  if(snps$csd_locus[row]){
+    # And next one is also significant, consider region
+    snps$csd_locus[row] <- ifelse(snps$csd_locus[row+1], yes=region, no=0)
+    # end of region, 
+    if(snps$csd_locus[row-1] & !snps$csd_locus[row+1]) {
+      # change region number for next one
+      region <- region + 1
+    }
+  }
+}
+```
+
+
+# Main points
+
+1. WGS data is noisy. We need to know where to look precisely.
+2. Defining CSD regions using a solid rule to restrict regions.
+3. Requiring consecutive significant SNPs is (too?) strict. It leaves discrete small regions on chroms 3, 4 and 5.
+4. WGS data has a lot of duplicates, but it should not be an issue for SNP calling
+5. Talked with Patrick about base-composition bias at 5' of reads: This level of bias is common, no need to chop ends
+6. Some regions are poorly (or not) covered in some samples: Correct PI calculation for coverage in some way ?
+
+# BUSCO
+
+Assessed genome completeness from linkage map-anchored assembly:
+
+##Results:
+
+* C:51.1%[S:46.8%,D:4.3%],F:4.2%,M:44.7%,n:4415
+* 2258 Complete BUSCOs (C)
+* 2067 Complete and single-copy BUSCOs (S)
+* 191 Complete and duplicated BUSCOs (D)
+* 185 Fragmented BUSCOs (F)
+* 1972 Missing BUSCOs (M)
+* 4415 Total BUSCO groups searched
+
+
+# Can do
+There are two main possibilities: Either extending CSD loci by using a more permissive rule, or keeping multiple small windows of 2 consecutive SNPs,  performing analysis in those windows and removing the bad ones afterwards. I could also raise the significance threshold to 10e-5
+
+# Figures
+
+```{r fig1:2SNPs_regions, echo=F}
+ggplot(data=snps, aes(x=BP, y=fisher)) + 
+  geom_point() +
+  geom_point(data=snps[snps$csd_locus>0,], 
+             aes(col=as.factor(csd_locus)), 
+             size=1.2) +
+  geom_line(data=snps[snps$csd_locus>0,], 
+             aes(col=as.factor(csd_locus))) +
+  facet_grid(~Chr)
+```
+
+```{r fig2:BUSCO_plot, echo=F}
+pie(c(51.1, 4.2, 44.7), col=c("green", "yellow","red"), labels = c("C:51.1", "F:4.2", "M:44.7"))
+```

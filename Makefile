@@ -113,6 +113,10 @@ wgs_wild_mothers : $(CORRESP)
 																			 $(CORRESP) \
 																			 $(ASSOC)
 
+.PHONY : busco
+busco :
+	bash src/misc/genome_completeness.sh -r $(REF) \
+																			 -d data/ref_genome/busco/
 
 
 # When it gets too messy
