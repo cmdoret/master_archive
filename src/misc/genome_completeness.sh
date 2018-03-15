@@ -52,7 +52,7 @@ tar -xzf $BUSCO_DIR/hymenoptera_odb9.tar.gz -C $BUSCO_DIR/
 # run busco
 run_BUSCO.py -i $REF -o lf_busco \
              -l $BUSCO_DIR/hymenoptera_odb9 \
-             -m geno -c 30 -sp nasonia
+             -m geno -c 30 -sp nasonia -f
 mv run_lf_busco $BUSCO_DIR/lf_busco
 JOB
 

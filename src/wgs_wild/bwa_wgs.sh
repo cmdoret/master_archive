@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script handles the mapping of whole genome
-# sequencing illumina reads from wild mothers.
+# sequencing illumina reads from wild samples.
 # Cyril Matthey-Doret
 # 11.10.2017
 

@@ -96,7 +96,7 @@ rm tig_sizes.tmp
 bmonitor "WGSSNP" 0
 
 # Concatenating all regions VCF files into a large one
-vcf-concat ${snps}/*tmp.vcf.gz > ${snps}/wild_mothers.vcf
+vcf-concat ${snps}/*tmp.vcf.gz > ${snps}/wild.vcf
 
 # Parallel sorting of concatenated VCF file
 bsub -q normal \
@@ -105,7 +105,7 @@ bsub -q normal \
      -R "span[ptile=32]" \
      -M 64000000 \
      -R "rusage[mem=64000]" \
-     "vcf-sort -p 30 ${snps}/wild_mothers.vcf > ${snps}/wild_mothers.sorted.vcf"
+     "vcf-sort -p 30 ${snps}/wild.vcf > ${snps}/wild.sorted.vcf"
 
 # Removing all regions VCF
 rm ${snps}/*.tmp.vcf.gz*
@@ -115,4 +115,4 @@ rm -rf $stats
 mkdir -p $stats
 
 # Computing allelic diversity along genome
-vcftools --window-pi $WIN --vcf ${snps}/wild_mothers.sorted.vcf --out $stats/nucleo_div
+vcftools --window-pi $WIN --vcf ${snps}/wild.sorted.vcf --out $stats/nucleo_div

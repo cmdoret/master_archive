@@ -1,4 +1,4 @@
-# Analysis of genome-wide nucleotidic diversity in wgs data from wild mothers
+# Analysis of genome-wide nucleotidic diversity in wgs data from wild samples
 # Cyril Matthey-Doret
 # 11.02.2018
 
@@ -17,7 +17,7 @@ csd_contig <- read.table("data/assoc_mapping/CSD_tig.tsv", stringsAsFactors = F)
 colnames(csd_contig) <- c("CHROM", "START", "END")
 
 # Nucleotidic diversity windows along wild mothers genomes
-pi <- read.table("data/wgs_wild_mothers/stats/nucleo_div.windowed.pi", sep="\t", header=TRUE, stringsAsFactors = F)
+pi <- read.table("data/wgs_wild/stats/nucleo_div.windowed.pi", sep="\t", header=TRUE, stringsAsFactors = F)
 pi <- pi[grep(pattern="chr", pi$CHROM),]
 
 # CSD windows around significant SNPs

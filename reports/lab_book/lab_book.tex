@@ -1371,8 +1371,8 @@ The process of PCR amplification can introduce biases by over-amplifying some re
 Actually, I might want to keep duplicate reads. According to Ebbert et al, 2016 (doi: 10.1186/s12859-016-1097-3), PCR duplicates have minimal effect on SNP calling. It mostly matters for RNAseq.
 
 \begin{figure}
-\includegraphics[width=\textwidth]{nucleo_div_wgs/qc/PCR_duplicates.png}
-\caption{Comparison of coverage before vs after removal of duplicates in genome browser view.}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/qc/sample_comp.png}
+\caption{Comparison of read coverage between samples in genome browser view. Sample HYI-196 has very poor coverage, probably due to low amount of starting material.}
 \label{PCR_dup}
 \end{figure}
 
@@ -1385,11 +1385,16 @@ Multiqc reports all samples with 99\% mapped reads or more. The reason for this 
 Note: I had to use the -M flag in bwa-mem for downstream compatibility with picard. This marks split alignments as secondary alignments. Picard then needs to be given a queryname-sorted bam to include secondary alignments in the duplicates (coord-sorted does not work)
 
 \subsection{Genome completeness}
-BUSCO revealed a very poor genome completeness (50\% missing). I will try to reassemble the genome from the haplotype of a single male from WGS Illumina and compare the quality to the current assembly.
+BUSCO gives good results when using the Hymenoptera orthologs and \textit{Nasonia vitripennis}'s parameters. Just for comparison, I will reassemble the genome \textit{de novo} from the haplotype of a single male (with the highest coverage), using Abyss 2.0.2. Maybe it is possible to use it to improve the assembly ? (e.g. anchor additional contigs).
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/qc/sample_comp.png}
+\caption{BUSCO statistics for the anchored assembly. Produced with the Hymenoptera (odb9) database and using N. vitripennis as the Augustus species.}
+\label{PCR_dup}
+\end{figure}
 
 quick TODO:
-* assemble haplotype from good male
-* redo BUSCO with nasonia as augustus species
+
 * remove crap samples
 * Plot PI vs p-value for all SNPs in RADseq data. PI needs to be computed at for all RADseq sites from WGS data. Use this to filter loci
 

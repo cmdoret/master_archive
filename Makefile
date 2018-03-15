@@ -103,11 +103,11 @@ lab_book : $(LAB) $(MISC)
 	mv lab_book.pdf $(LAB)
 	# Compiling LaTeX report and moving it to appropriate folder
 
-.PHONY : wgs_wild_mothers
-wgs_wild_mothers : $(CORRESP)
-	bash src/wgs_wild_mothers/bwa_wgs.sh --workdir $(WGS) --ref $(REF)
-	bash src/wgs_wild_mothers/qc_gen.sh --workdir $(WGS) --ref $(REF) --out $(WGS)/qc_output
-	bash src/wgs_wild_mothers/snps_wgs.sh --workdir $(WGS) --ref $(REF) --winsize 100
+.PHONY : wgs_wild
+wgs_wild : $(CORRESP)
+	bash src/wgs_wild/bwa_wgs.sh --workdir $(WGS) --ref $(REF)
+	bash src/wgs_wild/qc_gen.sh --workdir $(WGS) --ref $(REF) --out $(WGS)/qc_output
+	bash src/wgs_wild/snps_wgs.sh --workdir $(WGS) --ref $(REF) --winsize 100
 	bash src/convert_coord/CSD_contig.sh $(HITS) \
 																			 3 \
 																			 $(CORRESP) \
