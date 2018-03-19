@@ -77,7 +77,7 @@ done
 bmonitor "WGSQC" 0
 
 # MultiQC for all samples: Incorporating samtools picard and fastqc output
-multiqc ${out_folder}/* ${map_dir}/*dup_metrics* -o $out_folder
+multiqc ${out_folder}/*  -o $out_folder
 
 # remove temporary fq
 rm -rf "$tmp_dir"

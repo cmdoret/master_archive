@@ -98,7 +98,7 @@ trimmomatic PE \$forward \$reverse \$trimF \$trimFU \$trimR \$trimRU \
             LEADING:20 TRAILING:20
 
 # Mapping paired ends reads
-bwa mem -M -t $threads $index \$trimF \$trimR > "${map_dir}/${sample}.sam"
+bwa mem -t $threads $index \$trimF \$trimR > "${map_dir}/${sample}.sam"
 
 # Convert SAM files to BAM
 samtools view -@ $threads -b -o "${map_dir}/${sample}.bam" "${map_dir}/${sample}.sam"
@@ -109,18 +109,6 @@ samtools sort -@ $threads -n "${map_dir}/${sample}.bam" -o "${map_dir}/${sample}
 # Fix mate information (adds ms and MC tags for markdup)
 samtools fixmate "${map_dir}/${sample}.nsort.bam" "${map_dir}/${sample}.fixed.bam"
 
-# Sort alignments by read name
-#samtools sort -@ $threads -n "${map_dir}/${sample}.fixed.bam" -o "${map_dir}/${sample}.fixed.nsort.bam"
-
-# Remove PCR duplicates (input needs to be name-sorted, otherwise secondary
-# alignments are not considered in the duplicates)
-#picard MarkDuplicates \
-#      I="${map_dir}/${sample}.nsort.bam" \
-#      O="${map_dir}/${sample}.dedup.bam" \
-#      M="${map_dir}/${sample}.dup_metrics.txt" \
-#      ASSUME_SORT_ORDER=queryname \
-#      REMOVE_DUPLICATES=true
-
 # Sort alignments by leftmost coordinate
 samtools sort -@ $threads "${map_dir}/${sample}.fixed.bam" \
               -o "${map_dir}/${sample}.fixed.csort.bam"
@@ -129,7 +117,7 @@ samtools index "${map_dir}/${sample}.fixed.csort.bam"
 
 # Remove sam and unsorted/temporary bam files
 rm -v "${map_dir}/${sample}.sam" \
-#      "${map_dir}/${sample}.bam" \
+      "${map_dir}/${sample}.bam" \
       "${map_dir}/${sample}*nsort*"
 
 EOF
