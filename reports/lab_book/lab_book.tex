@@ -1388,14 +1388,33 @@ Note: I had to use the -M flag in bwa-mem for downstream compatibility with pica
 BUSCO gives good results when using the Hymenoptera orthologs and \textit{Nasonia vitripennis}'s parameters. Just for comparison, I will reassemble the genome \textit{de novo} from the haplotype of a single male (with the highest coverage), using Abyss 2.0.2. Maybe it is possible to use it to improve the assembly ? (e.g. anchor additional contigs).
 
 \begin{figure}
-\includegraphics[width=\textwidth]{nucleo_div_wgs/qc/sample_comp.png}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/qc/busco_figure.png}
 \caption{BUSCO statistics for the anchored assembly. Produced with the Hymenoptera (odb9) database and using N. vitripennis as the Augustus species.}
 \label{PCR_dup}
 \end{figure}
 
-quick TODO:
+\subsection{General QC stats}
+I extracted data from multiQC and looked at the general trends between variables. I also looked for outliers.  Applying PCA  on 5 important QC features without standardisation (not very useful, figure \ref{PCA_QC}) is basically equivalent to plotting Nreads vs proportion of duplicated reads. Sample H196 stands out as an outlier with high volume of reads and duplication rates. When standardazing QC features, H196 still stands out for the same reasons, but it also has a lower GC content and higher proportion of reads mapping. The GC content is negatively correlated (Figure \ref{heat_var_QC} with duplication rates (probably due to amplification bias) and the mapping rate could be caused by some contamination (?).
 
-* Plot PI vs p-value for all SNPs in RADseq data. PI needs to be computed at for all RADseq sites from WGS data. Use this to filter loci
+Definitely excluding sample HYI-196.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/qc/pca.pdf}
+\caption{PCA using non-standardised (left) and standardized (right) QC parameters.}
+\label{PCA_QC}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/qc/var_corr.pdf}
+\caption{Variables correlations using standardised QC parameters.}
+\label{heat_var_QC}
+\end{figure}
+
+\section{Narrow CSD regions}
+I am going to use \pi nucleotide diversity from wgs on wild samples to narrow the set of candidate loci identified by association mapping on the RADseq dataset.
+
+\subsection{\pi measurements}
+SNPs were called using mpileup and \pi nucleotidic diversity was computed at all position used in the associatio mapping using vcftools.
 
 \chapter{TO DO}
 \begin{itemize}

@@ -77,10 +77,17 @@ bsub << VAR > /dev/null
 source src/misc/dependencies.sh
 
 # SNP calling in given region for all samples (keeps only variant sites)
+# File names are provided with ploidy by piping the sample list through awk
 bcftools mpileup -Ou \
                  -f "$REF" \
                  -b <(find  "${WGS}/mapped/" -name "*fixed.csort.bam" -type f ) \
-                 -r "$region" | bcftools call -vmO z -o "${snps}/$region.tmp.vcf.gz"
+                 -r "$region" | \
+  bcftools call -vmO z \
+                --samples-file <(awk -v m="./$WGS/mapped/" 'BEGIN{FS="\t"}{
+                                  if($2 == "F") {p = 2;}
+                                else {p = 1} {print m$1".fixed.csort.bam",p} }' ${WGS}/wgs_samples.tsv)
+                -o "${snps}/$region.tmp.vcf.gz"
+
 # Index vcf file
 tabix -p vcf "${snps}/$region.tmp.vcf.gz"
 

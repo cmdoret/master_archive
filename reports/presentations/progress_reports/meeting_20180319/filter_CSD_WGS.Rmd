@@ -24,8 +24,8 @@ sam <- gen %>%
   select(Sample, contains("Samtools")) %>%
   rename_all(
       funs(
-        stringr::str_replace_all(., "Samtools.Stats_", "") %>%
-        stringr::str_replace_all(., '\\.1', '')
+        str_replace_all(., "Samtools.Stats_", "") %>%
+        str_replace_all(., '\\.1', '')
       )
   ) %>%
   mutate(Sample = str_replace(Sample, "_stat", ""))
@@ -35,8 +35,8 @@ fastqc <- gen %>%
   select(Sample, contains("FastQC")) %>%
   rename_all(
       funs(
-        stringr::str_replace_all(., "FastQC_", "") %>%
-        stringr::str_replace_all(., '\\.1', '')
+        str_replace_all(., "FastQC_", "") %>%
+        str_replace_all(., '\\.1', '')
       )
   )
 
@@ -59,8 +59,8 @@ clean_qc <- sam %>%
   mutate_all(function(x) (x - mean(x, na.rm=T)) / sd(x, na.rm=T)) %>%
   rename_all(
       funs(
-        stringr::str_replace_all(., "percent(age)?", "%") %>%
-        stringr::str_replace_all(., 'reads', '')
+        str_replace_all(., "percent(age)?", "%") %>%
+        str_replace_all(., 'reads', '')
       )
   )
 
@@ -78,9 +78,7 @@ snps <- merge(x = wgs_pi,
 # Summary
 
 ## DONE
-* No need to filter PCR duplicates
-* No need to realign indels (minimal to no effect)
-    + (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5048557/)
+
 * Properly assessed genome completeness using Hymenoptera as db and nasonia as calibration species (Figure \ref{fig:busco}).
 * Excluding sample 196 due to poor overall QC stats
     + visual inspection revealed poor genome coverage and high duplication rates.
@@ -113,13 +111,13 @@ knitr::include_graphics("./busco_figure.png")
 
 
 ```{r QC_PCA, echo=F, fig.cap="\\label{fig:QC_PCA}Principal component analysis on QC parameters from fastQC and samtools."}
-res.pca <- PCA(clean_qc, graph = FALSE)
+res.pca <- PCA(clean_qc, graph = FALSE, scale.unit = F)
 
 # Percentage of variance explained by each PC
 scree <- fviz_screeplot(res.pca, ncp=10)
 
 # Contribution of each variable to the PCs
-contrib <- fviz_pca_var(res.pca, col.var="cos2",axes =c(1,2), repel = T, labelsize=3) +
+contrib <- fviz_pca_var(res.pca, col.var="contrib",axes =c(1,2), repel = T, labelsize=3) +
   scale_color_gradient2(low="white", mid="blue", 
                         high="red", midpoint=.5) + theme_minimal() + guides(color=F)
 # Variable contribution per PC
@@ -149,7 +147,7 @@ col2 <- colorRampPalette(c("#67001F", "#B2182B", "#D6604D", "#F4A582",
 
 
 #corrplot(cor_ind, method="color",type = "upper",diag = F)
-corrplot(cor_var, method="color", type = "upper", diag=F)
+corrplot(cor_var, method="color", type = "upper", diag=F,main="non-standardized")
 
 ```
 
