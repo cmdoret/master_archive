@@ -82,10 +82,8 @@ bcftools mpileup -Ou \
                  -f "$REF" \
                  -b <(find  "${WGS}/mapped/" -name "*fixed.csort.bam" -type f ) \
                  -r "$region" | \
-  bcftools call -vmO z \
-                --samples-file <(awk -v m="./$WGS/mapped/" 'BEGIN{FS="\t"}{
-                                  if($2 == "F") {p = 2;}
-                                else {p = 1} {print m$1".fixed.csort.bam",p} }' ${WGS}/wgs_samples.tsv)
+  bcftools call -mO z \
+                --samples-file <(awk -v m="$WGS/mapped/" 'BEGIN{FS="\t"} {if(\$2 == "F") {p = 2;} else {p = 1} {print m\$1".fixed.csort.bam",p} }' ${WGS}/wgs_samples.tsv) \
                 -o "${snps}/$region.tmp.vcf.gz"
 
 # Index vcf file
@@ -103,7 +101,11 @@ rm tig_sizes.tmp
 bmonitor "WGSSNP" 0
 
 # Concatenating all regions VCF files into a large one
-vcf-concat ${snps}/*tmp.vcf.gz > ${snps}/wild.vcf
+bsub -q normal \
+     -K \
+     -M 64000000 \
+     -R "rusage[mem=64000]" \
+     vcf-concat ${snps}/*tmp.vcf.gz > ${snps}/wild.vcf
 
 # Parallel sorting of concatenated VCF file
 bsub -q normal \
@@ -121,5 +123,12 @@ stats=${WGS}/stats
 rm -rf $stats
 mkdir -p $stats
 
-# Computing allelic diversity along genome
-vcftools --window-pi $WIN --vcf ${snps}/wild.sorted.vcf --out $stats/nucleo_div
+# Generate SNP matrix from VCF
+bsub -q priority "bcftools query ${snps}/wild.sorted.vcf \
+                  -f '%CHROM\t%POS[\t%GT]\n' > ${snps}/wild.matrix.txt"
+
+# separate haplotypes of diploid samples into 2 columns
+# Keeping only sites anchored to a chromosome
+paste <(cut -f1-2 ${snps}/wild.matrix.txt) \
+      <(cut -f3- ${snps}/wild.matrix.txt | sed 's#/#\t#g') | \
+      sed -n '/^chr/p' > "${snps}/hap.wild.matrix.txt"

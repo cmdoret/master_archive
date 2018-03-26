@@ -1411,10 +1411,22 @@ Definitely excluding sample HYI-196.
 \end{figure}
 
 \section{Narrow CSD regions}
-I am going to use \pi nucleotide diversity from wgs on wild samples to narrow the set of candidate loci identified by association mapping on the RADseq dataset.
+I am going to use $\pi$ nucleotide diversity from wgs on wild samples to narrow the set of candidate loci identified by association mapping on the RADseq dataset.
 
-\subsection{\pi measurements}
-SNPs were called using mpileup and \pi nucleotidic diversity was computed at all position used in the associatio mapping using vcftools.
+\subsection{$\pi$ measurements}
+SNPs were called using mpileup and $\pi$ nucleotidic diversity was computed at all position used in the associatio mapping using vcftools. I need to take ploidy into account when calling variants with mpileup. With a quick heterozygosity checkup, I confirmed all 4 females are the most heterozygous individuals (\ref{het_wgs}).
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/hom_WGS.png}
+\caption{Proportion of homozygous SNPs per individual.}
+\label{heat_var_QC}
+\end{figure}
+
+
+quick TODO:
+* check more thoroughly for orthology with transformer esp in unanchored contigs
+* recompute assoc significance in unanchored contigs (haven't done it since applying MAF filter)
+* Take ploidy into account when computing PI (haplo males
 
 \chapter{TO DO}
 \begin{itemize}
