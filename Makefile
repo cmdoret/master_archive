@@ -105,9 +105,12 @@ lab_book : $(LAB) $(MISC)
 
 .PHONY : wgs_wild
 wgs_wild : $(CORRESP)
-	bash src/wgs_wild/bwa_wgs.sh --workdir $(WGS) --ref $(REF)
-	bash src/wgs_wild/qc_gen.sh --workdir $(WGS) --ref $(REF) --out $(WGS)/qc_output
-	bash src/wgs_wild/snps_wgs.sh --workdir $(WGS) --ref $(REF) --winsize 100
+	#bash src/wgs_wild/bwa_wgs.sh --workdir $(WGS) --ref $(REF)
+	#bash src/wgs_wild/qc_gen.sh --workdir $(WGS) --ref $(REF) --out $(WGS)/qc_output
+	#bash src/wgs_wild/snps_wgs.sh --workdir $(WGS) --ref $(REF) --winsize 100
+	Rscript src/wgs_wild/compute_PI.R -i $(WGS)/variant/chr.wild.matrix.txt \
+									  -o $(WGS)/stats/win_PI.tsv \
+									  -m 'window' --step_size 100 --win_size 10000
 	bash src/convert_coord/CSD_contig.sh $(HITS) \
 																			 3 \
 																			 $(CORRESP) \

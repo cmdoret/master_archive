@@ -1422,11 +1422,21 @@ SNPs were called using mpileup and $\pi$ nucleotidic diversity was computed at a
 \label{heat_var_QC}
 \end{figure}
 
+Update :27.03.2018
+vcftools only took into account diploid sites when computing PI. I implemented my own method which works the following way.
+\begin{itemize}
+\item Get all variant and fixed sites in genome
+\item Build genotype matrix, rows as sites, columns as samples
+\item Separates haplotypes of females into separate "individuals" to obtain one column per haplotype
+\item method 1: Compute PI either at each site (adapted C++ implementation from vcftools to Rcpp)
+\item method 2: Look for missing positions and fill with NA. Then compute PI in windows. NAs are ignored, in PI value, but useful for windows coordinates.
+\end{itemize}
 
 quick TODO:
 * check more thoroughly for orthology with transformer esp in unanchored contigs
+  - Elsemiek Geuverink is doing this
 * recompute assoc significance in unanchored contigs (haven't done it since applying MAF filter)
-* Take ploidy into account when computing PI (haplo males
+
 
 \chapter{TO DO}
 \begin{itemize}

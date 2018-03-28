@@ -59,31 +59,34 @@ To run the pipeline with new data in the form of demultiplexed, trimmed reads in
 
 ### Dependencies:
 * [FastQC 0.11.5](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/): Quality control of sequencing data.
-* [BWA 0.7.2](http://bio-bwa.sourceforge.net/): Aligning sequencing reads
-* [STACKS 1.46](http://catchenlab.life.illinois.edu/stacks/): RAD-seq data processing
-* [SAMtools 1.3](http://samtools.sourceforge.net/): Manipulating SAM files
-* [VCFtools 0.1.13](https://vcftools.github.io/): Parsing VCF files
-* [BEDtools 2.25](http://bedtools.readthedocs.io/): Genome arithmetic with BED files
-* [DeepTools 2.4.2](http://deeptools.readthedocs.io/): Tools for exploring deep sequencing data
-* [CuffLinks 2.2.1](http://cole-trapnell-lab.github.io/cufflinks/): Transcriptome assembly and differential expression analysis for RNA-Seq
-* [ncbi-BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi): Suite of command-line tools to run BLAST
-* [MCScanX](http://chibba.pgml.uga.edu/mcscan2/): Multiple Collinearity Scan toolkit
+* [BWA 0.7.2](http://bio-bwa.sourceforge.net/)
+* [STACKS 1.46](http://catchenlab.life.illinois.edu/stacks/)
+* [SAMtools 1.3](http://samtools.sourceforge.net/)
+* [VCFtools 0.1.13](https://vcftools.github.io/)
+* [BEDtools 2.25](http://bedtools.readthedocs.io/)
+* [DeepTools 2.4.2](http://deeptools.readthedocs.io/)
+* [CuffLinks 2.2.1](http://cole-trapnell-lab.github.io/cufflinks/)
+* [ncbi-BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi)
+* [MCScanX](http://chibba.pgml.uga.edu/mcscan2/)
 * [R 3.3.x](https://www.r-project.org/)
-  + [readr 1.1.1](https://cran.r-project.org/web/packages/readr/README.html): Faster data loading
-  + [tidyr 0.7.0](https://cran.r-project.org/web/packages/tidyr/index.html): Easily tidy data
-  + [dplyr 0.7.2](https://www.rdocumentation.org/packages/dplyr/versions/0.7.2): Grammar of data manipulation
-  + [ggplot2 2.2.1](http://ggplot2.org/): Elegant data visualization using the grammar of graphics
-  + [ggjoy 0.3.0](https://cran.r-project.org/web/packages/ggjoy/index.html): Joyplots in ggplot2
-  + [stringr 1.2.0](https://cran.r-project.org/web/packages/stringr/index.html): Common string operations
-  + [reshape2 1.4.2](https://cran.r-project.org/web/packages/reshape2/index.html): Easily reshape data
-  + [zoo 1.8-0](https://cran.r-project.org/web/packages/zoo/index.html): Convenient sliding window functions
-  + [viridis 0.4.0](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html) Perceptually uniform and colorblind-friendly color palettes
+  + [readr 1.1.1](https://cran.r-project.org/web/packages/readr/README.html)
+  + [tidyr 0.7.0](https://cran.r-project.org/web/packages/tidyr/index.html)
+  + [dplyr 0.7.2](https://www.rdocumentation.org/packages/dplyr/versions/0.7.2)
+  + [ggplot2 2.2.1](http://ggplot2.org/)
+  + [ggjoy 0.3.0](https://cran.r-project.org/web/packages/ggjoy/index.html)
+  + [stringr 1.2.0](https://cran.r-project.org/web/packages/stringr/index.html)
+  + [reshape2 1.4.2](https://cran.r-project.org/web/packages/reshape2/index.html)
+  + [zoo 1.8-0](https://cran.r-project.org/web/packages/zoo/index.html)
+  + [Rcpp](https://cran.r-project.org/web/packages/Rcpp/)
+  + [RcppRoll](https://cran.r-project.org/web/packages/RcppRoll/)
+  + [viridis 0.4.0](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html)
+  + [optparse](https://cran.r-project.org/web/packages/optparse)
 * [Python 2.7.x](https://www.python.org/)
-  + [numpy 1.11](http://www.numpy.org/): Fast array and vectorized operations
-  + [pandas 0.19](http://pandas.pydata.org/): Convenient dataframes
-  + [matplotlib 1.5](https://matplotlib.org/): Plotting methods
-  + [biopython 1.70](http://biopython.org/): Suite of python tools for bioinformatics
-  + [pybedtools 0.7.10](http://daler.github.io/pybedtools/): Python wrapper for bedtools with extended functionality
+  + [numpy 1.11](http://www.numpy.org/)
+  + [pandas 0.19](http://pandas.pydata.org/)
+  + [matplotlib 1.5](https://matplotlib.org/)
+  + [biopython 1.70](http://biopython.org/)
+  + [pybedtools 0.7.10](http://daler.github.io/pybedtools/)
 
 ### Scripts
 

@@ -30,11 +30,11 @@ option_list = list(
               help="File containing a list of tab-separated chromosomes and positions (in base pairs) at which PI should be computed."),
   make_option(c("-w","--win_size"), 
               type="integer", 
-              default=100000, 
+              default=10000, 
               help="Size of windows in which PI is computed, in base pairs [default %default]."), 
   make_option(c("-t","--step_size"), 
               type="integer", 
-              default=10000, 
+              default=100, 
               help="Step between windows in which PI is computed, in base pairs [default %default].")
 )
 
@@ -129,6 +129,11 @@ cppFunction('double PIcpp_region(const NumericMatrix& seq){
 # Pre compute mismatches and N pairs 
 # Avoid redundant computations in overlapping windows later on
 cppFunction('NumericVector prep_PI(const IntegerVector& geno){
+  NumericVector v(2);
+  if(all(is_na(geno))){
+    v[0] = 0;
+    v[1] = 0;
+    return(v);}
   int n_alleles = (max(na_omit(geno)) + 1);
   int n_other;
   IntegerVector freqs(n_alleles);
@@ -142,20 +147,11 @@ cppFunction('NumericVector prep_PI(const IntegerVector& geno){
     mismatch = mismatch + freqs[allele] * n_other;
   }
   int pairs = tot_alleles * (tot_alleles - 1);
-  NumericVector v(2);
   v[0] = mismatch;
   v[1] = pairs;
   return(v);}'
 )
 
-
-# Compute PI on output from prep_PI
-cppFunction('double PI_win(const NumericMatrix& seq){
-  NumericVector mismatch = seq(_,0);
-  NumericVector pairs = seq(_,1);
-  double pi = sum(mismatch)/sum(pairs);
-  return(pi);}'
-)
 
 # Computes PI in windows along the genome
 slide_PI <- function(mat, pos, win, step){
@@ -166,20 +162,19 @@ slide_PI <- function(mat, pos, win, step){
     return()
   }
   
-  # Computing only once N mismatches and N pairs at all positions
+  # Computing only once N mismatches andx N pairs at all positions
   mat_stat <- matrix(ncol=2, byrow=T, apply(mat, FUN=prep_PI, MARGIN = 1))
-  
   win_start <- seq(1, (max(pos) - (win-1)), step)
   n_win <- ceiling((max(pos)-(win-1))/step)
-  
   # Initialize output structure to contain original index and pi
   out_mat <- matrix(nrow=n_win, ncol=3, byrow = F)
   out_mat[,1] <- win_start
   out_mat[,2] <- out_mat[,1] + win
-  
+  print(sprintf("Computing %i windows...", n_win))
   # Compute PI in all SNPs within window boundaries store pi
-  out_mat[,3] <- sapply(win_start, function(x) PI_win(mat_stat[pos>=x & pos<=(x+(win-1)),,drop=F]))
-  
+  mat_PI <- RcppRoll::roll_sum(mat_stat, n = win, by = step, align = 'left', na.rm = T)
+  mat_PI <- mat_PI[seq(1,nrow(mat_PI),by=step),]
+  out_mat[,3] <- mat_PI[,1]/mat_PI[,2]
   return(out_mat)
 }
 
@@ -193,7 +188,10 @@ for(chr in unique(pull(snp_tbl, 1))){
   print(paste0("Computing PI for ", chr))
   chr_mat <- snp_mat[snp_tbl$X1==chr,]
   if(opt$m=="window"){
-    chr_slide <- slide_PI(chr_mat, pos=snp_tbl$X2[snp_tbl$X1==chr], win=opt$win_size, step=opt$step_size)
+    # If positions are missing, add them as missing calls (easier for windows)
+    full_chr <- matrix(nrow=max(snp_tbl[snp_tbl$X1==chr,2]),ncol=ncol(snp_mat))
+    full_chr[snp_tbl$X2[snp_tbl$X1==chr],] <- chr_mat
+    chr_slide <- slide_PI(full_chr, pos=snp_tbl$X2[snp_tbl$X1==chr], win=opt$win_size, step=opt$step_size)
     out <- rbind(out,cbind(rep(chr),chr_slide))
   } else{
     out_PI[snp_tbl$X1 == chr, 3] <- apply(chr_mat, MARGIN = 1, FUN = PIcpp)
@@ -201,6 +199,6 @@ for(chr in unique(pull(snp_tbl, 1))){
 }
 
 print(paste0("Saving output to ", opt$o))
-if(opt$m=="window") out_PI <- out
+if(opt$m=="window") {out_PI <- out}
 # Write PI values to output ####
 write_tsv(out_PI, opt$out,col_names = F)

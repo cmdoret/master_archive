@@ -4,22 +4,25 @@
 # Cyril Matthey-Doret
 # 18.08.2017
 
-#======== LOAD DATA =========#
+#======== LOAD DATA =========####
 # Loading libraries for data processing and visualisation
-library(dplyr);library(readr);library(ggplot2); library(gridExtra)
+library(dplyr);library(readr);library(ggplot2); library(gridExtra); librar
+packs <- c("dplyr","readr","ggplot2","gridExtra","viridis")
+packs <- suppressPackageStartupMessages(sapply(packs, library, character.only=T, quietly=T))
 in_args <- commandArgs(trailingOnly = T)
+signif <- 0.00001
 # Input table with proportion of homozygous individuals
 hom_path <-in_args[1]
 sum_stat <- read_tsv(file=hom_path, col_names=T, col_types = "icidddddd")
 # Output folder
 out_folder <- in_args[2]
 
-#======= PROCESS DATA =======#
+#======= PROCESS DATA =======####
 # Cleaning input table: removing SNPS absent in all samples
 sum_stat <- sum_stat[sum_stat$N.Males>0 & sum_stat$N.Females>0,]
 sum_stat <- sum_stat[sum_stat$Prop.Hom<1,]
 
-#==== COMPUTE STATISTICS ====#
+#==== COMPUTE STATISTICS ====####
 # Output single file with corrected significant p-values with
 # associatied SNP and category.
 # Abbreviations: M: Males, F: Females, T: Male+Female, 
@@ -58,67 +61,67 @@ odds_list$fisher <- apply(odds_list, 1,  get_fisher)
 
 # Correcting p-values for multiple testing
 odds_list$fisher <- p.adjust(odds_list$fisher, method = "BH")
+# Transform to qvalue -log10 for convenience
+odds_list$fisher <- round(-log10(odds_list$fisher),4)
 
-#========= VISUALISE ========#
+#========= VISUALISE ========####
 # Only including contigs that have been placed into chromosomes
 odds_chrom <- odds_list[grep("chr.*",odds_list$Chr),]
+# Unmapped contigs
+odds_cont <- odds_list[grep("tig.*",odds_list$Chr),]
 
 # Computing raw effect size:
-# Direction: effect stronger in females or males ?
-#odds_chrom$effect_dir <- as.factor(ifelse(odds_chrom$Fe/odds_chrom$Fo > odds_chrom$Mo/odds_chrom$Me, yes="Female", no="Male"))
-# Ratio Female effect size / Male effect size
-odds_chrom$effect_dir <- (odds_chrom$Fe/odds_chrom$Ft)/(odds_chrom$Mo/odds_chrom$Mt)
-odds_chrom$effect_str <- ((odds_chrom$Fe/odds_chrom$Ft)*(odds_chrom$Mo/odds_chrom$Mt))
-# Setting boundaries of 2X ratio for easy visualisation
-odds_chrom$effect_dir[odds_chrom$effect_dir > 2] <- 2
-odds_chrom$effect_dir[odds_chrom$effect_dir < 0.5] <- 0.5
-femcol <- "#ffff00"; malecol <- "#0000ff"
-# IDEA: Map effect ratio between sex to hue (M=blue;F=red) and sum of effect strengths to saturation.
+# Proportion of homozygous males is a good measure for CSD
+odds_chrom$effect_str <- odds_chrom$Me/(odds_chrom$Mo+odds_chrom$Me)
+odds_chrom$effect_str[odds_chrom$effect_str>0.5] <- 0.5
+
 # Saving manhattan plot to pdf
 pdf(paste0(out_folder, "/../plots/","case_control_hits.pdf"), width=12, height=12)
-manhattan <- ggplot(data=odds_chrom, aes(x=BP/1000000, y=-log10(fisher))) + 
-  geom_point(aes(col=log10(effect_dir)), size = 2) + 
+ggplot(data=odds_chrom, aes(x=BP/1000000, y=fisher)) + 
+  geom_point(aes(col=effect_str), size = 2) + 
   facet_grid(~Chr, space='free_x', scales = 'free_x') +  
-  geom_hline(aes(yintercept=-log10(0.001)), lty=2, col='red') + xlab("Genomic position (Mb)") + 
+  geom_hline(aes(yintercept=-log10(signif)), lty=2, col='red') + xlab("Genomic position (Mb)") + 
   ylab("-log10 p-value") + ggtitle("Case-control association test for CSD") + 
-  ylim(c(0,10)) + theme_bw() + guides(col=guide_colorbar(title="Strongest effect")) + 
-  scale_colour_gradient(low = malecol, high = femcol,
-                        space = "Lab", na.value = "grey50") + 
-  geom_point(aes(alpha=1-effect_str),col="#444444") + theme(legend.position = "none")
-direct <- range(odds_chrom$effect_dir)
-strength <- range(1-(odds_chrom$effect_str))
-legdata <- expand.grid(direct = seq(direct[1],direct[2],(direct[2]-direct[1])/20), 
-                       strength = seq(strength[1], strength[2], (strength[2]-strength[1])/20))
+  ylim(c(0,10)) + theme_bw() + guides(col=guide_colorbar(title="Het. males")) + 
+  scale_color_viridis()
 
-legend <- ggplot(legdata) + geom_tile(aes(direct, strength, fill = direct)) + 
-  scale_fill_gradient(low = malecol, high = femcol) + 
-  geom_tile(aes(direct, strength, alpha = 1-strength)) + 
-  scale_x_continuous(expand=c(0,0)) + 
-  scale_y_continuous(expand=c(0,0)) + 
-  theme(panel.background=element_blank(), panel.grid=element_blank(), 
-        legend.position = "none", axis.ticks = element_blank(), 
-        axis.text = element_blank()) + 
-  coord_fixed(ratio = 4) + labs(title="Legend")
-
-plt <- arrangeGrob(manhattan, legend, nrow=1, widths=c(3,0.8))  
-grid.arrange(plt)
 #grid.arrange(manhattan, legend)
 dev.off()
 #low = "#00bfc4", high = "#f8766d"
-# Unmapped contigs
-odds_cont <- odds_list[grep("tig.*",odds_list$Chr),]
-tigs <- unique(odds_cont$Chr[odds_cont$fisher<0.001])  # Contigs with significant hits
-odds_cont <- odds_cont[odds_cont$Chr %in% tigs,]
-ggplot(data=odds_cont, aes(x=BP, y=-log10(fisher))) + geom_point() + 
-  geom_hline(aes(yintercept=-log10(0.05))) + geom_hline(aes(yintercept=-log10(0.001)), lty=2, col='red') + 
-  xlab("Genomic position") + ylab("-log10 p-value") + ggtitle("Case-control association test for CSD: Unordered contigs") + 
-  ylim(c(0,10)) + facet_grid(~Chr, scales='free_x', space='free_x') + theme_bw()
-#======= WRITE OUTPUT =======#
+viz_cont <- odds_cont %>%
+  group_by(Chr) %>%
+  summarise(size=max(BP)) %>%
+  ungroup() %>%
+  mutate(cumSize = lag(cumsum(size), default=0), 
+         idx = 1:n(), 
+         colVal = idx %% 2 + 1) %>%
+  inner_join(., odds_cont, by="Chr")
+
+viz_cont$BP <- viz_cont$BP + viz_cont$cumSize
+rects <- viz_cont %>% 
+  select(Chr, size, cumSize, idx) %>%
+  distinct(Chr,size,cumSize)
+
+ggplot(data=viz_cont, aes(x=BP, y=fisher, col=as.factor(colVal))) + geom_point() + 
+  
+  geom_hline(aes(yintercept=-log10(signif)), lty=2, col='red') + 
+  xlab("Genomic position") + ylab("-log10 p-value") + 
+  ggtitle("Case-control association test for CSD: Unordered contigs") + 
+  ylim(c(0,10)) + theme_bw() 
+
+#======= WRITE OUTPUT =======####
 # Writing table of significant hits to text file
-odds_chrom$fisher <- round(-log10(odds_chrom$fisher),4)
-odds_chrom_sig <- odds_chrom[odds_chrom$fisher>=-log10(0.05),]
+odds_chrom_sig <- odds_chrom[odds_chrom$fisher>=-log10(signif),]
+odds_cont_sig <- odds_cont[odds_cont$fisher>=-log10(signif),]
 write.table(odds_chrom_sig, paste0(out_folder, "case_control_hits.tsv"), 
             sep='\t', row.names=F, quote=F)
 
 write.table(odds_chrom, paste0(out_folder, "case_control_all.tsv"), 
             sep='\t', row.names=F, quote=F)
+
+write.table(odds_cont_sig, paste0(out_folder, "unanchored_hits.tsv"), 
+            sep='\t', row.names=F, quote=F)
+
+write.table(odds_cont, paste0(out_folder, "unanchored_all.tsv"), 
+            sep='\t', row.names=F, quote=F)
+
