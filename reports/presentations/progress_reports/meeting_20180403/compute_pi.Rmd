@@ -1,0 +1,72 @@
+---
+title: "computing PI"
+author: "Cyril Matthey-Doret"
+date: "28/03/2018"
+output: pdf_document
+---
+
+# Basic method
+
+## Pseudocode implementation
+
+Reused vcftools algorithm:
+* Bases that are not called (NA) will not be counted in pairs
+* Fixed bases that are called will count in pairs and decrease pi
+
+```{r eval=F}
+pairs = 0
+mismatch = 0
+
+for pos in sequence:
+  for allele in pos:
+    n_other = pos.freq[all] - pos.freq[allele]
+    mismatch += pos.freq[allele] * n_other
+  pairs += pos.freq[all] * (pos.freq[all] - 1)
+  pi[pos] = mismatch/pairs
+```
+
+## Variants
+
+* Computing PI per site or in windows ($\frac{sum(mismatch)}{sum(pairs)}$ in each window)
+* Including only SNPs vs all fixed sites and SNPs.
+* Weighting windows per total number of alleles (only useful if using a smoother)
+
+# Results
+
+## Note on association mapping
+* Recolored SNPs according to proportion of homozygous males only
+    + 1 peak stands out: Figure \ref{fig:chr_assoc}
+* Checked for GWAS hits on non-anchored contigs again after adding MAF filter
+    + No interesting contig: Figure \ref{fig:tig_assoc}
+
+## PI values
+
+* Window size does not have much effect.
+* 
+
+# Ideas/follow-up
+Metric to quantify correlation between p-value and PI: Identify peaks of correlation
+
+```{r chr_assoc, echo=F, fig.cap="\\label{fig:chr_assoc}Manhattan plot of the association mapping for CSD using a minor allele frequency filter at 10%. SNPs are colored according to the proportion of heterozygous males (high = bas) and p-values are corrected using the BH procedure. Only SNPs that were anchored to chromosomes are shown"}
+knitr::include_graphics("chrom_manhattan.pdf")
+
+```
+
+
+```{r tig_assoc, echo=F, fig.cap="\\label{fig:tig_assoc}Manhattan plot of the association mapping for CSD using a minor allele frequency filter at 10%. SNPs are colored according to the proportion of heterozygous males (high = bas) and p-values are corrected using the BH procedure. Only SNPs from unanchored contigs are shown. SNP color denotes appartenance to a contig with significant GWAS hit and background stripes show contig boundaries."}
+knitr::include_graphics("unanchored_manhattan.pdf")
+
+```
+
+## Different window sizes
+
+Trying out different windows sizes for computing PI.
+
+```{r PI, echo=F}
+setwd("../../../../")
+library(ggplot2);library(dplyr)
+PI_100 <- read_tsv("")
+PI_1000 <- read.tsv("")
+PI_10000 <- read.tsv("")
+
+```

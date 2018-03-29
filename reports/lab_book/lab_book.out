@@ -74,14 +74,15 @@
 \BOOKMARK [1][-]{section.16.3}{Estimating genotype miscall rate}{chapter.16}% 74
 \BOOKMARK [1][-]{section.16.4}{sequentially dropping loci}{chapter.16}% 75
 \BOOKMARK [1][-]{section.16.5}{pushing parameters}{chapter.16}% 76
-\BOOKMARK [0][-]{chapter.17}{Comparison with bee CSD players}{}% 77
-\BOOKMARK [1][-]{section.17.1}{Feminizer}{chapter.17}% 78
-\BOOKMARK [0][-]{chapter.18}{Nucleotidic diversity in wild individuals}{}% 79
-\BOOKMARK [1][-]{section.18.1}{Quality control}{chapter.18}% 80
-\BOOKMARK [2][-]{subsection.18.1.1}{Duplicated reads}{section.18.1}% 81
-\BOOKMARK [2][-]{subsection.18.1.2}{Mapping statistics}{section.18.1}% 82
-\BOOKMARK [2][-]{subsection.18.1.3}{Genome completeness}{section.18.1}% 83
-\BOOKMARK [2][-]{subsection.18.1.4}{General QC stats}{section.18.1}% 84
-\BOOKMARK [1][-]{section.18.2}{Narrow CSD regions}{chapter.18}% 85
-\BOOKMARK [2][-]{subsection.18.2.1}{ measurements}{section.18.2}% 86
-\BOOKMARK [0][-]{chapter.19}{TO DO}{}% 87
+\BOOKMARK [1][-]{section.16.6}{Minor allele frequency}{chapter.16}% 77
+\BOOKMARK [0][-]{chapter.17}{Comparison with bee CSD players}{}% 78
+\BOOKMARK [1][-]{section.17.1}{Feminizer}{chapter.17}% 79
+\BOOKMARK [0][-]{chapter.18}{Nucleotidic diversity in wild individuals}{}% 80
+\BOOKMARK [1][-]{section.18.1}{Quality control}{chapter.18}% 81
+\BOOKMARK [2][-]{subsection.18.1.1}{Duplicated reads}{section.18.1}% 82
+\BOOKMARK [2][-]{subsection.18.1.2}{Mapping statistics}{section.18.1}% 83
+\BOOKMARK [2][-]{subsection.18.1.3}{Genome completeness}{section.18.1}% 84
+\BOOKMARK [2][-]{subsection.18.1.4}{General QC stats}{section.18.1}% 85
+\BOOKMARK [1][-]{section.18.2}{Narrow CSD regions}{chapter.18}% 86
+\BOOKMARK [2][-]{subsection.18.2.1}{ measurements}{section.18.2}% 87
+\BOOKMARK [0][-]{chapter.19}{TO DO}{}% 88

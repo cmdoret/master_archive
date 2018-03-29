@@ -31,7 +31,7 @@ $(ASSOC)/grouped_prophom.tsv :
 
 # Association mapping
 .PHONY : assoc_mapping
-assoc_mapping : $(CENTRO) $(ASSOC)/grouped_prophom.tsv
+assoc_mapping : $(CENTRO) $(SIZES) $(ASSOC)/grouped_prophom.tsv
   # Creating folder to store association mapping results
 	mkdir -p $(ASSOC)/plots
 	mkdir -p $(ASSOC)/hits
@@ -79,6 +79,11 @@ $(CORRESP):
 																						-c $(CORRESP) \
 																						2> $(LOG)/corresp.log
 
+# Store sizes of all contigs in text file
+$(SIZES):
+	awk '$$0 ~ ">" {print c; c=0;printf substr($$0,2,100) "\t"; } \
+			 $$0 !~ ">" {c+=length($$0);} END { print c; }' $(REF) > $@
+
 # Preparing input file for collinearity analysis. Run MCScanX on files manually
 .PHONY : mult_align
 mult_align : $(RNA)/assembled/
@@ -104,13 +109,13 @@ lab_book : $(LAB) $(MISC)
 	# Compiling LaTeX report and moving it to appropriate folder
 
 .PHONY : wgs_wild
-wgs_wild : $(CORRESP)
+wgs_wild : $(CORRESP) $(SIZES)
 	#bash src/wgs_wild/bwa_wgs.sh --workdir $(WGS) --ref $(REF)
 	#bash src/wgs_wild/qc_gen.sh --workdir $(WGS) --ref $(REF) --out $(WGS)/qc_output
 	#bash src/wgs_wild/snps_wgs.sh --workdir $(WGS) --ref $(REF) --winsize 100
 	Rscript src/wgs_wild/compute_PI.R -i $(WGS)/variant/chr.wild.matrix.txt \
-									  -o $(WGS)/stats/win_PI.tsv \
-									  -m 'window' --step_size 100 --win_size 10000
+									  -o $(WGS)/stats/win_w100_t10_PI.tsv \
+									  -m 'window' --step_size 10 --win_size 100
 	bash src/convert_coord/CSD_contig.sh $(HITS) \
 																			 3 \
 																			 $(CORRESP) \

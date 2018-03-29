@@ -43,6 +43,7 @@ LAB=reports/lab_book
 MISC=src/misc
 REF=$(DAT)/ref_genome/ordered_genome/merged.fasta
 REF-ANN=$(DAT)/ref_genome/ordered_genome/merged.fasta.ann
+SIZES=$(DAT)/ref_genome/tig.sizes.txt
 
 # Ploidy: exclude haplomales
 VCFSUM=$(DAT)/ploidy/vcftools/summary_full.txt

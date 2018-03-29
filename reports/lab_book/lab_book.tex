@@ -1340,6 +1340,24 @@ Dropped & Hom. Females \\
 Low priority, on hold
 To minimize the part of the effect that is due to differing number of individuals, I will try increasing the minimum proportion of samples in which SNPs must be found (currently 0.8). I will also try with a coverage of 10, to have more confident calls.
 
+\section{Minor allele frequency}
+Update: 29.03.2018
+To remove "uninteresting" loci with a very rare alternative allele, I added a minor allele frequency filter of 10\% at the population stage. I also use the raw proportion of homozygous males as an additional measure to assess the validity of candidate loci (Figure \ref{manhattan_MAF}).
+
+Because the MAF filter affected association mapping results, I also double checked for significant hits on unanchored contigs (Figure \ref{unanchored_MAF)}.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{valid_CSD/MAF_chrom_manhattan.pdf}
+\caption{Manhattan plot of the association mapping for CSD after applying a minor allele frequency (MAF) filter of 10\%. P-values are corrected for multiple testing and SNPs are colored according to the proportion of heterozygous males (higher values mean poor candidates). Only SNPs that are anchored on the chromosomes are included.}
+\label{manhattan_MAF}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{valid_CSD/MAF_unanchored_manhattan.pdf}
+\caption{Manhattan plot of the association mapping for CSD after applying a minor allele frequency (MAF) filter of 10\%. P-values are corrected for multiple testing. Only SNPs from unanchored contigs are included. Alternate background color represent contig boundaries and SNP color denotes appartenance to a contig with a significant hit. }
+\label{unanchored_MAF}
+\end{figure}
+
 \chapter{Comparison with bee CSD players}
 
 \section{Feminizer}
@@ -1435,7 +1453,7 @@ vcftools only took into account diploid sites when computing PI. I implemented m
 quick TODO:
 * check more thoroughly for orthology with transformer esp in unanchored contigs
   - Elsemiek Geuverink is doing this
-* recompute assoc significance in unanchored contigs (haven't done it since applying MAF filter)
+
 
 
 \chapter{TO DO}
