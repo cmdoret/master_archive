@@ -1449,10 +1449,26 @@ vcftools only took into account diploid sites when computing PI. I implemented m
 \item method 1: Compute PI either at each site (adapted C++ implementation from vcftools to Rcpp)
 \item method 2: Look for missing positions and fill with NA. Then compute PI in windows. NAs are ignored, in PI value, but useful for windows coordinates.
 \end{itemize}
+\FloatBarrier
+\subsection{$\pi$ results}
+Computing $\pi$ in windows across the genome revealed high variations and a strong impact of the window size used (Figure \ref{win_size_pi}). Windows of 100bp are too small given the SNP density in the genome. Both 1kb and 10kb windows seem appropriate, but I wil be using 10kb as it seems to reveal more variability.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/win_size_PI.pdf}
+\caption{Genome wide PI values computed in windows of different sizes (100, 1000 and 10000 bp. The plotting area is divided into a grid of hexagonal bins. The number of windows falling into the hex bins is used to color them.}
+\label{win_size_pi}
+\end{figure}
+
+Note: When including only SNPs, I observed a strong increase of PI around 10Mb on chromosome 3. When including fixed sites as well, this increase disappears. This is especially apparent when looking at the neighbourhood of RADseq SNPs (10kb), where there is a decrease of PI in that region when fixed sites are included. I think this would mean there are fewer variants in that region, but these variants have more diversity (?).
 
 quick TODO:
-* check more thoroughly for orthology with transformer esp in unanchored contigs
-  - Elsemiek Geuverink is doing this
+* Region of high PI in chromosome 3:
+	- PCA in region vs PCA on whole genome
+	- Optional: tree on whole genome vs tree in region
+	- If interesting stuff: look at metrics used to compute haplotype divergence (lack of recombination) in heliconius supergenes (and ruffs)
+
+	-Optional2: PCA $->$ kmeans (k=2) $->$ cluster separation score (intra vs inter group variance)
+* CSD: Compare PI around RADseq SNPs vs surrounding (mutually exclusive windows): barplot Up/candidate/down with diff win sizes
 
 
 

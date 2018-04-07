@@ -116,6 +116,8 @@ wgs_wild : $(CORRESP) $(SIZES)
 	Rscript src/wgs_wild/compute_PI.R -i $(WGS)/variant/chr.wild.matrix.txt \
 									  -o $(WGS)/stats/win_w100_t10_PI.tsv \
 									  -m 'window' --step_size 10 --win_size 100
+	Rscript src/wgs_wild/compute_PI.R -i $(WGS)/variant/chr.wild.matrix.txt \
+									  -o $(WGS)/stats/sites_PI.tsv -m 'site'
 	bash src/convert_coord/CSD_contig.sh $(HITS) \
 																			 3 \
 																			 $(CORRESP) \

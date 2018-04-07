@@ -194,7 +194,9 @@ for(chr in unique(pull(snp_tbl, 1))){
     chr_slide <- slide_PI(full_chr, pos=snp_tbl$X2[snp_tbl$X1==chr], win=opt$win_size, step=opt$step_size)
     out <- rbind(out,cbind(rep(chr),chr_slide))
   } else{
-    out_PI[snp_tbl$X1 == chr, 3] <- apply(chr_mat, MARGIN = 1, FUN = PIcpp)
+    tmp_mat <- matrix(ncol=2, byrow=T, apply(chr_mat, FUN=prep_PI, MARGIN = 1))
+    out_PI[snp_tbl$X1 == chr, 3] <- tmp_mat[,1]/tmp_mat[,2]
+    #out_PI[snp_tbl$X1 == chr, 3] <- apply(chr_mat, MARGIN = 1, FUN = PIcpp)
   }
 }
 
