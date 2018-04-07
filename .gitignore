@@ -12,6 +12,8 @@ circos.*
 ## R hidden files
 .Rhistory
 .RData
+.rdb
+.rdx
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
