@@ -1,0 +1,9 @@
+base
+ggplot2
+dplyr
+readr
+viridisLite
+viridis
+tidyr
+bindrcpp
+hexbin
