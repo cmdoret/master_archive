@@ -11,11 +11,10 @@ In this project, we use restriction-site associated DNA-sequencing (RAD-seq) and
 ## Instructions:
 To run the pipeline with the data provided:
 1. Place a copy of this repository on a cluster which supports LSF commands.
-2. Replace paths accordingly in ```config.mk```
-3. Download the `data` archive (not available yet) into the main folder
-4. ```cd``` to the main folder
-5. Untar the data using ```tar -xzvf data.tar.gz data```
-6. Type ```make``` to run the pipeline
+2. Download the `data` archive (not available yet) into the main folder
+3. ```cd``` to the main folder
+4. Untar the data using ```tar -xzvf data.tar.gz data```
+5. Type ```make``` to run the pipeline
 
 To run the pipeline with new data in the form of demultiplexed, trimmed reads in compressed fastq files (.fq.gz):
 1. Describe your samples by writing 2 files named `popmap.tsv` and `individuals.tsv`, respectively. The structure of the `popmap.tsv` file is described on the [official STACKS website](http://catchenlab.life.illinois.edu/stacks/manual/) (here, populations should be the sex of individuals). The `individuals.tsv` file is a tab delimited text file with 4 columns with the following headers __included__:

@@ -1459,7 +1459,9 @@ Computing $\pi$ in windows across the genome revealed high variations and a stro
 \label{win_size_pi}
 \end{figure}
 
-Note: When including only SNPs, I observed a strong increase of PI around 10Mb on chromosome 3. When including fixed sites as well, this increase disappears. This is especially apparent when looking at the neighbourhood of RADseq SNPs (10kb), where there is a decrease of PI in that region when fixed sites are included. I think this would mean there are fewer variants in that region, but these variants have more diversity (?).
+There are peaks of nucleotidic diversity on chromosomes 2, 3, 4 and 5.  These peaks do not seem to overlap with RADseq SNPs with high scores for CSD association.
+
+Because of these strong local variations of nucleotidic diversity, I computed the local diversity around all significant RADseq SNPs versus the upstream and downstream diversity. This should show whether the SNPs "stand out" compared to local background (Figure \ref{local_PI_RAD}). The region around significant SNPs did not seem to "stand out" from local background.
 
 quick TODO:
 * Region of high PI in chromosome 3:
@@ -1471,6 +1473,15 @@ quick TODO:
 * CSD: Compare PI around RADseq SNPs vs surrounding (mutually exclusive windows): barplot Up/candidate/down with diff win sizes
 
 
+\chapter{Allele segregation in wild samples}
+The peaks of diversity observed in wild samples are intriguing and I will have a quick look at the segregation of alleles in these regions and whether it concords with the population structure based on the whole genome. 
+
+The idea is to perform a PCA on the whole genome to visualize the genetic distance between samples.
+
+\section{Preprocessing}
+I will be using SNPs only and therefore exclude fixed sites. PCA is commonly performed using (0/1/2) encoding on diploid samples where the number represents the number of non-reference alleles. In my case, samples are haploid and I could use the same strategy by encoding sites as 0/1. 
+
+The issue when using this approach is that alternative alleles are pooled together under a single identity. In this case, we have sild samples which might have several different alleles at a single site. Another possibility is to use dummy variables for each allele and denote presence or absence.
 
 \chapter{TO DO}
 \begin{itemize}

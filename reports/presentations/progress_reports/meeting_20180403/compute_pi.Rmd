@@ -10,6 +10,7 @@ output: pdf_document
 ## Pseudocode implementation
 
 Reused vcftools algorithm:
+
 * Bases that are not called (NA) will not be counted in pairs
 * Fixed bases that are called will count in pairs and decrease pi
 
@@ -137,7 +138,7 @@ ggplot(data=snps, aes(x=BP/zoom, y=around10k, col=fisher<5)) +
 ```
 
 
-```{r up_down_PI, dependson='RAD_PI', cache=T, cache.lazy=F, echo=F, fig.cap="\\label{fig:up_down}PI values of the local (10kb) neighbourhood of each significant RADseq SNP compared to upstream and downstream regions. Regions belonging to a SNP are linked by a segment."}
+```{r up_down_PI10k, dependson='RAD_PI', cache=T, cache.lazy=F, echo=F, fig.cap="\\label{fig:up_down}PI values of the local (10kb) neighbourhood of each significant RADseq SNP compared to upstream and downstream regions. Regions belonging to a SNP are linked by a segment."}
 
 # Comparing PI value around RADseq candidates vs upstream and downstream background
 snps$up = snps$down <- NA
@@ -160,6 +161,60 @@ ggplot(data=long_sig, aes(x=position, y=PI)) +
   geom_segment(data=sig, aes(x=2,y=around10k,xend=3,yend=down)) +
   geom_point(aes(col=Chr))+
   scale_x_discrete(labels=c("Upstream\n[-20k:-10k]", "Candidate\n[-10k:+10k]", "Downstream\n[+10k:+20k]")) +
+  theme_bw()
+
+```
+
+```{r up_down_PI1k, dependson='RAD_PI1k', cache=T, cache.lazy=F, echo=F, fig.cap="\\label{fig:up_down}PI values of the local (10kb) neighbourhood of each significant RADseq SNP compared to upstream and downstream regions. Regions belonging to a SNP are linked by a segment."}
+around <- 1000
+# Comparing PI value around RADseq candidates vs upstream and downstream background
+snps$up = snps$down <- NA
+for(chr in unique(RAD$Chr)){
+  PI_chr <- PI_sites %>% filter(Chr==chr)
+  snps$up[snps$Chr==chr] <- sapply(snps$BP[snps$Chr==chr], 
+                                          function(x) mean(PI_chr$PI[PI_chr$BP > (x+around) & 
+                                                                     PI_chr$BP < (x+2*around)], na.rm=T))
+  snps$down[snps$Chr==chr] <- sapply(snps$BP[snps$Chr==chr], 
+                                          function(x) mean(PI_chr$PI[PI_chr$BP > (x-2*around) & 
+                                                                     PI_chr$BP < (x-around)], na.rm=T))
+}
+sig <- snps[snps$fisher >=5,]
+long_sig <- gather(sig, position, PI, around10k:up, factor_key=TRUE)
+long_sig$position <- factor(long_sig$position, ordered = T, levels = c("up", "around10k", "down"))
+
+ggplot(data=long_sig, aes(x=position, y=PI)) +
+  geom_boxplot() + 
+  geom_segment(data=sig, aes(x=1,y=up,xend=2,yend=around10k)) + 
+  geom_segment(data=sig, aes(x=2,y=around10k,xend=3,yend=down)) +
+  geom_point(aes(col=Chr))+
+  scale_x_discrete(labels=c("Upstream\n[-2k:-1k]", "Candidate\n[-1k:+1k]", "Downstream\n[+1k:+2k]")) +
+  theme_bw()
+
+```
+
+```{r up_down_PI100, dependson='RAD_PI100', cache=T, cache.lazy=F, echo=F, fig.cap="\\label{fig:up_down}PI values of the local (10kb) neighbourhood of each significant RADseq SNP compared to upstream and downstream regions. Regions belonging to a SNP are linked by a segment."}
+around <- 100
+# Comparing PI value around RADseq candidates vs upstream and downstream background
+snps$up = snps$down <- NA
+for(chr in unique(RAD$Chr)){
+  PI_chr <- PI_sites %>% filter(Chr==chr)
+  snps$up[snps$Chr==chr] <- sapply(snps$BP[snps$Chr==chr], 
+                                          function(x) mean(PI_chr$PI[PI_chr$BP > (x+around) & 
+                                                                     PI_chr$BP < (x+2*around)], na.rm=T))
+  snps$down[snps$Chr==chr] <- sapply(snps$BP[snps$Chr==chr], 
+                                          function(x) mean(PI_chr$PI[PI_chr$BP > (x-2*around) & 
+                                                                     PI_chr$BP < (x-around)], na.rm=T))
+}
+sig <- snps[snps$fisher >=5,]
+long_sig <- gather(sig, position, PI, around10k:up, factor_key=TRUE)
+long_sig$position <- factor(long_sig$position, ordered = T, levels = c("up", "around10k", "down"))
+
+ggplot(data=long_sig, aes(x=position, y=PI)) +
+  geom_boxplot() + 
+  geom_segment(data=sig, aes(x=1,y=up,xend=2,yend=around10k)) + 
+  geom_segment(data=sig, aes(x=2,y=around10k,xend=3,yend=down)) +
+  geom_point(aes(col=Chr))+
+  scale_x_discrete(labels=c("Upstream\n[-200:-100]", "Candidate\n[-100:+100]", "Downstream\n[+100:+200]")) +
   theme_bw()
 
 ```

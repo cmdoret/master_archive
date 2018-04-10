@@ -78,25 +78,6 @@ print("data loaded")
 
 # Functions ####
 
-# Computes PI at a given site
-cppFunction('double PIcpp(const IntegerVector& geno){
-  int n_alleles = (max(na_omit(geno)) + 1);
-  int n_other;
-  IntegerVector freqs(n_alleles);
-  for(int allele = 0; allele < n_alleles; allele++){
-    freqs[allele] = std::count(geno.begin(), geno.end(), allele);
-  }
-  int tot_alleles = sum(freqs);
-  double mismatch = 0.0;
-  for(int allele = 0; allele < n_alleles; allele++){
-    n_other = tot_alleles - freqs[allele];
-    mismatch = mismatch + freqs[allele] * n_other;
-  }
-  int pairs = tot_alleles * (tot_alleles - 1);
-  double pi = mismatch / pairs;
-  return(pi);}'
-)
-
 
 # OBSOLETE (slow) Computes PI in a input genomic region. 
 # Input: Each base pair is a row, each haplotype is a col.
@@ -158,7 +139,7 @@ slide_PI <- function(mat, pos, win, step){
   
   # Check whether parameters make sense
   if(any(win > max(pos), step == 0, win == 0, step > win)){
-    print("bad input parameters. Is your stepsize > window size, or matrix smaller than window ?")
+    print("Bad input parameters. Is your step size > window size, or matrix smaller than window ?")
     return()
   }
   
@@ -196,7 +177,6 @@ for(chr in unique(pull(snp_tbl, 1))){
   } else{
     tmp_mat <- matrix(ncol=2, byrow=T, apply(chr_mat, FUN=prep_PI, MARGIN = 1))
     out_PI[snp_tbl$X1 == chr, 3] <- tmp_mat[,1]/tmp_mat[,2]
-    #out_PI[snp_tbl$X1 == chr, 3] <- apply(chr_mat, MARGIN = 1, FUN = PIcpp)
   }
 }
 

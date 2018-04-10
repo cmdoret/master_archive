@@ -1,0 +1,78 @@
+---
+title: "Alleles segregation"
+author: "Cyril Matthey-Doret"
+date: "09/04/2018"
+output: pdf_document
+---
+
+# Intro
+
+To look into the segregation of alleles at peaks of allelic diversity. I will be comparing the results of PCA at the whole genome level, versus in the individual regions. 
+
+
+```{r setup, echo=F}
+packs <- c("ggplot2","dplyr","readr","viridis", "magrittr", "gridExtra")
+packs <- sapply(packs, library, quietly=T, character.only=T)
+
+setwd("../../../../")
+raw_snp <- read_tsv("data/wgs_wild/variant/snp.chr.wild.matrix.txt", col_names=F, na='.')
+# Remove SNPs where non-reference allele is fixed
+snp <- raw_snp %>% filter_at(-(1:2), any_vars(.!=1))
+alt_snp <- snp %>% filter_at(-(1:2), any_vars(.>1))
+zoom <- 10^6
+```
+
+# Preprocessing
+
+Fixed sites are not useful to characterize genetic distances between individuals. To only include sites that are variable within the current sample, I removed all ```r raw_snp %>% filter_at(-(1:2), all_vars(.==1)) %>% nrow(.)``` sites where an alternative allele was fixed. When performing PCA on a genotype matrix there are two possibilities to encode alleles. 
+
+1. All non-reference alleles can be pooled together and the metric used is the number of non-reference alleles.
+2. All alternative alleles are kept as separate "dummy" variables and the metric is the presence/absence of each allele.
+
+Because the samples we have show peaks of nucleotidic diversity and are quite diverse, I will first check if the regions with more than one alternative allele seem to be concentrated at some points or if they follow about the same distribution as all other SNPs. If there is no hotspot, I will consider pooling all alternative alleles to simplify the PCA analysis.
+
+```{r distribution, echo=F}
+alt_size <- alt_snp %>% 
+  rename(Chr=X1) %>% 
+  group_by(Chr) %>% 
+  summarise(N=n()) %T>% 
+  knitr::kable(.,caption = "Number of SNPs with more than 2 alleles on each chromosome.")
+
+dist_all <- ggplot(data=snp, aes(x = X2/zoom)) + 
+  geom_histogram(binwidth = 100000/zoom) + 
+  facet_grid(~X1) + 
+  theme_bw() + 
+  xlab("") +
+  ylab("All SNPs")
+
+dist_alt <- ggplot(data=alt_snp, aes(x = X2/zoom)) + 
+  geom_histogram(binwidth = 100000/zoom) + 
+  facet_grid(~X1) + 
+  theme_bw() + 
+  xlab("Genomic position [Mb]") + 
+  ylab("SNPs with >2 alleles")
+
+comp_dist <- snp %>%
+  group_by(X1) %>%
+  arrange(X2) %>%
+  do(
+    data.frame(approx(x = 1L:(nrow(.)), 
+                      y = .$X2, 
+                      n = alt_size[[which(alt_size$Chr==.$X1[1]), "N"]])$y)
+    ) %>% 
+  ungroup(X1) %>% 
+  mutate(j = alt_snp$X2)
+
+colnames(comp_dist) <- c("Chr","sim_SNP_BP","alt_SNP_BP")
+
+qq_comp <- ggplot(data=comp_dist, aes(x=sim_SNP_BP/zoom, y=alt_SNP_BP/zoom)) + 
+  geom_line() + 
+  facet_wrap(~Chr) +
+  geom_abline(slope=1,intercept=0, col='grey60', lty=2) + 
+  theme_bw() + 
+  ggtitle("Repartition of diverse (>2 alleles) SNPs throughout the genome") + 
+  xlab("Fitted repartition of all SNPs [Mb]") + 
+  ylab("Observed repartition of SNPs with >2 alleles [Mb]")
+
+grid.arrange(layout_matrix=rbind(c(1,1),c(2,2),c(3,3),c(3,3)),grobs=list(dist_all, dist_alt, qq_comp))
+```
