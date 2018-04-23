@@ -105,7 +105,7 @@ bsub -q normal \
      -K \
      -M 64000000 \
      -R "rusage[mem=64000]" \
-     vcf-concat ${snps}/*tmp.vcf.gz > ${snps}/wild.vcf
+     "vcf-concat ${snps}/*tmp.vcf.gz > ${snps}/wild.vcf"
 
 # Parallel sorting of concatenated VCF file
 bsub -q normal \
@@ -114,7 +114,7 @@ bsub -q normal \
      -R "span[ptile=32]" \
      -M 64000000 \
      -R "rusage[mem=64000]" \
-     "vcf-sort -p 30 ${snps}/wild.vcf > ${snps}/wild.sorted.vcf"
+     "vcf-sort -p 30 < ${snps}/wild.vcf > ${snps}/wild.sorted.vcf"
 
 # Removing all regions VCF
 rm ${snps}/*.tmp.vcf.gz*
@@ -131,4 +131,4 @@ bsub -q priority "bcftools query ${snps}/wild.sorted.vcf \
 # Keeping only sites anchored to a chromosome
 paste <(cut -f1-2 ${snps}/wild.matrix.txt) \
       <(cut -f3- ${snps}/wild.matrix.txt | sed 's#/#\t#g') | \
-      sed -n '/^chr/p' > "${snps}/hap.wild.matrix.txt"
+      sed -n '/^chr/p' > ${snps}/hap.wild.matrix.txt

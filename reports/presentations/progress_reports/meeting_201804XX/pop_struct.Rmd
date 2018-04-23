@@ -1,0 +1,189 @@
+---
+title: "Population structure"
+author: "Cyril Matthey-Doret"
+date: "23/04/2018"
+output: pdf_document
+---
+
+```{r load, echo=F}
+packs <- c("ggplot2","dplyr","readr","viridis", "magrittr", "gridExtra", "ggrepel", "Rcpp", "tibble")
+packs <- suppressPackageStartupMessages(sapply(packs, library, quietly=T, character.only=T))
+
+setwd("../../../../")
+raw_snp <- read_tsv("data/wgs_wild/variant/snp.chr.wild.matrix.txt", col_names=F, na='.', col_types = cols())
+
+# Sample names for plotting
+sample_names <- read.table("data/wgs_wild/wgs_samples.tsv", header=F, stringsAsFactors = F)
+# Zoom factor on genomic ranges unit
+zoom <- 10^6
+
+# Nucleotidic diversity (PI) computed in 100bp windows
+div100 <- read_tsv("data/wgs_wild/stats/win_w100_t10_PI.tsv", col_type=cols(), col_names=F)
+
+```
+
+```{r format, echo=F}
+
+# Remove SNPs where non-reference allele is fixed
+snp <- raw_snp %>% filter_at(-(1:2), any_vars(.!=1))
+
+
+colnames(sample_names) <- c("Name","Sex")
+# Generating separate ID for second haplotype of females
+tmp_fem <- sample_names %>% filter(Sex=="F") %>% mutate(Name = sprintf("%s_2", Name))
+haplo_names <- sample_names %>% 
+  mutate(Name = ifelse(Sex=='F', 
+                       yes=sprintf("%s_1",Name),
+                       no=Name)) %>%
+  bind_rows(., tmp_fem) %>%
+  arrange(Name)
+
+
+```
+
+# Background
+The main goal here is to characterize genetic relatedness between indiviuals of different ploidies. The second goal is to identify regions of high female heterozygosity compared to overall variation.
+
+# Relatedness
+To measure relatedness, I use Nei's distance. The genetic distance between individuals X and Y at site i is defined as: $_nei^i_{XY}=1-\sum_{j}^{A,C,T,G}\sqrt{p^{i}_{j \in X}p^{i}_{j \in Y}}$ where $p_j^i$ is the frequency of nucleotide j at site i.
+
+```{r nei_def, echo=F}
+
+# Core function to compute nei's distance at a single site.
+# adapted from doi.org/10.1111/2041-210X.12343
+cppFunction('NumericMatrix nei_core(const NumericMatrix& snp){
+            double tmp_prod = 0.0;
+            NumericMatrix D(snp.nrow(), snp.nrow());
+            // loop over all pairs of samples
+            for(int Di = 0; Di < snp.nrow(); Di++)
+            {
+              for(int Dj = 0; Dj < snp.nrow(); Dj++)
+              {
+                tmp_prod = 0.0;
+                // loop over nucleotides
+                for(int i = 0; i < snp.ncol(); i++)
+                {
+                  tmp_prod += sqrt(snp(Di,i)*snp(Dj,i));
+                }
+                D(Di,Dj) = 1 - tmp_prod;
+              }
+            }
+            
+            return(D);}'
+)
+
+nei_dist <- function(X){
+  # Computes site-based pairwise Nei's distance.
+  # X is a 3D array where rows are sites, cols are samples and depth are alleles
+  # note array dims are 1:row, 2:col, 3:depth
+  # Each value is a frequency between 0 and 1
+  
+  # Adding square root of the product of allele frequencies
+  d <- rowSums(apply(X, function(x) { y = matrix(x, nrow=dim(X)[2], byrow=F);
+                        nei_core(y)}, MARGIN=1))
+  
+  return(matrix(d,nrow=dim(X)[2]))
+}
+
+```
+
+
+```{r dist_comp, echo=F}
+
+# Splits female haplotypes, merge them and recode all alleles into frequencies. Note this code depends on the fact that samples are ordered by names with females at the end of the list....
+
+mds_snp <- as.matrix(snp[,-c(1,2)])
+mds_snp <- mds_snp[complete.cases(mds_snp),]
+
+# Fetching (h)aplotype column indices, assuming same sample order for h1 and h2
+h1 <- haplo_names %>% 
+  rownames_to_column('h1') %>% 
+  filter(grepl(pattern = "_1", Name)) %>%
+  pull(h1) %>% as.numeric
+
+h2 <- haplo_names %>% 
+  rownames_to_column('h2') %>% 
+  filter(grepl(pattern = "_2", Name)) %>%
+  pull(h2) %>% as.numeric
+
+# Indexes for females in output (same sample order as input)
+fem_idx <- min(h1):( min(h1) + (length(h1) - 1) )
+
+snp2freq <- function(in_snp){
+  freq_list <- list()
+  for(n in 0:3){
+    nucl_pos <- which(in_snp==n)
+    tmp_mat <- matrix(0,ncol=ncol(in_snp), nrow=nrow(in_snp))
+    tmp_mat[nucl_pos] <- 1
+    
+    # Averaging hap1 with hap2 of every female and writing in place
+    tmp_mat[,fem_idx] <- (tmp_mat[,h1] + tmp_mat[,h2]) / 2
+    freq_list[[n+1]] <- tmp_mat[,1:max(fem_idx)]
+  }
+
+  # 3D array, depth of 4 for A,C,T,G. cell=frequency of nucleotide
+  out_snp <- array(as.numeric(unlist(freq_list)), dim=c(nrow(in_snp),ncol(in_snp)-length(fem_idx),4))
+  return(out_snp)
+}
+freq <- snp2freq(mds_snp)
+dis_mat <- nei_dist(freq)
+
+```
+
+```{r WGS_MDS}
+
+N_MDS <- cmdscale(dis_mat)
+colnames(N_MDS) <- c("Dim1","Dim2"); rownames(N_MDS) <- NULL
+N_MDS <- cbind(N_MDS, sample_names)
+
+ggplot(N_MDS, aes(x=Dim1, y=Dim2, col=Sex, label=Name)) + 
+  geom_point() + 
+  theme_bw() + 
+  geom_text_repel(size=2.5) + 
+  ggtitle("MDS on Nei's distance matrix of samples using whole genome")
+
+
+```
+
+```{r peak_diff"}
+
+PIpeaks <- subset(div100, div100$X4>0.35)
+region_size <- 10000; chr <- ""; pk_coord <- 0
+peakplots <- list()
+gg_idx <- 1
+
+
+for(peak in 1:nrow(PIpeaks)){
+  
+  # Skip peaks less than 10kb apart
+  if(pull(PIpeaks[peak,"X1"]) == chr & 
+     abs(pull(PIpeaks[peak,"X2"]) - pk_coord) < 10000) {next}
+  
+  chr <- pull(PIpeaks[peak,"X1"])
+  pk_coord <- (pull(PIpeaks[peak,"X2"]) + pull(PIpeaks[peak,"X2"])) / 2
+  start <- pk_coord-region_size
+  end <- pk_coord+region_size
+  peak_snp <- snp %>% filter(X1==chr) %>% filter(X2 >= start & X2 <=end)
+  mds_peak <- as.matrix(peak_snp[,-c(1,2)])
+  mds_peak <- mds_peak[complete.cases(mds_peak),]
+  H <- snp2freq(mds_peak)
+  H <- nei_dist(H)
+  H_MDS <- cmdscale(d=H,k=2)
+  colnames(H_MDS) <- c("Dim1","Dim2"); rownames(H_MDS) <- NULL
+  H_MDS <- cbind(H_MDS, sample_names)
+
+  peakplots[[gg_idx]] <- ggplot(H_MDS, aes_string(x="Dim1", y="Dim2", col="Sex", label="Name")) + 
+    geom_point() + 
+    theme_bw() + 
+    geom_text_repel(size=2.5) + 
+    ggtitle(sprintf("MDS, %s:%i", chr,pk_coord)) + 
+    guides(col=F)
+  gg_idx <- gg_idx + 1
+}
+
+grid.arrange(grobs=peakplots,ncol=2)
+```
+
+
+```{r het_vs_variance}
+```

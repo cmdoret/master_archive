@@ -1461,17 +1461,13 @@ Computing $\pi$ in windows across the genome revealed high variations and a stro
 
 There are peaks of nucleotidic diversity on chromosomes 2, 3, 4 and 5.  These peaks do not seem to overlap with RADseq SNPs with high scores for CSD association.
 
-Because of these strong local variations of nucleotidic diversity, I computed the local diversity around all significant RADseq SNPs versus the upstream and downstream diversity. This should show whether the SNPs "stand out" compared to local background (Figure \ref{local_PI_RAD}). The region around significant SNPs did not seem to "stand out" from local background.
+Because of these strong local variations of nucleotidic diversity, I computed the local diversity around all significant RADseq SNPs versus the upstream and downstream diversity. This should show whether the SNPs "stand out" compared to local background (Figure \ref{local_PI_RAD}). The region around significant SNPs did not seem to "stand out" from local background except when using very small (100bp) windows, but then the number of SNPs in the window is simply too small.
 
-quick TODO:
-* Region of high PI in chromosome 3:
-	- PCA in region vs PCA on whole genome
-	- Optional: tree on whole genome vs tree in region
-	- If interesting stuff: look at metrics used to compute haplotype divergence (lack of recombination) in heliconius supergenes (and ruffs)
-
-	-Optional2: PCA $->$ kmeans (k=2) $->$ cluster separation score (intra vs inter group variance)
-* CSD: Compare PI around RADseq SNPs vs surrounding (mutually exclusive windows): barplot Up/candidate/down with diff win sizes
-
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/up_down_PI10k.pdf}
+\caption{PI values around significant RADseq SNPs versus upstream and downstream (non-overlapping windows).}
+\label{local_PI_RAD}
+\end{figure}
 
 \chapter{Allele segregation in wild samples}
 The peaks of diversity observed in wild samples are intriguing and I will have a quick look at the segregation of alleles in these regions and whether it concords with the population structure based on the whole genome. 
@@ -1479,9 +1475,50 @@ The peaks of diversity observed in wild samples are intriguing and I will have a
 The idea is to perform a PCA on the whole genome to visualize the genetic distance between samples.
 
 \section{Preprocessing}
-I will be using SNPs only and therefore exclude fixed sites. PCA is commonly performed using (0/1/2) encoding on diploid samples where the number represents the number of non-reference alleles. In my case, samples are haploid and I could use the same strategy by encoding sites as 0/1. 
+I will be using SNPs only and therefore exclude fixed sites (those where an alternative allele was fixed). PCA is commonly performed using (0/1/2) encoding on diploid samples where the number represents the number of non-reference alleles. In my case, samples are haploid and I could use the same strategy by encoding sites as 0/1. 
 
-The issue when using this approach is that alternative alleles are pooled together under a single identity. In this case, we have sild samples which might have several different alleles at a single site. Another possibility is to use dummy variables for each allele and denote presence or absence.
+The issue when using this approach is that alternative alleles are pooled together under a single identity. In this case, we have wild samples which might have several different alleles at a single site. Another possibility is to use dummy variables for each allele and denote presence or absence. To assess whether I can afford to pool all non-reference alleles together, I will first have a look at the distribution of SNPs with more than 2 alleles throughout the genome. If there are hotspots of SNPs with more than 2 alleles, I should avoid pooling them. It seems there are not too dense hotspots of SNPs with many alleles (Figure \ref{dist_multalleles}).
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/distribution_multalleles.pdf}
+\caption{Genomic repartition of all SNPs and SNPs with more than 2 alleles (top) and direct comparison of the distributions using QQplots (bottom).}
+\label{dist_multalleles}
+\end{figure}
+
+\section{Genetic distance between haplotypes}
+DISCLAIMER: The analyses presented in this section are not valid because sequencing data is not phased, hence it is impossible to separate haplotypes within females. All PCA/MDS analyses based on haplotype distance should be ignored. (update 19.04.2018)
+Before looking at alllele segregations between highly diverse regions, I computed genetic distance between all samples (considering the haplotypes of diploids as 2 independent samples). I performed both PCA (Figure \ref{PCA_wg}) and MDS on the Hamming distance matrix (Figure \ref{MDS_wg}) to detect discrepancies between the methods. There is not difference, but I will stick with Hamming + MDS as it makes more sense conceptually (keeping information of alternative alleles) and the implementation is much faster.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/pca_wg.pdf}
+\caption{PCA all SNPs with all alternative alleles pooled. Samples are colored according to sex and IDs are shown directly on the plot. For diploid samples (females), haplotypes are encoded as \_1 and \_2}
+\label{PCA_wg}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/Hamming_MDS_wg.pdf}
+\caption{MDS on hamming distance matrix using all SNPs with any number of alleles. Samples are colored according to sex and IDs are shown directly on the plot. For diploid samples (females), haplotypes are encoded as \_1 and \_2.}
+\label{MDS_wg}
+\end{figure}
+\section{Allele segregation in highly diverse regions}
+To get a first insight into the segregation pattern in highly diverse regions, I performed again MDS on these regions (Figure \ref{MDS_peaks}). I found some inconsistencies with the genetic distance based on the entire genome, but it would likely be more interesting to have some form of quantification. In CSD regions it would be expected that there is a high divergence between the haplotypes of a female compared to other haplotypes (since CSD should be heterozygous).
+
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/peak_MDS.pdf}
+\caption{MDS plot of the individual regions (+/- 10kb around) showing similarity between individuals.}
+\label{MDS_peaks}
+\end{figure}
+
+\section{Corrected distances}
+
+PCA and MDS analyses presented in the previous sections are not valid because of the unphased data. Here, I address this issue by using a custom distance metric that allows to compare individuals of different ploidies, rather than haplotypes. The metric relies on the difference in allele frequencies between individuals. A homozygous 0/0 has a frequency of 1 for allele 0 and 0 for all other alleles, whereas a heterozygous 0/1 has a frequency of 0.5 for 0 and 1. The distance between 2 such genotypes would be $|1-0.5| + |0-0.5| = 1$
+
+quick TODO:
+	- Quantify discrepancies in segregation throughout genome vs genetic distance
+	- If interesting stuff: look at metrics used to compute haplotype divergence (lack of recombination) in heliconius supergenes (and ruffs)
+
+	-Optional2: PCA $->$ kmeans (k=2) $->$ cluster separation score (intra vs inter group variance)
 
 \chapter{TO DO}
 \begin{itemize}

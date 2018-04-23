@@ -1,0 +1,13 @@
+base
+ggplot2
+dplyr
+readr
+viridisLite
+viridis
+magrittr
+gridExtra
+ggrepel
+FactoMineR
+factoextra
+bindrcpp
+hexbin

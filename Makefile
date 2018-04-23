@@ -90,7 +90,7 @@ $(SIZES):
 
 # Preparing input file for collinearity analysis. Run MCScanX on files manually
 .PHONY : collinearity
-mult_align : $(RNA)/assembled/ $(CORRESP)
+collinearity : $(RNA)/assembled/ $(CORRESP)
 	#LOCAL='$(LOCAL)'
 	rm -rf $(MCSX-IN)/
 	mkdir -p $(MCSX-IN)/
