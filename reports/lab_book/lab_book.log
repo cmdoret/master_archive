@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.9.6)  16 APR 2018 16:15
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.9.6)  30 APR 2018 12:03
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -819,7 +819,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 {/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 Chapter 1.
-<flowchart.png, id=367, 768.9528pt x 1023.70454pt>
+<flowchart.png, id=403, 768.9528pt x 1023.70454pt>
 File: flowchart.png Graphic file (type png)
  <use flowchart.png>
 Package pdftex.def Info: flowchart.png used on input line 46.
@@ -852,7 +852,7 @@ LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10> not available
  [4
 
 ] [5]
-<param_space/mapstats.pdf, id=423, 578.16pt x 433.62pt>
+<param_space/mapstats.pdf, id=459, 578.16pt x 433.62pt>
 File: param_space/mapstats.pdf Graphic file (type pdf)
 
 <use param_space/mapstats.pdf>
@@ -863,14 +863,14 @@ Underfull \hbox (badness 10000) in paragraph at lines 256--257
 
  []
 
-[7] <stacks_pipeline/radtags_distrib.pdf, id=481, 505.89pt x 505.89pt>
+[7] <stacks_pipeline/radtags_distrib.pdf, id=517, 505.89pt x 505.89pt>
 File: stacks_pipeline/radtags_distrib.pdf Graphic file (type pdf)
 
 <use stacks_pipeline/radtags_distrib.pdf>
 Package pdftex.def Info: stacks_pipeline/radtags_distrib.pdf used on input line
  263.
 (pdftex.def)             Requested size: 338.58632pt x 338.58945pt.
- [8 <./stacks_pipeline/radtags_distrib.pdf>] <F_d-25_r-75.pdf, id=493, 650.43pt
+ [8 <./stacks_pipeline/radtags_distrib.pdf>] <F_d-25_r-75.pdf, id=529, 650.43pt
  x 505.89pt>
 File: F_d-25_r-75.pdf Graphic file (type pdf)
  <use F_d-25_r-75.pdf>
@@ -894,7 +894,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 351--353
 
  []
 
-<exclu_haplo/m2.pdf, id=520, 505.89pt x 505.89pt>
+<exclu_haplo/m2.pdf, id=557, 505.89pt x 505.89pt>
 File: exclu_haplo/m2.pdf Graphic file (type pdf)
  <use exclu_haplo/m2.pdf>
 Package pdftex.def Info: exclu_haplo/m2.pdf used on input line 373.
@@ -911,7 +911,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 
 ] [13 <./exclu_haplo/m2.pdf>]
-<exclu_haplo/d5assoc_explo/m2.pdf, id=543, 397.485pt x 397.485pt>
+<exclu_haplo/d5assoc_explo/m2.pdf, id=579, 397.485pt x 397.485pt>
 File: exclu_haplo/d5assoc_explo/m2.pdf Graphic file (type pdf)
 
 <use exclu_haplo/d5assoc_explo/m2.pdf>
@@ -919,7 +919,7 @@ Package pdftex.def Info: exclu_haplo/d5assoc_explo/m2.pdf used on input line 38
 8.
 (pdftex.def)             Requested size: 386.95897pt x 386.97316pt.
 
-<exclu_haplo/d25assoc_explo/m2.pdf, id=544, 397.485pt x 397.485pt>
+<exclu_haplo/d25assoc_explo/m2.pdf, id=580, 397.485pt x 397.485pt>
 File: exclu_haplo/d25assoc_explo/m2.pdf Graphic file (type pdf)
 
 <use exclu_haplo/d25assoc_explo/m2.pdf>
@@ -941,7 +941,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 407--409
  []
 
 
-<cleaning_genomic_data/F_r-75_d-5_m2_density.pdf, id=636, 505.89pt x 505.89pt>
+<cleaning_genomic_data/F_r-75_d-5_m2_density.pdf, id=672, 505.89pt x 505.89pt>
 File: cleaning_genomic_data/F_r-75_d-5_m2_density.pdf Graphic file (type pdf)
 
 <use cleaning_genomic_data/F_r-75_d-5_m2_density.pdf>
@@ -952,7 +952,7 @@ n input line 429.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<cleaning_genomic_data/ploidy_sep_fixed.pdf, id=638, 505.89pt x 505.89pt>
+<cleaning_genomic_data/ploidy_sep_fixed.pdf, id=674, 505.89pt x 505.89pt>
 File: cleaning_genomic_data/ploidy_sep_fixed.pdf Graphic file (type pdf)
 
 <use cleaning_genomic_data/ploidy_sep_fixed.pdf>
@@ -967,7 +967,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 
 ]
-<cleaning_genomic_data/assoc_explo_fam/B.pdf, id=650, 397.485pt x 397.485pt>
+<cleaning_genomic_data/assoc_explo_fam/B.pdf, id=686, 397.485pt x 397.485pt>
 File: cleaning_genomic_data/assoc_explo_fam/B.pdf Graphic file (type pdf)
 
 <use cleaning_genomic_data/assoc_explo_fam/B.pdf>
@@ -979,7 +979,7 @@ put line 464.
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [17 <./cleaning_genomic_data/F_r-75_d-5_m2_density.pdf>]
-<cleaning_genomic_data/assoc_explo_fam_no_mother/B.pdf, id=668, 397.485pt x 397
+<cleaning_genomic_data/assoc_explo_fam_no_mother/B.pdf, id=704, 397.485pt x 397
 .485pt>
 File: cleaning_genomic_data/assoc_explo_fam_no_mother/B.pdf Graphic file (type 
 pdf)
@@ -1023,7 +1023,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 602--604
 
  []
 
-<Num_CSD_loci/Group_mother_21fam_3gr.pdf, id=798, 582.175pt x 388.45125pt>
+<Num_CSD_loci/Group_mother_21fam_3gr.pdf, id=834, 582.175pt x 388.45125pt>
 File: Num_CSD_loci/Group_mother_21fam_3gr.pdf Graphic file (type pdf)
 
 <use Num_CSD_loci/Group_mother_21fam_3gr.pdf>
@@ -1034,7 +1034,7 @@ line 611.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<Num_CSD_loci/Group_mother_21fam_7gr.pdf, id=799, 582.175pt x 388.45125pt>
+<Num_CSD_loci/Group_mother_21fam_7gr.pdf, id=835, 582.175pt x 388.45125pt>
 File: Num_CSD_loci/Group_mother_21fam_7gr.pdf Graphic file (type pdf)
 
 <use Num_CSD_loci/Group_mother_21fam_7gr.pdf>
@@ -1056,7 +1056,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 633--634
 
  []
 
-<Num_CSD_loci/centro_group_d3r80_degree2.pdf, id=826, 1156.32pt x 578.16pt>
+<Num_CSD_loci/centro_group_d3r80_degree2.pdf, id=862, 1156.32pt x 578.16pt>
 File: Num_CSD_loci/centro_group_d3r80_degree2.pdf Graphic file (type pdf)
 
 <use Num_CSD_loci/centro_group_d3r80_degree2.pdf>
@@ -1064,7 +1064,7 @@ Package pdftex.def Info: Num_CSD_loci/centro_group_d3r80_degree2.pdf used on in
 put line 638.
 (pdftex.def)             Requested size: 483.69687pt x 241.8463pt.
 
-<Num_CSD_loci/centro_fam_d3r80_degree2.pdf, id=827, 1156.32pt x 578.16pt>
+<Num_CSD_loci/centro_fam_d3r80_degree2.pdf, id=863, 1156.32pt x 578.16pt>
 File: Num_CSD_loci/centro_fam_d3r80_degree2.pdf Graphic file (type pdf)
 
 <use Num_CSD_loci/centro_fam_d3r80_degree2.pdf>
@@ -1081,7 +1081,7 @@ LaTeX Warning: Reference `comp_centro' on page 29 undefined on input line 655.
 [29
 
  <./Num_CSD_loci/centro_group_d3r80_degree2.pdf>]
-<Num_CSD_loci/centro_group_fix_d3r80_range.pdf, id=844, 1156.32pt x 867.24pt>
+<Num_CSD_loci/centro_group_fix_d3r80_range.pdf, id=880, 1156.32pt x 867.24pt>
 File: Num_CSD_loci/centro_group_fix_d3r80_range.pdf Graphic file (type pdf)
 
 <use Num_CSD_loci/centro_group_fix_d3r80_range.pdf>
@@ -1092,7 +1092,7 @@ input line 659.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<Num_CSD_loci/centro_group_fix_d3r80_final.pdf, id=845, 1156.32pt x 722.7pt>
+<Num_CSD_loci/centro_group_fix_d3r80_final.pdf, id=881, 1156.32pt x 722.7pt>
 File: Num_CSD_loci/centro_group_fix_d3r80_final.pdf Graphic file (type pdf)
 
 <use Num_CSD_loci/centro_group_fix_d3r80_final.pdf>
@@ -1119,7 +1119,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 679--683
 
  []
 
-<Num_CSD_loci/pooled_chr_centro_dist_win30.pdf, id=889, 867.24pt x 722.7pt>
+<Num_CSD_loci/pooled_chr_centro_dist_win30.pdf, id=926, 867.24pt x 722.7pt>
 File: Num_CSD_loci/pooled_chr_centro_dist_win30.pdf Graphic file (type pdf)
 
 <use Num_CSD_loci/pooled_chr_centro_dist_win30.pdf>
@@ -1134,7 +1134,7 @@ Overfull \hbox (48.37263pt too wide) in paragraph at lines 692--693
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<Num_CSD_loci/pooled_chrom_centrosize_50k_5M.pdf, id=890, 722.7pt x 722.7pt>
+<Num_CSD_loci/pooled_chrom_centrosize_50k_5M.pdf, id=927, 722.7pt x 722.7pt>
 File: Num_CSD_loci/pooled_chrom_centrosize_50k_5M.pdf Graphic file (type pdf)
 
 <use Num_CSD_loci/pooled_chrom_centrosize_50k_5M.pdf>
@@ -1159,14 +1159,14 @@ Underfull \hbox (badness 10000) in paragraph at lines 708--709
 
 ] [34 <./Num_CSD_loci/pooled_chr_centro_dist_win30.pdf>] [35 <./Num_CSD_loci/po
 oled_chrom_centrosize_50k_5M.pdf>]
-<Num_CSD_loci/cen_tel.pdf, id=925, 597.50786pt x 845.04686pt>
+<Num_CSD_loci/cen_tel.pdf, id=961, 597.50786pt x 845.04686pt>
 File: Num_CSD_loci/cen_tel.pdf Graphic file (type pdf)
 
 <use Num_CSD_loci/cen_tel.pdf>
 Package pdftex.def Info: Num_CSD_loci/cen_tel.pdf used on input line 716.
 (pdftex.def)             Requested size: 241.84843pt x 342.0358pt.
 
-<Num_CSD_loci/line_centro25_telo_chr_fam.pdf, id=926, 867.24pt x 722.7pt>
+<Num_CSD_loci/line_centro25_telo_chr_fam.pdf, id=962, 867.24pt x 722.7pt>
 File: Num_CSD_loci/line_centro25_telo_chr_fam.pdf Graphic file (type pdf)
 
 <use Num_CSD_loci/line_centro25_telo_chr_fam.pdf>
@@ -1177,7 +1177,7 @@ put line 724.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<Num_CSD_loci/lm_centro25_telo_fam.pdf, id=927, 867.24pt x 722.7pt>
+<Num_CSD_loci/lm_centro25_telo_fam.pdf, id=963, 867.24pt x 722.7pt>
 File: Num_CSD_loci/lm_centro25_telo_fam.pdf Graphic file (type pdf)
 
 <use Num_CSD_loci/lm_centro25_telo_fam.pdf>
@@ -1192,7 +1192,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
  <./Num_CSD_loci/cen_tel.pdf>] [37 <./Num_CSD_loci/line_centro25_telo_chr_fam.p
 df>] [38 <./Num_CSD_loci/lm_centro25_telo_fam.pdf>]
-<Num_CSD_loci/Hist_25cen_het_chr.pdf, id=978, 582.175pt x 393.47pt>
+<Num_CSD_loci/Hist_25cen_het_chr.pdf, id=1014, 582.175pt x 393.47pt>
 File: Num_CSD_loci/Hist_25cen_het_chr.pdf Graphic file (type pdf)
 
 <use Num_CSD_loci/Hist_25cen_het_chr.pdf>
@@ -1200,7 +1200,7 @@ Package pdftex.def Info: Num_CSD_loci/Hist_25cen_het_chr.pdf used on input line
  744.
 (pdftex.def)             Requested size: 386.95897pt x 261.53418pt.
 
-<Num_CSD_loci/Hist_25cen_het.pdf, id=979, 582.175pt x 393.47pt>
+<Num_CSD_loci/Hist_25cen_het.pdf, id=1015, 582.175pt x 393.47pt>
 File: Num_CSD_loci/Hist_25cen_het.pdf Graphic file (type pdf)
 
 <use Num_CSD_loci/Hist_25cen_het.pdf>
@@ -1216,14 +1216,14 @@ LaTeX Warning: `h' float specifier changed to `ht'.
  <./Num_CSD_loci/Hist_25cen_het_chr.pdf>] [40 <./Num_CSD_loci/Hist_25cen_het.pd
 f>]
 Chapter 8.
-<M-F_Fst/haplo_avg_all_Fst.pdf, id=1002, 680.5425pt x 465.74pt>
+<M-F_Fst/haplo_avg_all_Fst.pdf, id=1038, 680.5425pt x 465.74pt>
 File: M-F_Fst/haplo_avg_all_Fst.pdf Graphic file (type pdf)
 
 <use M-F_Fst/haplo_avg_all_Fst.pdf>
 Package pdftex.def Info: M-F_Fst/haplo_avg_all_Fst.pdf used on input line 768.
 (pdftex.def)             Requested size: 386.95897pt x 264.82074pt.
 
-<M-F_Fst/haplo_Fst_per_fam.pdf, id=1003, 752.8125pt x 610.28pt>
+<M-F_Fst/haplo_Fst_per_fam.pdf, id=1039, 752.8125pt x 610.28pt>
 File: M-F_Fst/haplo_Fst_per_fam.pdf Graphic file (type pdf)
 
 <use M-F_Fst/haplo_Fst_per_fam.pdf>
@@ -1245,7 +1245,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 791--792
 [43
 
 ]
-<association_mapping/naive_case_control_grouped.pdf, id=1033, 1228.59pt x 361.3
+<association_mapping/naive_case_control_grouped.pdf, id=1070, 1228.59pt x 361.3
 5pt>
 File: association_mapping/naive_case_control_grouped.pdf Graphic file (type pdf
 )
@@ -1254,7 +1254,7 @@ Package pdftex.def Info: association_mapping/naive_case_control_grouped.pdf use
 d on input line 835.
 (pdftex.def)             Requested size: 483.69687pt x 142.26578pt.
 
-<association_mapping/fisher_no_corr.pdf, id=1037, 722.7pt x 361.35pt>
+<association_mapping/fisher_no_corr.pdf, id=1074, 722.7pt x 361.35pt>
 File: association_mapping/fisher_no_corr.pdf Graphic file (type pdf)
 
 <use association_mapping/fisher_no_corr.pdf>
@@ -1265,7 +1265,7 @@ ine 848.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<association_mapping/fisher_BH.pdf, id=1038, 722.7pt x 578.16pt>
+<association_mapping/fisher_BH.pdf, id=1075, 722.7pt x 578.16pt>
 File: association_mapping/fisher_BH.pdf Graphic file (type pdf)
 
 <use association_mapping/fisher_BH.pdf>
@@ -1276,7 +1276,7 @@ Package pdftex.def Info: association_mapping/fisher_BH.pdf used on input line 8
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<association_mapping/fisher_bonferroni.pdf, id=1039, 722.7pt x 578.16pt>
+<association_mapping/fisher_bonferroni.pdf, id=1076, 722.7pt x 578.16pt>
 File: association_mapping/fisher_bonferroni.pdf Graphic file (type pdf)
 
 <use association_mapping/fisher_bonferroni.pdf>
@@ -1299,7 +1299,7 @@ Chapter 10.
 
 LaTeX Warning: Reference `cov_fam' on page 48 undefined on input line 899.
 
-<coverage_analysis/cov_per_sample.pdf, id=1084, 505.89pt x 505.89pt>
+<coverage_analysis/cov_per_sample.pdf, id=1120, 505.89pt x 505.89pt>
 File: coverage_analysis/cov_per_sample.pdf Graphic file (type pdf)
 
 <use coverage_analysis/cov_per_sample.pdf>
@@ -1315,7 +1315,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 909--910
 
  []
 
-<coverage_analysis/sites_per_sample.pdf, id=1088, 505.89pt x 505.89pt>
+<coverage_analysis/sites_per_sample.pdf, id=1124, 505.89pt x 505.89pt>
 File: coverage_analysis/sites_per_sample.pdf Graphic file (type pdf)
 
 <use coverage_analysis/sites_per_sample.pdf>
@@ -1326,7 +1326,7 @@ ine 919.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<coverage_analysis/reads_sample.pdf, id=1089, 505.89pt x 505.89pt>
+<coverage_analysis/reads_sample.pdf, id=1125, 505.89pt x 505.89pt>
 File: coverage_analysis/reads_sample.pdf Graphic file (type pdf)
 
 <use coverage_analysis/reads_sample.pdf>
@@ -1337,7 +1337,7 @@ Package pdftex.def Info: coverage_analysis/reads_sample.pdf used on input line
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<coverage_analysis/coverage_1kbwin.pdf, id=1091, 578.16pt x 433.62pt>
+<coverage_analysis/coverage_1kbwin.pdf, id=1127, 578.16pt x 433.62pt>
 File: coverage_analysis/coverage_1kbwin.pdf Graphic file (type pdf)
 
 <use coverage_analysis/coverage_1kbwin.pdf>
@@ -1369,7 +1369,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 972--975
 
  []
 
-<add_samples/off_comp.pdf, id=1146, 569.12625pt x 301.125pt>
+<add_samples/off_comp.pdf, id=1183, 569.12625pt x 301.125pt>
 File: add_samples/off_comp.pdf Graphic file (type pdf)
 
 <use add_samples/off_comp.pdf>
@@ -1379,7 +1379,7 @@ Package pdftex.def Info: add_samples/off_comp.pdf used on input line 985.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<add_samples/library_depth.pdf, id=1150, 505.89pt x 433.62pt>
+<add_samples/library_depth.pdf, id=1187, 505.89pt x 433.62pt>
 File: add_samples/library_depth.pdf Graphic file (type pdf)
 
 <use add_samples/library_depth.pdf>
@@ -1389,7 +1389,7 @@ Package pdftex.def Info: add_samples/library_depth.pdf used on input line 998.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<add_samples/cov_per_site.pdf, id=1151, 722.7pt x 433.62pt>
+<add_samples/cov_per_site.pdf, id=1188, 722.7pt x 433.62pt>
 File: add_samples/cov_per_site.pdf Graphic file (type pdf)
 
 <use add_samples/cov_per_site.pdf>
@@ -1399,7 +1399,7 @@ Package pdftex.def Info: add_samples/cov_per_site.pdf used on input line 1006.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<add_samples/library_sites.pdf, id=1152, 569.12625pt x 301.125pt>
+<add_samples/library_sites.pdf, id=1189, 569.12625pt x 301.125pt>
 File: add_samples/library_sites.pdf Graphic file (type pdf)
 
 <use add_samples/library_sites.pdf>
@@ -1415,7 +1415,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 ] [54 <./add_samples/off_comp.pdf>] [55 <./add_samples/library_depth.pdf>]
 [56 <./add_samples/cov_per_site.pdf> <./add_samples/library_sites.pdf>]
 Chapter 12.
-<reorg/pipeline_reorg.pdf, id=1199, 1391.16393pt x 525.53334pt>
+<reorg/pipeline_reorg.pdf, id=1235, 1391.16393pt x 525.53334pt>
 File: reorg/pipeline_reorg.pdf Graphic file (type pdf)
 
 <use reorg/pipeline_reorg.pdf>
@@ -1426,7 +1426,7 @@ Package pdftex.def Info: reorg/pipeline_reorg.pdf used on input line 1033.
 
 ] [58 <./reorg/pipeline_reorg.pdf>]
 Chapter 13.
-<final_samples/hom_bg_popfam_d20_CD.pdf, id=1224, 505.89pt x 505.89pt>
+<final_samples/hom_bg_popfam_d20_CD.pdf, id=1260, 505.89pt x 505.89pt>
 File: final_samples/hom_bg_popfam_d20_CD.pdf Graphic file (type pdf)
 
 <use final_samples/hom_bg_popfam_d20_CD.pdf>
@@ -1434,7 +1434,7 @@ Package pdftex.def Info: final_samples/hom_bg_popfam_d20_CD.pdf used on input l
 ine 1060.
 (pdftex.def)             Requested size: 483.69687pt x 483.70361pt.
 
-<final_samples/hom_bg_popgroup_d20_CD.pdf, id=1226, 505.89pt x 505.89pt>
+<final_samples/hom_bg_popgroup_d20_CD.pdf, id=1262, 505.89pt x 505.89pt>
 File: final_samples/hom_bg_popgroup_d20_CD.pdf Graphic file (type pdf)
 
 <use final_samples/hom_bg_popgroup_d20_CD.pdf>
@@ -1442,7 +1442,7 @@ Package pdftex.def Info: final_samples/hom_bg_popgroup_d20_CD.pdf used on input
  line 1069.
 (pdftex.def)             Requested size: 483.69687pt x 483.70361pt.
 
-<final_samples/hom_Sex_popgroup_d20_D.pdf, id=1227, 505.89pt x 505.89pt>
+<final_samples/hom_Sex_popgroup_d20_D.pdf, id=1263, 505.89pt x 505.89pt>
 File: final_samples/hom_Sex_popgroup_d20_D.pdf Graphic file (type pdf)
 
 <use final_samples/hom_Sex_popgroup_d20_D.pdf>
@@ -1453,7 +1453,7 @@ Package pdftex.def Info: final_samples/hom_Sex_popgroup_d20_D.pdf used on input
 
 ] [60 <./final_samples/hom_bg_popfam_d20_CD.pdf>] [61 <./final_samples/hom_bg_p
 opgroup_d20_CD.pdf>] [62 <./final_samples/hom_Sex_popgroup_d20_D.pdf>]
-<final_samples/hom_Sex_popgroup_d20_C.pdf, id=1263, 505.89pt x 505.89pt>
+<final_samples/hom_Sex_popgroup_d20_C.pdf, id=1300, 505.89pt x 505.89pt>
 File: final_samples/hom_Sex_popgroup_d20_C.pdf Graphic file (type pdf)
 
 <use final_samples/hom_Sex_popgroup_d20_C.pdf>
@@ -1461,7 +1461,7 @@ Package pdftex.def Info: final_samples/hom_Sex_popgroup_d20_C.pdf used on input
  line 1111.
 (pdftex.def)             Requested size: 483.69687pt x 483.70361pt.
  [63] [64 <./final_samples/hom_Sex_popgroup_d20_C.pdf>]
-<final_samples/final_centro.pdf, id=1279, 1011.78pt x 722.7pt>
+<final_samples/final_centro.pdf, id=1316, 1011.78pt x 722.7pt>
 File: final_samples/final_centro.pdf Graphic file (type pdf)
 
 <use final_samples/final_centro.pdf>
@@ -1469,7 +1469,7 @@ Package pdftex.def Info: final_samples/final_centro.pdf used on input line 1122
 .
 (pdftex.def)             Requested size: 483.69687pt x 345.5026pt.
 
-<final_samples/case_control_BH_chromprop.pdf, id=1281, 867.24pt x 867.24pt>
+<final_samples/case_control_BH_chromprop.pdf, id=1318, 867.24pt x 867.24pt>
 File: final_samples/case_control_BH_chromprop.pdf Graphic file (type pdf)
 
 <use final_samples/case_control_BH_chromprop.pdf>
@@ -1483,7 +1483,7 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 [65 <./final_samples/final_centro.pdf>] [66 <./final_samples/case_control_BH_ch
 romprop.pdf>]
 Chapter 14.
-<annotations/annot_visu.pdf, id=1310, 867.24pt x 361.35pt>
+<annotations/annot_visu.pdf, id=1346, 867.24pt x 361.35pt>
 File: annotations/annot_visu.pdf Graphic file (type pdf)
 
 <use annotations/annot_visu.pdf>
@@ -1542,7 +1542,7 @@ Overfull \hbox (38.30844pt too wide) in paragraph at lines 1172--1173
  []
 
 [69]
-<homology/LF_MCScanX_circle_3chr_makergenes.png, id=1336, 803.0pt x 803.0pt>
+<homology/LF_MCScanX_circle_3chr_makergenes.png, id=1372, 803.0pt x 803.0pt>
 File: homology/LF_MCScanX_circle_3chr_makergenes.png Graphic file (type png)
 
 <use homology/LF_MCScanX_circle_3chr_makergenes.png>
@@ -1553,7 +1553,7 @@ Package pdftex.def Info: homology/LF_MCScanX_circle_3chr_makergenes.png used on
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<homology/LF_MCScanX_circle_all_makergenes.png, id=1337, 803.0pt x 803.0pt>
+<homology/LF_MCScanX_circle_all_makergenes.png, id=1373, 803.0pt x 803.0pt>
 File: homology/LF_MCScanX_circle_all_makergenes.png Graphic file (type png)
 
 <use homology/LF_MCScanX_circle_all_makergenes.png>
@@ -1592,7 +1592,7 @@ LaTeX Warning: Reference `unanchored_MAF)' on page 76 undefined on input line 1
 
 [76
 
-] <valid_CSD/MAF_chrom_manhattan.pdf, id=1388, 583.17876pt x 398.48875pt>
+] <valid_CSD/MAF_chrom_manhattan.pdf, id=1424, 583.17876pt x 398.48875pt>
 File: valid_CSD/MAF_chrom_manhattan.pdf Graphic file (type pdf)
 
 <use valid_CSD/MAF_chrom_manhattan.pdf>
@@ -1600,7 +1600,7 @@ Package pdftex.def Info: valid_CSD/MAF_chrom_manhattan.pdf used on input line 1
 350.
 (pdftex.def)             Requested size: 483.69687pt x 330.5206pt.
 
-<valid_CSD/MAF_unanchored_manhattan.pdf, id=1389, 583.17876pt x 398.48875pt>
+<valid_CSD/MAF_unanchored_manhattan.pdf, id=1425, 583.17876pt x 398.48875pt>
 File: valid_CSD/MAF_unanchored_manhattan.pdf Graphic file (type pdf)
 
 <use valid_CSD/MAF_unanchored_manhattan.pdf>
@@ -1614,7 +1614,7 @@ Chapter 17.
 
 ]
 Chapter 18.
-<nucleo_div_wgs/qc/sample_comp.png, id=1428, 1445.4pt x 741.77126pt>
+<nucleo_div_wgs/qc/sample_comp.png, id=1464, 1445.4pt x 741.77126pt>
 File: nucleo_div_wgs/qc/sample_comp.png Graphic file (type png)
 
 <use nucleo_div_wgs/qc/sample_comp.png>
@@ -1624,7 +1624,7 @@ Package pdftex.def Info: nucleo_div_wgs/qc/sample_comp.png used on input line 1
  [81
 
 ]
-<nucleo_div_wgs/qc/busco_figure.png, id=1434, 569.0058pt x 426.6339pt>
+<nucleo_div_wgs/qc/busco_figure.png, id=1470, 569.0058pt x 426.6339pt>
 File: nucleo_div_wgs/qc/busco_figure.png Graphic file (type png)
 
 <use nucleo_div_wgs/qc/busco_figure.png>
@@ -1632,14 +1632,14 @@ Package pdftex.def Info: nucleo_div_wgs/qc/busco_figure.png used on input line
 1409.
 (pdftex.def)             Requested size: 483.69687pt x 362.66655pt.
 
-<nucleo_div_wgs/qc/pca.pdf, id=1437, 505.89pt x 505.89pt>
+<nucleo_div_wgs/qc/pca.pdf, id=1473, 505.89pt x 505.89pt>
 File: nucleo_div_wgs/qc/pca.pdf Graphic file (type pdf)
 
 <use nucleo_div_wgs/qc/pca.pdf>
 Package pdftex.def Info: nucleo_div_wgs/qc/pca.pdf used on input line 1420.
 (pdftex.def)             Requested size: 483.69687pt x 483.70361pt.
 
-<nucleo_div_wgs/qc/var_corr.pdf, id=1438, 505.89pt x 505.89pt>
+<nucleo_div_wgs/qc/var_corr.pdf, id=1474, 505.89pt x 505.89pt>
 File: nucleo_div_wgs/qc/var_corr.pdf Graphic file (type pdf)
 
 <use nucleo_div_wgs/qc/var_corr.pdf>
@@ -1662,7 +1662,7 @@ Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 
 LaTeX Warning: Reference `het_wgs' on page 82 undefined on input line 1435.
 
-<nucleo_div_wgs/PI/hom_WGS.png, id=1439, 673.51625pt x 676.5275pt>
+<nucleo_div_wgs/PI/hom_WGS.png, id=1475, 673.51625pt x 676.5275pt>
 File: nucleo_div_wgs/PI/hom_WGS.png Graphic file (type png)
 
 <use nucleo_div_wgs/PI/hom_WGS.png>
@@ -1684,7 +1684,7 @@ Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 (hyperref)                removing `math shift' on input line 1453.
 
-<nucleo_div_wgs/PI/win_size_PI.pdf, id=1480, 457.71pt x 316.18124pt>
+<nucleo_div_wgs/PI/win_size_PI.pdf, id=1516, 457.71pt x 316.18124pt>
 File: nucleo_div_wgs/PI/win_size_PI.pdf Graphic file (type pdf)
 
 <use nucleo_div_wgs/PI/win_size_PI.pdf>
@@ -1692,7 +1692,7 @@ Package pdftex.def Info: nucleo_div_wgs/PI/win_size_PI.pdf used on input line 1
 457.
 (pdftex.def)             Requested size: 483.69687pt x 334.14702pt.
 
-<nucleo_div_wgs/PI/up_down_PI10k.pdf, id=1482, 453.695pt x 315.1775pt>
+<nucleo_div_wgs/PI/up_down_PI10k.pdf, id=1518, 453.695pt x 315.1775pt>
 File: nucleo_div_wgs/PI/up_down_PI10k.pdf Graphic file (type pdf)
 
 <use nucleo_div_wgs/PI/up_down_PI10k.pdf>
@@ -1703,11 +1703,7 @@ Package pdftex.def Info: nucleo_div_wgs/PI/up_down_PI10k.pdf used on input line
 wn_PI10k.pdf>]
 Chapter 19.
 
-LaTeX Warning: Reference `dist_multalleles' on page 90 undefined on input line 
-1480.
-
-
-<nucleo_div_wgs/PI/distribution_multalleles.pdf, id=1516, 427.5975pt x 641.3962
+<nucleo_div_wgs/PI/distribution_multalleles.pdf, id=1553, 427.5975pt x 641.3962
 6pt>
 File: nucleo_div_wgs/PI/distribution_multalleles.pdf Graphic file (type pdf)
  <use nucleo_div_wgs/PI/distribution_multalleles.pdf>
@@ -1718,55 +1714,46 @@ Package pdftex.def Info: nucleo_div_wgs/PI/distribution_multalleles.pdf used on
 
 LaTeX Warning: Float too large for page by 87.71217pt on input line 1486.
 
-
-LaTeX Warning: Reference `PCA_wg' on page 90 undefined on input line 1489.
-
-
-LaTeX Warning: Reference `MDS_wg' on page 90 undefined on input line 1489.
-
-<nucleo_div_wgs/PI/pca_wg.pdf, id=1517, 453.695pt x 315.1775pt>
+<nucleo_div_wgs/PI/pca_wg.pdf, id=1556, 453.695pt x 315.1775pt>
 File: nucleo_div_wgs/PI/pca_wg.pdf Graphic file (type pdf)
 
 <use nucleo_div_wgs/PI/pca_wg.pdf>
-Package pdftex.def Info: nucleo_div_wgs/PI/pca_wg.pdf used on input line 1492.
+Package pdftex.def Info: nucleo_div_wgs/PI/pca_wg.pdf used on input line 1493.
 (pdftex.def)             Requested size: 483.69687pt x 336.01985pt.
 
-<nucleo_div_wgs/PI/Hamming_MDS_wg.pdf, id=1518, 453.695pt x 315.1775pt>
+<nucleo_div_wgs/PI/Hamming_MDS_wg.pdf, id=1557, 453.695pt x 315.1775pt>
 File: nucleo_div_wgs/PI/Hamming_MDS_wg.pdf Graphic file (type pdf)
 
 <use nucleo_div_wgs/PI/Hamming_MDS_wg.pdf>
 Package pdftex.def Info: nucleo_div_wgs/PI/Hamming_MDS_wg.pdf used on input lin
-e 1498.
+e 1499.
 (pdftex.def)             Requested size: 483.69687pt x 336.01985pt.
 
-
-LaTeX Warning: Reference `MDS_peaks' on page 90 undefined on input line 1503.
-
-<nucleo_div_wgs/PI/peak_MDS.pdf, id=1519, 423.5825pt x 640.3925pt>
+<nucleo_div_wgs/PI/peak_MDS.pdf, id=1559, 423.5825pt x 640.3925pt>
 File: nucleo_div_wgs/PI/peak_MDS.pdf Graphic file (type pdf)
 
 <use nucleo_div_wgs/PI/peak_MDS.pdf>
-Package pdftex.def Info: nucleo_div_wgs/PI/peak_MDS.pdf used on input line 1507
+Package pdftex.def Info: nucleo_div_wgs/PI/peak_MDS.pdf used on input line 1508
 .
 (pdftex.def)             Requested size: 483.69687pt x 731.3058pt.
 
 
-LaTeX Warning: Float too large for page by 81.47548pt on input line 1510.
+LaTeX Warning: Float too large for page by 81.47548pt on input line 1511.
 
 [90
 
 ] [91 <./nucleo_div_wgs/PI/distribution_multalleles.pdf>] [92 <./nucleo_div_wgs
 /PI/pca_wg.pdf>] [93 <./nucleo_div_wgs/PI/Hamming_MDS_wg.pdf>] [94 <./nucleo_di
-v_wgs/PI/peak_MDS.pdf>]
+v_wgs/PI/peak_MDS.pdf>] [95]
 Chapter 20.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1535.
-[95
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1546.
+[96
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1535.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1546.
  (./lab_book.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1535.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1535.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1546.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1546.
 
 
 
@@ -1775,8 +1762,8 @@ Package rerunfilecheck Warning: File `lab_book.out' has changed.
 (rerunfilecheck)                or use package `bookmark'.
 
 Package rerunfilecheck Info: Checksums for `lab_book.out':
-(rerunfilecheck)             Before: 2A225CB31BFB47507BB55B9607E1119B;5787
-(rerunfilecheck)             After:  F80527555230F61F06E556ED59E80CB5;6139.
+(rerunfilecheck)             Before: F5EBD8B444742E4E882FE08BCE8D3B18;6393
+(rerunfilecheck)             After:  BE07EFB86749F5175B6B9A839A3A7BF6;6394.
 
 LaTeX Warning: There were undefined references.
 
@@ -1785,10 +1772,10 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 10677 strings out of 492995
- 166710 string characters out of 6132705
- 294146 words of memory out of 5000000
- 13700 multiletter control sequences out of 15000+600000
+ 10691 strings out of 492995
+ 166917 string characters out of 6132705
+ 294906 words of memory out of 5000000
+ 13709 multiletter control sequences out of 15000+600000
  13069 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  40i,11n,46p,1113b,1236s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1800,24 +1787,25 @@ pdfTeX warning (dest): name{Hfootnote.1} has been referenced but does not exist
 
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><
 /usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></
-usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></u
-sr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></us
-r/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/
-local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/lo
-cal/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/loca
-l/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/
-texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/te
-xlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texli
-ve/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/
-2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/201
-7/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2017/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2017/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2017/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on lab_book.pdf (96 pages, 4279037 bytes).
+usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></u
+sr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></us
+r/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr
+/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/l
+ocal/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/loc
+al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local
+/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/t
+exlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/tex
+live/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texliv
+e/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2
+017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2017
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2017/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2017/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2017/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
+Output written on lab_book.pdf (97 pages, 4293055 bytes).
 PDF statistics:
- 1703 PDF objects out of 1728 (max. 8388607)
- 1274 compressed objects within 13 object streams
- 304 named destinations out of 1000 (max. 500000)
- 1010 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1749 PDF objects out of 2073 (max. 8388607)
+ 1317 compressed objects within 14 object streams
+ 309 named destinations out of 1000 (max. 500000)
+ 1082 words of extra memory for PDF output out of 10000 (max. 10000000)
 

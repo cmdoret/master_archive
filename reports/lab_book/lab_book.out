@@ -90,4 +90,8 @@
 \BOOKMARK [1][-]{section.19.1}{Preprocessing}{chapter.19}% 90
 \BOOKMARK [1][-]{section.19.2}{Genetic distance between haplotypes}{chapter.19}% 91
 \BOOKMARK [1][-]{section.19.3}{Allele segregation in highly diverse regions}{chapter.19}% 92
-\BOOKMARK [0][-]{chapter.20}{TO DO}{}% 93
+\BOOKMARK [1][-]{section.19.4}{Corrections}{chapter.19}% 93
+\BOOKMARK [2][-]{subsection.19.4.1}{distances}{section.19.4}% 94
+\BOOKMARK [2][-]{subsection.19.4.2}{windows}{section.19.4}% 95
+\BOOKMARK [2][-]{subsection.19.4.3}{SNP calling}{section.19.4}% 96
+\BOOKMARK [0][-]{chapter.20}{TO DO}{}% 97

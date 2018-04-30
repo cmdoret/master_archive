@@ -111,12 +111,12 @@ bsub -q normal \
 
 # Parallel sorting of concatenated VCF file
 bsub -q normal \
-     -n 8 \
+     -n 32 \
      -J "SORT_VCF" \
      -R "span[ptile=32]" \
      -M 64000000 \
      -R "rusage[mem=64000]" \
-     "vcf-sort -p 8 < ${snps}/wild.vcf > ${snps}/wild.sorted.vcf"
+     "vcf-sort -p 30 < ${snps}/wild.vcf > ${snps}/wild.sorted.vcf"
 
 bmonitor "SORT_VCF" 0
 
@@ -128,18 +128,24 @@ mkdir -p $stats
 bsub -q priority -K "bcftools query ${snps}/wild.sorted.vcf \
                     -f '%CHROM\t%POS[\t%GT]\n' > ${snps}/wild.matrix.txt"
 
+
 # separate haplotypes of diploid samples into 2 columns
 # Keeping only sites anchored to a chromosome
 bsub -q priority -K \
-"cut -f1-2 ${snps}/wild.matrix.txt > left_col.txt
-cut -f3- ${snps}/wild.matrix.txt | sed 's#/#\t#g' > right_col.txt
-paste left_col.txt right_col.txt | sed -n '/^chr/p' > ${snps}/hap.wild.matrix.txt
-rm left_col.txt right_col.txt"
+     "cut -f1-2 ${snps}/wild.matrix.txt > left_col.txt
+      cut -f3- ${snps}/wild.matrix.txt | sed 's#/#\t#g' > right_col.txt
+      paste left_col.txt right_col.txt | sed -n '/^chr/p' > ${snps}/hap.wild.matrix.txt
+      rm left_col.txt right_col.txt"
 
 # Nicer, faster version. Not working on compute nodes... (process substitution not enabled)
 #paste <(cut -f1-2 ${snps}/wild.matrix.txt) \
 #      <(cut -f3- ${snps}/wild.matrix.txt | sed 's#/#\t#g') | \
 #      sed -n '/^chr/p' > ${snps}/hap.wild.matrix.txt
+
+# Fill missing positions (if any) to make downstream analyses more convenient
+bsub -q priority -K -J "fill_positions" \
+  "python2 $(dirname $0)/fill_pos_matrix.py ${snps}/hap.wild.matrix.txt > mat.tmp && \
+  mv mat.tmp ${snps}/hap.wild.matrix.txt"
 
 # Removing all regions VCF
 rm ${snps}/*.tmp.vcf.gz*
