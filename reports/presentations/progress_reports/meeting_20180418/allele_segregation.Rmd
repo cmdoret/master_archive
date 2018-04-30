@@ -17,7 +17,8 @@ packs <- c("ggplot2","dplyr","readr","viridis", "magrittr", "gridExtra", "ggrepe
 packs <- suppressPackageStartupMessages(sapply(packs, library, quietly=T, character.only=T))
 
 setwd("../../../../")
-raw_snp <- read_tsv("data/wgs_wild/variant/snp.chr.wild.matrix.txt", col_names=F, na='.', col_types = cols())
+raw_snp <- read_tsv("data/wgs_wild/variant/hap.wild.matrix.txt", col_names=F, na='.', col_types = cols())
+raw_snp <- raw_snp %>% filter_at(-(1:2), any_vars(.!=0))
 # Remove SNPs where non-reference allele is fixed
 snp <- raw_snp %>% filter_at(-(1:2), any_vars(.!=1))
 # Extract SNPs with more than 2 alleles as "alt_snp"

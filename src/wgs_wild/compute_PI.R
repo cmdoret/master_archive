@@ -5,7 +5,7 @@
 # 23.03.2018
 
 # Load libraries ####
-packs <- c("dplyr","readr","Rcpp","optparse")
+packs <- c("dplyr","readr","Rcpp","optparse", "RcppRoll")
 packs <- sapply(packs, function(x) suppressPackageStartupMessages(library(x, quietly=T, character.only=T)))
 
 # Parse CL arguments ####

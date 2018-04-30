@@ -10,7 +10,9 @@ packs <- c("ggplot2","dplyr","readr","viridis", "magrittr", "gridExtra", "ggrepe
 packs <- suppressPackageStartupMessages(sapply(packs, library, quietly=T, character.only=T))
 
 setwd("../../../../")
-raw_snp <- read_tsv("data/wgs_wild/variant/snp.chr.wild.matrix.txt", col_names=F, na='.', col_types = cols())
+raw <- read_tsv("data/wgs_wild/variant/hap.wild.matrix.txt", col_names=F, na='.', col_types = cols())
+
+snp <- raw %>% filter_at(-(1:2), any_vars(.!=0))
 
 # Sample names for plotting
 sample_names <- read.table("data/wgs_wild/wgs_samples.tsv", header=F, stringsAsFactors = F)
@@ -22,11 +24,23 @@ div100 <- read_tsv("data/wgs_wild/stats/win_w100_t10_PI.tsv", col_type=cols(), c
 
 ```
 
+
+```{r sanity_check}
+# Checking if positions are missing (i.e. indels or SV left)
+sanity <- raw %>% 
+  group_by(X1) %>%
+  arrange(X2) %>%
+  mutate(BP_lag = lag(X2, n = 1L)) %>%
+  mutate(shift = BP_lag - X2) %>%
+  select(X1, X2, shift)
+
+```
+
+
 ```{r format, echo=F}
 
 # Remove SNPs where non-reference allele is fixed
-snp <- raw_snp %>% filter_at(-(1:2), any_vars(.!=1))
-
+snp <- snp %>% filter_at(-(1:2), any_vars(.!=1))
 
 colnames(sample_names) <- c("Name","Sex")
 # Generating separate ID for second haplotype of females
@@ -145,7 +159,7 @@ ggplot(N_MDS, aes(x=Dim1, y=Dim2, col=Sex, label=Name)) +
 
 ```
 
-```{r peak_diff"}
+```{r peak_diff}
 
 PIpeaks <- subset(div100, div100$X4>0.35)
 region_size <- 10000; chr <- ""; pk_coord <- 0
@@ -185,5 +199,22 @@ grid.arrange(grobs=peakplots,ncol=2)
 ```
 
 
-```{r het_vs_variance}
+```{r het_vs_div}
+
+# Comparing female heterozygosity vs overall genetic diversity along the genome in windows
+# Diversity measured in 100bp windows with 10bp steps. Need to compute heterozygosity using the same values.
+win_size=100
+win_step=10
+
+# Proportion of heterozygous SNPs vs PI in windows
+state <- as.matrix(raw[,h1])!=as.matrix(raw[,h2])
+het_win <- data.frame()
+for(i in unique(snp$X1)){
+  win_start <- seq(1, (max(raw$X2[raw$X1==i]) - (win_size-1)), win_step)
+  chr_het <- RcppRoll::roll_mean(state[raw$X1==i,], n = win_size, by = win_step, align = 'left', na.rm = T)
+  chr_het <- data.frame(start=win_start,end=win_start+win_size,Chr=rep(i),chr_het[seq(1,nrow(chr_het),by=win_step),])
+  het_win <- rbind(het_win, chr_het)
+#ratio <- meanwin/div100
+}
+#plot(x=bp, y=ratio)~Chr
 ```

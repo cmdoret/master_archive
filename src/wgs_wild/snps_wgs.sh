@@ -78,11 +78,13 @@ source src/misc/dependencies.sh
 
 # SNP calling in given region for all samples (keeps only variant sites)
 # File names are provided with ploidy by piping the sample list through awk
-bcftools mpileup -Ou \
+# Skipping indels because we are only interested in SNPs currently
+bcftools mpileup -Ou -I \
                  -f "$REF" \
                  -b <(find  "${WGS}/mapped/" -name "*fixed.csort.bam" -type f ) \
                  -r "$region" | \
-  bcftools call -mO z \
+  bcftools call -mO z -M \
+                --skip-variants indels \
                 --samples-file <(awk -v m="$WGS/mapped/" 'BEGIN{FS="\t"} {if(\$2 == "F") {p = 2;} else {p = 1} {print m\$1".fixed.csort.bam",p} }' ${WGS}/wgs_samples.tsv) \
                 -o "${snps}/$region.tmp.vcf.gz"
 
@@ -109,26 +111,35 @@ bsub -q normal \
 
 # Parallel sorting of concatenated VCF file
 bsub -q normal \
-     -n 32 \
-     -K \
+     -n 8 \
+     -J "SORT_VCF" \
      -R "span[ptile=32]" \
      -M 64000000 \
      -R "rusage[mem=64000]" \
-     "vcf-sort -p 30 < ${snps}/wild.vcf > ${snps}/wild.sorted.vcf"
+     "vcf-sort -p 8 < ${snps}/wild.vcf > ${snps}/wild.sorted.vcf"
 
-# Removing all regions VCF
-rm ${snps}/*.tmp.vcf.gz*
+bmonitor "SORT_VCF" 0
 
 stats=${WGS}/stats
 rm -rf $stats
 mkdir -p $stats
 
 # Generate SNP matrix from VCF
-bsub -q priority "bcftools query ${snps}/wild.sorted.vcf \
-                  -f '%CHROM\t%POS[\t%GT]\n' > ${snps}/wild.matrix.txt"
+bsub -q priority -K "bcftools query ${snps}/wild.sorted.vcf \
+                    -f '%CHROM\t%POS[\t%GT]\n' > ${snps}/wild.matrix.txt"
 
 # separate haplotypes of diploid samples into 2 columns
 # Keeping only sites anchored to a chromosome
-paste <(cut -f1-2 ${snps}/wild.matrix.txt) \
-      <(cut -f3- ${snps}/wild.matrix.txt | sed 's#/#\t#g') | \
-      sed -n '/^chr/p' > ${snps}/hap.wild.matrix.txt
+bsub -q priority -K \
+"cut -f1-2 ${snps}/wild.matrix.txt > left_col.txt
+cut -f3- ${snps}/wild.matrix.txt | sed 's#/#\t#g' > right_col.txt
+paste left_col.txt right_col.txt | sed -n '/^chr/p' > ${snps}/hap.wild.matrix.txt
+rm left_col.txt right_col.txt"
+
+# Nicer, faster version. Not working on compute nodes... (process substitution not enabled)
+#paste <(cut -f1-2 ${snps}/wild.matrix.txt) \
+#      <(cut -f3- ${snps}/wild.matrix.txt | sed 's#/#\t#g') | \
+#      sed -n '/^chr/p' > ${snps}/hap.wild.matrix.txt
+
+# Removing all regions VCF
+rm ${snps}/*.tmp.vcf.gz*

@@ -218,3 +218,46 @@ ggplot(data=long_sig, aes(x=position, y=PI)) +
   theme_bw()
 
 ```
+
+After discussion, I added the following figure showing the PI values around SNPs versus up- and downstream regions, but stopping windows after they reach N SNPs rather than just basepair distance
+
+```{r up_down_nSNP, dependson='RAD_PI100', cache=T, cache.lazy=F, echo=F, fig.cap="\\label{fig:up_down_snp}PI values of the local (10 closest SNPs) neighbourhood of each significant RADseq SNP compared to windows of 10 SNPs 10kb upstream and downstream. Regions belonging to a candidate are linked by a segment."}
+around <- 10000
+N_snp <- 10
+
+snp_window <- function(bp, N){
+  # Subsets the PI values chromosome to a window centered around bp containing N SNPs.
+  win_snp <- snp_BP[order(abs(bp-snp_BP))][1:N]
+  win_PI <- PI_chr$PI[PI_chr$BP < max(win_snp) & PI_chr$BP > min(win_snp)]
+  return(win_PI)
+}
+
+# Comparing PI value around RADseq candidates vs upstream and downstream background
+snps$up = snps$down <- NA
+for(chr in unique(RAD$Chr)){
+  
+  # Will be used by snp_window
+  snp_idx <- which(PI_chr$PI>0)
+  snp_BP <- PI_chr$BP[snp_idx]
+  
+  PI_chr <- PI_sites %>% filter(Chr==chr)
+  snps$up[snps$Chr==chr] <- sapply(snps$BP[snps$Chr==chr], 
+                                          function(x) mean(snp_window(x + around, N_snp), na.rm=T))
+  snps$down[snps$Chr==chr] <- sapply(snps$BP[snps$Chr==chr], 
+                                          function(x) mean(snp_window(x - around, N_snp), na.rm=T))
+}
+
+sig <- snps[snps$fisher >=5,]
+long_sig <- gather(sig, position, PI, around10k:up, factor_key=TRUE)
+long_sig$position <- factor(long_sig$position, ordered = T, levels = c("up", "around10k", "down"))
+
+ggplot(data=long_sig, aes(x=position, y=PI)) +
+  geom_boxplot() + 
+  geom_segment(data=sig, aes(x=1,y=up,xend=2,yend=around10k)) + 
+  geom_segment(data=sig, aes(x=2,y=around10k,xend=3,yend=down)) +
+  geom_point(aes(col=Chr))+
+  facet_wrap(~Chr)+
+  scale_x_discrete(labels=sprintf(c("Upstream\n[%i SNPs,-%ikb]", "Candidate\n[%i SNPs, candidate]", "Downstream\n[%i SNPs, +%ikb]"),N_snp,around/1000)) +
+  theme_bw()
+
+```
