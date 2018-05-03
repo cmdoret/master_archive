@@ -1511,28 +1511,36 @@ To get a first insight into the segregation pattern in highly diverse regions, I
 \label{MDS_peaks}
 \end{figure}
 
+\FloatBarrier
+
 \section{Corrections}
 \subsection{distances}
-PCA and MDS analyses presented in the previous sections are not valid because of the unphased data. Here, I address this issue by using a custom distance metric that allows to compare individuals of different ploidies, rather than haplotypes. The metric relies on the difference in allele frequencies between individuals. A homozygous 0/0 has a frequency of 1 for allele 0 and 0 for all other alleles, whereas a heterozygous 0/1 has a frequency of 0.5 for 0 and 1. The distance between 2 such genotypes would be $|1-0.5| + |0-0.5| = 1$. An established metric that would accomplish this is the Nei's distance. I used a site-wise implementation of Nei's genetic distance (Joly et al. 2015) to compute inter-individual distances (Figure \ref{nei_MDS_wg}). The genetic distance between individuals X and Y at site i is defined as: $_nei^i_{XY}=1-\sum_{j}^{A,C,T,G}\sqrt{p^{i}_{j \in X}p^{i}_{j \in Y}}$ where $p_j^i$ is the frequency of nucleotide j at site i.
+PCA and MDS analyses presented in the previous sections are not valid because of the unphased data. Here, I address this issue by using a custom distance metric that allows to compare individuals of different ploidies, rather than haplotypes. The metric relies on the difference in allele frequencies between individuals. A homozygous 0/0 has a frequency of 1 for allele 0 and 0 for all other alleles, whereas a heterozygous 0/1 has a frequency of 0.5 for 0 and 1. The distance between 2 such genotypes would be $|1-0.5| + |0-0.5| = 1$. An established metric that would accomplish this is the Nei's distance. I used a site-wise implementation of Nei's genetic distance (Joly et al. 2015) to compute inter-individual distances (Figure \ref{nei_MDS_wg}). The genetic distance between individuals X and Y at site i is defined as: $_nei^i_{XY}=1-\sum_{j}^{A,C,T,G}\sqrt{p^{i}_{j \in X}p^{i}_{j \in Y}}$ where $p_j^i$ is the frequency of nucleotide j at site i. Pairwise inter-male distances form a tri-modal-ish distribution (Figure \ref{nei_pairwise}).
 
 
 \begin{figure}
-\includegraphics[width=\textwidth]{nucleo_div_wgs/correct/nei_MDS.pdf}
-\caption{MDS on Nei's distance matrix using all SNPs with any number of alleles. Samples are colored according to sex and IDs are shown directly on the plot. For diploid samples (females), haplotypes are encoded as \_1 and \_2.}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/correct/nei_WGS_MDS.pdf}
+\caption{MDS on Nei's distance matrix using all SNPs with any number of alleles. Samples are colored according to sex and IDs are shown directly on the plot.}
 \label{nei_MDS_wg}
 \end{figure}
 
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/correct/pairwise_male_Nei.pdf}
+\caption{Distribution of pairwise Nei's distances between males..}
+\label{nei_pairwise}
+\end{figure}
+
 \subsection{windows}
-To have more robust results when comparing the PI value around candidate SNPs versus upstream and downstream regions, I changed from using fixed N base-pair windows to windows containing N SNPs. This avoids the situations where one window doesn't contain any SNP, or very few.
+To have more robust results when comparing the PI value around candidate SNPs versus upstream and downstream regions, I changed from using fixed N base-pair windows to windows containing N SNPs (Figure \ref{up_down_nSNP}). This avoids situations where one window doesn't contain any (or too few) SNP.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/correct/up_down_nSNP.pdf}
+\caption{PI values in the neighboorhood of each significant (10e-5) candidate  SNP from the association mapping, versus upstream and downstream region. PI values for hit, upstream and downstream regions are computed using the 10 closest SNPs around each position.}
+\label{up_down_nSNP}
+\end{figure}
 
 \subsection{SNP calling}
 I excluded INDELS from the SNP calling as we are only interested in SNPs and the gaps generated in basepair ranges could potentially make windows inaccurate. I also included the "N" sites from the reference to keep the basepairs continuous in downstream analyses. These Ns are generated during the anchoring process and have no biological significance. Adding them is only done for technical reasons.
-
-quick TODO:
-	- Quantify discrepancies in segregation throughout genome vs genetic distance
-	- If interesting stuff: look at metrics used to compute haplotype divergence (lack of recombination) in heliconius supergenes (and ruffs)
-
-	-Optional2: PCA $->$ kmeans (k=2) $->$ cluster separation score (intra vs inter group variance)
 
 \chapter{TO DO}
 \begin{itemize}

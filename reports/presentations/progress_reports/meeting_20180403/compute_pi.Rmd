@@ -257,7 +257,7 @@ ggplot(data=long_sig, aes(x=position, y=PI)) +
   geom_segment(data=sig, aes(x=2,y=around10k,xend=3,yend=down)) +
   geom_point(aes(col=Chr))+
   facet_wrap(~Chr)+
-  scale_x_discrete(labels=sprintf(c("Upstream\n[%i SNPs,-%ikb]", "Candidate\n[%i SNPs, candidate]", "Downstream\n[%i SNPs, +%ikb]"),N_snp,around/1000)) +
+  scale_x_discrete(labels=sprintf(c("Upstream\n[%i SNPs,-%ikb]", "Hit\n[%i SNPs, Hit]", "Downstream\n[%i SNPs, +%ikb]"),N_snp,around/1000)) +
   theme_bw()
 
 ```
