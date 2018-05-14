@@ -1,5 +1,7 @@
 include config.mk
 
+# LOCAL must be defined from command line if running analysis locally
+# e.g: make collinearity LOCAL=yes
 ifdef $(LOCAL)
 	LOCAL='$(LOCAL)';
 endif
@@ -8,12 +10,11 @@ endif
 #### 1. RADseq processing with STACKS ####
 ##########################################
 
-# reference-based STACKS pipeline for LSF cluster
+# reference-based STACKS pipeline for LSF cluster (default)
 ref_lsf:
 	make -f src/pipelines/Makeref.lsf
 
 # reference based STACKS running locally (without LSF)
-# WIP
 .PHONY : ref_local
 ref_local:
 	make -f src/pipelines/Makeref.local
@@ -23,7 +24,8 @@ ref_local:
 ##############################
 
 # This rule is used to split haploid and diploid males.
-# This has already been done under stringent parameters (d=25)
+# This has already been done with the dataset provided
+# under stringent parameters (D=25 in STACKS populations)
 .PHONY : ploidy
 ploidy:
 	# Parsing VCF file from populations output
@@ -92,7 +94,6 @@ $(SIZES):
 # Preparing input file for collinearity analysis. Run MCScanX on files manually
 .PHONY : collinearity
 collinearity : $(RNA)/assembled/ $(CORRESP)
-	#LOCAL='$(LOCAL)'
 	rm -rf $(MCSX-IN)/
 	mkdir -p $(MCSX-IN)/
 	bash $(MCSX-SRC) -g $(RNA)/assembled/transcripts.gtf \
@@ -105,7 +106,10 @@ collinearity : $(RNA)/assembled/ $(CORRESP)
 
 # Assembling transcripts and measuring coverage along genome
 $(RNA)/assembled/ :
-	bash $(RNA-SRC) -a $(BAM) -r $(OLD-REF) -o $@
+	bash $(RNA-SRC) -a $(BAM) \
+									-r $(OLD-REF) \
+									-o $@ \
+									$${LOCAL:+-l}
 
 # Contig correspondance file between old (unanchored)
 # and new (anchored) assembly
@@ -113,6 +117,7 @@ $(CORRESP):
 	bash src/convert_coord/corresp_contigs.sh -O $(OLD-REF) \
 																						-N $(REF) \
 																						-c $(CORRESP) \
+																						$${LOCAL:+-l} \
 																						2> $(LOG)/corresp.log
 
 ###############################################

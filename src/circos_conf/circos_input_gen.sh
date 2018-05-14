@@ -3,11 +3,17 @@
 # 21.11.2017
 
 #---SET UP DIRECTORY---#
+# Reference genome
 ref="data/ref_genome/ordered_genome/merged.fasta"
+# Correspondance file between old and new (anchored) contigs
 tig="data/annotations/corresp_gff.csv"
+# All SNPs from the association mapping
 gwas="data/assoc_mapping/case_control/case_control_all.tsv"
+# Significant SNPs from the association mapping
 gwas_hit="data/assoc_mapping/case_control/case_control_hits.tsv"
+# Collinearity blocks from MCScanX
 mcsx="data/homology/MCScanX/input/MCScanX_in.collinearity"
+# GFF with transcripts coordinates
 gff="data/homology/MCScanX/input/MCScanX_genes_conv.gff"
 cir_dir="data/circos/"
 rm -rf "$cir_dir"
