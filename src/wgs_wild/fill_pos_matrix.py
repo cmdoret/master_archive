@@ -1,7 +1,10 @@
-# Filling missing position with NAs in genotype matrix
+# Filling missing position (rows) with NAs in genotype matrix
+# Reading input matrix from sys.argv and writing to stdout
+
 from __future__ import print_function
 from sys import argv
 
+# Track first row in file
 start_line = True
 with open(argv[1]) as geno_r:
     for pos in geno_r:

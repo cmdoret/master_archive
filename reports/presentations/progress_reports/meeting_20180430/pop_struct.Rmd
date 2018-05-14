@@ -1,0 +1,318 @@
+---
+title: "Population structure"
+author: "Cyril Matthey-Doret"
+date: "23/04/2018"
+output: pdf_document
+---
+
+```{r load, global_opts, echo=F}
+packs <- c("ggplot2","dplyr","readr","viridis", "magrittr", "gridExtra", "ggrepel", "Rcpp", "tibble", "tidyr")
+packs <- suppressPackageStartupMessages(sapply(packs, library, quietly=T, character.only=T))
+
+setwd("../../../../")
+options(readr.show_progress=F)
+raw <- read_tsv("data/wgs_wild/variant/hap.wild.matrix.txt", col_names=F, na='.', col_types = cols())
+
+# Sample names for plotting
+sample_names <- read.table("data/wgs_wild/wgs_samples.tsv", header=F, stringsAsFactors = F)
+# Zoom factor on genomic ranges unit
+zoom <- 10^6
+
+# Nucleotidic diversity (PI) computed in 100bp windows
+div <- read_tsv("data/wgs_wild/stats/win_w1000_t10_PI.tsv", col_type=cols(), col_names=F)
+
+```
+
+```{r missing_regions, echo=F}
+
+# Remove positions where there is less than X samples available
+missing_thresh <- 10
+
+raw <- raw %>% 
+  # Create dummy variable to track sites where too few samples are available
+  mutate(low.samples = rowSums(!is.na(select(.,-(1:2)))) < missing_thresh) %>%
+  # Replace all genotypes calls with NAs at low samples sites
+  mutate_at(-(1:2), .funs=funs(ifelse(low.samples, yes = NA, no = . ))) %>%
+  # Remove dummy variable
+  select(-low.samples)
+
+missing_pos <- raw %>%
+  mutate(N_missing = rowSums(is.na(select(.,-(1:2))))) %>%
+  select(X1,X2,N_missing)
+
+```
+
+```{r format, echo=F, cache=T, cache.lazy=F}
+
+# Remove fixed sites
+snp <- raw  %>% 
+  mutate(dummy_geno=rowMeans(select(., -(1:2)))) %>%
+  filter_at(-(1:2), any_vars(.!=dummy_geno)) %>%
+  select(-dummy_geno)
+
+colnames(sample_names) <- c("Name","Sex")
+
+# Generating separate ID for second haplotype of females
+tmp_fem <- sample_names %>% 
+  filter(Sex=="F") %>% 
+  mutate(Name = sprintf("%s_2", Name))
+
+haplo_names <- sample_names %>% 
+  mutate(Name = ifelse(Sex=='F', 
+                       yes=sprintf("%s_1",Name),
+                       no=Name)) %>%
+  bind_rows(., tmp_fem) %>%
+  arrange(Name)
+
+
+```
+
+```{r dist_missing, echo=F, fig.cap="\\label{fig:dist_missing}Distribution of the number of missing sites after wiping all sites with less than 10 samples available. The peak at 19 is the result of the cleaning."}
+hist(missing_pos$N_missing)
+```
+
+```{r missing_coord, echo=F, fig.cap="\\label{fig:missing_coord}Repartition of missing sites along the gneome. Note all sites with low number of samples have been set to NA only (thus increasing the contrast)."}
+ggplot(missing_pos, aes(x=X2/zoom, y=N_missing)) +
+  facet_wrap(~X1) + 
+  stat_smooth() +
+  ggtitle("Distribution of missing sites: after cleaning") +
+  xlab("position [Mb]") +
+  ylab("missing samples")
+```
+
+# Background
+The main goal here is to characterize genetic relatedness between indiviuals of different ploidies. The second goal is to identify regions of high female heterozygosity compared to overall variation.
+
+# Relatedness
+To measure relatedness, I use Nei's distance. The genetic distance between individuals X and Y at site i is defined as: $_nei^i_{XY}=1-\sum_{j}^{A,C,T,G}\sqrt{p^{i}_{j \in X}p^{i}_{j \in Y}}$ where $p_j^i$ is the frequency of nucleotide j at site i.
+
+# Female heterozygosity
+
+Regions of increased female heterozygosity would be expected around CSD. Computing the ratio of female heterozygosity to overall PI does not show any clear signal (and might be irrelevant, heterozygous regions with low PI will score higher). Something like a product could be better. 
+
+I noticed sudden spikes of PI in windows and noticed these can be caused by positions with very few individuals are available (e.g. 2 samples with different alleles). To make other analyses, I will consider sites with very few samples available (i.e. less than ```r missing_thresh```) as missing.
+
+```{r nei_def, echo=F}
+
+# Core function to compute nei's distance at a single site.
+# adapted from doi.org/10.1111/2041-210X.12343
+cppFunction('NumericMatrix nei_core(const NumericMatrix& snp){
+            //input: matrix for a single site with rows as samples and cols as nucleotide frequencies
+            //output: distance matrix between each pair of samples at a single site
+            double tmp_prod = 0.0;
+            NumericMatrix D(snp.nrow(), snp.nrow());
+            // loop over all pairs of samples
+            for(int Di = 0; Di < snp.nrow(); Di++)
+            {
+              for(int Dj = 0; Dj < snp.nrow(); Dj++)
+              {
+                tmp_prod = 0.0;
+                // loop over frequencies of each of the 4 nucleotides
+                for(int i = 0; i < snp.ncol(); i++)
+                {
+                  tmp_prod += sqrt(snp(Di,i)*snp(Dj,i));
+                }
+                D(Di,Dj) = 1 - tmp_prod;
+              }
+            }
+            
+            return(D);}'
+)
+
+nei_dist <- function(X){
+  # Computes site-based pairwise Nei's distance.
+  # X is a 3D array where rows are sites, cols are samples and depth are alleles
+  # note array dims are 1:row, 2:col, 3:depth
+  # Each value is a frequency between 0 and 1
+  
+  # Adding square root of the product of allele frequencies
+  d <- rowSums(apply(X, function(x) { y = matrix(x, nrow=dim(X)[2], byrow=F);
+                        nei_core(y)}, MARGIN=1))
+  
+  return(matrix(d,nrow=dim(X)[2]))
+}
+
+```
+
+
+```{r dist_comp, echo=F, cache=T, cache.lazy=F}
+
+# Splits female haplotypes, merge them and recode all alleles into frequencies. Note this code depends on the fact that samples are ordered by names with females at the end of the list....
+
+mds_snp <- as.matrix(snp[,-c(1,2)])
+mds_snp <- mds_snp[complete.cases(mds_snp),]
+
+# Fetching (h)aplotype column indices, assuming same sample order for h1 and h2
+h1 <- haplo_names %>% 
+  rownames_to_column('h1') %>% 
+  filter(grepl(pattern = "_1", Name)) %>%
+  pull(h1) %>% as.numeric
+
+h2 <- haplo_names %>% 
+  rownames_to_column('h2') %>% 
+  filter(grepl(pattern = "_2", Name)) %>%
+  pull(h2) %>% as.numeric
+
+# Indexes for females in output (same sample order as input)
+fem_idx <- min(h1):( min(h1) + (length(h1) - 1) )
+
+snp2freq <- function(in_snp){
+  freq_list <- list()
+  for(n in 0:3){
+    nucl_pos <- which(in_snp==n)
+    tmp_mat <- matrix(0,ncol=ncol(in_snp), nrow=nrow(in_snp))
+    tmp_mat[nucl_pos] <- 1
+    
+    # Averaging hap1 with hap2 of every female and writing in place
+    tmp_mat[,fem_idx] <- (tmp_mat[,h1] + tmp_mat[,h2]) / 2
+    freq_list[[n+1]] <- tmp_mat[,1:max(fem_idx)]
+  }
+
+  # 3D array, depth of 4 for A,C,T,G. cell=frequency of nucleotide
+  out_snp <- array(as.numeric(unlist(freq_list)), dim=c(nrow(in_snp),ncol(in_snp)-length(fem_idx),4))
+  return(out_snp)
+}
+freq <- snp2freq(mds_snp)
+dis_mat <- nei_dist(freq)
+
+```
+
+```{r WGS_MDS, cache=T, cache.lazy=F, dependson = 'dist_comp', echo=F}
+
+N_MDS <- cmdscale(dis_mat)
+colnames(N_MDS) <- c("Dim1","Dim2"); rownames(N_MDS) <- NULL
+N_MDS <- cbind(N_MDS, sample_names)
+
+ggplot(N_MDS, aes(x=Dim1, y=Dim2, col=Sex, label=Name)) + 
+  geom_point() + 
+  theme_bw() + 
+  geom_text_repel(size=2.5) + 
+  ggtitle("MDS on Nei's distance matrix of samples using whole genome")
+
+
+```
+
+```{r peak_diff, cache=T, cache.lazy=F, dependson = 'dist_comp', echo=F}
+
+PIpeaks <- div %>% top_n(n=5, wt=X4)
+region_size <- 100000; chr <- ""; pk_coord <- 0
+peakplots <- list()
+gg_idx <- 1
+
+
+for(peak in 1:nrow(PIpeaks)){
+  
+  # Skip peaks less than 10kb apart
+  if(pull(PIpeaks[peak,"X1"]) == chr & 
+     abs(pull(PIpeaks[peak,"X2"]) - pk_coord) < 10000) {next}
+  
+  chr <- pull(PIpeaks[peak,"X1"])
+  pk_coord <- (pull(PIpeaks[peak,"X2"]) + pull(PIpeaks[peak,"X2"])) / 2
+  start <- pk_coord-region_size
+  end <- pk_coord+region_size
+  peak_snp <- snp %>% filter(X1==chr) %>% filter(X2 >= start & X2 <=end)
+  mds_peak <- as.matrix(peak_snp[,-c(1,2)])
+  mds_peak <- mds_peak[complete.cases(mds_peak),]
+  H <- snp2freq(mds_peak)
+  H <- nei_dist(H)
+  H_MDS <- cmdscale(d=H,k=2)
+  colnames(H_MDS) <- c("Dim1","Dim2"); rownames(H_MDS) <- NULL
+  H_MDS <- cbind(H_MDS, sample_names)
+
+  peakplots[[gg_idx]] <- ggplot(H_MDS, aes_string(x="Dim1", y="Dim2", col="Sex", label="Name")) + 
+    geom_point() + 
+    theme_bw() + 
+    geom_text_repel(size=2.5) + 
+    ggtitle(sprintf("MDS, %s:%i", chr,pk_coord)) + 
+    guides(col=F)
+  gg_idx <- gg_idx + 1
+}
+
+grid.arrange(grobs=peakplots,ncol=2)
+```
+
+
+```{r het_vs_div, cache=T, cache.lazy=F, echo=F, dev='png', dpi=300}
+
+# Comparing female heterozygosity vs overall genetic diversity along the genome in windows
+# Diversity measured in 100bp windows with 10bp steps. Need to compute heterozygosity using the same values.
+win_size=1000
+win_step=10
+
+# Proportion of heterozygous SNPs vs PI in windows
+state <- as.matrix(raw[,h1])!=as.matrix(raw[,h2])
+het_win <- data.frame()
+for(i in unique(snp$X1)){
+  win_start <- seq(1, (max(raw$X2[raw$X1==i]) - (win_size-1)), win_step)
+  chr_het <- RcppRoll::roll_mean(state[raw$X1==i,], n = win_size, by = win_step, align = 'left', na.rm = T)
+  chr_het <- data.frame(start=win_start,end=win_start+win_size,Chr=rep(i),chr_het[seq(1,nrow(chr_het),by=win_step),])
+  het_win <- rbind(het_win, chr_het)
+}
+# Trying to engineer a feature for CSD-ness from PI and female heterozygosity
+CSD <- het_win
+# multiplying heterozygosity values by PI values in each corresponding window
+CSD[,4:dim(CSD)[2]] <- CSD[,4:dim(CSD)[2]]*div$X4
+ind_CSD <- CSD %>% gather(female, CSD, -start, -end, -Chr)
+CSD$mean_CSD <- rowMeans(CSD[,4:dim(CSD)[2]], na.rm=T)
+
+ggplot(CSD, aes(x=((start+end)/2)/zoom, y=mean_CSD)) + 
+  geom_line() + 
+  facet_wrap(~Chr) +
+  ggtitle(paste0("CSD proxy using PI and female heterozygosity [", win_size, "bp windows]")) + 
+  xlab("Position [Mb]") + 
+  ylab("Mean female het. by overall PI product")
+
+```
+
+```{r ind_het_div, cache=T, cache.lazy=F, dependson='het_vs-div', echo=F, dev='png', dpi=300}
+ggplot(ind_CSD, aes(x=((start+end)/2)/zoom, y=CSD, col=female)) + 
+  geom_line(alpha=0.4) + 
+  facet_wrap(~Chr) +
+  ggtitle("CSD proxy using PI and female heterozygosity") + 
+  xlab("Position [Mb]") + 
+  ylab("Individual female het. by overall PI product")
+```
+
+
+```{r explo_CSDness, echo=F, fig.cap="\\label{fig:dist_CSD}Distribution of CSD-score (PI*female_het) in 100bp windows overlapping RADseq candidates (red lines) compared to overall distribution."}
+setwd("../../../../")
+RAD <- read_tsv("data/assoc_mapping/case_control/case_control_all.tsv", col_names=T, col_types=cols())
+sig_RAD <- RAD %>%
+  filter(fisher>5) %>%
+  select(Chr, BP, fisher)
+
+
+
+#CSD %>% 
+#  select(start, end, Chr, mean_CSD) %>%
+#  inner_join(
+#    PIpeaks %>% 
+#       rename(Chr = X1, start = X2) %>% 
+#       select(Chr, start) %>%
+#       mutate(start = round(start, -1) + 1), 
+#    by = c("Chr", "start"))
+
+test_peaks <- sig_RAD %>%
+  group_by(Chr) %>%
+  # Removing SNPs very close to each other
+  distinct(round(BP,-2), .keep_all=T) %>%
+  ungroup() %>%
+  group_by(Chr, BP) %>%
+  do(filter(CSD, CSD$start <= .$BP & CSD$end >= .$BP & CSD$Chr == .$Chr)) %>%
+  group_by(Chr) %>%
+  summarize(mean_CSD = mean(mean_CSD, na.rm=T))
+
+ggplot(CSD, aes(x=log10(mean_CSD))) + 
+  facet_wrap(~Chr) + 
+  geom_histogram() + 
+  geom_vline(data=test_peaks, aes(xintercept=log10(mean_CSD)), col='red') + 
+  ggtitle("CSD-score around RADseq candidates vs overall distribution") + 
+  xlab("log10 CSD-score") + 
+  ylab("Number of windows")
+# Compare value of windows containing candidate SNPs to overall distribution 
+# -> empirical p-value
+
+```
+
+
+

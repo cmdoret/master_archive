@@ -7,17 +7,19 @@ all : $(POP)
 $(MAP) : $(PROC)
 	rm -rf $@
 	mkdir -p $@
-	bash $(BWA-SRC) --mm $(MM) \
+	bash $(BWA-RAD) --mm $(MM) \
 	                --ref $(REF) \
 									--reads $(PROC) \
-									--out $(MAP)
+									--out $(MAP) \
+									--local yes
 
 # Building stacks from reference with Pstacks
 $(PSTACK) : $(MAP)
   bash $(P-SRC) --map $< \
                 --m $(M) \
 							  --out $@ \
-							  --log $(LOG)
+							  --log $(LOG) \
+								--local yes
 
 # Building loci catalog with Cstacks
 $(CSTACK): $(PSTACK)
@@ -25,14 +27,16 @@ $(CSTACK): $(PSTACK)
 	mkdir -p $@;
 	bash $(C-SRC) --pst $< \
 	              --cst $@ \
-								--lm $(LM)
+								--lm $(LM) \
+								--local yes
 
 # Running Sstacks
 $(SSTACK) : $(CSTACK)
   bash $(S-SRC) --in $(PSTACK) \
                 --cat $< \
 							  --out $@ \
-							  --log $(LOG)
+							  --log $(LOG) \
+								--local yes
   # Organizing p/c/s stacks files into a common folder
   bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK) $(GRFAM)
 
@@ -50,4 +54,5 @@ $(POP) : $(SSTACK) $(POP-SRC)
 									--md $(D) \
 									--r $(R) \
 									--out $@ \
-									--log $(LOG)
+									--log $(LOG) \
+									--local yes

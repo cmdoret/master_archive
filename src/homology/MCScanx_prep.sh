@@ -41,7 +41,7 @@ while getopts ":g:o:r:p:c:lh" opt; do
    esac
 done
 
-# Testing if mandatory have been provided
+# Testing if mandatory arguments have been provided
 if [ "x" == "x$REF" ] || [ "x" == "x$GFF" ] || \
    [ "x" == "x$OUT_F" ];
 then

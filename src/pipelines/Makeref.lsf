@@ -7,14 +7,14 @@ all : $(POP)
 $(MAP) : $(PROC)
 	rm -rf $@
 	mkdir -p $@
-	bash $(BWA-LSF) --mm $(MM) \
+	bash $(BWA-RAD) --mm $(MM) \
 	                --ref $(REF) \
 									--reads $(PROC) \
 									--out $(MAP)
 
 # Building stacks from reference with Pstacks
 $(PSTACK) : $(MAP)
-	bash $(P-LSF) --map $< \
+	bash $(P-SRC) --map $< \
 	              --m $(M) \
 	              --out $@ \
 								--log $(LOG)
@@ -23,13 +23,13 @@ $(PSTACK) : $(MAP)
 $(CSTACK): $(PSTACK)
 	rm -fr $@;
 	mkdir -p $@;
-	bash $(C-LSF) --pst $< \
+	bash $(C-SRC) --pst $< \
 	              --cst $@ \
 								--lm $(LM)
 
 # Running Sstacks
 $(SSTACK) : $(CSTACK)
-	bash $(S-LSF) --in $(PSTACK) \
+	bash $(S-SRC) --in $(PSTACK) \
 	              --cat $< \
 								--out $@ \
 								--log $(LOG)
@@ -43,7 +43,7 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	# Erasing logs from previous run
 	rm -rf $(LOG)/populations
 	mkdir -p $(LOG)/populations
-	bash $(POP-LSF) --sst $< \
+	bash $(POP-SRC) --sst $< \
 	                --thresh $(THRESH) \
 									--group $(GRFAM) \
 									--md $(D) \

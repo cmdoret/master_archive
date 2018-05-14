@@ -12,8 +12,9 @@ endif
 ref_lsf:
 	make -f src/pipelines/Makeref.lsf
 
-# reference based STACKS without LSF
-.PHONY : ref_nix
+# reference based STACKS running locally (without LSF)
+# WIP
+.PHONY : ref_local
 ref_local:
 	make -f src/pipelines/Makeref.local
 
@@ -73,7 +74,7 @@ $(CENTRO) :
 	Rscript $(ASSOC-SRC)/chrom_types.R $(ASSOC)/grouped_outpool_prophom.tsv \
 	                                   $(CENTRO)
 
-# Processing genomic output for association mapping
+# Processing STACKS "genomic" output for association mapping
 $(ASSOC)/grouped_prophom.tsv :
 	python2 $(ASSOC-SRC)/process_genomic.py $(POP) $(ASSOC) $(GRFAM) \
 	                                        --keep_all --pool_output
