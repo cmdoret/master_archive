@@ -5,20 +5,31 @@
 # 11.10.2017
 
 
-# Parsing CL arguments
-while [[ "$#" > 1 ]];
-do
-    case $1 in
-        # Working directory. Must contain a "raw" folder with reads
-        --workdir) wgs="$2";;
-        # Reference genome. Must be indexed beforehand
-        --ref) index="$2";;
-        *) break;;
-esac; shift; shift
+function usage () {
+  cat <<EOF
+Usage: `basename $0` -d work_dir -r ref [-l] [-h]
+  -d working directory. Must contain a "raw" directory with input reads.
+  -r path to reference genome
+  -l local run. If specified, will not use LSF bsub command
+  -h displays this help
+EOF
+  exit 0
+}
+
+while getopts ":d:r:lh" opt; do
+    case $opt in
+        d ) wgs="${OPTARG}";;
+        r ) ref="${OPTARG}";;
+        l ) local=yes;;
+        h ) usage;;
+        \?) usage;;
+    esac
 done
 
-# #Mismatches allowed per read for mapping
-MM=4
+# If on cluster, use bsub to submit jobs, otherwise run directly
+if [ -z ${local+x} ];then run_fun="bsub";else run_fun="bash";fi
+
+
 # #threads used when mapping
 threads=8
 # Max number of parallel jobs
@@ -31,32 +42,32 @@ in_dir="${wgs}/raw/"
 
 # Each sample is split into forward and reverse on 2 different lanes
 # Building array of sample names from raw reads files
-samples=( $(find "$in_dir" | grep "fastq" | sed 's/.*\(HYI-[0-9]*\)_R.*/\1/g' | sort | uniq) )
+samples=( $(find "$in_dir" \
+            | grep "fastq" \
+            | sed 's/.*\(HYI-[0-9]*\)_R.*/\1/g' \
+            | sort \
+            | uniq) )
 
 # Reinitializing folders
-rm -rf "${wgs}/merged/"
-mkdir -p "${wgs}/merged/"
-
+merged_dir="${wgs}/merged/"
 tmp_dir="${wgs}/tmp/"
-rm -rf "$tmp_dir"
-mkdir -p "$tmp_dir"
-
 map_dir="${wgs}/mapped/"
-rm -rf "$map_dir"
-mkdir -p "$map_dir"
+logs="${wgs}/log/"
+for dir in "$merged_dir" "$tmp_dir" "$mapped_dir" "$logs"
+do
+  rm -rf "$dir"
+  mkdir -p "$dir"
+done
 
-logs="${wgs}/log"
-rm -rf "$logs"
-mkdir -p "$logs"
 
 for sample in ${samples[@]};
 do
 
 # Hang script if too many parallel jobs running
-bmonitor "WGSBWA" $MAXPROC
+if [ -z ${local+x} ];then bmonitor "WGSBWA" $MAXPROC;fi
 
 # Submit the mapping of each sample as an independent job
-bsub << EOF
+eval $run_fun << EOF
 #!/bin/bash
 #BSUB -L /bin/bash
 #BSUB -o ${logs}/${sample}-OUT.txt
@@ -123,5 +134,5 @@ rm -v "${map_dir}/${sample}.sam" \
 EOF
 done
 
-# Hang script while there are still mapping jobs running
-bmonitor "WGSBWA" 0
+# Hang script while there are still mapping jobs running on cluster
+if [ -z ${local+x} ];then bmonitor "WGSBWA" 0; fi

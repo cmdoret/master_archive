@@ -15,8 +15,9 @@ in_path <- commandArgs(trailingOnly = T)[1]
 out_path <- commandArgs(trailingOnly = T)[2]
 
 #==== LOAD PACKAGES AND DATA ====#
-pack <- c("ggplot2","dplyr","viridis","zoo", "readr")
-lapply(pack, require, character.only = TRUE)
+packs <- c("ggplot2","dplyr","viridis","zoo", "readr")
+packs <- sapply(packs, function(x) 
+  suppressPackageStartupMessages(library(x, quietly=T, character.only=T)))
 
 indv <- read.table('data/individuals.tsv', header=T)
 grouped <- "F"

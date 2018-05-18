@@ -6,8 +6,7 @@
 
 #======== LOAD DATA =========####
 # Loading libraries for data processing and visualisation
-library(dplyr);library(readr);library(ggplot2); library(gridExtra);library(ggrepel)
-packs <- c("dplyr","readr","ggplot2","gridExtra","viridis")
+packs <- c("dplyr","readr","ggplot2","gridExtra","viridis", "ggrepel")
 packs <- suppressPackageStartupMessages(sapply(packs, library, character.only=T, quietly=T))
 in_args <- commandArgs(trailingOnly = T)
 signif <- 0.00001

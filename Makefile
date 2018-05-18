@@ -120,24 +120,53 @@ $(CORRESP):
 																						$${LOCAL:+-l} \
 																						2> $(LOG)/corresp.log
 
-###############################################
-#### 5. PI DIVERSITY FROM WILD SAMPLES WGS ####
-###############################################
+#########################################
+#### 5. ANALYSIS OF WILD WGS SAMPLES ####
+#########################################
+#WIP: Splitting rules
+$(WGS)/mapped : $(WGS)/raw/
+	bash src/wgs_wild/bwa_wgs.sh -d $(WGS) \
+														 	 -r $(REF) \
+														 	 $${LOCAL:+-l}
+
+
+$(WGS)/variant/hap.wild.matrix : $(WGS)/mapped
+	bash src/wgs_wild/snps_wgs.sh -d $(WGS) \
+																-r $(REF) \
+																$${LOCAL:+-l}
+
+.PHONY : wgs_qc
+wgs_qc : $(WGS)/mapped $(WGS)/raw
+	bash src/wgs_wild/qc_gen.sh -d $(WGS) \
+															-r $(REF) \
+															$${LOCAL:+-l}
 
 .PHONY : wgs_wild
-wgs_wild : $(CORRESP) $(SIZES)
-	#bash src/wgs_wild/bwa_wgs.sh --workdir $(WGS) --ref $(REF)
-	#bash src/wgs_wild/qc_gen.sh --workdir $(WGS) --ref $(REF) --out $(WGS)/qc_output
-	#bash src/wgs_wild/snps_wgs.sh --workdir $(WGS) --ref $(REF) --winsize 100
-	Rscript src/wgs_wild/compute_PI.R -i $(WGS)/variant/hap.wild.matrix.txt \
+wgs_wild : $(CORRESP) $(SIZES) $(WGS)/variant/hap.wild.matrix
+	bash src/wgs_wild/bwa_wgs.sh -d $(WGS) \
+															 -r $(REF) \
+															 $${LOCAL:+-l}
+
+	bash src/wgs_wild/qc_gen.sh -d $(WGS) \
+															-r $(REF) \
+															$${LOCAL:+-l}
+
+	bash src/wgs_wild/snps_wgs.sh -d $(WGS) \
+																-r $(REF) \
+																$${LOCAL:+-l}
+
+	Rscript src/wgs_wild/compute_PI.R \
+										-i $(WGS)/variant/hap.wild.matrix.txt \
 									  -o $(WGS)/stats/win_w100_t10_PI.tsv \
-									  -m 'window' --step_size 10 --win_size 100
-	Rscript src/wgs_wild/compute_PI.R -i $(WGS)/variant/hap.wild.matrix.txt \
-									  -o $(WGS)/stats/sites_PI.tsv -m 'site'
-	bash src/convert_coord/CSD_contig.sh $(HITS) \
-																			 3 \
-																			 $(CORRESP) \
-																			 $(ASSOC)
+									  -m 'window' \
+										--step_size 10 \
+										--win_size 100
+
+	Rscript src/wgs_wild/compute_PI.R
+									  -i $(WGS)/variant/hap.wild.matrix.txt \
+									  -o $(WGS)/stats/sites_PI.tsv \
+										-m 'site'
+
 
 ####################
 #### MISC RULES ####

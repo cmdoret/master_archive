@@ -153,7 +153,8 @@ ggplot(ref_GC, aes(x=(start+end)/(2*zoom), y=GC)) +
 These samples should give more insight into the location of centromeres as they are originate from sexual families. This means recombination should still havppen between the parents and therefore, GC-biased gene conversion should occur.
 
 ```{wgs_GC}
-# TODO: get genotype matrix (in nucleotides, not int...)
+# TODO: get genotype matrix (in nucleotides, not int...) 
+# -> use the TGT option in bcftools query expression
 slide_GC(mat = wgs_table, pos = , win = win_size, step = win_step)
 
 ```

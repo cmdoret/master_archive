@@ -4,27 +4,40 @@
 # Cyril Matthey-Doret
 # 23.02.2018
 
+
+function usage () {
+  cat <<EOF
+Usage: `basename $0` -d work_dir -r ref [-l] [-h]
+  -d working directory. Must contain "raw" and "mapped" folders with input files.
+  -r path to reference genome
+  -l local run. If specified, will not use LSF bsub command
+  -h displays this help
+EOF
+  exit 0
+}
+
 # Parse CL arguments
-while [[ "$#" > 1 ]];
-do
-    case $1 in
-        # Working directory. Must contain a "raw" folder with reads
-        --workdir) wgs="$2";;
-        # Reference genome. Must be indexed beforehand
-        --ref) index="$2";;
-        # Output folder
-        --out) out_folder="$2";;
-        *) break;;
-esac; shift; shift
+while getopts ":d:r:lh" opt; do
+    case $opt in
+        d ) wgs="${OPTARG}";;
+        r ) index="${OPTARG}";;
+        l ) local=yes;;
+        h ) usage;;
+        \?) usage;;
+    esac
 done
+
+# If on cluster, use bsub to submit jobs, otherwise run directly
+if [ -z ${local+x} ];then run_fun="bsub";else run_fun="bash";fi
 
 source src/misc/jobs_manager.sh
 source src/misc/dependencies.sh
 MAXPROC=15
 
-# Folder containing input raw reads files
+# input and output folders
 in_dir="${wgs}/raw/"
 map_dir="${wgs}/mapped/"
+out_dir="${wgs}/qc_output/"
 
 # Resetting temporary working directory
 tmp_dir="${wgs}/tmp/"
@@ -41,10 +54,10 @@ samples=( $(find "$in_dir" | grep "fastq" | sed 's/.*\(HYI-[0-9]*\)_R.*/\1/g' | 
 for sample in ${samples[@]};
 do
 
-bmonitor "WGSQC" $MAXPROC
+if [ -z ${local+x} ];then bmonitor "WGSQC" $MAXPROC; fi
 
 # Submit the QC of each sample as an independent job
-bsub << EOF
+eval $run_fun <<EOF
 #!/bin/bash
 #BSUB -L /bin/bash
 #BSUB -o ${logs}/QC-${sample}-OUT.txt
@@ -74,7 +87,7 @@ samtools stats -r $index "${map_dir}/${sample}.fixed.csort.bam" > $out_folder/${
 EOF
 done
 
-bmonitor "WGSQC" 0
+if [ -z ${local+x} ];then bmonitor "WGSQC" 0; fi
 
 # MultiQC for all samples: Incorporating samtools picard and fastqc output
 multiqc ${out_folder}/*  -o $out_folder
