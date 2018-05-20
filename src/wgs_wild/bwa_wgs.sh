@@ -53,7 +53,7 @@ merged_dir="${wgs}/merged/"
 tmp_dir="${wgs}/tmp/"
 map_dir="${wgs}/mapped/"
 logs="${wgs}/log/"
-for dir in "$merged_dir" "$tmp_dir" "$mapped_dir" "$logs"
+for dir in "$merged_dir" "$tmp_dir" "$map_dir" "$logs"
 do
   rm -rf "$dir"
   mkdir -p "$dir"

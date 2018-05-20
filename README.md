@@ -67,6 +67,7 @@ To run the pipeline with new data in the form of demultiplexed, trimmed reads in
 * [CuffLinks 2.2.1](http://cole-trapnell-lab.github.io/cufflinks/)
 * [ncbi-BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi)
 * [MCScanX](http://chibba.pgml.uga.edu/mcscan2/)
+* [Trimmomatic](http://usadellab.org/cms/?page=trimmomatic)
 * [R 3.3.x](https://www.r-project.org/)
   + [readr 1.1.1](https://cran.r-project.org/web/packages/readr/README.html)
   + [tidyr 0.7.0](https://cran.r-project.org/web/packages/tidyr/index.html)

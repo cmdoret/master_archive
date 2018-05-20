@@ -16,7 +16,7 @@ module add UHTS/Aligner/bwa/0.7.15 \
            SequenceAnalysis/GenePrediction/augustus/3.2.3 \
            SequenceAnalysis/HMM-Profile/hmmer/3.1b2 \
            UHTS/Analysis/stacks/1.48 \
-           UHTS/Analysis/HTSlib/1.6
+           UHTS/Analysis/HTSlib/1.6 2> /dev/null || echo "Trying to load modules locally"
 
 # Loaded from local install
 export PATH=$PATH:"~/scratch/softwares/MCScanX/"

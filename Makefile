@@ -124,7 +124,7 @@ $(CORRESP):
 #### 5. ANALYSIS OF WILD WGS SAMPLES ####
 #########################################
 #WIP: Splitting rules
-$(WGS)/mapped : $(WGS)/raw/
+$(WGS)/mapped : $(WGS)/raw
 	bash src/wgs_wild/bwa_wgs.sh -d $(WGS) \
 														 	 -r $(REF) \
 														 	 $${LOCAL:+-l}
@@ -143,17 +143,6 @@ wgs_qc : $(WGS)/mapped $(WGS)/raw
 
 .PHONY : wgs_wild
 wgs_wild : $(CORRESP) $(SIZES) $(WGS)/variant/hap.wild.matrix
-	bash src/wgs_wild/bwa_wgs.sh -d $(WGS) \
-															 -r $(REF) \
-															 $${LOCAL:+-l}
-
-	bash src/wgs_wild/qc_gen.sh -d $(WGS) \
-															-r $(REF) \
-															$${LOCAL:+-l}
-
-	bash src/wgs_wild/snps_wgs.sh -d $(WGS) \
-																-r $(REF) \
-																$${LOCAL:+-l}
 
 	Rscript src/wgs_wild/compute_PI.R \
 										-i $(WGS)/variant/hap.wild.matrix.txt \
