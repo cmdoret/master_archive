@@ -109,7 +109,7 @@ trimmomatic PE \$forward \$reverse \$trimF \$trimFU \$trimR \$trimRU \
             LEADING:20 TRAILING:20
 
 # Mapping paired ends reads
-bwa mem -t $threads $index \$trimF \$trimR > "${map_dir}/${sample}.sam"
+bwa mem -t $threads $ref \$trimF \$trimR > "${map_dir}/${sample}.sam"
 
 # Convert SAM files to BAM
 samtools view -@ $threads -b -o "${map_dir}/${sample}.bam" "${map_dir}/${sample}.sam"
