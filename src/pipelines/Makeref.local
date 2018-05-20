@@ -9,17 +9,17 @@ $(MAP) : $(PROC)
 	mkdir -p $@
 	bash $(BWA-RAD) --mm $(MM) \
 	                --ref $(REF) \
-									--reads $(PROC) \
-									--out $(MAP) \
-									--local yes
+					--reads $(PROC) \
+					--out $(MAP) \
+					--local yes
 
 # Building stacks from reference with Pstacks
 $(PSTACK) : $(MAP)
-  bash $(P-SRC) --map $< \
-                --m $(M) \
-							  --out $@ \
-							  --log $(LOG) \
-								--local yes
+	bash $(P-SRC) --map $< \
+                  --m $(M) \
+				  --out $@ \
+				  --log $(LOG) \
+    			  --local yes
 
 # Building loci catalog with Cstacks
 $(CSTACK): $(PSTACK)
@@ -27,18 +27,18 @@ $(CSTACK): $(PSTACK)
 	mkdir -p $@;
 	bash $(C-SRC) --pst $< \
 	              --cst $@ \
-								--lm $(LM) \
-								--local yes
+				  --lm $(LM) \
+				  --local yes
 
 # Running Sstacks
 $(SSTACK) : $(CSTACK)
-  bash $(S-SRC) --in $(PSTACK) \
+	bash $(S-SRC) --in $(PSTACK) \
                 --cat $< \
-							  --out $@ \
-							  --log $(LOG) \
-								--local yes
-  # Organizing p/c/s stacks files into a common folder
-  bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK) $(GRFAM)
+				--out $@ \
+				--log $(LOG) \
+				--local yes
+# Organizing p/c/s stacks files into a common folder
+	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK) $(GRFAM)
 
 # Running populations on each family
 $(POP) : $(SSTACK) $(POP-SRC)
@@ -50,9 +50,9 @@ $(POP) : $(SSTACK) $(POP-SRC)
 	# Changing parameters directly in the file
 	bash $(POP-SRC) --sst $< \
 	                --thresh $(THRESH) \
-									--group $(GRFAM) \
-									--md $(D) \
-									--r $(R) \
-									--out $@ \
-									--log $(LOG) \
-									--local yes
+					--group $(GRFAM) \
+					--md $(D) \
+					--r $(R) \
+					--out $@ \
+					--log $(LOG) \
+					--local yes
