@@ -19,7 +19,7 @@ cir_dir="data/circos/"
 rm -rf "$cir_dir"
 mkdir -p "$cir_dir"
 # power of 10 to consider hits significant
-sigpow=3
+sigpow=5
 
 #---FORMAT DATA FILES---#
 
