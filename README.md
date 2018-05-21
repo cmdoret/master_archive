@@ -14,16 +14,17 @@ To run the pipeline with the data provided:
 2. Download the `data` archive (not available yet) into the main folder
 3. ```cd``` to the main folder
 4. Untar the data using ```tar -xzvf data.tar.gz data```
-5a. Run the  pipeline on a cluster with LSF:
-    + `make` to run the STACKS pipeline
-    + `make assoc_mapping` to run the association mapping (needs STACKS data)
-    + `make collinearity` to compute collinearity blocks (needs STACKS data)
-    + `make wgs_wild` to run the analysis of wild WGS samples
-5b. Run the pipeline on a local machine
-    + `make ref_local` to run the STACKS pipeline
-    + `make assoc mapping` to run the association mapping (needs STACKS data)
-    + `make collinearity LOCAL=yes` to compute collinearity blocks (needs STACKS data)
-    + `make wgs_wild LOCAL=yes` to run the analysis of wild WGS samples
+5. Run the  pipeline
+    1. On a cluster with LSF:
+        + `make` to run the STACKS pipeline
+    	+ `make assoc_mapping` to run the association mapping (needs STACKS data)
+    	+ `make collinearity` to compute collinearity blocks (needs STACKS data)
+    	+ `make wgs_wild` to run the analysis of wild WGS samples
+    2. On a local machine
+        + `make ref_local` to run the STACKS pipeline
+        + `make assoc mapping` to run the association mapping (needs STACKS data)
+        + `make collinearity LOCAL=yes` to compute collinearity blocks (needs STACKS data)
+        + `make wgs_wild LOCAL=yes` to run the analysis of wild WGS samples
 
 
 To run the STACKS pipeline with new data in the form of demultiplexed, trimmed reads in compressed fastq files (.fq.gz):
@@ -33,7 +34,7 @@ To run the STACKS pipeline with new data in the form of demultiplexed, trimmed r
 * Family: Clutches to which the individual belongs. These can be any combination of alphanumeric characters.
 * Generation: Useful if there are mothers and offspring. Values should be F3 for mothers and F4 for offspring.
 2. Create an empty folder named data and place the 2 files inside. This folder needs to be located inside the same directory as src.
-3. Place your (trimmed, demultiplexed) reads in a subfolder of data named `processed` and your reference genome in a subfolder named `ref_genome`. You will also need to edit the `REF` path in `config.mk` accordingly. If you wish to use different folder names, just edit the corresponding paths in `config.mk`. 
+3. Place your (trimmed, demultiplexed) reads in a subfolder of data named `processed` and your reference genome in a subfolder named `ref_genome`. You will also need to edit the `REF` path in `config.mk` accordingly. If you wish to use different folder names, just edit the corresponding paths in `config.mk`.
 
 4. Set the variable `D` in `config.mk` to 25 (minimum locus depth for STACKS populations). Type `make` in the command line (or `make `ref_local` if running on a local machine). Once the pipeline has finished running, set the variable `D` back to 5 and type `make ploidy` to infer ploidy from the homozygosity of variant sites. Note the threshold selected to define ploidy is adapted to the dataset presented here. You might want to define a threshold yourself by inspecting the distribution of homozygosity (HOM variable) in `data/ploidy/thresholds/fixed.tsv` and the variable `HOM_PLOID` in `config.mk` to this value. Once you have modified the threshold, run `make ploidy` again to update the ploidy classification with the new threshold.
 5. Type `make -B` to run the pipeline again without haploids.
@@ -69,7 +70,7 @@ To run the STACKS pipeline with new data in the form of demultiplexed, trimmed r
 ### Dependencies:
 * [FastQC 0.11.5](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/): Quality control of sequencing data.
 * [BWA 0.7.2](http://bio-bwa.sourceforge.net/)
-* [STACKS 1.46](http://catchenlab.life.illinois.edu/stacks/)
+* [STACKS 1.48](http://catchenlab.life.illinois.edu/stacks/)
 * [SAMtools 1.3](http://samtools.sourceforge.net/)
 * [VCFtools 0.1.13](https://vcftools.github.io/)
 * [BEDtools 2.25](http://bedtools.readthedocs.io/)
