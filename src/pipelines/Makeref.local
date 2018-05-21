@@ -30,24 +30,24 @@ $(CSTACK): $(PSTACK)
 				  --lm $(LM) \
 				  --local yes
 
-# Running Sstacks
-$(SSTACK) : $(CSTACK)
+# Running sstacks and populations
+$(POP) : $(SSTACK) $(POP-SRC) $(CSTACK)
+
 	bash $(S-SRC) --in $(PSTACK) \
-                --cat $< \
-				--out $@ \
+                --cat $(CSTACK) \
+				--out $(SSTACK) \
 				--log $(LOG) \
 				--local yes
-# Organizing p/c/s stacks files into a common folder
+	# Organizing p/c/s stacks files into a common folder
 	bash $(GR-SRC) $(PSTACK) $(CSTACK) $(SSTACK) $(GRFAM)
 
-# Running populations on each family
-$(POP) : $(SSTACK) $(POP-SRC)
 	rm -rf $@
 	mkdir -p $@
 	# Erasing logs from previous run
 	rm -rf $(LOG)/populations
 	mkdir -p $(LOG)/populations
 	# Changing parameters directly in the file
+	
 	bash $(POP-SRC) --sst $< \
 	                --thresh $(THRESH) \
 					--group $(GRFAM) \

@@ -10,22 +10,32 @@ In this project, we use restriction-site associated DNA-sequencing (RAD-seq) and
 
 ## Instructions:
 To run the pipeline with the data provided:
-1. Place a copy of this repository on a cluster which supports LSF commands.
+1. Download or clone this repository.
 2. Download the `data` archive (not available yet) into the main folder
 3. ```cd``` to the main folder
 4. Untar the data using ```tar -xzvf data.tar.gz data```
-5. Type ```make``` to run the pipeline
+5a. Run the  pipeline on a cluster with LSF:
+    + `make` to run the STACKS pipeline
+    + `make assoc_mapping` to run the association mapping (needs STACKS data)
+    + `make collinearity` to compute collinearity blocks (needs STACKS data)
+    + `make wgs_wild` to run the analysis of wild WGS samples
+5b. Run the pipeline on a local machine
+    + `make ref_local` to run the STACKS pipeline
+    + `make assoc mapping` to run the association mapping (needs STACKS data)
+    + `make collinearity LOCAL=yes` to compute collinearity blocks (needs STACKS data)
+    + `make wgs_wild LOCAL=yes` to run the analysis of wild WGS samples
 
-To run the pipeline with new data in the form of demultiplexed, trimmed reads in compressed fastq files (.fq.gz):
+
+To run the STACKS pipeline with new data in the form of demultiplexed, trimmed reads in compressed fastq files (.fq.gz):
 1. Describe your samples by writing 2 files named `popmap.tsv` and `individuals.tsv`, respectively. The structure of the `popmap.tsv` file is described on the [official STACKS website](http://catchenlab.life.illinois.edu/stacks/manual/) (here, populations should be the sex of individuals). The `individuals.tsv` file is a tab delimited text file with 4 columns with the following headers __included__:
-* Name: The name of samples. This should be the prefix of their data files.
+* Name: The names of samples. This should be the name of their data files (e.g. if the sample name is SAMPLE1, the corresponding reads file should be named SAMPLE1.fq.gz).
 * Sex: F for females and M for males.
-* Family: Clutches to which the individual belongs. These can be any combination of letters and numbers.
+* Family: Clutches to which the individual belongs. These can be any combination of alphanumeric characters.
 * Generation: Useful if there are mothers and offspring. Values should be F3 for mothers and F4 for offspring.
 2. Create an empty folder named data and place the 2 files inside. This folder needs to be located inside the same directory as src.
-3. Place your (trimmed, demultiplexed) reads in a subfolder of data named `processed` and your reference genome in a subfolder named `ref_genome`. If you wish to use different folder names, just edit the corresponding paths in `config.mk`.
+3. Place your (trimmed, demultiplexed) reads in a subfolder of data named `processed` and your reference genome in a subfolder named `ref_genome`. You will also need to edit the `REF` path in `config.mk` accordingly. If you wish to use different folder names, just edit the corresponding paths in `config.mk`. 
 
-4. Type `make` in the command line. Once the pipeline has finished running, type `make ploidy` to infer ploidy from the homozygosity of variant sites. Note the threshold selected to define ploidy is adapted to the dataset presented here. You will probably need to define a threshold yourself by inspecting the distribution of homozygosity (HOM variable) in `data/ploidy/thresholds/fixed.tsv` and set the variable  `fixed_thresh` in `src/ploidy/haplo_males.py` to this value. Once you have modified the threshold, run `make ploidy` again to update the ploidy classification with the new threshold.
+4. Set the variable `D` in `config.mk` to 25 (minimum locus depth for STACKS populations). Type `make` in the command line (or `make `ref_local` if running on a local machine). Once the pipeline has finished running, set the variable `D` back to 5 and type `make ploidy` to infer ploidy from the homozygosity of variant sites. Note the threshold selected to define ploidy is adapted to the dataset presented here. You might want to define a threshold yourself by inspecting the distribution of homozygosity (HOM variable) in `data/ploidy/thresholds/fixed.tsv` and the variable `HOM_PLOID` in `config.mk` to this value. Once you have modified the threshold, run `make ploidy` again to update the ploidy classification with the new threshold.
 5. Type `make -B` to run the pipeline again without haploids.
 
 ### Status:
@@ -118,27 +128,21 @@ The `src` folders contains all scripts required to run the analysis along with o
 
 
 * `stacks_pipeline`: This folder contains scripts required to run the different components of the STACKS suite
-  + `multi_pstacks.sh`: Generates one temporary script per sample, running each of these in parallel. Each script produces 'stacks' from processed reads, using the Pstacks module.
-  + `sub_cstacks.sh`: Constructs a catalogue of loci from `multi_pstacks.sh` output files. Only files containing at least 10% of the mean number of RAD-tags (computed over all files) are included in the catalogue to remove poor quality samples.
+  + `pstacks_script.sh`: Produces 'stacks' from processed reads, using the Pstacks module.
+  + `cstacks_script.sh`: Constructs a catalogue of loci from the output of `pstacks_script.sh`. Only files containing at least 10% of the mean number of RAD-tags (computed over all files) are included in the catalogue to remove poor quality samples.
   + `group_sstacks.sh`: Copy pstacks and cstacks output files to the sample folder to provide a working directory for `multi_sstacks.sh`.
-  + `multi_sstacks.sh`: Generates one temporary script per sample, running each of these in parallel. Each script produces a 'match' file from pstacks and cstacks output files (stacks and catalogue, respectively).
+  + `sstacks_script.sh`: Produces 'match' files from pstacks and cstacks output files (stacks and catalogue, respectively).
   + `populations.sh`: Uses the populations module to compute populations statistics and generate different outputs from sstacks output files.
-
-
 
 * `ploidy`: This folder contains scripts required to classify males as diploid or haploid based on the genomic data.
   + `haplo_males.py`: Uses a threshold to infer the ploidy of males.
-  + `comp_thresh.R`: Plots the ploidy inferred by different threshold, using tables produces by `haplo_males.py`. Allows to visually selevt the most realistic threshold formula.
+  + `comp_thresh.R`: Plots the ploidy inferred by different threshold, using tables produces by `haplo_males.py`. Allows to visually selevt the most realistic threshold.
   + `prop_offspring.R`: Produces pie charts showing proportion of haploid males, diploid males and daughters for each family.
 
 
 * `assoc_mapping`: This folder contains scripts used to locate candidate CSD region(s).
-  + `genome_Fst.R`: Computes Male-Female Fst at each locus and plots it. Does not take relative positions of SNPs into account, this is just an exploratory analysis.
   + `assoc_map.R`: Performs the actual association mapping, incorporating linkage map information. (WIP)
-  + `vcf2ped.sh`: transforms vcf files into ped files, compatible with GenABEL for association mapping.
-  + `CSD_scan.R`: Genome scan to find region of both high homozygosity in males and high heterozygosity in females.
   + `chrom_types.R`: Modeling recombination rates along chromosomes to locate centromeres and refine the list CSD hits using this information.
-  + `group_mothers.R`: Group mothers by clustering them according to diploid males production to infer the number of heterozygous CSD loci.
   + `blast_loci.sh`: Quickly blast candidate genomic regions.
   + `process_genomic.py`: Process genomic output from STACKS' populations module by transforming numeric encoding of genotypes into homozygous/heterozygous/missing, removing loci that are either homozygous or missing in mothers from their families and computing proportion of homozygous individuals per sex/family at each site.
 

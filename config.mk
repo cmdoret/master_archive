@@ -44,8 +44,9 @@ SIZES=$(DAT)/ref_genome/tig.sizes.txt
 VCFSUM=$(DAT)/ploidy/vcftools/summary_full.txt
 THRESH=$(DAT)/ploidy/thresholds/fixed.tsv
 BLACK=$(DAT)/ploidy/blacklist.tsv
-# Note: threshold for ploidy threshold in haplo_males for my samples are:
-# 0.77 if running pop. per fam.; 0.90 if running pop. on all samples
+# Note: best value for ploidy threshold in haplo_males for our samples is 0.90
+# Change it according to distribution of homozygousity in the dataset
+HOM_PLOID=0.90
 
 # Association mapping:
 ASSOC-SRC=src/assoc_mapping/
