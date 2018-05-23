@@ -34,7 +34,7 @@ R=80
 D=5
 
 # Misc: report generation
-LAB=reports/lab_book
+LAB=docs/lab_book
 MISC=src/misc
 REF=$(DAT)/ref_genome/ordered_genome/merged.fasta
 REF-ANN=$(DAT)/ref_genome/ordered_genome/merged.fasta.ann
@@ -63,6 +63,9 @@ OLD-REF=$(DAT)/ref_genome/canu2_low_corrRE.contigs.fasta
 MCSX-SRC=src/homology/MCScanX_prep.sh
 MCSX-IN=$(DAT)/homology/MCScanX/input
 CORRESP=$(DAT)/annotations/corresp_gff.csv
+
+# Linkage map
+LINKMAP=$(DAT)/linkage_map/
 
 
 MAP=$(DAT)/mapped/aln-$(MM)

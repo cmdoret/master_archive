@@ -224,4 +224,4 @@ for fam in sorted(fam_geno):
     plt.text(1.3, 1.2, textstr, fontsize=9)
     plt.draw()
     # plt.show()
-    plt.savefig("reports/lab_book/assoc_explo_fam/" + fam + ".pdf")
+    plt.savefig("docs/lab_book/assoc_explo_fam/" + fam + ".pdf")

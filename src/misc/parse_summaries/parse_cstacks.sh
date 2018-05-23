@@ -19,4 +19,4 @@ do
     echo ${d##*mm-}','$L','$A >> cstats.csv;
 done
 
-cp cstats.csv ../../reports/lab_book/cstats.csv
+cp cstats.csv ../../docs/lab_book/cstats.csv

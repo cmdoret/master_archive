@@ -24,4 +24,4 @@ SNPs <-  read_csv(SNP_path)
 SNPs %>% 
   group_by(family) %>%
   summarise("N SNPs"=length(family)) %>%
-  write_csv(path = paste0("reports/lab_book/cleaning_genomic_data/", out_name), col_names = T)
+  write_csv(path = paste0("docs/lab_book/cleaning_genomic_data/", out_name), col_names = T)

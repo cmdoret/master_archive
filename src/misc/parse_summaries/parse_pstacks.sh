@@ -42,4 +42,4 @@ do
     }}
     END {printf "%.1f,%.1f,%.1f\n", nloc/n,meancov/n,sdcov/n}' $f >> pstats.csv
 done;
-cp pstats.csv ../../reports/lab_book/
+cp pstats.csv ../../docs/lab_book/

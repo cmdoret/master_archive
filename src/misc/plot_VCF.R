@@ -91,7 +91,7 @@ for(p in param_space){
 out_table <- data.frame(lapply(out_table, function(y) if(is.numeric(y)) round(y, 2) else y))
 colnames(out_table) <- c("r parameter","obs.hom.","exp.hom.","n.sites","inbreed.coef.","mean depth","obs./exp. hom.")
 write.table(out_table,file='vcftools/vcf_sumtable.csv',col.names = T,quote = F,row.names = F,sep=',')
-system("cp vcftools/vcf_sumtable.csv vcftools/F_d-25_r-75.pdf ../../reports/lab_book/")
+system("cp vcftools/vcf_sumtable.csv vcftools/F_d-25_r-75.pdf ../../docs/lab_book/")
 
 # REMINDER: ctrl-shift-C in Rstudio to comment/uncomment multiple lines
  # for(p in param_space){

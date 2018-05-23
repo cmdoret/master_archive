@@ -161,16 +161,10 @@ wgs_wild : $(CORRESP) $(SIZES) $(WGS)/variant/hap.wild.matrix
 #### MISC RULES ####
 ####################
 
-# Rule for building lab book
-.PHONY : lab_book
-lab_book : $(LAB) $(MISC)
-	rm  -f $(LAB)/*.log $(LAB)/*.synctex* $(LAB)/*.aux $(LAB)/*.out
-	# Cleaning temporary LaTeX files
-	Rscript src/misc/assembly_stats.R $(REF)
-	# Producing table of genome assembly statistics
-	texi2pdf -b $(LAB)/lab_book.tex -c
-	mv lab_book.pdf $(LAB)
-	# Compiling LaTeX report and moving it to appropriate folder
+.PHONY : linkage_map
+linkage_map:
+	bash src/linkage_map/diploidize.sh $(THRESH) $(POP)/*.vcf $(LINKMAP)/linkage_in.vcf
+	Rscript src/linkage_map/select_samples.R $(LINKMAP)/diploidized.tsv 10 $(LINKMAP)/linkage_samples.tsv
 
 # Check genome completeness using BUSCO
 .PHONY : busco
@@ -188,6 +182,16 @@ clean :
 	rm -rf bam
 	rm -rf bsub_scripts
 
+# Rule for building lab book
+.PHONY : lab_book
+lab_book : $(LAB) $(MISC)
+	rm  -f $(LAB)/*.log $(LAB)/*.synctex* $(LAB)/*.aux $(LAB)/*.out
+	# Cleaning temporary LaTeX files
+	Rscript src/misc/assembly_stats.R $(REF)
+	# Producing table of genome assembly statistics
+	texi2pdf -b $(LAB)/lab_book.tex -c
+	mv lab_book.pdf $(LAB)
+	# Compiling LaTeX report and moving it to appropriate folder
 
 # Saving an archive folder with all the data and parameters used.
 # Not tested, probably very slow and memory consuming. Careful with this.

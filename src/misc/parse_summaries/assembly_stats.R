@@ -44,4 +44,4 @@ sum_stats <- data.frame(Statistics=c("Assembly length (Mbp)", "Largest scaffold 
                         Values=c(round(sum(ref$len)/1000000, 1), round(max(ref$len)/1000000,1), 
                                  round(mean(ref$len)/1000, 1), round(median(ref$len)/1000, 1), round(n50/1000, 1), length(ref$len)))
 
-write.csv(sum_stats, file="reports/lab_book/ref_genome_stats.csv",row.names = F,quote = F)
+write.csv(sum_stats, file="docs/lab_book/ref_genome_stats.csv",row.names = F,quote = F)

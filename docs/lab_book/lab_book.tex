@@ -1,0 +1,1574 @@
+\documentclass[10pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[left=2cm,
+			right=2cm,
+			top=3cm,
+bottom=3cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{csvsimple}
+\usepackage{placeins}
+\usepackage{array,booktabs}
+\usepackage[colorlinks=true,urlcolor=cyan]{hyperref}
+\usepackage{listings} %code highlighting
+\author{Cyril Matthey-Doret}
+\begin{document}
+\title{\textbf{Master Project}\\ Lab book}
+\maketitle
+\chapter{Introduction}
+
+The goal of this project is to identify the locus or loci responsible for sex determination in the parasitoid wasp \textit{Lysiphlebus fabarum}. The species is known to have CSD, which means there are one or more loci that need to be heterozygous in order to triggger female development. I will use the offspring of asexual (thelytokous) females to identify these loci. The offspring consists of haploid males, diploid males and diploid females. Using DNA sequencing data, I will exclude haploid males as they do not provide information on homozygosity/heterozygosity and compare only diploid males versus females to identify the CSD locus/loci.
+\textit{Lysiphlebus fabarum} wasp specimens (generation F4) issued from thelytokous mothers (generation F3) are used. These individuals come from crossing experiments in a strongly inbred line. Here, we use restriction site associated DNA sequencing(RAD-seq) with a custom pipeline to locate the locus/loci. Samples were single-end sequenced using a ddRAD protocole and digested with ecoRI and mseI. There are 2 separate libraries with two different illumina adaptors (detailed in next section). Statistics for the raw RAD-seq data of both libraries of F4 individuals are shown in table \ref{table:raw_QC}. I also reused sequencing data for the mothers (F3) from Casper, however I don't have the raw reads statistics as they were already processed.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{l| c c}
+ \multicolumn{1}{r}{Data summary:} \\
+ \hline
+library & lib7 & lib7b \\
+raw reads & 163,506,603 & 133,574,055 \\
+containing adaptors & 23.25\% & 45.84\% \\
+fragment size & 302bp & 302bp \\
+mean quality score & 34.88 & 35.05 \\
+$>=$ Q30 bases & 92.62\% & 92.13\% \\
+
+\end{tabular}
+\caption{Summary statistics of raw reads from the 2 libraries of F4 individuals RAD-seq data.}
+\label{table:raw_QC}
+\end{center}
+\end{table}
+
+This lab book will document my progression for mapping the CSD locus, which can be broken down into 4 main steps: preprocessing of sequencing data, STACKs analysis for RAD-seq data, association mapping and orthology search. These steps are likely to change and throughout the project and it is likely that more will be added. The general process is described visually in figure \ref{pipeline}.
+\begin{figure}
+\includegraphics[scale=0.5]{flowchart}
+\caption{\textbf{Pipeline described in the current lab book}. Diamonds represent data, rectangles represent operations/programs. Operations/programs in blue are included in the makefile, thos in red are not.}
+\label{pipeline}
+\end{figure}
+
+ \chapter{Processing reads}
+ RAD-seq data was split into 2 separate libraries: 7 and 7b. Together, the libraries contain 173 F4 individuals from 11 different F3 mothers. There were 96 samples in library 7 (one of which was contaminated) and 77 in library 7b. In total we have 172 valid samples across 11 families. Additionally, I inherited from 28 individuals from another library (lib6) which are offspring from families A and B.
+ \section{Quality control}
+ fastqc was used for quality control, separately on each file, and on all files together in the library.
+ \section{Demultiplexing}
+ The process-radtags program from stacks was used for demultiplexing and removal of Illumina adaptors. The operation was performed separately for libraries 7 and 7b:
+
+\begin{lstlisting}
+$ process_radtags -p raw/ -o processed/ -b \
+/barcodes -e ecoRI --filter_illumina -E phred33 \
+ -r -c -q --adapter_1 adapter --adapter_mm 2
+\end{lstlisting}
+
+
+\begin{center}
+\begin{tabular}{c c}
+lib7 & Truseq adapter, index 6 \footnotemark\\ 
+lib7b & TruSeq adapter, index 12 \footnotemark\\
+\end{tabular}
+\end{center}
+\footnotetext[1]{GATCGGAAGAGCACACGTCTGAACTCCAGTCACGCCAATATCTCGTATGCCGTCTTCTGCTTG}
+\footnotetext[2]{GATCGGAAGAGCACACGTCTGAACTCCAGTCACCTTGTAATCTCGTATGCCGTCTTCTGCTTG}
+\section{Trimming adaptors}
+This step is performed by process radtags at the same time as demultiplexing. I tried different values for adapter mismatches, between 0 and 3 (i.e. reads containing sequences distant from the adapter by n mismatches are removed). This did not cause any major difference and therefore I will perform all downnstream analyses with an allowance of 2 mismatches in the adapter.
+
+Note: Demultiplexing did not yield any read for CF4F10. 
+
+\chapter{STACKS pipeline}
+
+The pipeline described in this chapter will map the processed reads to the reference genome and build a catalogue of loci. It will eventually implement additional features such as calculating population statistics. At each step of the pipeline, I will try different combinations of parameters and choose the one yielding the best results. 
+
+\section{Mapping}
+Since the reference genome of \textit{Lysiphlebus fabarum} was recently released, I will first map the sequencing reads to the reference, using BWA, but I may also want to use bowtie to compare the results, eventually. At the moment, a draft reference genome is available, table \ref{assembly_stats} displays some summary statistics of it.
+\begin{table}
+\vspace{10px}
+\csvautobooktabular[respect underscore=true]{stacks_pipeline/ref_genome_stats.csv}
+\caption{Assembly statistics for the current reference genome of \textit{Lysiphlebus fabarum}}
+\label{assembly_stats}
+\vspace{10px}
+\end{table}
+
+\subsection{BWA}
+
+BWA provides 3 different algorithms: MEM, backtrack (aln) and SW. MEM is normally the better for Illumina reads longer than 70bp, therefore I will be using this one here. Backtrack is preferred for short reads and SW with frequent gaps.
+There are also 2 algorithms for building the index: 'is' and 'bwtsw'. 'is' is used with reference <2GB, 'bwtsw' with larger references.
+
+General commands: 
+\begin{lstlisting}
+$ bwa index -p <out_index_name> -a <algorithm>
+$ bwa mem <index> <sample.fq> > <out.sai>
+> $sample-$prefix.sam
+\end{lstlisting}
+
+When using bwa-aln, there the command running the alignment (after indexing) is:
+\begin{lstlisting}
+$ bwa aln -n <mismatches> $index <sample.fq> > <sample.sai>
+$ bwa samse -n <max_dupl> $index $sample.sai $data_dir/$sample.fq.gz
+\end{lstlisting}
+The first command (bwa index) constructs an index from the reference genome, whereas the second one (bwa mem/aln) actually runs the aligner. The third command (bwa samse) allows to transform the .sai into .sam files.
+
+Here is the list of different mapping parameters I may try with bwa-mem:
+\begin{itemize}
+\item -k : minimum seed length (will miss matches shorter than value)[19]
+\item -w : band width (gaps longer than value will not be found)[100]
+\item -d : maximum distance between query and reference positions before stopping seed extension. [100]
+\item -r : triggers reseeding for a MEM longer than min\_seed\_len$*$float. Larger values yield fewer seeds $->$ faster alignment but lower accuracy [1.5].
+\end{itemize}
+
+In the case we use the backtrack (aln) algorithm instead of MEM, the only parameter worth tuning is -n, the number of mismatches allowed. 
+
+
+Note: I did not include parameters that are not relevant to sensitivity (e.g. threads) or parameters that involve scoring (changing these naively would probably have a negative impact). Full list of parameters is on the \href{http://bio-bwa.sourceforge.net/bwa.shtml}{official bwa website}
+
+Note2: About multiple hits and BWA-mem: 
+
+(https://github.com/lh3/bwa)
+
+2. Why does a read appear multiple times in the output SAM?
+
+BWA-SW and BWA-MEM perform local alignments. If there is a translocation, a gene fusion or a long deletion, a read bridging the break point may have two hits, occupying two lines in the SAM output. With the default setting of BWA-MEM, one and only one line is primary and is soft clipped; other lines are tagged with 0x800 SAM flag (supplementary alignment) and are hard clipped.
+
+
+\subsection{Bowtie2}
+General commands: 
+\begin{lstlisting}
+$ bowtie2-build reference_genome.fa L_fabarum
+$ bowtie2 -x <ref_index> -U <unpaired_reads_files> -S <out_SAM_file>
+\end{lstlisting}
+The first command (bowtie2-build) constructs a set of index (extension: .bt2) from the reference genome, whereas the second one actually runs the aligner.
+
+Here is the list of different mapping parameters I may try:
+\begin{itemize}
+\item --trim5 <n> : trim n bases from the 5' end (left) of each read before alignment
+\item --trim3 <n> : trim n bases from the 3' end (right) of each read before alignment
+\item -D : maximum number of seed extension that can fail in a row before stopping (increasing makes bt2 slower)
+\item -R : maximum number of re-seeding when attempting to align read with repetitive seeds (increasing makes bt2 slower)
+\item -N : number of mismatches permitted per seed (increasing reduces false negative, but makes bt2 slower)
+\item -L : length of seeds (decreasing makes bt2 slower but more sensitive)
+\item -i : interval between seeds (increasing makes bt2 slower but more sensitive)
+\end{itemize}
+
+Recommandations from the bowtie2 website to make alignment more sensitive: 
+a) make seeds closer (reduce i)
+b) make seeds shorted (reduce L)
+c) allow more mismatches per seed
+
+End-to-end versus local alignment (--local): end to end takes all bases in the reads into account, while local allows to trim reads to exclude the ends from the alignment.
+Seeds are substring of the reads which bowtie2 tries to align to narrow down the valid regions for aligning a read. There is a list of preset values for these parameters on the \href{http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#preset-options-in---end-to-end-mode}{official bowtie2 website}. Preset parameters differ between local and end-to-end modes.
+There are other parameters, such as score weights for gaps mismatches and allowance for 'N' ambiguous characters but changing these naively could probably have negative effect on the alignments.
+Procedure: try out different preset values and select the one yielding the best results. Then, eventually tweak the parameters slightly from the preset values. These simulations can be run on a subset of individuals to speed up the process.
+
+note to self: at the end of a run, bowtie2 prints a summary to stderr such as:
+
+20000 reads; of these:
+
+  20000 (100.00\%) were unpaired; of these:
+  
+    1247 (6.24\%) aligned 0 times
+    
+    18739 (93.69\%) aligned exactly 1 time
+    
+    14 (0.07\%) aligned $>$1 times
+    
+93.77\% overall alignment rate
+\vspace{10px}\\
+If I use Bowtie2, I will redirect the stderr and parse it into a csv file and generate plot to visually estimate the best parameter values.
+
+\subsection{Mapping results}
+
+I used the aln algorith of bwa, since the mem algorithm did not report multiple alignments and has very few documentation available. I tried different mismatches values with aln (Figure \ref{map_results}), ranging from 0 to 8, and I chose to use 4 since the increase in single was quite low above this value. When the mismatch parameter is set to 4, running bwa-aln on a subset of 12 samples yielded 57\% of single hit reads, 26\% of multiple hits and 17\% of unmapped reads.
+
+\begin{figure}[h]
+\includegraphics[scale=0.5]{param_space/mapstats}
+\caption{Results of the BWA mapping with different parameter values for the number of mismatches allowed during mapping. The plot shows the proportion of reads that are mapped uniquely to the reference genome.}
+\label{map_results}
+\end{figure}
+
+\section{pstacks}
+
+pstacks is a component of the STACKS suite that takes stacks of reads aligned to a reference genome as an input (typically in the SAM format) and idenify SNPs
+
+general command: 
+\begin{lstlisting}
+$ pstacks -f <input_path> -i <sample_ID_int> -o <out_dir> \
+ -m <min_depth> -p <num_threads> -t <file_type>
+\end{lstlisting}
+
+Parameters I may want to change are: 
+\begin{itemize}
+\item -m : minimum depth of coverage required to call a stack [3]
+\item --max\_clippped : alignments with more than X soft-clipped bases are discarded [15\%]
+\item --min\_mapq : minimum required quality [10]
+\end{itemize}
+
+Note: there are 3 models; SNP, bounded SNP and fixed. SNP is the default model, bounded SNPs allows to give prior expectations about the error rate, which can allow better estimations of heterozygosity and the fixed model identifies all fixed sites and masks all others.
+
+\subsection{pstacks results}
+
+Pstacks was run on aligned reads (BWA, 4 mismatches allowed). I tried different values for the minimum coverage required to call a stack (-m parameter), ranging from 1 to 6 (Figure \ref{pstacks_param}). Below is the value for minimum coverage, along with the mean number of loci and alleles that was produced per sample. This table was produced including all non-empty samples (198 individuals) and the variables are averaged (arithmetic mean) over all those samples.
+
+\begin{table}
+\begin{center}
+\vspace{10px}
+\csvautobooktabular[respect underscore=true]{param_space/pstats.csv}
+\vspace{10px}
+\caption{Summary statistics of stacks obtained with different parameter values for minimum coverage in pstacks.}
+\label{pstacks_param}
+\end{center}
+\end{table}
+
+I will use 4 reads minimum coverage as this is already high and using lower values does not improve the output in anyway.
+
+Note: Locus are regions formed by one or more stacks. Alleles are different stacks at the same locus.
+
+\section{cstacks}
+
+cstacks is a component of the STACKS suite that builds a catalog of loci with different alleles from a set of processed samples.
+
+general command: 
+\begin{lstlisting}
+$ cstacks -s <sample_prefix> -o <out_dir> -b <catalogue_ID>\
+-p <num_threads> -n <num_mm> -M <pop_map>
+\end{lstlisting}
+
+Parameters I may want to change are: 
+\begin{itemize}
+\item -n : Number of mismatches allowed between sample loci when building catalogue [1]
+\item -g : base catalog on alignment position instead of sequence identity
+\end{itemize}
+
+Note: There are also advanced options such as gapped assembly parameters and loci matching multiple catalogue entries, but these are probably not relevant here.
+\subsection{cstacks results}
+
+I changed the number of mismatches allowed between samples between 1 and 4. Table \ref{cstacks_param} shows the results with a subset of 11 samples $([A-L\&\&[\wedge B]]01)$ because B01 was empty (few, low quality reads). 
+
+\begin{table}
+\begin{center}
+\vspace{10px}
+\csvautobooktabular[respect underscore=true]{param_space/cstats.csv}
+\vspace{10px}
+\caption{Summary statistics of loci obtained with different parameter values in cstacks.}
+\label{cstacks_param}
+\end{center}
+\end{table}
+
+I tried running cstacks on all (non-empty) samples, and also modifying the script so that it will first compute the mean number of tags (reads) across all samples, and exclude those with less than 10\% of this value when building the catalogue. From the 202 original samples, 4 were empty and excluding low quality ones removed 13 additional ones.\\
+
+Update: 21.07.2017\\
+When including mothers, I reach a total of 212 individuals. I use the same filtering strategy to exclude samples with low amounts of reads (Figure \ref{tags_dist}). From the 212 original samples, I excluded 17 low quality samples, among which 4 were totally empty.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{stacks_pipeline/radtags_distrib.pdf}
+		\caption{distribution of the number of radtags (reads) per sample. The red vertical dashed line indicates the cutoff value set to 10\% of the mean. Samples below this value are removed from the analysis.}
+		\label{tags_dist}
+	\end{center}
+\end{figure}
+\FloatBarrier
+Summary results with n=1:
+\begin{itemize}
+\item All non-empty samples (198): 25618 alleles in catalogue, over 7062 loci.
+\item Excluding samples with \textless 10\% of mean tags (185): 25585 alleles in catalogue, over 7046 loci
+\end{itemize}
+
+note: following recommandations from Paris et al. 2017, Lost in parameter space: a roadmap for STACKS. \textit{Methods in Ecology and Evolution}, I set the value of n to 3 (M-1=3)
+
+\section{sstacks}
+
+sstacks is used to generate one file per individual, in each file, the matching loci point to the cstacks catalogue. There is no crucial parameter to change in this program.
+
+\section{populations}
+
+The "populations" component of STACKS is used to compute population genetics statistics on a set of individuals. I use it here to compute FST statistics (fixation index) along the genome. It offers several features to compute different statistics, including a bootstrapping feature and a "kernel smoothing" flag, allowing to take neighbouring region into account with a decreasing weight as a function of their distance from the focus nucleotide. I will use both of these features to compute FST.
+
+The main features to change in FST calculation are :
+\begin{itemize}
+\item -r: minimum percentage of individuals in a population required to process a locus for that population.
+\item -p: minimum number of populations a locus must be present in to be procesed.
+\item -m: minimum stack depth required for individuals at a locus.
+\end{itemize}
+
+Example populations call for FST calculation:
+\begin{lstlisting}
+$ populations -P <stacks_files> -M <popmap> -b 1
+ -k -r 0.75 -f p_value
+\end{lstlisting}
+
+\subsection{populations results}
+
+I ran populations with the following parameters:
+\begin{itemize}
+\item -r: 0.75 - 0.85
+\item -p: 2
+\item -m: 5
+\end{itemize}
+
+Therefore, only loci with at least 5 reads of coverage were included, each loci also needs to be in at least 75\% to 85\% of all individuals and in both populations (males and females).
+
+This table summarizes the first statistics I extracted from the VCF files (using vcftools) with the different values for r:
+\begin{center}
+\vspace{10px}
+\csvautobooktabular[respect underscore=true]{param_space/vcf_sumtable.csv}
+\vspace{10px}
+\end{center}
+
+plotting the inbreeding coefficient per individual with r=75 yields:
+
+\begin{figure}[h]
+	\begin{center}
+		\hspace*{-1in}
+		\includegraphics[width=1.5\textwidth]{F_d-25_r-75}
+		\caption{Inbreeding coefficient (F). Each plot is a family, each bar is an individual. Blue bars represent males and pink ones represent females and red ones are mothers. color bars on the y axis span the mean +- standard deviation of males and females, respectively. In theory, mothers should have the lowest inbreeding coefficient of their family (highest heterozygosity)}
+	\end{center}
+\end{figure}
+
+When increasing the minimum depth above ~15, populations crashed. Disabling bootsrapping and kernel smoothing fixed the issue. Guess: May be caused by a contig smaller than the sliding window size during kernel smoothing. This could be the case if the sliding window has a min number of loci, in which case increasing minimum depth would cause the window to enlarge.
+
+I tested for correlations between Mean depth of loci and homozygosity in all individuals and per family, no significant correlation was found. This means there should not be significant allele excludion caused by too stringent min depth (i.e. stacks removed because of low coverage, resulting in homozygous loci).
+
+\section{STACKS parameters summary}
+\begin{table}[h!]
+\begin{tabular}{c|c}
+process radtags & Mis:2\\
+bwa & Mis:4\\
+Pstacks & MinDep:3\\
+Cstacks & LocMis:1\\
+Sstacks & -\\
+populations & IndProp:0.75, MinDep:5(25)*, MaxHet:0.9\\
+\vspace{5px}
+\end{tabular}
+\\
+ \footnotesize * Stringent MinDepth value used to exclude haploid males. The smaller value is used for downstream analyses to keep more loci.
+\end{table}
+
+\FloatBarrier
+
+\chapter{Excluding haploids}
+
+I used the F statistics (coefficient of inbreeding) computed by vcftools to measure homozygosity levels in each individual. The F statistics used were generated with more stringent parameters (min depth: 25) to call ploidy more confidently. It is calculated as $F = \frac{O-E}{N-E}$ where O is the observed number of homozygous loci, E is the number expected by chance and N is the total number of loci.
+
+First, I calculated the Mean $\mu$ and standard deviation $\sigma$ of the inbreeding coefficient $F$ among daughters in each family. I then classified males with:
+\\
+\begin{center}
+ $F > \mu + 2\sigma $  \\
+\end{center}
+
+ as haploid. This is stringent threshold should exclude all haploid males, but it can also potentially exclude diploid males from the analysis.
+
+Update: 08.06.2017
+
+I tried 12 different thresholds for excluding haploids. The thresholds were computed according to these rules:
+\begin{itemize}
+\item 1: All thresholds follow the formula $\mu + \tau(N\sigma)$ with $1 \leq N \leq 4$
+\item 2:  $1 \leq \mu \leq 4$
+\item 3: $\tau$ is a function for transforming the inbreeding coefficient values. Either $\tau(F) = F^2$ or $\tau(F) = \sqrt{F}$
+\end{itemize}
+As shown above, in this report I will use the threshold named "m2" which corresponds to  $F > \mu + 2\sigma $.
+Figure \ref{haplodiplo} shows a plot showing the separation of haploid and diploids using this threshold.
+
+\begin{figure}[h]
+	\begin{center}
+		\hspace*{-0.8in}
+		\includegraphics[width=1.2\textwidth]{exclu_haplo/m2}
+		
+		\caption{Inbreeding coefficient (F). Different colors represent the different types of individuals, as shown in the legend. Each plot is a family, each bar is an individual. Horizontal black bars show the mean inbreeding coefficient of daughters within the family $+/-$ the standard deviation (vertical black line). In theory, mothers should have the lowest inbreeding coefficient of their family (highest heterozygosity)}
+		\label{haplodiplo}
+	\end{center}
+\end{figure}
+
+\FloatBarrier
+
+After separating haploids from diploids, I performed exploratory analyses prior to association mapping. The goal of these is to assess the homozygosity rate of SNPs in diploid males and females and how many seem to fit the CSD pattern. As shown in Figure \ref{SNPs_explo5} and \ref{SNPs_explo25}, there is no single SNPs thatis heterozygous in all females and homozygous in all diploid males. That can imply that the species has ml-CSD and there is no single locus that always fit the CSD pattern, or the restriction enzyme used in the RAD-seq protocol (ecoR1) did not cut in the CSD locus directly. It is very likely a combination of both explanations. It is also worth mentioning that, besides the number of SNPs, it makes little difference whether I use permissive (Figure \ref{SNPs_explo5}) or stringent (Figure \ref{SNPs_explo25}) parameters. The only notable change is that including more SNPs results in higher homozygosity for both sexes.
+
+In this analysis, I excluded all consensus loci (where all individuals had the same allele) and did not consider SNPs with more than 2 genotypes in a single individuals in the heterozygosity calculation (counted as missing values), as they are likely due to contaminations.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{exclu_haplo/d5assoc_explo/m2}
+		\caption{Homozygosity of female and diploid male SNPs where depth $\geq 5$ (permissive parameters). Each point on the scatterplot is a SNP, and its coordinate are the proportion of females (x) and males (y) in which it is homozygous. Histograms allow to visualize the distribution of homozygosity for SNPs of each sex. The color code shows how SNPs fit the CSD pattern with lighter points being closer to it (i.e. more homozygous in males and heterozygous in females). Summary statistics on the top right show the threshold used, the number of haploid males excluded (M1N) as well as the number of diploid males (M2N), females (F) and SNPs included.}
+		\label{SNPs_explo5}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{exclu_haplo/d25assoc_explo/m2}
+		\caption{Homozygosity of female and diploid male SNPs $\geq 25$ (stringent parameters). Each point on the scatterplot is a SNP, and its coordinate are the proportion of females (x) and males (y) in which it is homozygous. Histograms allow to visualize the distribution of homozygosity for SNPs of each sex. The color code shows how SNPs fit the CSD pattern with lighter points being closer to it (i.e. more homozygous in males and heterozygous in females). Summary statistics on the top right show the threshold used, the number of haploid males excluded (M1N) as well as the number of diploid males (M2N), females (F) and SNPs included.}
+		\label{SNPs_explo25}
+	\end{center}
+\end{figure}
+
+
+\FloatBarrier
+
+\chapter{Cleaning genomic data}
+
+date : 23.06.2017
+\\
+
+The first attempt at separating individuals based on inbreeding coefficient revealed several issues inherent to the data:
+\begin{itemize}
+\item The inbreeding coefficient is not clearly bimodal in all families (1 haploid mode and 1 diploid mode)
+\item Some loci have more than 2 haplotypes, although we are working with diploids.
+\item There are no loci that clearly stand out as perfectly 'CSD like' among all individuals, this should be looked at family-wise.
+\end{itemize}
+These issues will be solved one by one in this chapter.
+
+\section{Improving ploidy separation metric}
+
+The inbreeding coefficient was computed using all males/females. Also, the raw heterozygosity may be a more accurate metric than inbreeding coefficient. Both issue require the analysis to be done in a per-family fashion, either by re-running the populations program for each family, or implementing family as an additional population layer.
+\\
+Date: 27.06.2017
+\\
+Solution: I could switch to observed homozygosity, but I think it is also fine to keep this metric (I can always change it later). I did however, re-run the populations program separately for each family. I did not add a population layer to the popmap, because it would not have allowed for different loci blacklists between families when solving the third issue. Visualizing the distribution of inbreeding coefficients across individuals reveals a pretty good (?) separation of individuals (Figure \ref{ploidy_metric}).
+
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{cleaning_genomic_data/F_r-75_d-5_m2_density.pdf}
+		\caption{Distriution of individual inbreeding coefficient. The green curve represents the overall distribution of inbreeding coefficients within the family. The blue and pink areas represent the distribution of inbreeding coefficients for haploids and diploids, respectively, split using the m2 threshold defined at the beginning of chapter 4. Ideally, the green curve would follow a bimodal distribution clearly separating individuals by homozygosity.}
+		\label{ploidy_metric}
+	\end{center}
+\end{figure}
+
+Date: 12.07.2017
+Update: This method of ploidy separation is flawed as it will overestimate the number of haploid males in families with few females. Indeed, with a lower standard deviation of female homozygosity, the threshold tends to the mean only.
+
+Because the homozygosity of diploid offspring depends on its mother, but that of haploids are independent of mother background, I can probably use a universal threshold for all families. This way, the threshold can be equally conservative in all families and not biased towards certain of them. Plotting homozygosity of all individuals (Figure \ref{ploidy_fixed}) revealed 2 separate meta-distributtions. The one on the left is a gaussian made up of several smaller ones (each smaller distribution is a family, with the mean depending on the mother), whereas the distribution on the right is made of a single gaussian containing all (or most) haploid males.
+Choosing a fixed conservative threshold in between should allow to keep more individuals and remove bias.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{cleaning_genomic_data/ploidy_sep_fixed.pdf}
+		\caption{Distribution of the proportion of homozygous loci across all individuals. Continuous vertical black lines are the mothers values and the dashed vertical red line is the (visually) optimal threshold, fixed at 0.77.}
+		\label{ploidy_fixed}
+	\end{center}
+\end{figure}
+
+\section{Loci with 3 or more haplotypes}
+
+There are two possible explanation for the existence of these loci. It could be either due to a contamination, in which case few individuals would present many loci with 3 or more haplotype. On the other hand, if few loci have this issue in several individuals, it could be due to paralog merging. This can be solved by identifying which case is the most likely, and either excluding concerned individuals (first case), or loci (second case).
+
+24.06.2017: Asked on STACKS google group about the haplotypes.tsv file. It is apparently normal to have more than 2 genotypes and depends on the parameters that were set in pstacks/ustacks. The answer I got, is that I should only work with the VCF file, which calls only 2 genotypes/site/individual. This imply figures \ref{SNPs_explo25} and \ref{SNPs_explo5} are not valid, as I misinterpreted the file content. I will re-generate these figures using the VCF file directly.
+\\
+Date: 27.06.2017
+\\
+Solution: I used the -012 argument in VCFtools to produce a genotype matrix from the populations output VCF file. This matrix encodes the genotype of each individual at each SNP with an integer representing the number of non-reference alleles present. These matrices were generated separately for each family and used to regenerate the figures \ref{SNPs_explo25} and \ref{SNPs_explo5}.
+
+The issue when visualizing the SNPs heterozygosity per family (Figure \ref{SNPs_explo_fam}) is that the low number of individuals allow for few different heterozygosity values for any given SNPs, yielding a high number of 'perfectly' CSD-like candidates. Solving the next issue or grouping SNPs by contig/locus may help reduce this number, but ultimately only association mapping will allow to find the best candidate region. 
+
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{cleaning_genomic_data/assoc_explo_fam/B.pdf}
+		\caption{Example: SNPs heterozygosity across individuals of family B. The yellowness represents the proximity to CSD-like pattern (i.e. homozygous in all males and heterozygous in all females. Note: populations parameters set to : min depth (D)=5 and prop pop (r)=75}
+		\label{SNPs_explo_fam}
+	\end{center}
+\end{figure}
+
+
+\section{No clear signal in whole population}
+
+This issue could be expected from the biological system because it is believed that there is ml-CSD in this species; there should be no single locus that will fit the CSD pattern across all individuals. This mean we need to identify different loci independently in each family. There are several things which can be done to work around this issue. 
+
+First, and most importantly, the populations program should be taking family information into account, but this was done already when solving the first issue (Improving ploidy separation metric). Second, the data should be cleaned by blacklisting loci that are homozygous in mothers in each family, as there is no way these will be heterozygous in their respective daughters and be CSD candidates.
+\\
+Date: 29.06.2017
+\\
+Solution: I re-ran the explo assoc script used to generate figure \ref{SNPs_explo_fam} and excluded all SNPs that are homozygous in the mother (Figure \ref{SNPs_explo_nomother}). It removed a significant number of SNPs from the set, but there are still way too many that fit the CSD pattern.
+
+\begin{table}
+	\begin{center}
+		\csvautobooktabular[respect underscore=true]{cleaning_genomic_data/hom_mother.txt}
+		\caption{Number of homozygous SNPs found in the mother of each family. Note family D is excluded since there was no genomic data available for this mother.}
+		\label{hom_mother}
+	\end{center}
+\end{table}
+
+\begin{table}
+	\begin{center}
+		\csvautobooktabular[respect underscore=true]{cleaning_genomic_data/CSD_like.txt}
+		\caption{Number of homozygous SNPs that fit the CSD pattern in each family.}
+		\label{CSD_like_raw}
+	\end{center}
+\end{table}
+
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{cleaning_genomic_data/assoc_explo_fam_no_mother/B.pdf}
+		\caption{Example: SNPs heterozygosity across individuals of family B after removing SNPs that are homozygous in the mother. The yellowness represents the proximity to CSD-like pattern (i.e. homozygous in all males and heterozygous in all females. Note: populations parameters set to : min depth (D)=5 and prop pop (r)=75}
+		\label{SNPs_explo_nomother}
+	\end{center}
+\end{figure}
+\FloatBarrier
+
+
+Date: 24.07.2017
+
+I removed loci that are homozygous in mother using a second technique: 
+\begin{itemize}
+\item For each mother: use Pstacks snps file to find sample ID of all loci for which all position are "O" (for homozygous).
+\item Look up the sstacks matches file of each mother to retrieve the matching catalog ID
+\item exclude corresponding catalog ID for the family in populations output files in downstream analyses.
+\end{itemize}
+
+I am still not sure if this technique is safe / correct, the steps described above are currently implemented in the hom\_filt function of Hom\_M-F.R.
+
+Date: 28.07.2017
+
+I am now using a much simpler method which should be  relatively correct. I use the output populations file batch\_0.sumstats.tsv to remove the SNPs that have no alternative nucleotide in the female population. I am therefore
+assuming that if the mother is homozygous, all daughters are as well. That means I might keep some SNPs that are in fact homozygous in the mother, either due to sequencing errors or point mutations, but these events should be extremely rare.
+
+\subsection{Transmission bias}
+
+Here I check how frequently SNPs that are homozygous in a mother are heterozygous in its offspring and vice versa.
+(to be continued)
+
+\chapter{Ordered genome}
+
+Date: 05.07.2017
+
+Now that the data is cleaner, I will start looking for CSD. Casper provided me the genome with the contigs ordered by chromosomes (but not necessarily oriented correctly) he obtained with his linkage map. I will use this as the new reference genome and run the pipeline all the way from the mapping with it.
+
+Date : 08.07.2017
+
+I ran the whole pipeline on the ordered genome. Here are all statistics associated with all steps of the analysis previously described.\\
+\FloatBarrier
+
+\begin{table}[h]
+\csvautobooktabular[respect underscore=true]{association_mapping/ref_genome_stats.csv}
+\caption{Assembly statistics for the ordered reference genome of \textit{Lysiphlebus fabarum}}
+\label{assembly_stats_ordered}
+\end{table}
+
+\begin{table}[h]
+\csvautobooktabular[respect underscore=true]{association_mapping/mapstats.csv}
+\caption{Mapping: Proportion and number of reads aligned on the ordered reference genome using BWA's aln algorithm with 4 mismatches allowed.}
+\label{mapping_stats}
+\end{table}
+
+\begin{table}
+\csvautobooktabular[respect underscore=true]{association_mapping/pstats.csv}
+\caption{Pstacks: Summary statistics of stacks obtained with minimum coverage set to 3 in pstacks, using the ordered genome.}
+\label{pstacks_ordered}
+\end{table}
+
+\begin{table}
+\csvautobooktabular[respect underscore=true]{association_mapping/cstats.csv}
+\caption{Cstacks: Summary statistics of loci obtained with a mismatch value set to 3 in cstacks using the ordered genome.}
+\label{cstacks_ordered}
+\end{table}
+
+\FloatBarrier
+
+\chapter{Number of CSD loci}
+\label{sec:num_csd}
+
+It is possible to approximate the number of CSD loci heterozygous in a mother using the proportion of males among diploid individuals. Provided the loci are on different chromosomes, if n CSD loci are heterozygous in the mother, there should be $\frac{1}{2^n}$ of males among diploid, because as long as heterozygosity is retained at one of these loci, the offspring should be female.
+
+\section{Categorizing mothers}
+\label{sec:cat_mothers}
+The mothers can be categorized based on this proportion of male offspring. The categories will reflect different combination of heterozygous CSD loci. Assuming the recombination rate is the same in different mothers, the different categories will depend only on the distance of the heterozygous locus/loci from the centromere. Loci further from the centromere will be undergo gene conversion more frequently.
+
+There are different scenarii: 
+\begin{itemize}
+\item 1 CSD locus: In this scenario, all mothers will be heterozygous at this locus and there should only be one category since the proportion of males among diploids will only depend on the distance of this locus from the centromere.
+\item 2 CSD loci, same chromosomal arm: In this scenario, there should be a single category as only a recombination proximal to both loci would generat diploid males, therefore diploid male production only depends on the recombination rate of the locus that is closest to the centromere.
+\item 2 CSD loci, different chromosomal arms: This scenario would allow for 3 categories of mothers; those heterozygous at one, the other, or both CSD loci. Those heterozygous at the furthest locus only should have the highest production of diploid males as recombinations will be more frequent. Those with only the closest one would have a lower production. The females heterozygous at both loci would have the lowest production of diploid males (proportion ofshould be the product of the two other categories).
+\item 3 or more CSD loci: In case there are more than 2 loci, the number of categories would quickly increase beyond the scope of this study as we would not have enough families to detect the categories.
+\end{itemize}
+
+Note that scenario 2 is only happening if both loci are on the same side of the centromere, otherwise two separate recombination events would be required to cause male development.
+
+Update: 02.08.2017
+
+I need more families to build solid categories. The 12 families currently available seem to form distinct clusters, but more are needed to ensure a solid classification. Another issue is that we are not sequencing all offspring (for financial reasons) and we select the relative number of males and females to increase the power of all analysis (i.e. trying to balance the numbers of each). This will bias the numbers and we should account for it.\\
+
+To address the latter problem, I propose the following strategy: If $m$ out of $M$ males and $f$ out of $F$ females are selected for sequencing, compute the proportion of diploid $d$ among the $m$ males. Then, compute the proportion of males $p$ among total offspring as $p=\frac{M*d}{F+M}$, thus extrapolating the proportion of diploid males in the family to non-sequenced samples. This should not be biased as we select them irrespectively of ploidy. However, families with small number of sequenced males are vulnerable to randomness and extrapolating might be dangerous in these.
+
+To solve the issue of low number of families, we are preparing new libraries for sequencing, both expanding existing families and adding new ones. In total, we will add more than 200 individuals, but the exact number is subject to change.
+
+Once the mothers have been categorized based on the proportion of males in their diploid offspring, I will use this category information to filter CSD candidates common to mothers within one category.
+Assuming scenario 3, for instance, there will be 3 categories. I will first filter the best hits common to the category with the lowest production of diploid males. I will then look for overlap with the two other categories separately.\\
+
+Date: 24.08.2017
+
+I used k-means clustering on proportion of males among diploid offspring to categorize families. I assumed 3 clusters
+
+Date: 25.08.2017
+
+There may be an issue with the use of proportion of 2n males to categorize mothers; when we select individuals for sequencing, we try to balance the proportion of males and females to make sure we have enough of both sex. This will likely decrease the proportion of diploid males in families with many males as we do not use all of them. 
+We could solve this by using the proportion of males in all offspring instead, assuming the proportion of haploidy is the same in all families. This way, we could use the total sex ratio of the family (including non-sequenced individuals) to categorize mothers. I should ask Casper if he has this information and the opinion of Tanja on that matter.\\
+
+Date: 08.09.2017
+
+I now have the information of the total number of offspring for each sex per family and used it to categorize mothers. I multiplied the rate of haploidy in sequenced males by the total number of males in each family to infer the total number of diploid males. I then divided that number by the total number of offspring in each family to classify mothers. I am currently using families from libraries 6, 7, 7b and 10b which sums up to a total of 21 families. If I consider a 2 CSD loci case with 3 categories of mothers (Figure \ref{cat_2L_21F}), I do not obtain clear cluster. If I consider a 3 CSD loci case with 7 categories, I do not have enough families to establish groups (Figure \ref{cat_3L_21F}), with the current libraries.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=1\textwidth]{Num_CSD_loci/Group_mother_21fam_3gr.pdf}
+		\caption{Distribution of families according to inferred proportion of males among diploid offspring considering 2 CSD loci. Families are separated into 3 groups depending on which loci are expected to be heterozygous in the mother. Families were grouped using 1D k-means clutering and vertial dashed lines represent the center of each cluster.}
+		\label{cat_2L_21F}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=1\textwidth]{Num_CSD_loci/Group_mother_21fam_7gr.pdf}
+		\caption{Distribution of families according to inferred proportion of males among diploid offspring considering 3 CSD loci. Families are separated into 7 groups depending on which loci are expected to be heterozygous in the mother. Families were grouped using 1D k-means clutering and vertial dashed lines represent the center of each cluster.}
+		\label{cat_3L_21F}
+	\end{center}
+\end{figure}
+
+\FloatBarrier
+\section{Distance to centromeres}
+
+To validate hits, I will use the information of the distance from centromere. The position of the centromere in the scaffold (i.e. metacentric vs telocentric chromosome) can be inferred from the recombination rates along the chromosome. The method I am going to use for this is to measure the proportion of offspring homozygous at each SNP that is heterozygous in the mother (i.e. proportion of recombinant offspring at that SNP).The centromere should be the region with the lowest value.
+The hits obtained for CSD candidates in the different categories should be coherent with this distance; the hit in the family with a low diploid male production should be closer to the centromere.\\
+
+Modelling the recombination rate along chromosomes using a weighted loess (lowess) curve revealed local minima that could contain centromeres, however the position of these minima can vary strongly depending on the span (smoothing parameter) allowed for local regression when building the curve. This is likely due to the small number of individuals, or rarity of recombination events. The proportion of homozygosity also tends to decrease far from centromere, this is likely due to multiple recombination events restoring heterozygosity. Note the curve uses the proportion of recombinant offspring within a family at a given SNP weighted by the total number of offspring in that family.
+
+I tried locating the centromere both by running populations with all individuals pooled together (Figure \ref{centro_all}) and separately for each family (Figure \ref{centro_fam}). If I want to use the minimum estimate of local regressions objectively to locate the centromere, I will need to use some form of cross validation to estimate the span. I could also use a visually optimal value for span; the default value used in ggplot's geom\_smooth() is 0.75 and seems reasonable on my data (does not seem too noisy).\\
+
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=1\textwidth]{Num_CSD_loci/centro_group_d3r80_degree2.pdf}
+		\caption{Modelling recombination rates along chromosomes using local regression with second degree polynomials on proportion of homozygous individuals as a proxy. Populations was run on all individuals pooled together (r80, mindepth:3). Colors represent different span value for the local regression and colored dots are the inferred centromere position (i.e. the minumum of the curve) with the corresponding span value.}
+		\label{centro_all}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{Num_CSD_loci/centro_fam_d3r80_degree2.pdf}
+		\caption{Modelling recombination rates along chromosomes using local regression with second degree polynomials on proportion of homozygous individuals as a proxy. Populations was run on separately for each family, SNPs where the mother is homozygous were removed in each family (r80, mindepth: 3).Colors represent different span value for the local regression and colored dots are the inferred centromere position with the corresponding span value.Colors represent different span value for the local regression and colored dots are the inferred centromeres position (i.e. the minumum of the curve) with the corresponding span value.}
+		\label{centro_fam}
+	\end{center}
+\end{figure}
+
+
+Date: 12.08.2017
+
+To obtain better result when trying to locate centromeres, I used the genomic output from populations to include fixed SNPs. I subsequently removed all SNPs that are \textbf{either missing or homozygous} in the mother from its whole family (including itself). The variation induced by the span parameter when using local regression is now much smaller. To make sure the centromeres are called correctly, I tried a second simpler method, which consists in computing means over a sliding window on each chromosome. I tried both methods with several different parameter values (Figure \ref{centro_fix}). The methods yielded similar results and I visually selected reasonable parameter values for span and window size to compare the centromeres positions inferred by both methods (Figure \ref{comp_centro}). Centromeres are merely regions and have no objective precise genomic position, besides I will only be interested in relative differences in distance from centromeres to select loci, therefore the parameter values I chose will probably have little to no effect on the results. 
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{Num_CSD_loci/centro_group_fix_d3r80_range.pdf}
+		\caption{Comparing moving averages and local regression with second degree polynomials to approximate recombination rates. Populations was run on all individuals pooled together. Fixed SNPs are included and SNPs where the mother is homozygous or that were absent in the mother were removed in each family (r80, mindepth: 3). Range of parameter tested: span varied between 15\% and 100\% of observations by intervals of 1\% for local regression and window size between 3 and 80 observations with intevals of 1 for moving averages. Colors represent the different span or window size value for the local regression and colored dots are the inferred centromeres position (i.e. the minimum of the curve) with the corresponding parameter value.}
+		\label{centro_fix}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=1.1\textwidth]{Num_CSD_loci/centro_group_fix_d3r80_final.pdf}
+		\caption{Comparing moving averages and local regression with second degree polynomials to approximate recombination rates. Populations was run on all individuals pooled together. Fixed SNPs are included and SNPs where the mother is homozygous or that were absent in the mother were removed in each family (r80, mindepth: 3). Parameters selected for comparison: window size: 20, span: 0.75. Dotted lines show the inferred centromeres position (i.e. the minimum of the curve) with both methods.}
+		\label{centro_fix}
+	\end{center}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Terminal or central fusion}
+
+Date: 31.08.2017\\
+
+When modeling heterozygosity along the genome, there were interferences (waves) and the putative centromeric regions are not fully heterozygous. This could be due to several factors (inclusion of 
+haploids, sequencing errors, errors in linkage map...). One of the more likely reasons, could be that 
+some individuals are produced by terminal fusion automixis, rather than central fusion, which would cause
+them to be homozygous at the centromere and affect the whole model.\\
+
+A way to test this, which has already been used in Daphnia (Svendsen et al, 2015), is to model the heterozygosity relative to the mother of each offspring as a function of the distance from the centromere. All chromosomes are pulled together. Note the Svendsen uses centimorgans and I use physical distance in basepair.
+
+I visualise it in two ways:\\
+First, using a sliding window moving away from the centromere in absolute distance (Figure \ref{proto_slide_fusion}). Each sliding window computes the proportion of heterozygous sites in each individual. \\
+Second, choosing different sizes for the putative centromeric region and computing the proportion of heterozygous with each value (Figure \ref{proto_surround_fusion}). Under central fusion, one would expect the heterozyosity to decrease when the window moves away from the centromere, or when the putative region is enlarged. On the other hand, under terminal fusion, the value should increase when moving away or increasing the size of the centromeric region.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=1.1\textwidth]{Num_CSD_loci/pooled_chr_centro_dist_win30.pdf}
+		\caption{Modeling the proportion of heterozygosity as a function of the distance from the centromere in each individual separately. Proportions are calculated in sliding windows, each containing 30 SNPs and the base pair at the middle of the window is used for plotting. The curves are obtained by local regression (loess). All chromosomes are pulled together in a single figure}
+		\label{proto_slide_fusion}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{Num_CSD_loci/pooled_chrom_centrosize_50k_5M.pdf}
+		\caption{Measuring the proportion of heterozygous sites relative to mother in regions of variying size between +/- 50kb and +/- 5Mb around centromere in each individual. Panes represent families (only 5 largest ones included) and chromosomes are pooled together. The curves are obtained using a local regression (loess).}
+		\label{proto_surround_fusion}
+	\end{center}
+\end{figure}
+
+Given the density of SNPs in my data, these methods cannot be used to reliably identify central or terminal fusion. There is also the possibility that some scaffolds are inverted in the linkage map, which would strongly affect the results.\\
+
+tl;dr : I don't think I can pull anything useful from this, data is too noisy. \\
+
+\FloatBarrier
+Update: 13.09.2017\\
+To differentiate more reliably central vs terminal fusion individuals, I used a simpler method (Figure \ref{schema_cen_tel}). After transforming basepair coordinates in each chromosome into absolute distance from centromere, I separate each chromosome into 2 windows: "centro" for centromeric region and "telo" for telomeric region. The centromeric region contains all SNP located closest to the centromere within 25\% of the maximum distance to centromere recorded in the chromosome, while the telomeric region contains those in the furthest 25\%. I compared the proportion of heterozygous SNPs in the two windows, first separating chromosomes (Figure \ref{cen_tel_chr}). Then, I tried pooling all chromosomes together in each individual and I compared the two windows using a linear model, weighting the value of each chromosome by the number of SNPs contained in the window (Figure \ref{cen_tel_lm}).
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{Num_CSD_loci/cen_tel.pdf}
+		\caption{Method used to identify central fusion or terminal fusion individuals from genome-wide heterozygosity. Central fusion individuals (red) are expected to have high heterozygosity values decreasing towards centromeres while terminal fusion (blue) individuals are expected to have low heterozygosity increasing towards centromeres. The basepair coordinates of SNPs are first transformed into absolute distance from centromere. SNPs closer to the centromere than 25\% of the maximum distance to centromere in each chromosome are pooled into one "centromeric" window and those in the 25\% closest to the telomeres are pooled into another "telomeric" window. The proportion of heterozygous SNPs is then computed separately in each window and the difference between those values is used to assign fusion mechanism.}
+		\label{schema_cen_tel}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=1\textwidth]{Num_CSD_loci/line_centro25_telo_chr_fam.pdf}
+		\caption{Comparing the proportion of heterozygous SNPs in each chromosome among variant sites between the centromeric window (SNPs closer than 25\% of maximum distance to centromere) and telomeric window (SNPs further than 75\%). Only the 6 largest families are included for visualisation purpose.}
+		\label{cen_tel_chr}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=1\textwidth]{Num_CSD_loci/lm_centro25_telo_fam.pdf}
+		\caption{Comparing the proportion of heterozygous SNPs pooling all chromosomes together, between the centromeric window (SNPs closer than 25\% of maximum distance to centromere) and telomeric window (SNPs further than 75\%). A linear model is performed to compare the 2 windows and the value of each chromosome is weighted by the number of SNPs used to compute the window.}
+		\label{cen_tel_lm}
+	\end{center}
+\end{figure}
+\FloatBarrier
+
+Date: 14.09.2017
+A more robust way of separating CFA from TFA individuals would be to only use the centromeric window and rely on the distribution of heterozygosity within that window to classify individuals. Just as above, I used a window including all SNPs around the centromere located within a region of 25\% of the maximum distance from the centromere within each chromosome. I first looked at the distribution separately for each chromosome (Figure \ref{dist_het_25cen_chr}) and by pooling all chromosome together (Figure \ref{dist_het_25cen}, using a weighted mean with the number of loci in the windows as the weights.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{Num_CSD_loci/Hist_25cen_het_chr.pdf}
+		\caption{Distribution of heterozygosity in centromeric windows across all individuals from libraries 7, 7b and 10b. Centromeric windows contain all SNPs located within 25\% of the maximum distance to centromere in each chromosome.}
+		\label{dist_het_25cen_chr}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{Num_CSD_loci/Hist_25cen_het.pdf}
+		\caption{Distribution of heterozygosity in centromeric windows across all individuals from libraries 7, 7b and 10b. Centromeric windows contain all SNPs located within 25\% of the maximum distance to centromere in each chromosome. All chromosomes were pooled together for each individuals using a weighted average where the weight of each chromosome is given by the number of SNPs contained in the window.}
+		\label{dist_het_25cen}
+	\end{center}
+\end{figure}
+\FloatBarrier
+
+\chapter{Male-Female Fst}
+
+Date: 17.07.2017\\
+During preliminary analyses, I noticed recurrent peaks in Fst between diploid males and females in different families. This could indicate the presence of male-deleterious alleles. To further investigate this possibility, I analysed Fst again using all individuals (including haploids).
+
+I first looked at Fst over all 6 chromosomes in the assembly, averaging the Fst at each SNP across family to have an overview (Figure \ref{haplo_Fst_avg}), and then splitting the families to identify recurrent peaks (Figure \ref{haplo_Fst_per_fam}).
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{M-F_Fst/haplo_avg_all_Fst.pdf}
+		\caption{Fst values averaged at each SNP across all families. All individuals, including haploids and mothers are included in the analysis and top scoring peaks are labelled with the SNP position in the format "chromosome\_basepair" where basepair is the position within the chromosome. Note: populations parameters set to : min depth (D)=20 and prop pop (r)=80}
+		\label{haplo_Fst_avg}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{M-F_Fst/haplo_Fst_per_fam.pdf}
+		\caption{Fst values at each SNP by family. All individuals, including haploids and mothers are included in the analysis and top scoring peaks are labelled with the SNP position in the format "chromosome\_basepair" where basepair is the position within the chromosome. Note: populations parameters set to : min depth (D)=20 and prop pop (r)=80}
+		\label{haplo_Fst_per_fam}
+	\end{center}
+\end{figure}
+\FloatBarrier
+
+The issue with averaging the Fst over families as in figure \ref{haplo_Fst_avg} is that some SNPs can be sequenced in only one family, therefore the averaged value will only depend on that family. If we merge all families' curve into a single plot, it appears there is no single peak common to all families. 
+This can either mean that there is no interesting signal, or if that the signal depends on the family's genetic background, possibly due to an epistatic effect. Here, however, I do not have the sample size to test for it. 
+
+This issue will be dropped from the analysis as the effect is much weaker than what we expected at first and probably just random noise.
+
+\chapter{Association mapping}
+
+\section{Coarse analyses}
+Before running any association mapping analysis, I will scan the genome for region that are frequently homozygous in males and heterozygous in females. This is done only after removing SNPs that are homozygous in mothers and individuals that are defined as haploids with fixed homozygosity threshold from the populations analysis.\\
+
+Date: 21.08.2017
+
+The statistic I use when scanning the genome for CSD is $CSD=\frac{Hom_m+Het_f}{2}$ where $Hom_m$ and $Het_f$ are the proportions of homozygous males and heterozygous females respectively at each SNP. If the value is 1, all individuals respect the CSD pattern (all males are homozygous and all females are heterozygous) if it is 0, no individuals respect it (all males are heterozygous and all females homozygous). This metric should not be biased by the gradual decrease in heterozygosity along the chromosome arms as the same weight is given to males and females regardless of numbers. 
+
+\section{Case-control association test}
+
+Date: 18.08.2017
+I will use a simple case-control odds ratio to identify CSD hits. I will first do it without taking families into account. I will then perform this test separately for each category of mother and finally I will use distance to centromeres to refine the lists of hits (c.f. Chapter: \ref{sec:num_csd} Number of CSD loci").
+
+The odds ratio are computed fo each SNP using the following observed (O) contingency table where each cell is the number of genotypes corresponding to the category:
+
+\begin{table}[h!]
+\begin{tabular}{c|c c c}
+& Homozygous & Heterozygous & Total\\
+\hline
+Male & Mo & Me & Mt\\
+Female & Fo & Fe & Ft\\
+Total & To & Te & Tt\\
+\vspace{5px}
+\end{tabular}
+\end{table}
+
+Accordingly, the expected  (E) numbers are given by:
+
+\begin{table}[h!]
+\begin{tabular}{c|c c c}
+& Homozygous & Heterozygous & Total\\[5px]
+\hline\\[5px]
+Male & $\frac{Mt*To)}{Tt}$ & $\frac{Mt*Te)}{Tt}$ & Mt\\[5px]
+Female & $\frac{Ft*To)}{Tt}$ & $\frac{Ft*Te)}{Tt}$ & Ft\\[5px]
+Total & To & Te & Tt\\
+\vspace{5px}
+\end{tabular}
+\end{table}
+
+The $\chi^2$ can then be measured as follows:\\
+$\chi^2= \frac{(O(Mo)-E(Mo))^2}{E(Mo)} + \frac{(O(Me)-E(Me))^2}{E(Me)} + \frac{(O(Fo)-E(Fo))^2}{E(Fo)} + \frac{(O(Fe)-E(Fe))^2}{E(Fe)}$
+
+I applied this approach on grouped (i.e. single population run with all families) pooled (proportion of homozygous individuals calculated using all families for each SNP) data to have a first insight on the potentially interesting regions (Figure \ref{naive_case_control}). If I want to get reliable results however, I will need to use a different association mapping technique that takes family information into account and to perform the test separately on each category of family (see section: \ref{sec:cat_mothers}, "Categorizing mothers").
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{association_mapping/naive_case_control_grouped.pdf}
+		\caption{Manhattan plots with log2 p-values for the case-control association test on CSD. Populations was run on all families together and for each SNP, all individuals were pooled to compute the proportion of homozygous individuals}
+		\label{naive_case_control}
+	\end{center}
+\end{figure}
+
+Date: 31.08.2017\\
+The chi2 test is not appropriate in this case especially since I have small values in my cells, I will use Fisher-exact test instead.\\
+Date: 01.09.2017\\
+Using association mapping with the Fisher-exact test and pooling new indiviudals (including those from library 10b) together yields a few candidate regions and seems promising (Figure \ref{assoc_fisher}). I tried it both with the Benjamini-Hochberg correction (Figure \ref{fisher_BH}) and the bonferroni correction (Figure \ref{fisher_bonferroni}). The next step will be to perform this association mapping per category and to identify the genes in the candidate regions.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{association_mapping/fisher_no_corr.pdf}
+		\caption{Manhattan plots with log10 p-values for the case-control association test on CSD using Fisher exact test. Populations was run on all families together and for each SNP, all individuals were pooled to compute the proportion of homozygous individuals. P-values are not corrected for multiple testing. P-value thresholds of 0.05 and 0.01 are displayed using horizontal black and red lines respectively.}
+		\label{assoc_fisher}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{association_mapping/fisher_BH.pdf}
+		\caption{Manhattan plots with log10 p-values for the case-control association test on CSD using Fisher exact test. Populations was run on all families together and for each SNP, all individuals were pooled to compute the proportion of homozygous individuals. Benjamini-Hochberg correction for multiple testing was applied. P-value thresholds of 0.05 and 0.01 are displayed using horizontal black and red lines respectively.}
+		\label{fisher_BH}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{association_mapping/fisher_bonferroni.pdf}
+		\caption{Manhattan plots with log10 p-values for the case-control association test on CSD using Fisher exact test. Populations was run on all families together and for each SNP, all individuals were pooled to compute the proportion of homozygous individuals. Bonferroni correction for multiple testing was applied. P-value thresholds of 0.05 and 0.01 are displayed using horizontal black and red lines respectively.}
+		\label{fisher_bonferroni}
+	\end{center}
+\end{figure}
+
+\subsection{Case-control on categories}
+
+Here, I apply the test after subsetting individuals by categories, inferred using diploid male production as detailed in section \ref{sec:cat_mothers} "Categorizing mothers". 
+
+I will do it considering different number of categories, corresponding to different scenarios regarding the number of CSD loci. Figure \ref{naive_case_control} already addresses the unlikely scenario of single-locus CSD. Here, I will deal with 2 and 3 loci scenarios, with 3 and 7 categories, respectively.
+
+\subsection{Refining hits using centromeres}
+
+
+\section{Family-based association mapping}
+
+I will try to adapt the "generalized family-based association test for dichotomous traits" (GDT) published by Chen W.-M., Manichaikul A. and Rich S.S. in The American Journal of Human Genetics (2009). This test should work both in inbred and non-inbred families and takes family information into account.\\
+
+Here, I will modify the test presented in the publication to test for association of homozygosity with male phenotype instead of a particular allele with a disease. I will also need to make it work with a single parent.
+
+Date 23.08.2017
+
+After investigating the proofs of the score used in the family based test mentioned above, I realized adapting it would not make sense; it uses pedigree information and relies on the differences in kinship coefficients or proportion of IBD alleles. Since I have asexuals, all kinship coefficient in the families are 1, they are all siblings and it does not make much sense to include pedigree information. 
+I will instead focus on a better implementation of the case-control test.
+
+\chapter{Coverage analysis}
+
+In this section, I check wether there are individuals or genomic regions that have abnormally high or low coverage, I identify the potential reasons for these abnormalities and eventually, I will remove the concerned elements from the analysis.
+
+\section{Individual stats}
+
+Prior to coverage, I had a look at the raw reads statistics. On average,each sample has 803951 reads and the (ordered) reference genome is 140.7 Mb long. This makes for an average of $5.7*10^{-3}$ reads per basepair.
+In comparison, the 3 datasets used in the Paris 2017 paper (Roadmap to STACKS) have $9.6*10^{-4}$, $2.7*10^{-3}$ and $8.6*10^{-3}$.
+
+I first analysed the coverage on a per individual basis. That means for each individual, it has been averaged over all polymorphic SNPs kept throughout the STACKS pipeline. The mean sample coverage is relatively high and follows a normal distribution centered around 119X with a standard deviation of 33. There are two outliers with exceptionally high coverage (at 228X and 270X, respectively) which I might consider removing. The coverage is not different across families (Figure \ref{cov_fam}). Coverage is not affected by the family of an individual (it is not affected by ploidy or sex either).
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.70\textwidth]{coverage_analysis/cov_per_sample.pdf}
+		\caption{Sample depth, averaged across all polymorphic sites which passed STACKS populations filters. Individuals of each family are plotted together and histograms are colored according to the family's mean depth.}
+		\label{sites_fam}
+	\end{center}
+\end{figure}
+
+Analyzing the number of sites (SNPs) per sample revealed that it was strongly affected by the family (Figure \ref{sites_fam}). This could be caused by storage duration, reagent quality or manipulations. If so, I cannot account for this and will either need to get rid of lowest quality families (such as I) or get more individuals.\\
+
+Update: 06.08.2017
+
+To investigate whether the inter-family variation in the number of sequenced sites was due to differing amounts of sequenced DNA, I compared the number of sequencing reads per family (Figure \ref{reads_fam}). There is interfamily variation, but it seems relatively low, compared to the number of sites in figure \ref{sites_fam}. This variation is likely due to the low number of samples and is probably not meaningful. Moreover, the order of families, when sorted from highest to lowest is different for number of sequenced sites and number of reads. 
+
+
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{coverage_analysis/sites_per_sample.pdf}
+		\caption{Number of polymorphic sites (SNPs) per individual that passed the STACKS populations filters. Distribution of individuals is shown by family. There is a strong clustering of families.}
+		\label{sites_fam}
+	\end{center}
+\end{figure}
+
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{coverage_analysis/reads_sample.pdf}
+		\caption{Number of sequencing reads per individual, before mapping or any filter. Distribution of individuals is shown by family. The inter-family variation is not particularly high relative to intra-family variation.}
+		\label{reads_fam}
+	\end{center}
+\end{figure}
+
+
+\section{Genome coverage}
+
+To identify regions of high or low coverage, I extracted information about the mean coverage per family at each polymorphic site that passed the STACKS populations filters. I then binned SNPs by 1kb regions (Figure \ref{cov_genome}).
+Some SNPs have extreme coverage values (>600X) and might be caused by repetitive regions or paralogs that have been merged as a single locus.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{coverage_analysis/coverage_1kbwin.pdf}
+		\caption{Mean depth per family at every SNP that passed the populations filters.}
+		\label{cov_genome}
+	\end{center}
+\end{figure}
+
+\section{Lowering the filters}
+
+Date: 09.08.2017
+
+The main issues I am facing in this chapter are 1) the abnormally high coverage across my samples and 2) the high variation in the number of sites between families.
+
+The reason the high mean coverage per sample was worrying is because I have about the same amount of reads per sample as the 3 datasets described in the roadmap to stacks paper (Paris et al, 2017), yet i have at least twice more coverage per sample. After re-reading the paper, I found out this was simply a consequence of my stringent filters at the populations stage, which they do not use (see citation below).\\
+
+\textit{"Despite controlling for the mini-
+mum read depth of alleles at the ustacks phase of the pipe-
+line, many studies also incorporate a minimum stack depth
+required for individuals at a locus in the populations mod-
+ule of STACKS (e.g. Gaither et al. 2015; Ivy et al. 2016; Kjeldsen
+et al. 2016). Such a method is undesirable, as read depth has
+already been accounted for by the SNP model. Once the SNP
+model has made a determination, its evaluation should be
+trusted and using further non-statistically based limits on
+depth of coverage is ill advised and will result in the arbitrary
+dropping of loci."\\}
+
+I will follow their advice since my coverage is absurdly high, and I would benefit a sharp increase in the number of loci by removing this filter. 
+
+\chapter{Additional samples (lib10 + lib10b)}
+
+Date: 26.08.2017\\
+Libraries 10 and 10b got back from the samples and I have processed them through the pipeline. Library10 suffered a dramatic loss in read count due to an unidentified technical problem (~10x less reads than lib10b).\\
+IMPORTANT: W10 appeared twice in the name list: once in library 10b and once in what will later be library11. Therefore I shifted the numbering by 1 for family W in library11. I will need to make sure this is the case in the barcode file as well.\\
+
+Date: 28.08.2017\\
+After removing all samples from library10 (see subsection \ref{sec:add_coverage} "Coverage", below). I still have NNN diploid individuals, distributed across FFF families.
+
+\section{Data description}
+\subsection{Family composition}
+With the new samples, I now have 239 diploids across 32 families. Many families are relatively small, however (Figure \ref{off_comp}) and relying on sex ratio among diploid offspring to categorize families could be unreliable.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{add_samples/off_comp.pdf}
+		\caption{Composition of offspring per family when including new samples from library 10 and 10b.}
+		\label{off_comp}
+	\end{center}
+\end{figure}
+
+\subsection{Coverage}
+\label{sec:add_coverage}
+
+The coverage across genome (Figure \ref{cov_genome_add}) did not change much by adding the new libraries, however looking at the coverage per individuals(Figure \ref{mean_depth_add}) and number of site per individuals (Figure \ref{n_sites_add}) confirms the poor quality of library 10. These individuals barely passed the filters i have put in place, but overall they still have very low read counts and including them exposes my whole analysis to technical biases. I will therefore remove all samples from that library. Note that I'll also remove W10 since it is the only healthy sample left in the family and all females are lost (they were in lib10).
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{add_samples/library_depth.pdf}
+		\caption{Distribution of the mean sequencing depth per individuals in each library including the new ones (10 and 10b).}
+		\label{mean_depth_add}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{add_samples/cov_per_site.pdf}
+		\caption{Sequencing depth across genome. Depth is averaged over all samples at each sites and values are averaged by 1kb windows. New samples from libraries 10 and 10b are included}
+		\label{cov_genome_add}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{add_samples/library_sites.pdf}
+		\caption{Distribution of the number of sites per individuals in each library including the new ones (10 and 10b).}
+		\label{n_sites_add}
+	\end{center}
+\end{figure}
+\FloatBarrier
+
+\chapter{Pipeline reorganization}
+Date: 11.10.2017
+
+In order to increase the number of loci and the quality of my data, I will follow the advice from the roadmap to stacks paper and use a Ustacks + later mapping approach rather than Mapping + pstacks. For convenience, I would like to keep both options in the final pipeline, and I would also add the possibility to run it without an LSF cluster. To allow these changes, I needed to reorganize the flow of my pipeline.
+
+\section{Reorganization}
+Originally, I used a Makefile with all steps of the pipeline. I want to be able to swap all STACKS-related steps without rewriting the entire Makefile or duplicating it. The approach I used is to outsource all STACKs steps into a separate Makefile and call that secondary makefile using a rule in the main Makefile. This allows to have as many different STACKS strategies which each have their own Makefile.
+
+I currently use Makeref for the Pstacks pipeline and Makenovo for the Ustacks pipeline (Figure \ref{pipe_reorg}).
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{reorg/pipeline_reorg.pdf}
+\caption{Original structure of the pipeline (left) with data flow and dependencies, versus new structure (right) where STACKS-related tasks are delegated to separate Makefiles}
+\label{pipe_reorg}
+\end{center}
+\end{figure}
+
+\section{New STACKs strategy}
+It is shown in the roadmap to stacks paper that building stacks de novo and mapping them to the genome later on yields better results. I will therefore adopt that approach and use GSNAP to map reads, although I might try different softwares later on.
+
+The new \textit{de-novo} approach will work as follows:
+
+\begin{itemize}
+\item Build stacks \textit{de-novo} with Ustacks
+\item Build catalog with Cstacks
+\item Match samples to catalog with Sstacks
+\item Run samples through populations
+\item Map consensus sequences that passed populations filters with GSNAP
+\item integrate alignment information into catalog
+\end{itemize}
+
+\chapter{Final samples}
+Date: 16.10.2017
+
+After receiving the second run of sequencing data for libraries 12 and 12b, I pooled them for demultiplexing and ran the usual STACKS pipeline with stringent parameter for splitting by ploidy (min locus depth 20). The one thing I changed in the pipeline is that I removed the $max_obs_het$ filter which excluded loci heterozygous in more than 90\% of individuals. I will replace this filter by a blacklist of loci heterozygous in more than 50\% of haploid males after inference of ploidy. The distribution of homozygosity per individuals revealed a highly homozygous cluster of individuals from the D cross forming a second mode close to the haploids (Figure \ref{CD_hom_fam}). This is problematic because it will be hard to disentangle it from the haploid mode. After discussing with Casper, we concluded that it would be more appropriate to consider the D cross separately as it could also cause the catalog to exclude important loci in the C cross (due to the R=0.8 filter) from the catalog.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{final_samples/hom_bg_popfam_d20_CD.pdf}
+\caption{Distribution of the proportion of homozygosity among variant sites per individuals. Populations was run per-family without max-obs-het filter. Individuals are colored based on background.}
+\label{CD_hom_fam}
+\end{center}
+\end{figure}
+Running the populations program will all individuals together instead of per-family removed the second mode and revealed that most individuals from the D-cross are haploids (Figure \ref{CD_hom_grouped}). This highlights the potential risks of running populations per family. Because this cross seems to have a quite divergent genetic background, it will be excluded from the analysis and analyzed separately.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{final_samples/hom_bg_popgroup_d20_CD.pdf}
+\caption{Distribution of the proportion of homozygosity among variant sites per individuals. Populations was run with all individuals together without max-obs-het filter. Individuals are colored based on background.}
+\label{CD_hom_grouped}
+\end{center}
+\end{figure}
+
+\section{Pipeline changes}
+
+Populations will now only be run with all individuals pooled to avoid non-overlapping sets of SNPs and discrepencies in homozygosity levels across families. Individuals from cross C and D will be run completely separately and I will probably not used at all given the high number of haploids and low number of females in that cross. I also stopped using the $max_obs_het$ filter in populations, in favor of a personalized method to blacklist loci found to be heterozygous in at least given proportion of haploids.
+
+\section{Splitting crosses}
+
+I separated individuals from cross D from those in C or R and ran them separately through the whole pipeline.
+
+\subsection{Cross D}
+
+This cross contains 186 individuals, of which 174 made it through the pipeline. They are split into 15 families. 
+
+\begin{itemize}
+\item Mean number of sites per sample: 864
+\item Average locus depth per sample: 108
+\item Ploidy count: 35 diploids, 139 haploids
+\end{itemize}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{final_samples/hom_Sex_popgroup_d20_D.pdf}
+\caption{Distribution of the proportion of homozygosity among variant sites per individuals. Populations was run with all individuals from cross D together without max-obs-het filter. Individuals are colored based on sex. The red dashed vertical line represent the arbitrary (conservative) threshold I defined earlier to separate ploidy from grouped populations runs.}
+\label{D_hom_grouped}
+\end{center}
+\end{figure}
+
+\subsection{Cross C}
+This cross contains 588 individuals, of which 530 made it through the pipeline. They are split into 45 families. 
+\begin{itemize}
+\item Mean number of sites per sample: 1439
+\item Average locus depth per sample: 127.
+\item Ploidy counts: 314 diploids, 216 haploids
+\end{itemize}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{final_samples/hom_Sex_popgroup_d20_C.pdf}
+\caption{Distribution of the proportion of homozygosity among variant sites per individuals. Populations was run with all individuals from cross C together without max-obs-het filter. Individuals are colored based on sex. The red dashed vertical line represent the arbitrary (conservative) threshold I defined earlier to separate ploidy from grouped populations runs.}
+\label{C_hom_grouped}
+\end{center}
+\end{figure}
+\FloatBarrier
+\section{CSD}
+\subsection{Finding centromeres}
+The centromere positions remained quite similar to previous estimations when including the last samples (Figure \ref{C_centro}).
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=\textwidth]{final_samples/final_centro.pdf}
+\caption{Centromere mapping using both a simple moving average (window size 50 SNPs) and a local regression of degree 2 with span 0.6 and weights according to individuals per SNP.}
+\label{C_centro}
+\end{center}
+\end{figure}
+\FloatBarrier
+\subsection{Association mapping}
+We still observe 3 peaks in the association mapping when including the last samples (Figure \ref{C_assoc}).
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=\textwidth]{final_samples/case_control_BH_chromprop.pdf}
+\caption{Case-control association mapping for CSD using association mapping. One-sided Fisher exact test was performed for each SNP with the alternative hypothesis that proportion of heterozygous individuals is higher among females than males. P-values are corrected using FDR with the Benjamini-Hochberg procedure.}
+\label{C_assoc}
+\end{center}
+\end{figure}
+\FloatBarrier
+
+\chapter{Annotations and homologies}
+The last step of the analysis is to determine what genetic elements might be responsible for the CSD mechanism. I will use annotations generated by the BIPAA on their \textit{L. fabarum} genome. They inferred elements using maker and retrieved generated homology-based annotations with blast2go. 
+Because the assembly I am using was reordered using a linkage map, I had to convert the coordinates of their annotations ot our ordered assembly (i.e. into chromosomes instead of contigs). 
+
+\section{Annotations}
+I found no transformer homolog in any of the chromosomes containing CSD hits, however transformer-2 is present in chromosome 2, where there is no association mapping hit. There was no protein annotation common to all 3 candidate region when looking 200kb around the significant hits of GWAS(Figure \ref{annot_visu}), but there are many uncharacterized proteins (see table below for all annotations within 200kb of significant hits). The next step would be to look at transcriptome annotations from RNA-seq data in larvae, in case there are unannotated/noncoding transcripts.
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=\textwidth]{annotations/annot_visu.pdf}
+\caption{Visualization of annotation density in the neighbourhood (200kb) of significant GWAS hits. Red dots are the significant hits and grey vertical lines are the annotated proteins. Histograms show the number of annotations in 10kb bins.}
+\label{annot_visu}
+\end{center}
+\end{figure}
+\FloatBarrier
+\begin{scriptsize}
+\csvautobooklongtable[respect underscore=true]{annotations/annot_200kb.csv}
+\end{scriptsize}
+
+\section{Homologies}
+I will look for sequence homology between candidate regions. There are several options to do so:
+\begin{itemize}
+\item Perform multiple alignment between candidate regions. Main drawback: arbitrary size of regions
+\item  Blast whole genome against itself and find significant hits between regions. Main drawback: only pairwise comparisons, computationally inefficient
+\item Pairwise blast/alignment between chromosomes 3,4 and 5.
+\end{itemize}
+
+\subsection{pairwise BLAST}
+Update: 04.11.2017
+First strategy: Blasting chromosome 3 vs chromosome 4, 3vs5 and 4vs5.
+Using the following commands:
+\begin{lstlisting}
+$ makeblastdb -in chr5.fasta -dbtype nucl
+$ blastn -query chr4.fasta -db chr5.fasta -outfmt 6 -max_target_seqs 1 -out blast45.out
+\end{lstlisting}
+
+It seems multiple alignment programs such as CLUSTAL Omega cannot handle very long sequences (longer than 100kb). Therefore, the best strategy might be to blast regions against one another and then use an aligner on subsetted high scoring regions.
+
+Detailed strategy (Discuss with Tanja and Casper):\\
+1. Perform one-way pairwise blast between chromosomes. Example: 3v4, 4v5 and 3v5\\
+1. Assign each alignment in blast output a unique ID: chrQ-chrS-ID. Example: chr3-chr4-13 \\
+2. Transform blast output into set of BED files, only including alignments with an E-value below 1e-10. Each blast output generates 2 bed files: one with the query chromosome coordinates, the other with the subject chromosome coordinates.\\ Intervals in both files have the same IDs. Example: Blast output of chr3vchr4 produces $3v4.bed$ and $4v3.bed$\\
+3. Perform pairwise intersections between bed files with the same coordinates system. Example: $3v4 \cap 3v5; 4v5  \cap 4v3; 5v3 \cap 5v4$\\
+4. Each intersection operation yields 2 sets of IDs
+\subsection{MCScanX}
+Update: 11.11.2017
+
+In stead, I used MCScanX to retrieve blocks of collinearity in the genome. This software only takes into account alignment between genes. The software takes a blast output and a bed file with all genes coordinates as input files. I proceeded as follows:
+\begin{itemize}
+\item Retrieve features coordinates from the BIPAA. These are gene predictions from MAKER in GFF format.
+\item Extract genes from the GFF file.
+\item Convert genes coordinates to our ordered assembly using custom python script.
+\item extract genes from ordered contigs only (i.e. placed in chromosomes)
+\item retrieve gene sequences with the getfasta utility from the BEDtools suite
+\item use BLASTN on the resulting fasta with outfmt 8 to get tabular output of all vs all genes blast.
+\item run MCScanX with the extracted genes coordinates in BED format and the BLASTN output.
+
+The resulting plots show several blocks of collinearity between chromosomes, but it does not entirely correspond with the CSD regions, especially for chromosome 5. This might be caused by the homology-based predictions of MAKER. Since the software relies on accurate gene prediction, I should use more reliable coordinates. I will therefore use the BIPAA RNAseq data to call genes instead of homology based predictions.
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=\textwidth]{homology/LF_MCScanX_circle_3chr_makergenes.png}
+\caption{Circlular plot showing collinearity blocks between the 3 chromosomes containing CSD candidate hits in the GWAS. Gene coordinates are computational predictions from maker.}
+\label{collin_3chr_maker}
+\end{center}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=\textwidth]{homology/LF_MCScanX_circle_all_makergenes.png}
+\caption{Circlular plot showing collinearity blocks between the all 6 chromosomes. Gene coordinates are computational predictions from maker.}
+\label{collin_all_maker}
+\end{center}
+\end{figure}
+
+\section{RNA-seq}
+
+To obtain more accurate gene coordinates for the collinearity analysis above, I will use transcripts coordinates obtained with RNA-seq. Besides, this will potentially uncover trancribed genes in candidate regions.
+
+I obtained bam alignment files from RNA-seq reads from the BIPAA team. These reads were aligned to their unordered assembly with STAR. 
+
+I plan to assemble the transcriptome from the alignment file using cufflinks to have transcripts coordinates with isoforms.
+
+Here are the issues I encountered so far:
+\begin{itemize}
+\item Being able to differentiate males and females would be useful to identify sex-specific expression levels and/or alternative splicing. Because these are larva, we don't know the sex, however it might be possible to identify haploid sample from heterozygosity levels using SNPs in transcriptome (?), or to cluster samples based on dominant isoforms in candidate CSD regions (if strong sample-specific isoform expression, interesting gene). Therefore, I want to know if it is possible to \textbf{classify reads in BAM files based on their original sample.}
+\item I don't have any info on the RNA-seq protocol: single-end or paired-end ? unstranded or strand specific. Looking at the BAM flags, I found no 1, therefore I assume this is single end sequencing. I also found about 33\% of alignments had 16 (mapped to reverse strand), does it mean they use an \textbf{unstranded protocol ?}
+\item If this is indeed unstranded protocol, cufflinks requires the \textbf{XS flag}, which was not included when the  STAR alignment was performed (it requires an additional  command line parameter). Did the BIPAA team not use this parameter on purpose ? Am I missing something ?
+
+\end{itemize}
+\end{itemize}
+\FloatBarrier
+Update: 25.11.2017
+Issues resolved, larvae are from a stranded library and adults from an unstranded one. Both are single end. I cannot differentiate males and females because all individuals are pooled together without barcodes.
+
+\subsection{Data processing}
+
+I assembled the transcriptome from the reads alignment (BAM) file. The alignment was constructed with STAR and I assembled the transcriptome with cufflinks. I then extracted the transcripts coordinates and worked with these to identify gene coordinates.\\
+Collinearity analyses were performed again with MCScanX using the merged tracks from maker genes and cufflinks transcripts to have a more complete set of genes.
+
+\section{gene homology: continued}
+
+\subsection{visualisation}
+To combine the different layers of informations I have obtained, I produce circular plots using circos. The aforementioned layers include: Association mapping results for CSD, recombination rates (estimated from homozygosity relative to mother), MCScanX collinearity and the original contigs that were anchored into chromosomes. 
+
+Circos allows to integrate all these infos into a single plot, thus we can see whether CSD candidate regions show homologies with each other, if they are close to centromeres and if the contigs where they are found are small.\\
+
+\subsection{Collinearity parameters}
+Because the genome is highly fragmented and uncomlete (53\% of length anchored to chromosomes), collinearity blocks will often be interrupted. We can also not be sure the CSD locus originate from a genomic duplication, and it might therefore not show collinearity. Changing MCScanX parameters (reducing minimum block size from 5 to 3 and varying the maximum gap between 10 and 30) did not improve the results much.
+
+\subsection{BLAST hits}
+To circumvent this issue, I tried to use direct blast hits between transcripts to build the links in the circos plot. I chose all \textbf{interchromosomal} significant blast hits using combined tracks of maker genes and cufflinks transcripts.\\
+
+The combination of genome fragmentation and low rate of anchoring might pose a real issur to detect gene homologies in CSD regions.
+
+\chapter{Sequence homology}
+In this chapter, I try to work around the drawbacks of genome incompleteness and unanchored contigs by measuring sequence homology and not only gene. There are several possible approaches and I will list those I can think of so that we can filter them later and find the most appropriate.\\
+The different approaches will combine the following elements and ideas in different ways and orders.
+\begin{itemize}
+\item Whole genome alignment using minimap2.
+\item List of transformer orthologs from different hymenoptera species from orthoDB to identify its presence in the genome more reliably.
+\item Use original illumina reads from the assembly procedure to measure coverage and identify duplicated genes.
+\item list of single copy orthologs in hymenoptera/arthropods to have a coverage baseline
+\item During the assembly, duplicated genes are likely cut-off into single contigs. Use the paired end info from illumina reads to identify which are the neighbouring contigs of these genes.
+\end{itemize}
+
+\section{Neighbours first}
+Strength: No expectations, can discover new stuff
+Weakness: Not very powerful, feature of interest will be missed if not in 1st neighbour
+\begin{enumerate}
+\item identify contigs neighbouring CSD region using pair end info
+\item use original assembly reads to measure coverage of single copy orthologous genes in arthropods and compare it to genes in CSD contig and its neighbours to assess number of copies.
+\item if N copies of a contig is more than 1, retrieve other neighbours in the assembly graph using pair end.
+\item do these neighbours include other CSD regions ?
+\item what is the concerned duplicated feature (\textit{transformer} homologs) or other ?
+\end{enumerate}
+
+\section{transformer assumption}
+Strength: will likely yield results if a transformer homolog is responsible for CSD
+Weakness: Will be useless in finding any other factor
+
+\begin{enumerate}
+\item Look for transformer homologies in genome
+\item do those homologies overlap CSD contigs ?
+\item use single copy orthologs and original reads to assess number of copies of transformer homolog.
+\item use pairs to find neighbouring contifs
+\item do neighbouring contigs include CSD ones ?
+\end{enumerate}
+
+\section{Self-alignment}
+Strength: Assumption free
+Weakness: Will miss duplicated genes merged into single contig
+\begin{enumerate}
+\item Whole genome alignment using minimap2
+\item find all contigs with multiple alignments.
+\item do they include CSD contigs ?
+\item retrieve their neighbouring contigs. Do they include CSD contigs ?
+\end{enumerate}
+
+\chapter{Validating association results}
+
+\section{reconsidering set of SNPs}
+Following Casper suggestions and comments, I tried running the association mapping procedure again without removing SNPs that are homozygous or missing in mothers from their family. This proved very useful, by allowing to keep many more SNPs in the analysis and it might be wiser to keep them as they should pose no harm to the analysis. The only drawback of including them is that CSD loci that are only heterozygous in few mothers will have a weaker signal. \\
+From now on, I will be considering all SNPs for the association mapping. For the centromere identification however, I need to keep the aforementioned SNPs out as the metric used is heterozygosity relative to mothers.
+
+\section{identifying false positives}
+We can use the assumptions of the CSD model to identify false positive CSD hits. This can be done by counting the number of females that are heterozygous at 0, 1, 2,...,N of the N CSD candidates. If a candidate is actually a false positive, there should be no (or very few) females that are heterozygous at it, but at no other CSD locus.
+
+\section{Estimating genotype miscall rate}
+I am using unlikely mother-homozygous to offspring-heterozygous tansitions to obtain an estimate of the miscall rate.
+
+\section{sequentially dropping loci}
+To estimate the "importance" of csd loci, we can measure the number of females that are homozygous at all CSD loci, and repeat the operation after sequentially dropping different loci. If a loci is not really CSD, the count should not be strongly affected when we drop it.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{l c}
+Dropped & Hom. Females \\
+ \hline
+0 & 7 \\
+1 & 13 \\
+2 & 19 \\
+3 & 10 \\
+4 & 21 \\
+1+2 & 31\\
+1+3 & 18\\
+1+4 & 38\\
+2+3 & 24 \\
+2+4 & 48\\
+3+4 & 29\\
+1+2+3 & 44\\
+1+2+4 & 97\\
+1+3+4 & 53\\
+2+3+4 & 62\\
+\end{tabular}
+\caption{Number of females homozygous at all CSD loci after sequentially dropping loci.}
+\label{table:drop_loci}
+\end{center}
+\end{table}
+
+\section{pushing parameters}
+Low priority, on hold
+To minimize the part of the effect that is due to differing number of individuals, I will try increasing the minimum proportion of samples in which SNPs must be found (currently 0.8). I will also try with a coverage of 10, to have more confident calls.
+
+\section{Minor allele frequency}
+Update: 29.03.2018
+To remove "uninteresting" loci with a very rare alternative allele, I added a minor allele frequency filter of 10\% at the population stage. I also use the raw proportion of homozygous males as an additional measure to assess the validity of candidate loci (Figure \ref{manhattan_MAF}).
+
+Because the MAF filter affected association mapping results, I also double checked for significant hits on unanchored contigs (Figure \ref{unanchored_MAF)}.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{valid_CSD/MAF_chrom_manhattan.pdf}
+\caption{Manhattan plot of the association mapping for CSD after applying a minor allele frequency (MAF) filter of 10\%. P-values are corrected for multiple testing and SNPs are colored according to the proportion of heterozygous males (higher values mean poor candidates). Only SNPs that are anchored on the chromosomes are included.}
+\label{manhattan_MAF}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{valid_CSD/MAF_unanchored_manhattan.pdf}
+\caption{Manhattan plot of the association mapping for CSD after applying a minor allele frequency (MAF) filter of 10\%. P-values are corrected for multiple testing. Only SNPs from unanchored contigs are included. Alternate background color represent contig boundaries and SNP color denotes appartenance to a contig with a significant hit. }
+\label{unanchored_MAF}
+\end{figure}
+
+\chapter{Comparison with bee CSD players}
+
+\section{Feminizer}
+I retrieved the feminizer protein sequence for 8 Hymenopteran species, including bees and wasps. These sequences were retrieved from UniprotKB using a BLAST search from the \textit{Nasonia vitripennis} feminizer. The list of gene IDs is: 
+\begin{itemize}
+\item B3VN92 (Nasonia vitripennis)
+\item D9MZ89 (Euglossa hemichlora)
+\item B4Y115 (Bombus terrestris)
+\item B4XU23 (Melipona compressipes)
+\item A0A0H4URN0 (Apis florea)
+\item B1NW84 (Apis cerana)
+\item Q6V5L4 (Apis mellifera)
+\item B1NW85 (Apis dorsata)
+\end{itemize}
+
+I tblastn'd these protein sequences against the l.fabarum genome.
+
+\chapter{Nucleotidic diversity in wild individuals}
+Whole genome amplification and paired-end sequencing with Illumina Hiseq on 11 males and 4 females from the wild yielded between 32 and 80 million reads per sample.
+
+\section{Quality control}
+Before proceeding to nucleotidic diversity analysis, we need to ensure the WGS data is not heavily biased. Specifically, I will assess whether the whole genome amplification generates strong bias and look at mapping statistics.
+
+MultiQC reports showed no particular issue, except a small GC bias in the first few basepairs of the reads for all samples. This bias is apparently due to the amplification process: The pairing is not random and GC-poor regions seem to be favoured. Because the quality scores remained high throughout the whole sequence, I did not apply a fixed trimming, but I still applied left and right trimming if quality score drops below 20.
+
+\subsection{Duplicated reads}
+The process of PCR amplification can introduce biases by over-amplifying some regions. For example, regions with poor GC-content are preferentially amplified. Samples can have duplicated reads: Exact same reads originating from a single PCR reaction, but ending up in different Illumina wells. Samples with lower amounts of starting material will have more PCR duplicates. Samples with high duplication rates should have lower library complexity (Figure \ref{PCR_dup})
+
+Actually, I might want to keep duplicate reads. According to Ebbert et al, 2016 (doi: 10.1186/s12859-016-1097-3), PCR duplicates have minimal effect on SNP calling. It mostly matters for RNAseq.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/qc/sample_comp.png}
+\caption{Comparison of read coverage between samples in genome browser view. Sample HYI-196 has very poor coverage, probably due to low amount of starting material.}
+\label{PCR_dup}
+\end{figure}
+
+According to multiQC, some samples contained up to 45\% duplicated reads. To address this issue, I removed duplicated reads using Picard MarkDuplicates tool.
+
+\subsection{Mapping statistics}
+Proportion of reads mapping to the genome can be useful to estimate issues such as contamination or high amounts of chimeric reads. Here I record different mapping statistics.
+
+Multiqc reports all samples with 99\% mapped reads or more. The reason for this extremely high proportion (as compared to the stats for the RADseq data in chapter 3) is that I use the mem algorithm from BWA, whereas the aln algorithm was used for the RADseq. mem performs local alignments, whereas aln requires end-to-end mapping of the reads.
+Note: I had to use the -M flag in bwa-mem for downstream compatibility with picard. This marks split alignments as secondary alignments. Picard then needs to be given a queryname-sorted bam to include secondary alignments in the duplicates (coord-sorted does not work)
+
+\subsection{Genome completeness}
+BUSCO gives good results when using the Hymenoptera orthologs and \textit{Nasonia vitripennis}'s parameters. Just for comparison, I will reassemble the genome \textit{de novo} from the haplotype of a single male (with the highest coverage), using Abyss 2.0.2. Maybe it is possible to use it to improve the assembly ? (e.g. anchor additional contigs).
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/qc/busco_figure.png}
+\caption{BUSCO statistics for the anchored assembly. Produced with the Hymenoptera (odb9) database and using N. vitripennis as the Augustus species.}
+\label{PCR_dup}
+\end{figure}
+
+\subsection{General QC stats}
+I extracted data from multiQC and looked at the general trends between variables. I also looked for outliers.  Applying PCA  on 5 important QC features without standardisation (not very useful, figure \ref{PCA_QC}) is basically equivalent to plotting Nreads vs proportion of duplicated reads. Sample H196 stands out as an outlier with high volume of reads and duplication rates. When standardazing QC features, H196 still stands out for the same reasons, but it also has a lower GC content and higher proportion of reads mapping. The GC content is negatively correlated (Figure \ref{heat_var_QC} with duplication rates (probably due to amplification bias) and the mapping rate could be caused by some contamination (?).
+
+Definitely excluding sample HYI-196.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/qc/pca.pdf}
+\caption{PCA using non-standardised (left) and standardized (right) QC parameters.}
+\label{PCA_QC}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/qc/var_corr.pdf}
+\caption{Variables correlations using standardised QC parameters.}
+\label{heat_var_QC}
+\end{figure}
+
+\section{Narrow CSD regions}
+I am going to use $\pi$ nucleotide diversity from wgs on wild samples to narrow the set of candidate loci identified by association mapping on the RADseq dataset.
+
+\subsection{$\pi$ measurements}
+SNPs were called using mpileup and $\pi$ nucleotidic diversity was computed at all position used in the associatio mapping using vcftools. I need to take ploidy into account when calling variants with mpileup. With a quick heterozygosity checkup, I confirmed all 4 females are the most heterozygous individuals (\ref{het_wgs}).
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/hom_WGS.png}
+\caption{Proportion of homozygous SNPs per individual.}
+\label{heat_var_QC}
+\end{figure}
+
+Update :27.03.2018
+vcftools only took into account diploid sites when computing PI. I implemented my own method which works the following way.
+\begin{itemize}
+\item Get all variant and fixed sites in genome
+\item Build genotype matrix, rows as sites, columns as samples
+\item Separates haplotypes of females into separate "individuals" to obtain one column per haplotype
+\item method 1: Compute PI either at each site (adapted C++ implementation from vcftools to Rcpp)
+\item method 2: Look for missing positions and fill with NA. Then compute PI in windows. NAs are ignored, in PI value, but useful for windows coordinates.
+\end{itemize}
+\FloatBarrier
+\subsection{$\pi$ results}
+Computing $\pi$ in windows across the genome revealed high variations and a strong impact of the window size used (Figure \ref{win_size_pi}). Windows of 100bp are too small given the SNP density in the genome. Both 1kb and 10kb windows seem appropriate, but I wil be using 10kb as it seems to reveal more variability.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/win_size_PI.pdf}
+\caption{Genome wide PI values computed in windows of different sizes (100, 1000 and 10000 bp. The plotting area is divided into a grid of hexagonal bins. The number of windows falling into the hex bins is used to color them.}
+\label{win_size_pi}
+\end{figure}
+
+There are peaks of nucleotidic diversity on chromosomes 2, 3, 4 and 5.  These peaks do not seem to overlap with RADseq SNPs with high scores for CSD association.
+
+Because of these strong local variations of nucleotidic diversity, I computed the local diversity around all significant RADseq SNPs versus the upstream and downstream diversity. This should show whether the SNPs "stand out" compared to local background (Figure \ref{local_PI_RAD}). The region around significant SNPs did not seem to "stand out" from local background except when using very small (100bp) windows, but then the number of SNPs in the window is simply too small.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/up_down_PI10k.pdf}
+\caption{PI values around significant RADseq SNPs versus upstream and downstream (non-overlapping windows).}
+\label{local_PI_RAD}
+\end{figure}
+
+\chapter{Allele segregation in wild samples}
+The peaks of diversity observed in wild samples are intriguing and I will have a quick look at the segregation of alleles in these regions and whether it concords with the population structure based on the whole genome. 
+
+The idea is to perform a PCA on the whole genome to visualize the genetic distance between samples.
+
+\section{Preprocessing}
+I will be using SNPs only and therefore exclude fixed sites (those where an alternative allele was fixed). PCA is commonly performed using (0/1/2) encoding on diploid samples where the number represents the number of non-reference alleles. In my case, samples are haploid and I could use the same strategy by encoding sites as 0/1. 
+
+The issue when using this approach is that alternative alleles are pooled together under a single identity. In this case, we have wild samples which might have several different alleles at a single site. Another possibility is to use dummy variables for each allele and denote presence or absence. To assess whether I can afford to pool all non-reference alleles together, I will first have a look at the distribution of SNPs with more than 2 alleles throughout the genome. If there are hotspots of SNPs with more than 2 alleles, I should avoid pooling them. It seems there are not too dense hotspots of SNPs with many alleles (Figure \ref{dist_multalleles}).
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/distribution_multalleles.pdf}
+\caption{Genomic repartition of all SNPs and SNPs with more than 2 alleles (top) and direct comparison of the distributions using QQplots (bottom).}
+\label{dist_multalleles}
+\end{figure}
+
+\section{Genetic distance between haplotypes}
+DISCLAIMER: The analyses presented in this section are not valid because sequencing data is not phased, hence it is impossible to separate haplotypes within females. All PCA/MDS analyses based on haplotype distance should be ignored. (update 19.04.2018)
+Before looking at alllele segregations between highly diverse regions, I computed genetic distance between all samples (considering the haplotypes of diploids as 2 independent samples). I performed both PCA (Figure \ref{PCA_wg}) and MDS on the Hamming distance matrix (Figure \ref{MDS_wg}) to detect discrepancies between the methods. There is not difference, but I will stick with Hamming + MDS as it makes more sense conceptually (keeping information of alternative alleles) and the implementation is much faster.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/pca_wg.pdf}
+\caption{PCA all SNPs with all alternative alleles pooled. Samples are colored according to sex and IDs are shown directly on the plot. For diploid samples (females), haplotypes are encoded as \_1 and \_2}
+\label{PCA_wg}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/Hamming_MDS_wg.pdf}
+\caption{MDS on hamming distance matrix using all SNPs with any number of alleles. Samples are colored according to sex and IDs are shown directly on the plot. For diploid samples (females), haplotypes are encoded as \_1 and \_2.}
+\label{MDS_wg}
+\end{figure}
+
+\section{Allele segregation in highly diverse regions}
+To get a first insight into the segregation pattern in highly diverse regions, I performed again MDS on these regions (Figure \ref{MDS_peaks}). I found some inconsistencies with the genetic distance based on the entire genome, but it would likely be more interesting to have some form of quantification. In CSD regions it would be expected that there is a high divergence between the haplotypes of a female compared to other haplotypes (since CSD should be heterozygous).
+
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/PI/peak_MDS.pdf}
+\caption{MDS plot of the individual regions (+/- 10kb around) showing similarity between individuals.}
+\label{MDS_peaks}
+\end{figure}
+
+\FloatBarrier
+
+\section{Corrections}
+\subsection{distances}
+PCA and MDS analyses presented in the previous sections are not valid because of the unphased data. Here, I address this issue by using a custom distance metric that allows to compare individuals of different ploidies, rather than haplotypes. The metric relies on the difference in allele frequencies between individuals. A homozygous 0/0 has a frequency of 1 for allele 0 and 0 for all other alleles, whereas a heterozygous 0/1 has a frequency of 0.5 for 0 and 1. The distance between 2 such genotypes would be $|1-0.5| + |0-0.5| = 1$. An established metric that would accomplish this is the Nei's distance. I used a site-wise implementation of Nei's genetic distance (Joly et al. 2015) to compute inter-individual distances (Figure \ref{nei_MDS_wg}). The genetic distance between individuals X and Y at site i is defined as: $_nei^i_{XY}=1-\sum_{j}^{A,C,T,G}\sqrt{p^{i}_{j \in X}p^{i}_{j \in Y}}$ where $p_j^i$ is the frequency of nucleotide j at site i. Pairwise inter-male distances form a tri-modal-ish distribution (Figure \ref{nei_pairwise}).
+
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/correct/nei_WGS_MDS.pdf}
+\caption{MDS on Nei's distance matrix using all SNPs with any number of alleles. Samples are colored according to sex and IDs are shown directly on the plot.}
+\label{nei_MDS_wg}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/correct/pairwise_male_Nei.pdf}
+\caption{Distribution of pairwise Nei's distances between males..}
+\label{nei_pairwise}
+\end{figure}
+
+\subsection{windows}
+To have more robust results when comparing the PI value around candidate SNPs versus upstream and downstream regions, I changed from using fixed N base-pair windows to windows containing N SNPs (Figure \ref{up_down_nSNP}). This avoids situations where one window doesn't contain any (or too few) SNP.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{nucleo_div_wgs/correct/up_down_nSNP.pdf}
+\caption{PI values in the neighboorhood of each significant (10e-5) candidate  SNP from the association mapping, versus upstream and downstream region. PI values for hit, upstream and downstream regions are computed using the 10 closest SNPs around each position.}
+\label{up_down_nSNP}
+\end{figure}
+
+\subsection{SNP calling}
+I excluded INDELS from the SNP calling as we are only interested in SNPs and the gaps generated in basepair ranges could potentially make windows inaccurate. I also included the "N" sites from the reference to keep the basepairs continuous in downstream analyses. These Ns are generated during the anchoring process and have no biological significance. Adding them is only done for technical reasons.
+
+Update: 22.05.2018
+It seems the effect of balancing selection is too weak to be detected, compared to background. There are actually many other factors (such as immune genes) which are under much greater selective pressure. This is especially true if there are several CSD loci in the wild.
+
+\chapter{Linkage map}
+To improve all analysis presented here, I will try to build a linkage map from the RADseq samples. I will use LEP-MAP3 to build the map, as it allows to combine multiple families into a single linkage map. This will be useful in my case because I have many relatively small families.
+\section{Sample selection and input format}
+To avoid generating noise (genotyping errors), I will  exclude families with fewer than 10 samples. I will also exclude families where the mother is not available. The software is intended to work with sexual diploid organisms, but I have asexual haplodiploid families. To work around this issue, I will duplicate all alleles from haploid males to generate synthetic diploids and duplicate all diploid samples to keep the same relative abundance of alleles in the population.
+
+
+
+\chapter{TO DO}
+\begin{itemize}
+\item Measure error rates (recombinations between SNP and CSD) using number of males that are heterozygous at each CSD peak
+\item Number of females homozygous at all CSD loci by consecutively dropping loci to assess "importance" of locus.
+\item Cleanly annotate transformer using apollo and reads from RNA-seq
+\item identify over represented repeats (centromeric repeats) and delimit centromeres from the region they span
+\item assemblers tend to put duplicated genes in separate contig (multiple graph paths going through it). Use original Illumina paired end reads to retrieve unanchored contigs neighbouring anchored contigs: potentially recovering multiple occurrences of CSD duplicated feature (if any)
+\item get centimorgans coordinates from bp using linkage map and place centrosomes.
+\item look at the proportion of recombination for different GWAS hits: does it match the mode (assuming single mode) in the prop males among 2n offspring plot.
+\item compute prop.het loci in centromeric window for all individuals and isolate TFA based on distribution if bimodal.
+\item try above with different values for window sizes and select based on number of loci contained in window.
+\item Compute coverage along genome for all loci including monomorphic ones.
+\item Isolate regions of abnodmally high coverage, eventually exclude them. Watch out for overmerging of paralogs and repetitive sequences.
+\item Visualize average heterozygosity (or allele frequency) at each SNPs in offpring versus in mother to assess transmission bias (hom SNPs in mothers more often het in offspring or reversse). 
+\item make snp calling less reliant on correct mother calls and exclude SNPs only if mother is hom/missing AND less than N offspring are heterozygous (small N)
+\item automate threshold selection for inferring ploidy
+\end{itemize}
+\end{document} 
+\grid
+%                                 
