@@ -36,12 +36,12 @@ ploidy:
 	python2 src/ploidy/haplo_males.py $(VCFSUM) \
 	                                  $(THRESH) \
 									                  --ploidy_thresh $(HOM_PLOID)
-  # Processing populations genomic output (excluding hom/missing SNPs in
+	# Processing populations genomic output (excluding hom/missing SNPs in
 	# mothers from their families)
 	python2 $(ASSOC-SRC)/process_genomic.py $(POP) \
 	                                        $(DAT)/ploidy/ \
 																					$(GRFAM)
-  # Blacklisting loci that are heterozygous in haploid males
+	# Blacklisting loci that are heterozygous in haploid males
 	python2 src/ploidy/blacklist_haploloci.py $(DAT)/ploidy/ \
 	                               $(BLACK) \
 																 $(THRESH) \
@@ -163,7 +163,9 @@ wgs_wild : $(CORRESP) $(SIZES) $(WGS)/variant/hap.wild.matrix
 
 .PHONY : linkage_map
 linkage_map:
-	bash src/linkage_map/diploidize.sh $(THRESH) $(POP)/*.vcf $(LINKMAP)/linkage_in.vcf
+	bash src/linkage_map/diploidize.sh -s $(THRESH) \
+                                       -v $(POP)/*.vcf \
+                                       -o $(LINKMAP)/
 	Rscript src/linkage_map/select_samples.R $(LINKMAP)/diploidized.tsv 10 $(LINKMAP)/linkage_samples.tsv
 
 # Check genome completeness using BUSCO
