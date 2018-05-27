@@ -134,7 +134,7 @@ eval $run_fun <<PROCSNP
 #BSUB -e data/logs/proc_snp-ERROR.txt
 #BSUB -u cmatthey@unil.ch
 #BSUB -J PROCSNP
-#BSUB -n 32
+#BSUB -n 18
 #BSUB -R "span[ptile=1]"
 #BSUB -q normal
 #BSUB -R "rusage[mem=64000]"
@@ -145,7 +145,7 @@ eval $run_fun <<PROCSNP
 vcf-concat ${snps}/*tmp.vcf.gz > ${snps}/wild.vcf
 
 ## 2: Parallel sorting of concatenated VCF file
-vcf-sort -p 30 < ${snps}/wild.vcf > ${snps}/wild.sorted.vcf
+vcf-sort -p 16 < ${snps}/wild.vcf > ${snps}/wild.sorted.vcf
 
 ## 3: Generate SNP matrix from VCF
 bcftools query ${snps}/wild.sorted.vcf -f '%CHROM\t%POS[\t%GT]\n' > ${snps}/wild.matrix.txt

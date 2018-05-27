@@ -19,17 +19,21 @@ module add UHTS/Aligner/bwa/0.7.15 \
            UHTS/Analysis/HTSlib/1.6 2> /dev/null || echo "Trying to load modules locally"
 
 # Loaded from local install
-export PATH=$PATH:"~/scratch/softwares/MCScanX/"
-export PATH=$PATH:"~/scratch/softwares/busco/3.0.2b/scripts/"
-export PATH=$PATH:"~/scratch/softwares/cufflinks-2.2.1/"
+SOFT="$HOME/softwares"
+export PATH=$PATH:"$SOFT/MCScanX/"
+export PATH=$PATH:"$SOFT/busco/3.0.2b/scripts/"
+export PATH=$PATH:"$SOFT/cufflinks-2.2.1/"
 
 # Necessary for VCFtools perl scripts
 export PERL5LIB=/software/UHTS/Analysis/vcftools/0.1.15/lib64/perl5/site_perl/5.24.0/
 
 # AUGUSTUS config required to use BUSCO
-export AUGUSTUS_CONFIG_PATH=/home/cmatthey/scratch/softwares/busco/3.0.2b/augustus_config/
+export AUGUSTUS_CONFIG_PATH="$SOFT/busco/3.0.2b/augustus_config/"
 
 # Alias to java class for picard
 function picard {
-    java -jar -XX:MaxPermSize=32g ~/scratch/softwares/picard/build/libs/picard.jar "$@"
+    java -jar -XX:MaxPermSize=32g "$SOFT/picard/build/libs/picard.jar" "$@"
 }
+
+
+LEPMAP3="$SOFT/lepmap3/bin"

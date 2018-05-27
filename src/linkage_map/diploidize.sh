@@ -133,7 +133,7 @@ function sample_dup() {
     awk -v sname=$spl_name \
         -v ncol=$vcf_col 'BEGIN {OFS="\t"}
                           /^##/ {print $0}
-                          /^#[^#]/ {print $0,sname}
+                          /^#[^#]/ {print $0,sname"_DUP"}
                           /^[^#]/ {print $0,$ncol}' $OVCF > tmp_vcf.vcf \
         && mv tmp_vcf.vcf $OVCF
 
