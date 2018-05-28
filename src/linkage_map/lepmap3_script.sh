@@ -69,12 +69,12 @@ java -classpath "$LEPMAP3" JoinSingles2All map="$OUT/03_linkmap.txt" \
                                            lodLimit=4 > "$OUT/04_linkmap_js.txt"
 
 # Find number of LGs
-N_LG=$(cut -f1 map5_js.txt | sort -n | uniq | tail -n 1)
+N_LG=$(cut -f1 "$OUT/04_linkmap_js.txt" | sort -n | uniq | tail -n 1)
 
 # Order markers on each LG to optimise likelihood 
-for ((LG=1; LG<=$N_LG; LG++))
+for (( LG=1; LG<=$N_LG; LG++ ))
 do
     java -classpath "$LEPMAP3" OrderMarkers2 map="$OUT/04_linkmap_js.txt" \
                                              data="$OUT/02_filtered.call" \
-                                             chromosome=$chrom > "$OUT/05_order_LG$LG.txt"
+                                             chromosome=$LG > "$OUT/05_order_LG$LG.txt"
 done

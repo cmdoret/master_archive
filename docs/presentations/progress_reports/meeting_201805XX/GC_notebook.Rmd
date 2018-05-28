@@ -191,6 +191,42 @@ I'll try to work with Lepmap3. It is among the best options in terms of speed an
 To work around the haplodiploid issue I will duplicate haploid alleles and all diploid samples. I will perform the analysis with only "synthetic" diploids but the same representation of each allele in the population as with the original data.
 
 0. Diploidize population
+    + Duplicate mothers as fathers
+    + Duplicate daughters and diploid sons
+    + Make haploid sons diploid
 1. Generate input vcf file
 2. Filter SNPs (segregation distortion, quality)
+    + Implemented in Filtering2, LEPMAP3 module
 3. Build linkage map
+
+### Details
+
+I followed the 4 steps described above and implemented a small LEPMAP3 pipeline.
+
+#### Filters and input data
+
+__Filters__
+
+* Excluded families if:
+    + Less than 10 samples are available (indluding mother, not counting duplicated samples)
+    + Mother is not available
+* Excluded markers if:
+    + High segregation distortion (p=0.001)
+    + Non informative (i.e. mother is homozygous)
+
+I could also exclude markers where there are more than N% missing calls in the family, or with a MAF<N%.
+__Input__
+
+* 228 individuals across 8 families
+* 873 markers
+
+#### LEPMAP3 modules
+
+1. Call genotypes
+2. Filter markers
+3. Assigns markers to linkage groups by computing pairwise LOD scores
+4. Orders markers within linkage groups to optimize likelihood (Maternal and paternal paths with highest probability of generating observed data)
+5. 
+
+
+#### Results

@@ -4,18 +4,29 @@
 # Cyril Matthey-Doret
 # 22.05.2018
 
-library(dplyr);library(readr)
+library(dplyr);library(readr);library(stringr)
+
 args <- commandArgs(trailingOnly = TRUE)
 
 # Tabular file containing sample informations
 samples <- read_tsv(args[1], col_names=T, col_types=cols())
-# Only including families with at least SIZE individuals (including mother)
+
+# Only including families with at least SIZE individuals 
+# Before diploidization and including mother
 SIZE <- as.numeric(args[2])
 
-samples <- samples %>%
+nodup <- samples %>% 
+        # excluding synthetic samples
+        filter(!str_detect(Name, "_DUP")) %>%
         group_by(Family) %>%
+        # only including families where mother is avaiable
         filter(any(Generation == 'F3')) %>%
-        filter(n() >= SIZE)
+        # only families with more than SIZE individuals
+        filter(n() >= SIZE) %>%
+        # extracting list of families
+        pull(Family)
+
+samples <- samples %>% filter(Family %in% nodup)
 
 # Matrix to write LEPMAP3-compatible pedigree file
 ped <- matrix(ncol=(nrow(samples)+2), nrow=6)
