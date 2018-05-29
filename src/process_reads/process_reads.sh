@@ -67,7 +67,7 @@ source src/misc/dependencies.sh
 process_radtags -r -q -c  \
                 -e ecoRI  \
                 --filter_illumina \
-                -i gzfastq 
+                -i gzfastq \
                 -p "$LIB" \
                 -b "$BAR" \
                 -o "$OUT" \
