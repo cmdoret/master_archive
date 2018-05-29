@@ -27,7 +27,7 @@ To run the pipeline with the data provided:
         + `make wgs_wild LOCAL=yes` to run the analysis of wild WGS samples
 
 
-To run the STACKS pipeline with new data in the form of demultiplexed, trimmed reads in compressed fastq files (.fq.gz):
+To run the STACKS pipeline with new data in the form of demultiplexed, trimmed single end reads in compressed fastq files (.fq.gz):
 1. Describe your samples by writing 2 files named `popmap.tsv` and `individuals.tsv`, respectively. The structure of the `popmap.tsv` file is described on the [official STACKS website](http://catchenlab.life.illinois.edu/stacks/manual/) (here, populations should be the sex of individuals). The `individuals.tsv` file is a tab delimited text file with 4 columns with the following headers __included__:
 * Name: The names of samples. This should be the name of their data files (e.g. if the sample name is SAMPLE1, the corresponding reads file should be named SAMPLE1.fq.gz).
 * Sex: F for females and M for males.

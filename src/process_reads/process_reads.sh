@@ -68,7 +68,7 @@ process_radtags -r -q -c  \
                 -e ecoRI  \
                 --filter_illumina \
                 -i gzfastq \
-                -p "$LIB" \
+                -f "$LIB" \
                 -b "$BAR" \
                 -o "$OUT" \
                 --adapter_1 "$ADA" \
