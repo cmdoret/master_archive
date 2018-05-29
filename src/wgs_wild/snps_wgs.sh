@@ -66,8 +66,8 @@ else
 fi
 
 # List of BAM files to read
-find  "${WGS}/mapped/" -name "*fixed.csort.bam" \
-                       -type f > "${WGS}/bam_list.txt"
+find  "${WGS}/mapped/" -name "*fixed.csort.bam" -type f | \
+	sed 's-//-/-g' > "${WGS}/bam_list.txt"
 
 # List of samples filenames with corresponding ploidies
 awk -v m="$WGS/mapped/" \
@@ -77,7 +77,6 @@ awk -v m="$WGS/mapped/" \
     else {p = 1}
     {print m$1".fixed.csort.bam",p}
   }' ${WGS}/wgs_samples.tsv | sed 's-//-/-g' > "${WGS}/spl_list.txt"
-
 
 ### RUN SNP CALLING ###
 # SNP calling is performed on regions  of CHUNKSIZE bp
@@ -167,7 +166,7 @@ eval $run_fun <<PROCSNP
 #BSUB -J PROCSNP
 #BSUB -n 16
 #BSUB -R "span[ptile=1]"
-#BSUB -q long
+#BSUB -q normal
 #BSUB -R "rusage[mem=14000]"
 #BSUB -M 14000000
 
@@ -176,7 +175,6 @@ source src/misc/dependencies.sh
 
 # format SNPs for downstream analyses
 ## 1: Concatenating all regions VCF files into a large one
-find ${snps}/ -name '*tmp.vcf.gz'
 find ${snps}/ -name '*tmp.vcf.gz' -print0 | \
   xargs -0 vcf-concat > ${snps}/wild.vcf
 
@@ -184,7 +182,8 @@ find ${snps}/ -name '*tmp.vcf.gz' -print0 | \
 vcf-sort -p 16 < ${snps}/wild.vcf > ${snps}/wild.sorted.vcf
 
 ## 3: Generate SNP matrix from VCF
-bcftools query ${snps}/wild.sorted.vcf -f '%CHROM\t%POS[\t%GT]\n' > ${snps}/wild.matrix.txt
+bcftools query ${snps}/wild.sorted.vcf -f '%CHROM\t%POS[\t%GT]\n' | \
+        grep -v "^##" > ${snps}/wild.matrix.txt
 
 ## 4: separate haplotypes of diploid samples into 2 columns
 ## Keeping only sites anchored to a chromosome
@@ -198,7 +197,8 @@ python2 $(dirname $0)/fill_pos_matrix.py ${snps}/hap.wild.matrix.txt > mat.tmp &
   mv mat.tmp ${snps}/hap.wild.matrix.txt
 
 ## 6: Generate second matrix with nucleotides, repeating steps 3-5 with a different
-bcftools query ${snps}/wild.sorted.vcf -f '%CHROM\t%POS[\t%TGT]\n' > ${snps}/nuc.matrix.txt
+bcftools query ${snps}/wild.sorted.vcf -f '%CHROM\t%POS[\t%TGT]\n' | \ 
+        grep -v "^##" > ${snps}/nuc.matrix.txt
 
 cut -f1-2 ${snps}/nuc.matrix.txt > left_col.txt
 cut -f3- ${snps}/nuc.matrix.txt | sed 's#/#\t#g' > right_col.txt
@@ -213,4 +213,4 @@ if [ -z ${local+x} ];then
   bmonitor PROCSNP 0;fi
 
 # Removing all regions VCF
-rm ${snps}/*.tmp.vcf.gz* ${WGS}/bam_list.txt ${WGS}/spl_list.txt
+#rm ${snps}/*.tmp.vcf.gz* ${WGS}/bam_list.txt ${WGS}/spl_list.txt

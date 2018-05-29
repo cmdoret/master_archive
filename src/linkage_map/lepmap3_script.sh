@@ -76,5 +76,6 @@ for (( LG=1; LG<=$N_LG; LG++ ))
 do
     java -classpath "$LEPMAP3" OrderMarkers2 map="$OUT/04_linkmap_js.txt" \
                                              data="$OUT/02_filtered.call" \
+                                             numThreads=4 \
                                              chromosome=$LG > "$OUT/05_order_LG$LG.txt"
 done

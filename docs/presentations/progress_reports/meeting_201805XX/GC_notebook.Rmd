@@ -61,9 +61,12 @@ mv ref_table.tsv $ref_dir/ref_table.tsv
 
 ```
 
-```{r load, echo=F}
+```{r load, echo=F, warning=F}
+
+setwd("../../../../")
+
 ## Packages
-packs <- c("readr", "dplyr", "ggplot2", "Rcpp", "RcppRoll", "viridis")
+packs <- c("dplyr", "ggplot2", "Rcpp", "RcppRoll", "readr", "stringr", "viridis")
 packs <- sapply(packs, function(x) suppressPackageStartupMessages(library(x, quietly=T, character.only=T)))
 
 ## Variables
@@ -72,26 +75,47 @@ options(readr.show_progress=F) # Read files silently
 
 ## Data
 # Reference genome
-ref_table <- read_tsv("../../../../data/ref_genome/ordered_genome/ref_table.tsv", 
+ref_table <- read_tsv("data/ref_genome/ordered_genome/ref_table.tsv", 
                       col_names = F, col_types = cols())
 ref_table <- ref_table[,c(2,1,3)]
 colnames(ref_table) <- c("Chr", "BP", "Nuc")
-# WGS samples
 
+# WGS samples
+wgs_nuc <- read_tsv("data/wgs_wild/variant/hap.nuc.matrix.txt", 
+                    col_names = F, col_types = cols())
+wgs_nuc <- wgs_nuc %>%
+  rename(Chr=X1, BP=X2)
+
+# RAD centromeres
+centro <- read_tsv("data/assoc_mapping/centro/centrolist.tsv", 
+                   col_types = cols())
 
 ```
 
-```{r format}
-ref_table <- ref_table %>% 
+```{r format, results='asis'}
+ref_GC <- ref_table %>% 
   mutate(GC = ifelse(Nuc %in% c("G", "C"), 1, 0))
 
-knitr::kable(ref_table %>% 
+wgs_GC <- wgs_nuc %>% mutate_at(.vars = vars(starts_with("X")), .funs = ifelse(. %in% c("G","C"), 1, 0))
+
+t1 <- knitr::kable(ref_GC %>% 
                group_by(Chr) %>% 
                summarize(`Mean GC%` = mean(GC) %>% round(2), 
                          `Stdev GC%` = sd(GC) %>% round(2)), 
-             caption= "Summary statistics of GC content on each chromosome", 
-             format = "html", table.attr = "style='width:40%;'", align = 'c')
+             caption= "Summary statistics of GC content on each chromosome in the reference genome", 
+             format = "html", table.attr = "style='width:80%;'", align = 'c')
 
+t2 <-knitr::kable(ref_GC %>% 
+               group_by(Chr) %>% 
+               summarize(`Mean GC%` = mean(GC) %>% round(2), 
+                         `Stdev GC%` = sd(GC) %>% round(2)), 
+             caption= "Summary statistics of GC content on each chromosome in the reference genome", 
+             format = "html", table.attr = "style='width:80%;'", align = 'c')
+
+
+
+cat(c('<table><tr valign="top"><td>', t1, '</td><td>', t2, '</td><tr></table>'),
+    sep = '')
 ```
 
 ### Reference genome
@@ -127,9 +151,9 @@ slide_GC <- function(mat, pos, win, step){
 }
 
 out <- tibble()
-for(chr in unique(pull(ref_table, 1))){
-  GCwin <- slide_GC(mat=matrix(ref_table$GC[ref_table$Chr==chr], ncol=1), 
-                    pos=ref_table$BP[ref_table$Chr==chr], 
+for(chr in unique(pull(ref_GC, 1))){
+  GCwin <- slide_GC(mat=matrix(ref_GC$GC[ref_GC$Chr==chr], ncol=1), 
+                    pos=ref_GC$BP[ref_GC$Chr==chr], 
                     win=win_size, step = win_step)
   GCwin <- as_tibble(GCwin) %>% mutate(Chr=chr)
   out <- bind_rows(out, GCwin)
@@ -144,7 +168,8 @@ ggplot(ref_GC, aes(x=(start+end)/(2*zoom), y=GC)) +
   theme_minimal() +
   scale_fill_viridis() + 
   ggtitle(sprintf("GC content along reference genome [%i bp windows]", win_size)) + 
-  ylab("GC%") + xlab("Position [Mb]")
+  ylab("GC%") + xlab("Position [Mb]") +
+  geom_vline(data=centro, aes(xintercept=pos/zoom), col='red', alpha=0.2, lwd=3)
 
 ```
 
@@ -159,12 +184,6 @@ slide_GC(mat = wgs_table, pos = , win = win_size, step = win_step)
 
 ```
 
-### Comparison with RADseq centromeres
-
-```{r comp_RAD}
-# TODO: regenerate centromere plot with Makefile
-knitr::include_graphics('')
-```
 
 ## Notes on linkage map
 I want to make a linkage map from the RADseq data from the CSD project. Here is a summary of Dan's advice to produce the map.
@@ -226,7 +245,80 @@ __Input__
 2. Filter markers
 3. Assigns markers to linkage groups by computing pairwise LOD scores
 4. Orders markers within linkage groups to optimize likelihood (Maternal and paternal paths with highest probability of generating observed data)
-5. 
-
 
 #### Results
+
+```{r load_LM, warning=F, message=F}
+setwd("../../../../")
+
+map_js <- read_tsv(
+  pipe("awk '/^[^#]/ {print $1}' data/linkage_map/LEPMAP3/04_linkmap_js.txt"),
+  col_names=F, col_types = cols())
+map_js <- map_js %>% 
+  group_by(X1) %>% 
+  summarise(size=n()) %>%
+  mutate(LG=ifelse(X1>0, 
+                   yes=X1, 
+                   no ="Unplaced"), 
+         placed=ifelse(X1>0, yes=T, no=F))
+
+LG1 <- read_tsv("data/linkage_map/LEPMAP3/05_order_LG1.txt", 
+                skip=3, col_names = F, col_types=cols())
+```
+
+Overall, pretty bad results: Markers clustered into ```r nrow(map_js)``` Linkage groups, the first of which accounts for most markers. The order of markers does not match the order from anchored contigs at all.
+
+```{r sizes}
+
+ggplot(map_js, aes(x=factor(LG, ordered = T, levels=c(1:max(X1), "Unplaced")), y=size, fill=placed)) + 
+  geom_bar(stat = "identity") +
+  ggtitle("Distribution of markers per linkage groups") + 
+  xlab("Linkage group") +
+  ylab("Number of markers") +
+  theme_minimal() +
+  guides(fill=F)
+```
+
+```{bash LMplot}
+# Generating linkage map plots (index vs centimorgan)
+
+LM="../../../../data/linkage_map/LEPMAP3/"
+LEPMAP3="/Users/cyril/softwares/lepmap3/bin/"
+N_LG=$(cut -f1 "$LM/04_linkmap_js.txt" | sort -n | uniq | tail -n 1)
+mkdir -p lmplots
+
+for (( LG=1; LG<=$N_LG; LG++ ))
+do
+  
+  java -cp "$LEPMAP3" LMPlot "$LM/05_order_LG$LG.txt" > "lmplots/order_LG$LG.dot" 2> /dev/null
+  dot -Tpng "lmplots/order_LG$LG.dot" -o "lmplots/LG$LG.png" 2> /dev/null
+  # Not used here
+done
+```
+
+```{r mareymap, warning=F}
+# Making a marey map from LEPMAP3 output (cM vs index of markers)
+LG1 <- LG1[,c(1:3)]
+LG1 <- LG1 %>% 
+  mutate(N_marker=seq(1,n())) %>%
+  rename(N_original=X1, male_cM=X2, female_cM=X3)
+ggplot(data=LG1) +
+  geom_point(aes(x=N_marker, y=female_cM, col="Female distance")) + 
+  geom_line(aes(x=N_marker, y=female_cM, col="Female distance")) + 
+  geom_point(aes(x=N_marker, y=male_cM, col="Male cM")) + 
+  geom_line(aes(x=N_marker, y=male_cM, col="Male cM")) + 
+  xlab("Marker number") + 
+  ylab("Genetic distance [cM]") + 
+  ggtitle("Recombination along LG1") +
+  theme_minimal()
+
+```
+
+```{r markers_order}
+plot(LG1$N_original[order(LG1$N_original)], 
+     LG1$N_marker[order(LG1$N_original)], 
+     pch='.', cex=3, 
+     xlab="Original order", 
+     ylab="Linkage map order", 
+     main="Genome vs linkage map marker orders for LG1")
+```
