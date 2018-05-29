@@ -1,38 +1,76 @@
+#!/bin/bash
+#BSUB -J radtags_a
+#BSUB -o demulti-a-output.o
+#BSUB -e demulti-a-error.e
+#BSUB -n 4
+#BSUB -u cmatthey@unil.ch
+#BSUB -R "span[ptile=4]"
+#BSUB -q normal
+#BSUB -R "rusage[mem=4000]"
+#BSUB -M 8000000
+
 # This script processed the raw reads for an a-type library (adapter iA_06), using the process_radtags program from STACKS.
 # Takes the library ID and optionally, the number of authorized mismatches in adaptor as an argument
 # Cyril Matthey-Doret
 # 15.03.2017
 
-if [[ $# -eq 4 ]] ; then
-    echo 'I need the ID of the library !'
-    exit 0
-fi
-ID="12"
-if [ $# -ge 2 ]
+# Help message
+function usage () {
+   cat <<EOF
+Usage: `basename $0` -l lib_path -a adapter_name -b barcodes.txt -o out_folder [-m mismatches] [-h]
+Processes raw reads using the STACKS process_radtags module. Trims adapters and demultiplexes samples.
+   -l   Path to the raw library to be processed
+   -a   Name of the adapter sequence. iA_06 and iA_12 supported.
+   -b   Barcodes file. List of tab separated barcodes and names, one sample per line.
+   -o   Output folder where the processed reads will be written.
+   -m   Number of mismatches allowed [2]
+   -h   displays this help
+EOF
+   exit 0
+}
+
+# Parsing CL arguments
+while getopts ":l:a:b:o:mh" opt;do
+    case $opt in
+        l ) LIB=${OPTARG} ;;
+        a ) ADA=${OPTARG} ;;
+        b ) BAR=${OPTARG} ;;
+        o ) OUT=${OPTARG} ;;
+        m ) MIS=${OPTARG} ;;
+        h ) usage ;;
+        \?) usage ;;
+    esac
+done
+
+if [[ "x" == "x$LIB" ]] || [[ "x" == "x$BAR" ]] || [[ "x" == "x$OUT" ]]
 then
-    MM=$2
-else
-    MM=2
+        echo "You must specify the path to the raw library, barcodes and output folder."
+        usage
 fi
 
-#BSUB -J radtags_a
-#BSUB -o demulti-a-output.o
-#BSUB -e demulti-a-error.e
-##BSUB -n 4
-#BSUB -u cmatthey@unil.ch
-##BSUB -R "span[ptile=4]"
-#BSUB -q normal
-#BSUB -R "rusage[mem=4000]"
-#BSUB -M 8000000
+case "$ADA" in
+        "iA_06" ) ADA="GATCGGAAGAGCACACGTCTGAACTCCAGTCACGCCAATATCTCGTATGCCGTCTTCTGCTTG " ;;
+        "iA_12" ) ADA="GATCGGAAGAGCACACGTCTGAACTCCAGTCACCTTGTAATCTCGTATGCCGTCTTCTGCTTG " ;;
+        * ) echo "Adapter unsupported"; usage ;;
+esac
 
-wd=/scratch/beegfs/monthly/cmatthey/data/processed
-mkdir -p $wd'_'$MM'/lib'$ID
+if [[ "x" == "x$MIS" ]]
+then
+    MIS=2
+fi
 
-module add UHTS/Analysis/stacks/1.46;
 
-process_radtags -p /scratch/beegfs/monthly/cmatthey/data/raw_reads/lib$ID/ \
--b /scratch/beegfs/monthly/cmatthey/data/barcodes/barcodes_radwasp$ID \
--o /scratch/beegfs/monthly/cmatthey/data/processed_$MM/lib$ID \
--r -q -c -e ecoRI  --filter_illumina -i gzfastq --adapter_1 GATCGGAAGAGCACACGTCTGAACTCCAGTCACGCCAATATCTCGTATGCCGTCTTCTGCTTG --adapter_mm $MM;
+mkdir -p $OUT
 
-module rm UHTS/Analysis/stacks/1.46;
+source src/misc/dependencies.sh
+
+process_radtags -r -q -c  \
+                -e ecoRI  \
+                --filter_illumina \
+                -i gzfastq 
+                -p "$LIB" \
+                -b "$BAR" \
+                -o "$OUT" \
+                --adapter_1 "$ADA" \
+                --adapter_mm $MIS
+
