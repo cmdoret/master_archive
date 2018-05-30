@@ -96,7 +96,10 @@ centro <- read_tsv("data/assoc_mapping/centro/centrolist.tsv",
 ref_GC <- ref_table %>% 
   mutate(GC = ifelse(Nuc %in% c("G", "C"), 1, 0))
 
-wgs_GC <- wgs_nuc %>% mutate_at(.vars = vars(starts_with("X")), .funs = ifelse(. %in% c("G","C"), 1, 0))
+wgs_GC <- wgs_nuc %>% 
+  mutate_at(.vars = vars(starts_with("X")), 
+            .funs = funs(ifelse(. %in% c("G","C"), 1, 0))) %>%
+  mutate(GC = )
 
 t1 <- knitr::kable(ref_GC %>% 
                group_by(Chr) %>% 
@@ -140,13 +143,13 @@ slide_GC <- function(mat, pos, win, step){
   # Total number of windows
   n_win <- ceiling((max(pos)-(win-1))/step)
   # Initialize output structure to contain original index and GC
-  out_mat <- matrix(nrow=n_win, ncol=3, byrow = F)
+  out_mat <- matrix(nrow=n_win, ncol=(2+ncol(mat)), byrow = F)
   out_mat[,1] <- win_start
   out_mat[,2] <- out_mat[,1] + win
   #print(sprintf("Computing %i windows...", n_win))
   # Compute GC in all SNPs within window boundaries
   mat_GC <- RcppRoll::roll_mean(mat, n = win, by = step, align = 'left', na.rm=T)
-  out_mat[,3] <- mat_GC[seq(1,nrow(mat_GC),by=step),]
+  out_mat[,3:ncol(out_mat)] <- mat_GC[seq(1,nrow(mat_GC),by=step),]
   return(out_mat)
 }
 
@@ -177,10 +180,33 @@ ggplot(ref_GC, aes(x=(start+end)/(2*zoom), y=GC)) +
 
 These samples should give more insight into the location of centromeres as they are originate from sexual families. This means recombination should still havppen between the parents and therefore, GC-biased gene conversion should occur.
 
-```{wgs_GC}
-# TODO: get genotype matrix (in nucleotides, not int...) 
-# -> use the TGT option in bcftools query expression
-slide_GC(mat = wgs_table, pos = , win = win_size, step = win_step)
+```{r ref_GC, dpi=400}
+
+# Sliding window parameters for GC content
+win_size=10000;win_step=100
+
+
+
+out <- tibble()
+for(chr in unique(pull(wgs_GC, 1))){
+  GCwin <- slide_GC(mat=as.matrix(wgs_GC[wgs_GC$Chr==chr, 3:ncol(wgs_GC)]), 
+                    pos=wgs_GC$BP[wgs_GC$Chr==chr], 
+                    win=win_size, step = win_step)
+  GCwin <- as_tibble(GCwin) %>% mutate(Chr=chr)
+  out <- bind_rows(out, GCwin)
+}
+
+wgs_GC <- out %>% rename(start = V1, end = V2, GC = V3)
+
+
+ggplot(wgs_GC, aes(x=(start+end)/(2*zoom), y=GC)) + 
+  facet_wrap(~Chr, scales = 'free_x') +
+  stat_bin_hex() + 
+  theme_minimal() +
+  scale_fill_viridis() + 
+  ggtitle(sprintf("GC content along wild samples genomes [%i bp windows]", win_size)) + 
+  ylab("GC%") + xlab("Position [Mb]") +
+  geom_vline(data=centro, aes(xintercept=pos/zoom), col='red', alpha=0.2, lwd=3)
 
 ```
 
@@ -296,7 +322,7 @@ do
 done
 ```
 
-```{r mareymap, warning=F}
+```{r recomb_markers, warning=F}
 # Making a marey map from LEPMAP3 output (cM vs index of markers)
 LG1 <- LG1[,c(1:3)]
 LG1 <- LG1 %>% 
