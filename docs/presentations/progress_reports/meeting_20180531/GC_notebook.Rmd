@@ -1,0 +1,383 @@
+---
+title: "GC content and recombination"
+author: "Cyril Matthey-Doret"
+date: "17.05.2018"
+output: 
+  html_notebook:
+    code_folding: hide
+---
+
+## Summary
+In this notebook, I document 2 separate analyses. In the first part, I compute GC content along 1) the reference genome and 2) the WGS wild samples. GC content is expected to increase in regions with high recombination rates. We can use this information as an additional support for the location of centromeres (low recombination rates). WGS samples should work better than the reference genome, because they are sexual, whereas the reference was built using asexual samples. 
+
+In the second part, I discuss potential strategies and tools to build a linkage map from the RADseq samples (i.e. females, haploid and diploid males). The main issues here are the small sizes of families and the different ploidies between individuals.
+
+## GC Content
+Here I measure GC content along the reference genome and the WGS samples to get a second measure of recombination rate. I also infer location of centromeres and compare it to the regions obtained previously from RADseq data. I am currently computing GC% in sliding windows of 10kb.
+
+
+```{bash format_reference}
+# Genome needs to be easily machine readable for sliding windows 
+# -> convert from FASTA into tabular (tab separated) format (Chr,pos,Allele)
+
+ref_dir='../../../../data/ref_genome/ordered_genome/'
+# BSD sed does not recognize tabs -> insert w/variable
+TAB=$'\t'
+declare -i SEQ=0
+mkdir -p temp_chr  # Create temporary directory to store 1 file per chromosome
+
+# Removes newlines from sequences in genome
+awk '!/^>/ { printf "%s", $0; n = "\n" } 
+     /^>/ { print n $0; n = "" }
+     END { printf "%s", n }' "$ref_dir/merged.fasta" > single_line.fasta
+
+# reading FASTA records
+while read record
+do
+  # If header matches chromosome (i.e. not an unanchored contig)
+  if [[ $record = ">chr"* ]]
+  then
+    ID="${record//>}"
+    # Authorize to process corresponding sequence
+    SEQ=1
+  else
+    # Is this a chromosome sequence ?
+    if [[ $SEQ -eq 1 ]]
+    then
+      # Prints 1 base per line and prepends chromosome name
+      fold -w1 <(echo $record) | sed "s/^/$ID${TAB}/" > temp_chr/$ID.tmp
+      # Don't process unanchored sequences
+      SEQ=0
+    fi
+  fi
+done < single_line.fasta
+
+# Concatenates each file, prepending line number (i.e. nucleotide positions)
+cat -n temp_chr/*.tmp > ref_table.tsv
+
+# Clean temporary directory
+rm -r temp_chr single_line.fasta
+mv ref_table.tsv $ref_dir/ref_table.tsv
+
+```
+
+```{r load, echo=F, warning=F}
+
+setwd("../../../../")
+
+## Packages
+packs <- c("dplyr", "ggplot2", "Rcpp", "RcppRoll", "readr", "stringr", "viridis")
+packs <- sapply(packs, function(x) suppressPackageStartupMessages(library(x, quietly=T, character.only=T)))
+
+## Variables
+zoom <- 10**6 # Basepair unit (10^6 -> Mb)
+options(readr.show_progress=F) # Read files silently
+
+## Data
+# Reference genome
+ref_table <- read_tsv("data/ref_genome/ordered_genome/ref_table.tsv", 
+                      col_names = F, col_types = cols())
+ref_table <- ref_table[,c(2,1,3)]
+colnames(ref_table) <- c("Chr", "BP", "Nuc")
+
+# WGS samples
+wgs_nuc <- read_tsv("data/wgs_wild/variant/hap.nuc.matrix.txt", 
+                    col_names = F, col_types = cols())
+wgs_nuc <- wgs_nuc %>%
+  rename(Chr=X1, BP=X2)
+
+# RAD centromeres
+centro <- read_tsv("data/assoc_mapping/centro/centrolist.tsv", 
+                   col_types = cols())
+
+```
+
+```{r format, results='asis'}
+ref_GC <- ref_table %>% 
+  mutate(GC = ifelse(Nuc %in% c("G", "C"), 1, 0))
+
+wgs_GC <- wgs_nuc %>% 
+  mutate_at(.vars = vars(starts_with("X")), 
+            .funs = funs(ifelse(. %in% c("G","C"), 1, 0)))
+
+t1 <- knitr::kable(ref_GC %>% 
+               group_by(Chr) %>% 
+               summarize(`Mean GC%` = mean(GC) %>% round(2), 
+                         `Stdev GC%` = sd(GC) %>% round(2)), 
+             caption= "Summary statistics of GC content on each chromosome in the reference genome", 
+             format = "html", table.attr = "style='width:80%;'", align = 'c')
+
+t2 <-knitr::kable(ref_GC %>% 
+               group_by(Chr) %>% 
+               summarize(`Mean GC%` = mean(GC) %>% round(2), 
+                         `Stdev GC%` = sd(GC) %>% round(2)), 
+             caption= "Summary statistics of GC content on each chromosome in the reference genome", 
+             format = "html", table.attr = "style='width:80%;'", align = 'c')
+
+
+
+cat(c('<table><tr valign="top"><td>', t1, '</td><td>', t2, '</td><tr></table>'),
+    sep = '')
+```
+
+### Reference genome
+
+The figure belows shows the GC content of the reference genome (based on asexuals) in the form of hexbins. The plotting space is divided into a hexagonal grid and the number of windows falling in each sector is used to visualize the distribution of GC content.
+
+```{r ref_GC, dpi=400}
+
+# Sliding window parameters for GC content
+win_size=10000;win_step=100
+
+# Computes GC% in windows along the genome
+slide_GC <- function(mat, pos, win, step){
+  
+  # Check whether parameters make sense
+  if(any(win > max(pos), step == 0, win == 0, step > win)){
+    print("Bad input parameters. Is your step size > window size, or matrix smaller than window ?")
+    return()
+  }
+  # All possible coordinates for window starts
+  win_start <- seq(1, (max(pos) - (win-1)), step)
+  # Total number of windows
+  n_win <- ceiling((max(pos)-(win-1))/step)
+  # Initialize output structure to contain original index and GC
+  out_mat <- matrix(nrow=n_win, ncol=(2+ncol(mat)), byrow = F)
+  out_mat[,1] <- win_start
+  out_mat[,2] <- out_mat[,1] + win
+  #print(sprintf("Computing %i windows...", n_win))
+  # Compute GC in all SNPs within window boundaries
+  mat_GC <- RcppRoll::roll_mean(mat, n = win, by = step, align = 'left', na.rm=T)
+  out_mat[,3:ncol(out_mat)] <- mat_GC[seq(1,nrow(mat_GC),by=step),]
+  return(out_mat)
+}
+
+out <- tibble()
+for(chr in unique(pull(ref_GC, 1))){
+  GCwin <- slide_GC(mat=matrix(ref_GC$GC[ref_GC$Chr==chr], ncol=1), 
+                    pos=ref_GC$BP[ref_GC$Chr==chr], 
+                    win=win_size, step = win_step)
+  GCwin <- as_tibble(GCwin) %>% mutate(Chr=chr)
+  out <- bind_rows(out, GCwin)
+}
+
+ref_GC <- out %>% rename(start = V1, end = V2, GC = V3)
+
+
+ggplot(ref_GC, aes(x=(start+end)/(2*zoom), y=GC)) + 
+  facet_wrap(~Chr, scales = 'free_x') +
+  stat_bin_hex() + 
+  theme_minimal() +
+  scale_fill_viridis() + 
+  ggtitle(sprintf("GC content along reference genome [%i bp windows]", win_size)) + 
+  ylab("GC%") + xlab("Position [Mb]") +
+  geom_vline(data=centro, aes(xintercept=pos/zoom), col='red', alpha=0.2, lwd=3)
+
+```
+
+### WGS samples
+
+These samples should give more insight into the location of centromeres as they are originate from sexual families. This means recombination should still havppen between the parents and therefore, GC-biased gene conversion should occur.
+
+```{r wgs_GC, dpi=400}
+
+# Sliding window parameters for GC content
+win_size=10000;win_step=100
+
+
+
+out <- tibble()
+for(chr in unique(pull(wgs_GC, 1))){
+  GCwin <- slide_GC(mat=as.matrix(wgs_GC[wgs_GC$Chr==chr, 3:ncol(wgs_GC)]), 
+                    pos=wgs_GC$BP[wgs_GC$Chr==chr], 
+                    win=win_size, step = win_step)
+  GCwin <- as_tibble(GCwin) %>% mutate(Chr=chr)
+  out <- bind_rows(out, GCwin)
+}
+
+wgs_GC <- out %>% rename(start = V1, end = V2, GC = V3)
+
+
+ggplot(wgs_GC, aes(x=(start+end)/(2*zoom), y=GC)) + 
+  facet_wrap(~Chr, scales = 'free_x') +
+  stat_bin_hex() + 
+  theme_minimal() +
+  scale_fill_viridis() + 
+  ggtitle(sprintf("GC content along wild samples genomes [%i bp windows]", win_size)) + 
+  ylab("GC%") + xlab("Position [Mb]") +
+  geom_vline(data=centro, aes(xintercept=pos/zoom), col='red', alpha=0.2, lwd=3)
+
+```
+
+
+## Notes on linkage map
+I want to make a linkage map from the RADseq data from the CSD project. Here is a summary of Dan's advice to produce the map.
+
+### 3 ways to build a map
+
+1. Combining maps from different families using **ALLMAPS**: Might require to hack genetic distances between markers of different maps at the end.
+    + Really small families are not worth trying, they would probably add more noise (genotyping errors) than information (meioses) to the picture. **Should just use the one or two largest families**.
+    + I don't have many markers. "Good": The more loci available, the more meioses (offspring) are needed to resolve their order.
+
+2. **Lepmap** is a linkage mapping software that takes multiple families, and produces a single map, combining all of them. Might not work with haplodiploids. 
+
+3. There is one function in ALLMAPS which calculates the relationship between physical and genetic distance (which changes along the chromosome). So if I only manage to include one or two families, I could **combine this with the family from Jens' map**, work out the bp vs cM relationship, and then just convert the physical distances between your markers of interest into genetic distances. Could be a good alternative approach, even if you can only use Jens' map actually. 
+
+### 2 ways to validate
+
+1. Looking at the number of loci in each linkage group. There should be a noticable step down in the number of tags in these groups. How noticeable this step is can give an idea of how well the linkage mapping software has been able to group loci into linkage groups. 
+2. Map tags to the reference contigs/scaffolds (before anchoring). If the physical order tag alignments matches the linkage map order on scaffolds that have a good number (say >5) tags mapping to them, then it provides some confidence that the map is OK.
+
+### Plan
+
+I'll try to work with Lepmap3. It is among the best options in terms of speed and accuracy (uses genotype likelihoods, not only genotypes). And most importantly, it works with multiple families and does not require phased haplotypes. The drawback is that it doesn't handle haplodiploids.
+
+To work around the haplodiploid issue I will duplicate haploid alleles and all diploid samples. I will perform the analysis with only "synthetic" diploids but the same representation of each allele in the population as with the original data.
+
+0. Diploidize population
+    + Duplicate mothers as fathers
+    + Duplicate daughters and diploid sons
+    + Make haploid sons diploid
+1. Generate input vcf file
+2. Filter SNPs (segregation distortion, quality)
+    + Implemented in Filtering2, LEPMAP3 module
+3. Build linkage map
+
+### Details
+
+I followed the 4 steps described above and implemented a small LEPMAP3 pipeline.
+
+#### Filters and input data
+
+__Filters__
+
+* Excluded families if:
+    + Less than 10 samples are available (indluding mother, not counting duplicated samples)
+    + Mother is not available
+* Excluded markers if:
+    + High segregation distortion (p=0.001)
+    + Non informative (i.e. mother is homozygous)
+
+I could also exclude markers where there are more than N% missing calls in the family, or with a MAF<N%.
+__Input__
+
+* 228 individuals across 8 families
+* 873 markers
+
+#### LEPMAP3 modules
+
+1. Call genotypes
+2. Filter markers
+3. Assigns markers to linkage groups by computing pairwise LOD scores
+4. Orders markers within linkage groups to optimize likelihood (Maternal and paternal paths with highest probability of generating observed data)
+
+#### Results
+
+```{r load_LM, warning=F, message=F}
+setwd("../../../../")
+
+# Filtered markers with original positions
+markers_f <- read_tsv(
+  pipe("awk '/^[^#]/ {print $1}' data/linkage_map/LEPMAP3/02_filtered.call"),
+  col_names=F) %>% 
+  filter(X1!="CHROM") %>%
+  rename(Chr=X1) %>%
+  mutate(ID=1:n())
+
+map_js_raw <- read_tsv(
+  pipe("awk '/^[^#]/ {print $1}' data/linkage_map/LEPMAP3/04_linkmap_js.txt"),
+  col_names=F, col_types = cols())
+
+map_js <- map_js_raw %>% 
+  group_by(X1) %>% 
+  summarise(size=n()) %>%
+  mutate(LG=ifelse(X1>0, yes=X1, no ="Unplaced"), 
+         placed=ifelse(X1>0, yes=T, no=F))
+
+LG1 <- read_tsv("data/linkage_map/LEPMAP3/05_order_LG1.txt", 
+                skip=3, col_names = F, col_types=cols())
+```
+
+Overall, pretty bad results: Markers clustered into ```r nrow(map_js)``` Linkage groups, the first of which accounts for most markers. The order of markers does not match the order from anchored contigs at all.
+
+```{r sizes}
+
+ggplot(map_js, aes(x=factor(LG, ordered = T, levels=c(1:max(X1), "Unplaced")), y=size, fill=placed)) + 
+  geom_bar(stat = "identity") +
+  ggtitle("Distribution of markers per linkage groups") + 
+  xlab("Linkage group") +
+  ylab("Number of markers") +
+  theme_minimal() +
+  guides(fill=F)
+```
+
+```{bash LMplot}
+# Generating linkage map plots (index vs centimorgan)
+
+LM="../../../../data/linkage_map/LEPMAP3/"
+LEPMAP3="/Users/cyril/softwares/lepmap3/bin/"
+N_LG=$(cut -f1 "$LM/04_linkmap_js.txt" | sort -n | uniq | tail -n 1)
+mkdir -p lmplots
+
+for (( LG=1; LG<=$N_LG; LG++ ))
+do
+  
+  java -cp "$LEPMAP3" LMPlot "$LM/05_order_LG$LG.txt" > "lmplots/order_LG$LG.dot" 2> /dev/null
+  dot -Tpng "lmplots/order_LG$LG.dot" -o "lmplots/LG$LG.png" 2> /dev/null
+  # Not used here
+done
+```
+
+```{r recomb_markers, warning=F}
+# Making a marey map from LEPMAP3 output (cM vs index of markers)
+LG1 <- LG1[,c(1:3)]
+LG1 <- LG1 %>% 
+  mutate(N_marker=seq(1,n())) %>%
+  rename(N_original=X1, male_cM=X2, female_cM=X3)
+
+ggplot(data=LG1) +
+  geom_point(aes(x=N_marker, y=female_cM, col="Female distance")) + 
+  geom_line(aes(x=N_marker, y=female_cM, col="Female distance")) + 
+  geom_point(aes(x=N_marker, y=male_cM, col="Male cM")) + 
+  geom_line(aes(x=N_marker, y=male_cM, col="Male cM")) + 
+  xlab("Marker number") + 
+  ylab("Genetic distance [cM]") + 
+  ggtitle("Recombination along LG1") +
+  theme_minimal()
+
+```
+
+```{r markers_order}
+
+chr1_markers <- markers_f %>% 
+  filter(Chr=='chr1') %>%
+  pull(ID)
+
+LG1_inter <- LG1[LG1$N_original %in% chr1_markers,]
+
+par(mfrow=c(1,2))
+plot(LG1$N_original[order(LG1$N_original)], 
+     LG1$N_marker[order(LG1$N_original)], 
+     pch='.', cex=3, 
+     xlab="Original order", 
+     ylab="Linkage map order", 
+     main="LG1: Genome vs ML order \n(all markers)")
+
+plot(LG1_inter$N_original[order(LG1_inter$N_original)], 
+     LG1_inter$N_marker[order(LG1_inter$N_original)], 
+     pch='.', cex=3, 
+     xlab="Original order", 
+     ylab="Linkage map order", 
+     main="LG1: Genome vs LM order \n(Chr1 markers)")
+```
+
+```{r M_F_cm}
+library(tidyr)
+LG1_long <- LG1 %>% tidyr::gather(sex_distance, cM, male_cM:female_cM)
+ggplot(LG1_long, aes(x=sex_distance , y=cM, group=N_marker)) + 
+  geom_path(alpha=0.7) +
+  geom_point(alpha=0.7) +
+  ggtitle("LG1") +
+  theme_minimal()
+
+```

@@ -1,6 +1,0 @@
-#java LMPlot ../../../../data/linkage_map/LEPMAP3//05_order_LG9.txt
-graph g {
-node [fontsize=40,penwidth=4]
-edge [penwidth=3]
-1[width=0.047140452079103175,height=0.047140452079103175,fixedsize=true]
-}

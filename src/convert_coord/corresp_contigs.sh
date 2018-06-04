@@ -30,8 +30,17 @@ while getopts ":O:N:lc:h" opt; do
    esac
 done
 
+if [[ "x" == "x$OLD_REF" ]] || [[ "x" == "x$NEW_REF" ]] || [[ "x" == "x$CORRESP_GFF" ]];
+then
+  echo "Error: You must provide the path to both reference genomes as well as the output path for \
+the correspondance file"
+  usage
+  exit 0
+fi
+
 tmp_dir=$(dirname $CORRESP_GFF)/tmp/
 mkdir -p $tmp_dir
+
 
 if [ -z ${local+x} ];then run_fun="bsub -I -tty";else run_fun="bash";fi
 

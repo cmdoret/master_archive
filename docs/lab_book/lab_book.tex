@@ -1550,6 +1550,27 @@ To improve all analysis presented here, I will try to build a linkage map from t
 \section{Sample selection and input format}
 To avoid generating noise (genotyping errors), I will  exclude families with fewer than 10 samples. I will also exclude families where the mother is not available. The software is intended to work with sexual diploid organisms, but I have asexual haplodiploid families. To work around this issue, I will duplicate all alleles from haploid males to generate synthetic diploids and duplicate all diploid samples to keep the same relative abundance of alleles in the population.
 
+\section{From asexual families}
+
+I tried using LEPMAP3 to generate a linkage map from all asexual families in the RADseq data. Because these families have both haploid and diploid samples, I used a trick to make them all diploid (very experimental). I duplicated alleles of all haploid sons to make them artificially diploid. I then duplicated all diploid samples to make new synthetic samples so that the alleles from haploid sons are not overrepresented in the family. Finally, I duplicated the mother to generate a syntetic father. I applied this trick on 8 families (those with at least 10 offspring and where the mother is available).
+
+Not so surprisingly, the linkage map generated using this hack was unusable. After filtering SNPs based on missing calls and segregation distortion, and trying different parameters for the LOD score threshold when segregating SNPs into linkage groups, I would invariably end up with 1 large linkage group containing half the SNPs and most of the rest being unplaced.
+
+\section{Extrapolating from Jens linkage map}
+
+Alternatively to making a new linkage map, I could use Allmaps to compute the relationship between basepair and centimorgan along the genome. This relationship could then be applied to our RADseq data to estimate recombination rates between SNPs. 
+
+In our situation, this approach is not applicable because the linkage map has "only" 1084 markers for a 170Mb genome. Interpolating recombination rates between distant markers will yield very inaccurate and unreliable values.
+
+Another variant would be to use only the intersect between Jens SNPs and ours for the association mapping. This is not applicable either, because the intersect between both datasets is only of 151 SNPs.
+
+The reason for this small overlap might be that the line used by jens has a different genetic background. Some of it could also be caused by the different SNP calling pipelines, we used BWA and STACKS whereas Jens used Bowtie2 and samtools mpileup.
+
+\section{From sexual families}
+
+Linkage mapping softwares are not designed to handle individuals with mixed ploidies, however if I use sexual families, I can generate linkage maps exclusively from haploid sons. I plan to use Casper's sexual families for this as they have the same genetic background.
+
+I can redo the linkage map from scratch with the same SNP calling pipeline as our other samples and use the intersect.
 
 
 \chapter{TO DO}

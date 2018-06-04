@@ -31,7 +31,7 @@ $(CSTACK): $(PSTACK)
 				  --local yes
 
 # Running sstacks and populations
-$(POP) : $(SSTACK) $(POP-SRC) $(CSTACK)
+$(POP) : $(S-SRC) $(POP-SRC) $(CSTACK)
 
 	bash $(S-SRC) --in $(PSTACK) \
                 --cat $(CSTACK) \

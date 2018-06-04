@@ -163,17 +163,17 @@ wgs_wild : $(CORRESP) $(SIZES) $(WGS)/variant/hap.wild.matrix
 
 .PHONY : linkage_map
 linkage_map:
-	bash src/linkage_map/diploidize.sh -s $(THRESH) \
-                                       -v $(POP)/*.vcf \
-                                       -o $(LINKMAP)
+	bash src/linkage_map/lepmap3/diploidize.sh -s $(THRESH) \
+                                               -v $(POP)/*.vcf \
+                                               -o $(LINKMAP)
 
-	Rscript src/linkage_map/select_samples.R $(LINKMAP)/diploidized.tsv \
-                                             10 \
-                                             $(LINKMAP)/linkage_samples.tsv
+	Rscript src/linkage_map/lepmap3/select_samples.R $(LINKMAP)/diploidized.tsv \
+                                                     10 \
+                                                     $(LINKMAP)/linkage_samples.tsv
 
-	bash src/linkage_map/lepmap3_script.sh -v $(LINKMAP)/diploidized.vcf \
-                                           -p $(LINKMAP)/linkage_samples.tsv \
-                                           -o $(LINKMAP)/LEPMAP3
+	bash src/linkage_map/lepmap3/lepmap3_script.sh -v $(LINKMAP)/diploidized.vcf \
+                                                   -p $(LINKMAP)/linkage_samples.tsv \
+                                                   -o $(LINKMAP)/LEPMAP3
 
 # Check genome completeness using BUSCO
 .PHONY : busco
