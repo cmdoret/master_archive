@@ -48,7 +48,7 @@ $(POP) : $(S-SRC) $(POP-SRC) $(CSTACK)
 	mkdir -p $(LOG)/populations
 	# Changing parameters directly in the file
 	
-	bash $(POP-SRC) --sst $< \
+	bash $(POP-SRC) --sst $(SSTACK) \
 	                --thresh $(THRESH) \
 					--group $(GRFAM) \
 					--md $(D) \

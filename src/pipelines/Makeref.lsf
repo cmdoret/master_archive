@@ -41,7 +41,7 @@ $(POP) : $(S-SRC) $(POP-SRC) $(CSTACK)
 	# Erasing logs from previous run
 	rm -rf $(LOG)/populations
 	mkdir -p $(LOG)/populations
-	bash $(POP-SRC) --sst $< \
+	bash $(POP-SRC) --sst $(SSTACK) \
 	                --thresh $(THRESH) \
 					--group $(GRFAM) \
 					--md $(D) \
