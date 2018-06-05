@@ -63,5 +63,5 @@ else
 fi
 
 # Removing empty lines from summary. bak file is used for BSD-sed compatibility
-sed -i '.bak' '/nan/d;' "$out_path/summary_full.txt"
-rm -f "$out_path/summary_full.txt.bak"
+sed '/nan/d;' "$out_path/summary_full.txt" > "$out_path/summary_full.txt.tmp" && \
+    mv "$out_path/summary_full.txt.tmp" "$out_path/summary_full.txt"
