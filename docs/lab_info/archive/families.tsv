@@ -1,16 +1,16 @@
-Number	Family	Sex	Parent_id	Dissection_date	Rad_library	Vial	Remark
+Number	Family	Sex	parent-id	dissection_date	rad_libary	vial body parts	Remark
 CF4A01	A	F	C266		RAD_wasp6	102
-CF4A02	A	M	C266		RAD_wasp6	103	"for males abdomen was not removed"
-CF4A03	A	M	C266		RAD_wasp6	104	"for males abdomen was not removed"
-CF4A04	A	M	C266		RAD_wasp6	105	"for males abdomen was not removed"
-CF4A05	A	M	C266		RAD_wasp6	106	"for males abdomen was not removed"
-CF4A06	A	M	C266		RAD_wasp6	107	"for males abdomen was not removed"
+CF4A02	A	M	C266		RAD_wasp6	103	"for males	 abdomen was not removed"
+CF4A03	A	M	C266		RAD_wasp6	104	"for males	 abdomen was not removed"
+CF4A04	A	M	C266		RAD_wasp6	105	"for males	 abdomen was not removed"
+CF4A05	A	M	C266		RAD_wasp6	106	"for males	 abdomen was not removed"
+CF4A06	A	M	C266		RAD_wasp6	107	"for males	 abdomen was not removed"
 CF4A07	A	F	C266		RAD_wasp6	108
-CF4A08	A	M	C266		RAD_wasp6	109	"for males abdomen was not removed"
-CF4A09	A	M	C266		RAD_wasp6	110	"for males abdomen was not removed"
-CF4A10	A	M	C266		RAD_wasp6	111	"for males abdomen was not removed"
-CF4A11	A	M	C266		RAD_wasp6	112	"for males abdomen was not removed"
-CF4A12	A	M	C266		RAD_wasp6	113	"for males abdomen was not removed"
+CF4A08	A	M	C266		RAD_wasp6	109	"for males	 abdomen was not removed"
+CF4A09	A	M	C266		RAD_wasp6	110	"for males	 abdomen was not removed"
+CF4A10	A	M	C266		RAD_wasp6	111	"for males	 abdomen was not removed"
+CF4A11	A	M	C266		RAD_wasp6	112	"for males	 abdomen was not removed"
+CF4A12	A	M	C266		RAD_wasp6	113	"for males	 abdomen was not removed"
 CF4A13	A	F	C266		RAD_wasp6	114
 CF4A14	A	F	C266		RAD_wasp6	115
 CF4A15	A	M	C266	01.02.17	RAD_wasp7	207
@@ -306,19 +306,19 @@ DF4AV08	AV	M	D204	02.08.17
 DF4AV09	AV	M	D204	02.08.17
 DF4AV10	AV	M	D204	02.08.17
 CF4B01	B	F	C424	31.07.17	RAD_wasp6	116
-CF4B02	B	M	C424	31.07.17	RAD_wasp6	117	"for males abdomen was not removed"
-CF4B03	B	M	C424	31.07.17	RAD_wasp6	118	"for males abdomen was not removed"
+CF4B02	B	M	C424	31.07.17	RAD_wasp6	117	"for males	 abdomen was not removed"
+CF4B03	B	M	C424	31.07.17	RAD_wasp6	118	"for males	 abdomen was not removed"
 CF4B04	B	F	C424	31.07.17	RAD_wasp6	119
 CF4B05	B	F	C424	31.07.17	RAD_wasp6	120
-CF4B06	B	M	C424	31.07.17	RAD_wasp6	121	"for males abdomen was not removed"
-CF4B07	B	M	C424	31.07.17	RAD_wasp6	122	"for males abdomen was not removed"
-CF4B08	B	M	C424	31.07.17	RAD_wasp6	123	"for males abdomen was not removed"
+CF4B06	B	M	C424	31.07.17	RAD_wasp6	121	"for males	 abdomen was not removed"
+CF4B07	B	M	C424	31.07.17	RAD_wasp6	122	"for males	 abdomen was not removed"
+CF4B08	B	M	C424	31.07.17	RAD_wasp6	123	"for males	 abdomen was not removed"
 CF4B09	B	F	C424	31.07.17	RAD_wasp6	124
-CF4B10	B	M	C424	31.07.17	RAD_wasp6	125	"for males abdomen was not removed"
-CF4B11	B	M	C424	31.07.17	RAD_wasp6	126	"for males abdomen was not removed"
-CF4B12	B	M	C424	31.07.17	RAD_wasp6	127	"for males abdomen was not removed"
-CF4B13	B	M	C424	31.07.17	RAD_wasp6	128	"for males abdomen was not removed"
-CF4B14	B	M	C424	31.07.17	RAD_wasp6	129	"for males abdomen was not removed"
+CF4B10	B	M	C424	31.07.17	RAD_wasp6	125	"for males	 abdomen was not removed"
+CF4B11	B	M	C424	31.07.17	RAD_wasp6	126	"for males	 abdomen was not removed"
+CF4B12	B	M	C424	31.07.17	RAD_wasp6	127	"for males	 abdomen was not removed"
+CF4B13	B	M	C424	31.07.17	RAD_wasp6	128	"for males	 abdomen was not removed"
+CF4B14	B	M	C424	31.07.17	RAD_wasp6	129	"for males	 abdomen was not removed"
 CF4B15	B	F	C424	31.07.17
 CF4B16	B	F	C424	31.07.17
 CF4B17	B	F	C424	31.07.17
@@ -408,7 +408,7 @@ CF4H16	H	M	C279	02.02.17	RAD_wasp7	238
 CF4H17	H	M	C279	02.02.17	RAD_wasp7	239
 CF4H18	H	M	C279	02.02.17	RAD_wasp7	240
 CF4H19	H	M	C279	02.02.17	RAD_wasp7	241
-CF4H20	H	M	C279	02.02.17	RAD_wasp7	292	"accidentally jumped 50 up in numbering"
+CF4H20	H	M	C279	02.02.17	RAD_wasp7	292	accidentally jumped 50 up in numbering
 CF4H21	H	M	C279	02.02.17	RAD_wasp7	293
 CF4I01	I	F	C284	02.02.17	RAD_wasp7	294
 CF4I02	I	F	C284	02.02.17	RAD_wasp7	295
@@ -649,16 +649,16 @@ DF4AY07	AY	M	D209	04.07.17
 DF4AY08	AY	M	D209	04.07.17
 DF4AY09	AY	M	D209	04.07.17
 DF4AY10	AY	M	D209	04.07.17
-DF4AZ01	AZ	M	D212	04.07.17			"some leaves debry in tube"
-DF4AZ02	AZ	M	D212	04.07.17			"some leaves debry in tube"
-DF4AZ03	AZ	M	D212	04.07.17			"some leaves debry in tube"
-DF4AZ04	AZ	M	D212	04.07.17			"some leaves debry in tube"
-DF4AZ05	AZ	M	D212	04.07.17			"some leaves debry in tube"
-DF4AZ06	AZ	M	D212	04.07.17			"some leaves debry in tube"
-DF4AZ07	AZ	M	D212	04.07.17			"some leaves debry in tube"
-DF4AZ08	AZ	M	D212	04.07.17			"some leaves debry in tube"
-DF4AZ09	AZ	M	D212	04.07.17			"some leaves debry in tube"
-DF4AZ10	AZ	M	D212	04.07.17			"some leaves debry in tube"
+DF4AZ01	AZ	M	D212	04.07.17			some leaves debry in tube
+DF4AZ02	AZ	M	D212	04.07.17			some leaves debry in tube
+DF4AZ03	AZ	M	D212	04.07.17			some leaves debry in tube
+DF4AZ04	AZ	M	D212	04.07.17			some leaves debry in tube
+DF4AZ05	AZ	M	D212	04.07.17			some leaves debry in tube
+DF4AZ06	AZ	M	D212	04.07.17			some leaves debry in tube
+DF4AZ07	AZ	M	D212	04.07.17			some leaves debry in tube
+DF4AZ08	AZ	M	D212	04.07.17			some leaves debry in tube
+DF4AZ09	AZ	M	D212	04.07.17			some leaves debry in tube
+DF4AZ10	AZ	M	D212	04.07.17			some leaves debry in tube
 DF4BA01	BA	M	D217	04.07.17
 DF4BA02	BA	M	D217	04.07.17
 DF4BA03	BA	M	D217	04.07.17
@@ -679,16 +679,16 @@ DF4BB07	BB	M	D218	04.07.17
 DF4BB08	BB	M	D218	04.07.17
 DF4BB09	BB	M	D218	04.07.17
 DF4BB10	BB	M	D218	04.07.17
-DF4BC01	BC	M	D227	04.07.17			"some leaves debry in tube"
-DF4BC02	BC	M	D227	04.07.17			"some leaves debry in tube"
-DF4BC03	BC	M	D227	04.07.17			"some leaves debry in tube"
-DF4BC04	BC	M	D227	04.07.17			"some leaves debry in tube"
-DF4BC05	BC	M	D227	04.07.17			"some leaves debry in tube"
-DF4BC06	BC	M	D227	04.07.17			"some leaves debry in tube"
-DF4BC07	BC	M	D227	04.07.17			"some leaves debry in tube"
-DF4BC08	BC	M	D227	04.07.17			"some leaves debry in tube"
-DF4BC09	BC	M	D227	04.07.17			"some leaves debry in tube"
-DF4BC10	BC	M	D227	04.07.17			"some leaves debry in tube"
+DF4BC01	BC	M	D227	04.07.17			some leaves debry in tube
+DF4BC02	BC	M	D227	04.07.17			some leaves debry in tube
+DF4BC03	BC	M	D227	04.07.17			some leaves debry in tube
+DF4BC04	BC	M	D227	04.07.17			some leaves debry in tube
+DF4BC05	BC	M	D227	04.07.17			some leaves debry in tube
+DF4BC06	BC	M	D227	04.07.17			some leaves debry in tube
+DF4BC07	BC	M	D227	04.07.17			some leaves debry in tube
+DF4BC08	BC	M	D227	04.07.17			some leaves debry in tube
+DF4BC09	BC	M	D227	04.07.17			some leaves debry in tube
+DF4BC10	BC	M	D227	04.07.17			some leaves debry in tube
 DF4BD01	BD	M	D228	04.07.17
 DF4BD02	BD	M	D228	04.07.17
 DF4BD03	BD	M	D228	04.07.17
@@ -744,7 +744,7 @@ CF4BJ07	BJ	M	C222	07.08.17
 CF4BJ08	BJ	M	C222	07.08.17
 CF4BJ09	BJ	M	C222	07.08.17
 CF4BJ10	BJ	M	C222	07.08.17
-CF4BJ11	BJ	F	C222	07.08.17			"Uncertain about number of this female in the female"
+CF4BJ11	BJ	F	C222	07.08.17			Uncertain about number of this female in the female
 CF4BK01	BK	M	C218	07.03.2018	RAD_wasp13
 CF4BK02	BK	M	C218	07.03.2018	RAD_wasp13
 CF4BK03	BK	M	C218	07.03.2018	RAD_wasp13
