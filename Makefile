@@ -161,8 +161,8 @@ wgs_wild : $(CORRESP) $(SIZES) $(WGS)/variant/hap.wild.matrix
 #### MISC RULES ####
 ####################
 
-.PHONY : linkage_map
-linkage_map:
+.PHONY : lepmap3
+lepmap3:
 	bash src/linkage_map/lepmap3/diploidize.sh -s $(THRESH) \
                                                -v $(POP)/*.vcf \
                                                -o $(LINKMAP)

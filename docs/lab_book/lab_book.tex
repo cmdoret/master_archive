@@ -1574,7 +1574,42 @@ I can redo the linkage map from scratch with the same SNP calling pipeline as ou
 
 Update: 06.06.2018
 
-Tha last RADseq library (RADwasp13 + 13b) for Casper's association mapping comes from the very same genetic background as my samples. This library contains 187 samples split into 20 families
+The last RADseq library (RADwasp13 + 13b) for Casper's association mapping comes from the very same genetic background as my samples. This library contains 187 samples split into 20 families. These are only F4 offspring.
+
+I'll directly input these offspring (only the haploid ones) into LEPMAP3 and see if I can use the resulting linkage map. Normally the software should not require input parents, they just need to be specified in the pedigree file. 
+
+\subsection{Data quality}
+
+These samples appear to have lower quality data compared to the libraries used for the CSD association mapping. Detailed investigation revealed the starting material is on the lower side, but comparable to CSD samples (Figure \ref{raw_comp_L13}). On the other hand, the proportion of mapped reads is much lower (Figure \ref{mapped_comp_L13}) . This could be due to contamination of poorly conserved DNA (i.e. highly fragmented). The latter is quite likely as these samples were kept for a longer period in the freezer. Since we just have a lower proportion of mapping reads, we will simply resequence the library to increase sequencing depth and make up for the low quality DNA.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{linkage_map/data_quality/figs/raw_comparison.pdf}
+\caption{Comparison of the amount of raw reads per sample in the wasps from library 13 versus those used for  the CSD analysis.}
+\label{raw_comp_L13}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{linkage_map/data_quality/figs/mapped_comparison.pdf}
+\caption{Comparison of the proportion of uniquely mapped reads per sample in the wasps from library 13 versus those used for  the CSD analysis.}
+\label{mapped_comp_L13}
+\end{figure}
+
+\subsection{Strategy}
+
+There are 2 possible strategies I can think of to build a linkage map from library 13.
+
+Strategy 1 (good): 
+\begin{enumerate}
+\item Select haploid offspring
+\item Duplicate and inverse phase as in Gadau's protocole
+\item Build linkage map
+\end{enumerate}
+Strategy 2 (bad, we lose the phase):
+\begin{enumerate}
+\item Select all offspring
+\item Merge haploids into synthetic diploids
+\item Build linkage map
+\end{enumerate}
 
 \chapter{TO DO}
 \begin{itemize}
