@@ -271,10 +271,19 @@ indv = pd.read_csv(indv_path, sep='\t')  # Family and sex info
 # Preparing data structure to match sample names and families with columns
 
 if args.grouped_input == 'T':  # Single populations folder
-    samples = pd.read_csv(path.join(in_path, "batch_1.sumstats.tsv"),
-                sep='\t',nrows=2, header=None)  # Names in correct order
-    # Concatenating populations
-    names = samples.iloc[:,1][0].split(',') + samples.iloc[:,1][1].split(',')
+    try:
+        samples = pd.read_csv(path.join(in_path, "batch_1.sumstats.tsv"),
+                              sep='\t',nrows=2, header=None)  # Names in correct order
+        
+        # Concatenating populations
+        names = samples.iloc[:,1][0].split(',') + samples.iloc[:,1][1].split(',')
+    except pd.errors.ParserError:
+        samples = pd.read_csv(path.join(in_path, "batch_1.sumstats.tsv"),
+                              sep='\t',nrows=1, header=None)  # In case only 1 sex is present
+
+        # Concatenating populations
+        names = samples.iloc[:,1][0].split(',')
+
     names = pd.DataFrame({'Name':names})
     # Adding family and sex, keeping order
     pop = names.merge(indv,on='Name',how='left')
