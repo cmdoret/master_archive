@@ -164,31 +164,41 @@ wgs_wild : $(CORRESP) $(SIZES) $(WGS)/variant/hap.wild.matrix
 # Using a separate dataset for linkage mapping. Locaetd in $DAT/linkage_map/lib13
 .PHONY : lepmap3
 lepmap3:
-	# Make pedigree for lib13
-	Rscript src/linkage_map/merge_haplo/01a_format_ped.R
-	# reconstruct mothers from STACKS genomics output (haplo + diplo samples)
-	Rscript src/linkage_map/merge_haplo/01b_reconst_mothers.R
-	# Remove diploid samples from offspring VCF
-awk '($$NF == "D") && ($$4 == F4) {print $$1}' $(LINKMAP)/lib13/fixed.tsv > $(LINKMAP)/lib13/diplo_sons.txt
+	# Generate haploid-only VCF file
+	awk '($$NF == "D") && ($$4 == "F4") {print $$1}' $(LINKMAP)/lib13/fixed.tsv > $(LINKMAP)/lib13/diplo_sons.txt
 	vcftools --vcf $(LINKMAP)/lib13/grouped_d-5_r-80/batch_1.vcf \
 			 --remove $(LINKMAP)/lib13/diplo_sons.txt \
+			 --out $(LINKMAP)/lib13/haplo \
 			 --recode
-	# Convert filtered offspring VCF to LEPMAP using ParentCall2
-	java -cp "$$LEPMAP3" ParentCall2 data=$(LINKMAP)/lib13/ped_lib13.txt
-									 vcfFile=$(LINKMAP)/lib13/grouped_d-5_r-80/batch1.recode.vcf \
-									 removeNonInformative=0
-	# Merge haploids into synthetic diploids
-	bash src/linkage_map/merge_haplo/03_merge_haplo.sh
-	# Merge mothers into LEPMAP file
-	bash src/linkage_map/lepmap3/diploidize.sh -s $(THRESH) \
-                                               -v $(POP)/*.vcf \
-                                               -o $(LINKMAP)
-	vcftools
-	Rscript src/linkage_map/lepmap3/select_samples.R $(LINKMAP)/diploidized.tsv \
-                                                     10 \
-                                                     $(LINKMAP)/linkage_samples.tsv
 
-	bash src/linkage_map/lepmap3/lepmap3_script.sh -v $(LINKMAP)/diploidized.vcf \
+	# Exclude diploids from fixed.tsv
+	awk '($$NF == "H") || ($$4 == "F3")' $(LINKMAP)/lib13/fixed.tsv > $(LINKMAP)/lib13/haplo_fixed.tsv 
+	# Make pedigree for lib13 without diploids
+	Rscript src/linkage_map/merge_haplo/01a_format_ped.R $(LINKMAP)/lib13/haplo_fixed.tsv \
+														 10 \
+														 $(LINKMAP)/lib13/lepmap_ped.txt
+	# reconstruct mothers from STACKS genomics output (haplo + diplo samples)
+	Rscript src/linkage_map/merge_haplo/01b_reconst_mothers.R --fam $(DAT)/family.tsv \
+															  --plo $(LINKMAP)/lib13/fixed.tsv \
+															  --pop $(LINKMAP)/lib13/grouped_d-5_r-80\
+															  --mfreq 10\
+															  --out $(LINKMAP)/lib13/lepmap_mothers.tsv
+	# Convert filtered offspring VCF to LEPMAP using ParentCall2
+#	java -cp "$$LEPMAP3" ParentCall2 data=$(LINKMAP)/lib13/ped_lib13.txt
+#									 vcfFile=$(LINKMAP)/lib13/grouped_d-5_r-80/batch1.recode.vcf \
+#									 removeNonInformative=0
+#	# Merge haploids into synthetic diploids
+#	bash src/linkage_map/merge_haplo/03_merge_haplo.sh
+#	# Merge mothers into LEPMAP file
+#	bash src/linkage_map/lepmap3/diploidize.sh -s $(THRESH) \
+#                                               -v $(POP)/*.vcf \
+#                                               -o $(LINKMAP)
+#	vcftools
+#	Rscript src/linkage_map/lepmap3/select_samples.R $(LINKMAP)/diploidized.tsv \
+#                                                     10 \
+#                                                     $(LINKMAP)/linkage_samples.tsv
+#
+#	bash src/linkage_map/lepmap3/lepmap3_script.sh -v $(LINKMAP)/diploidized.vcf \
                                                    -p $(LINKMAP)/linkage_samples.tsv \
                                                    -o $(LINKMAP)/LEPMAP3
 

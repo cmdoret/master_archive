@@ -197,15 +197,53 @@ mother_out <- mother_g %>%
 # Desired format:
 # header: 6 lines pedigree
 # body: SNP as rows, samples as tab-sep column.
-# each genotype call = 10 space-separated int/float representing likelihoods
+# each genotype call = 10 space-separated 0<=int/float<=1 representing likelihoods
 # 10 nums represent: AA AC AG AT CC CG CT GG GT TT
 # For N samples, N+2 column. The 2 first columns being CHROM and POS
-if(opt$LEPMAP == T){
-  ped <- matrix(nrow=6, ncol=)
+# genotypes as sum of nucleotides
+# e.g. third genotype in LEPMAP order is AG = A + G = 1 + 4 = 5
+# Therefore genusum[3] = 5
+gensum=c(2, 3, 5, 9, 4, 6, 10, 8, 12, 16)
+# Need array to reverse access genotype position from sum:
+# e.g. sum2gen[5] = 3 -> AG
+# Then transorm into binary to format genotype
+# e.g. AG is third so format should be 0010000000 
+# This can be done by taking 2 to the power of the 0-indexed position and mirroring the binary
+# AG = 3 -> 3-1=2 -> bin((2^2)) = 0000000100 -> 0010000000
 
+sum2bin=rep("X", max(gensum))
+for ( i in 1:length(gensum)){
+  # get binary value to represent genotype position
+  # note: no need to mirror, first bit is already on the left
+  # Format with spaces -> ready for output file
+  sum2bin[gensum[i]] = paste(as.numeric(intToBits(2^(i-1))[1:length(gensum)]), sep=" ", collapse=" ")
+}
+
+if(opt$LEPMAP == T){
+  mother_out <- mother_g %>% 
+    # Encoding nucleotides as binary values -> sum = unique genotype
+    # Note: any genotype >=20 will be N
+    mutate(Nuc1 = recode(Nuc1, "A"=1, "C"=2, "G"=4, "T"=8, "N"=20)) %>%
+    mutate(Nuc2 = recode(Nuc2, "A"=1, "C"=2, "G"=4, "T"=8, "N"=20)) %>%
+    mutate(State = Nuc1 + Nuc2) %>%
+    # Make genotype LEPMAP compatible
+    mutate(State = ifelse( State < 20, 
+                          yes = sum2bin[State], 
+                          no = "0 0 0 0 0 0 0 0 0 0")) %>%
+    # Spread into wide format (mothers as columns, SNPs as rows)
+    select(-Family, -Nuc1, -Nuc2) %>%
+    spread(Parent_id, State)
+
+  ped <- matrix(nrow=6, ncol=(ncol(mother_g)-1))
+  ped[1, 3:ncol(ped)] <- 
+  ped[2, 3:ncol(ped)] <- 
   body <- mother_g %>%
   mother_out <- bind_rows()
 }
-#### WRITE ####
 
+#TODO: RETRIEVE FAMILY AND SAMPLE NAMES TO WRITE HEADER
+# MAKE SURE HEADER AND BODY HAVE SAMPLES IN SAME ORDER
+
+#### WRITE ####
+ncol(mother_g)
 write_tsv(mother_out, opt$out )

@@ -24,8 +24,9 @@ to_keep=($(sed -n '1p' sample_pairs.txt))
 to_drop=($(sed -n '2p' sample_pairs.txt))
 # Samples to exclude. Consists of parents and unpaired offpsring (if odd number in family)
 to_excl=($(sed -n '3p' sample_pairs.txt))
-
+i=2
 function get_geno {
+
 # Get genotype with highest likelihood for a given sample
 		sample_idx="$1"
 		genotypes="$2"
