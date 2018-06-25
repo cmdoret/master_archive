@@ -1,6 +1,5 @@
 # Selecting families that will be used to build the linkage map.
 # Small families and those where the mother is missing are excluded.
-# Note: The individuals in the input file should already have been diploidized.
 # Cyril Matthey-Doret
 # 22.05.2018
 
@@ -55,6 +54,18 @@ ped[5, 3:ncol(ped)] <- recode(samples$Sex,M=1, F=2)
     
 # Sixth line could contain a phenotype (here: placeholder 0's)
 ped[6, 3:ncol(ped)] <- 0
+
+# Order and filter samples as in VCF, if provided
+if(!is.na(args[4])){
+  # If samples in the VCF file are specified, get list of names to filter/order pedigree samples
+  con_read <- pipe(paste0("grep '^#[^#]' ", args[4], " | sed 's/.*FORMAT.//'"))
+  lep_samples <- scan(con_read, what='character')
+  close(con_read)
+  colnames(ped) <- ped[2,]
+  ordered_cols <- append(c("CHROM", "POS"), lep_samples)
+  ped <- ped[,order(match(colnames(ped), ordered_cols, nomatch = NA), na.last=NA)]
+}
+
 write.table(ped, args[3], col.names = F, row.names = F, quote = F, sep='\t')
 
 

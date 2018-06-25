@@ -44,6 +44,7 @@ option_list = list(
               help="Minimum proportion (integer, in percentage) of offspring in which an allele must be called to be considered. Default: 10"),
   make_option(c("-L","--LEPMAP"), 
               action="store_true",
+              default=F,
               help="If option is specified, the output will be stored as LEPMAP compatible format with a pedigree header")
 
 )
@@ -105,9 +106,11 @@ diplo_off <- ploid$Name[ploid$Ploidy == 'D' &
 # Name columns of genotype matrix after samples
 colnames(geno) <- append(c("ID", "Chr", "BP"), s_names)
 
-haplo <- geno %>%
+geno <- geno %>%
   # Reshape into "long" format
-  gather(Name, Nuc, -Chr, -BP, -ID) %>%
+  gather(Name, Nuc, -Chr, -BP, -ID)
+
+haplo <- geno %>% 
   # Only keep haploid samples
   filter(Name %in%  haplo_sons) %>%
   # Include Family information
@@ -121,8 +124,6 @@ haplo <- geno %>%
     TRUE ~ "N"))
 
 diplo <- geno %>%
-  # Reshape into "long" format
-  gather(Name, Nuc, -Chr, -BP, -ID) %>%
   # Only keep haploid samples
   filter(Name %in%  diplo_off) %>%
   # Include Family information
@@ -176,6 +177,7 @@ mother_g <- geno %>%
               Fnuc[2] >= min_freq ~ Nuc[2],
               Fnuc[2] <  min_freq ~ Nuc1)) %>%
   # Match families with desired mother ID
+  ungroup() %>%
   left_join(fam, by="Family") 
 
 #### FORMAT ####
@@ -233,17 +235,48 @@ if(opt$LEPMAP == T){
     # Spread into wide format (mothers as columns, SNPs as rows)
     select(-Family, -Nuc1, -Nuc2) %>%
     spread(Parent_id, State)
+  
+  mother_info <- mother_g %>%
+    select(-ID, -Chr, -BP, Nuc1, Nuc2) %>%
+    distinct(Family, Parent_id) %>%
+    mutate(Sex="F")
+  father_info <- mother_info %>%
+    mutate(Parent_id = paste0(Parent_id,  "_DUP", sep="")) %>%
+    mutate(Sex="M")
 
-  ped <- matrix(nrow=6, ncol=(ncol(mother_g)-1))
-  ped[1, 3:ncol(ped)] <- 
-  ped[2, 3:ncol(ped)] <- 
-  body <- mother_g %>%
-  mother_out <- bind_rows()
+  parent_info <- mother_info %>%
+    bind_rows(father_info) %>% 
+    arrange(Parent_id)
+  
+  # Building pedigree header
+  ped <- as.data.frame(matrix(nrow=6, ncol=(nrow(parent_info)+2)))
+  ped[,1] <- "CHROM"
+  ped[,2] <- "POS"
+  ped[1, 3:ncol(ped)] <- parent_info$Family
+  ped[2, 3:ncol(ped)] <- parent_info$Parent_id
+  # Father, Mother and placeholder for phenotype all set to 0
+  ped[c(3, 4, 6), 3:ncol(ped)] <- 0
+  # Sex encoded as int
+  ped[5, 3:ncol(ped)] <- recode(parent_info$Sex, M=1, F=2)
+  colnames(ped) <- ped[2,]
+  colnames(ped)[1:2] <- c("Chr", "BP")
+  
+  # Duplicating genotype calls for synthetic fathers
+  father_body <- mother_out %>% 
+    select(-ID, -Chr, -BP) %>% 
+    rename_all(funs(. = paste0(., "_DUP")))
+  
+  # Combine all parents genotypes into asingle table
+  geno_lm3 <- mother_out %>%
+    select(-ID) %>%
+    bind_cols(father_body) %>%
+    # Order columns in the same order as ped
+    select(order(match(names(.),names(ped)))) %>%
+    mutate(BP = as.character(BP))
+
+  mother_out <- ped %>% bind_rows( geno_lm3)
 }
 
-#TODO: RETRIEVE FAMILY AND SAMPLE NAMES TO WRITE HEADER
-# MAKE SURE HEADER AND BODY HAVE SAMPLES IN SAME ORDER
-
 #### WRITE ####
-ncol(mother_g)
+
 write_tsv(mother_out, opt$out )

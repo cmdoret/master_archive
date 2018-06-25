@@ -14,7 +14,7 @@ import pandas as pd
 import numpy as np
 
 # Read pedigree part of the file, ignoring auto-commented lines
-ped = pd.read_csv("01_geno.call", nrows=6, comment="#", header=None, sep='\t')
+ped = pd.read_csv("data/linkage_map/lib13/F4_geno.call", nrows=6, comment="#", header=None, sep='\t')
 # Remove irelevant pedigree variables and coordinate infos
 ped = ped.iloc[[0,1,3],2:]
 
