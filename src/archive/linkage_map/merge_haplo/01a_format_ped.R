@@ -63,7 +63,9 @@ if(!is.na(args[4])){
   close(con_read)
   colnames(ped) <- ped[2,]
   ordered_cols <- append(c("CHROM", "POS"), lep_samples)
-  ped <- ped[,order(match(colnames(ped), ordered_cols, nomatch = NA), na.last=NA)]
+  pedF3 <- ped[,ped[3,]=="0"]
+  pedF4 <- ped[,order(match(colnames(ped), ordered_cols, nomatch = NA), na.last=NA)]
+  ped <- cbind(pedF4, pedF3)
 }
 
 write.table(ped, args[3], col.names = F, row.names = F, quote = F, sep='\t')

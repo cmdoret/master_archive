@@ -175,8 +175,7 @@ lepmap3:
 	# Make pedigree for lib13 without diploids
 	Rscript src/linkage_map/merge_haplo/01a_format_ped.R $(LINKMAP)/lib13/haplo_fixed.tsv \
 		10 \
-		$(LINKMAP)/lib13/ped_lib13.txt \
-		$(LINKMAP)/lib13/haplo.recode.vcf
+		$(LINKMAP)/lib13/ped_lib13.txt
 	# reconstruct mothers from STACKS genomics output (haplo + diplo samples)
 #	Rscript src/linkage_map/merge_haplo/01b_reconst_mothers.R --fam $(DAT)/families.tsv \
 #		--plo $(LINKMAP)/lib13/fixed.tsv \
