@@ -8,9 +8,7 @@ data, along with ploidy information of each individual.
 
 import numpy as np  # Powerful vectorized methods on arrays
 import pandas as pd  # Convenient data frames
-from sys import argv  # Command line arguments
 import argparse
-from math import sqrt
 
 parser = argparse.ArgumentParser(description="Infers ploidy of samples based \
                                  on a flat homozygosity value.")
@@ -19,7 +17,7 @@ parser.add_argument('vcf_summary', type=str, help="Path to the summary file \
 parser.add_argument('output', type=str, help='Path to the desired output \
                     location for the table containing ploidy information.')
 parser.add_argument('--ploidy_thresh', type=float, default=0.90,
-                help='Proportion (float between 0 and 1) of homozygous \
+                    help='Proportion (float between 0 and 1) of homozygous \
                                 sites above which individuals are considered \
                                 homozygous. Default: 0.90')
 
@@ -27,7 +25,7 @@ args = parser.parse_args()
 fixed_thresh = args.ploidy_thresh
 
 
-def ploidy(indiv,fixed):
+def ploidy(indiv, fixed):
     """
     This function returns a table with individuals and their ploidy.
     Haploids and diploids sons are split with a flat homozygosity
@@ -38,7 +36,7 @@ def ploidy(indiv,fixed):
     :param fixed: A fixed float value used as a threshold for all families.
     This value should represent a proportion of homozygous sites (i.e. between
     0 and 1).
-    :return: A pandas.DataFrame object containing information of the input table
+    :return: pandas.DataFrame object containing information of the input table
     plus an additional column with ploidy information: Diploid (D) or Haploid
     (H)
     """
@@ -53,35 +51,37 @@ def ploidy(indiv,fixed):
     # Appending new column to family table with ploidy information
     # New 'ploidy' column is created in 'indiv' table, and names that are found
     # in the 'haplo' table are considered as haploid, other are diploid
-    indiv['Ploidy'] = np.where(indiv.Name.isin(haplo.Name),'H','D')
+    indiv['Ploidy'] = np.where(indiv.Name.isin(haplo.Name), 'H', 'D')
 
     print("Found {0} haploids among {1} samples.".format(haplo.shape[0],
                                                          indiv.shape[0]))
     # Checking for abnormally homozygous females
-    femhap = indiv.loc[(indiv.Ploidy=='H') & (indiv.Sex=='F')].shape[0]
+    femhap = indiv.loc[(indiv.Ploidy == 'H') & (indiv.Sex == 'F')].shape[0]
     if femhap:
         warn_femhap = "{0} females had homozygosity above the threshold and " \
-        " were converted to haploid males."
+                      " were converted to haploid males."
         print(warn_femhap.format(femhap))
 
     # Reassign sex of females with abnormally high homozygosity levels to male
-    indiv.loc[(indiv.Ploidy=='H') & (indiv.Sex=='F'),'Sex'] = 'M'
+    indiv.loc[(indiv.Ploidy == 'H') & (indiv.Sex == 'F'), 'Sex'] = 'M'
 
     return indiv
 
+
 # 1: read individuals table to extract families of mothers
-fam_sum = pd.read_csv("data/individuals.tsv",sep='\t',
-converters={'Family': lambda x: str(x)})
+fam_sum = pd.read_csv("data/individuals.tsv", sep='\t',
+                      converters={'Family': lambda x: str(x),
+                                  'Name': lambda x: str(x)})
 
 # 2: Using command line argument to load VCF file summary
-vcf_sum = pd.read_csv(args.vcf_summary, sep='\t')
-# vcf_sum = pd.read_csv('../../data/ploidy/vcftools/summary_full.txt', sep='\t')
+vcf_sum = pd.read_csv(args.vcf_summary, sep='\t',
+                      converters={'INDV': lambda x: str(x)})
 
 # 3: Merging both tables to get a single table with all infos
 fam_sum = fam_sum.merge(vcf_sum, left_on='Name', right_on='INDV', how='inner')
-fam_sum.drop('INDV',axis=1,inplace=True)
+fam_sum.drop('INDV', axis=1, inplace=True)
 
 
 # Determining ploidy and writing output to a file
-out_m = ploidy(fam_sum,fixed=fixed_thresh)
-out_m.to_csv(args.output,sep='\t',index=False)
+out_m = ploidy(fam_sum, fixed=fixed_thresh)
+out_m.to_csv(args.output, sep='\t', index=False)
