@@ -31,6 +31,7 @@ circos.*
 #Personal additions
 *.jpg
 *.jpeg
+*.bed
 #*.png
 #*.docx
 #*.xlsx
