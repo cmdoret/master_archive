@@ -36,7 +36,7 @@ done
 # Check if any argument is missing
 if [ -z "$NREF" ];  then miss="New assembly"; fi
 if [ -z "$OREF" ];  then miss="Old assembly"; fi
-if [ -z "$MARK" ];  then miss="New assembly"; fi
+if [ -z "$MARK" ];  then miss="Markers list"; fi
 if [ -z "$OUTF" ];  then miss="Output path";  fi
 
 # Signal missing argument, print help and exit
@@ -45,7 +45,7 @@ if [ ! -z ${miss+x} ];then echo "$miss not provided."; usage; fi
 # Compute coordinates of markers in new assembly and store correspondance list to file
 # Unless preserve was specified (in which case, an existing file will be correspondance list will be used)
 
-if [ ! -z ${PRES+x} ] || [ ! -f "$OUTF.corresp" ]; then
+if [ -z ${PRES+x} ] || [ ! -f "$OUTF.corresp" ]; then
     rm "$OUTF.corresp"
     while read marker; do
         # For all markers: looking for surrounding sequence in newer assembly 
@@ -58,13 +58,13 @@ fi
 
 # Compute average cM/BP per chromosome
 awk 'BEGIN{FS=",";OFS=","}
-     { $4 == chr {BP=$4; if ($3 > cMax) cMax=$3} 
-       $4 != chr {print chr,(cMax/BP); chr=$4; cMax=$3}
+     {  if($4 == chr || NR == 1) {BP=$5; if ($3 > cMax) cMax=$3} 
+        else {print chr,(cMax/BP); cMax=$3;chr=$4;BP=$5}
      }' "$OUTF.corresp" > "$OUTF.cMean"
 
 prev=(0 0 0 0 0)
 rm "$OUTF.csv"
-while read -a m; do
+while read -a marker; do
     # If still on same contig, compute bp/cM ratio between previous and current marker
     if [ ${prev[0]} == ${marker[0]} ] || [ ${prev[0]} == 0 ]; then
         cM=$(echo "${marker[2]} - ${prev[2]}" | bc -l)
