@@ -160,6 +160,14 @@ wgs_wild : $(CORRESP) $(SIZES) $(WGS)/variant/hap.wild.matrix
 #### MISC RULES ####
 ####################
 
+.PHONY: bp2cm
+bp2cm:
+	# Compute coordinates of linkage map markers in new genome
+	bash src/convert_coord/bp2cm.sh -r $(OLDREF) -n $(REF) -o data/linkage_map/jens/bp2cm \
+									-m data/linkage_map/jens/jens_markers.csv
+	# Compute cM/BP ratio in each inter-marker interval
+	# Apply transformation to CSD dataset to get cM coordinates
+
 # Using a separate dataset for linkage mapping. Located in $(DAT)/linkage_map/lib13
 .PHONY : lepmap3
 lepmap3:
@@ -171,7 +179,7 @@ lepmap3:
 		--recode
 	# Exclude diploids from fixed.tsv
 	head -n 1 $(LINKMAP)/lib13/fixed.tsv > $(LINKMAP)/lib13/haplo_fixed.tsv
-	awk '($$NF == "H") || ($$4 == "F3")' $(LINKMAP)/lib13/fixed.tsv >> $(LINKMAP)/lib13/haplo_fixed.tsv 
+	awk '($$NF == "H") || ($$4 == "F3")' $(LINKMAP)/lib13/fixed.tsv >> $(LINKMAP)/lib13/haplo_fixed.tsv
 	# Make pedigree for lib13 without diploids
 	Rscript src/linkage_map/merge_haplo/01a_format_ped.R $(LINKMAP)/lib13/haplo_fixed.tsv \
 		10 \

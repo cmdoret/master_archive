@@ -12,12 +12,12 @@ import argparse
 
 # PARSE CL ARGS
 
-parser = argparse.ArgumentParser(description = 'This script allows to retrieve \
+parser = argparse.ArgumentParser(description='This script allows to retrieve \
                                  the position in an original contig from a \
                                  position in another contig of a different \
                                  assembly. This is done via exact matching of \
                                  the region around the query position. This \
-                                 program will send the original contig name and\
+                                 program sends the original contig name and\
                                   position to stdout. It will also return the \
                                   region size used and if the region has been \
                                   reversed and/or complemented.')
@@ -37,6 +37,7 @@ parser.add_argument('--region_size', type=int, default=1000, help='Size of the \
 args = parser.parse_args()
 
 # CUSTOM FUNCTIONS
+
 
 def eprint(*args, **kwargs):
     # This function prints its arguments to the standard error
@@ -60,6 +61,8 @@ def findall_str(sub, string):
     return iter(next_index(len(sub)).next, -1)
 
 # Handling query position, whether it is from CL arg or stdin
+
+
 try:
     pos1 = args.pos1.read()
 except AttributeError:
@@ -69,11 +72,11 @@ pos1 = pos1.rstrip('\n')
 
 # Splitting query into chromosome and basepair
 if len(pos1.split(',')):
-   Chr = pos1.split(',')[0]
-   try:
-       bp = int(pos1.split(',')[1])
-   except ValueError:
-       eprint("Error: bp must be an integer number representing the \
+    Chr = pos1.split(',')[0]
+    try:
+        bp = int(pos1.split(',')[1])
+    except ValueError:
+        eprint("Error: bp must be an integer number representing the \
 genomic position in basepairs within the chromosome.")
 else:
     eprint("Error: Query position must be in the form 'Chr,bp'.")
@@ -83,7 +86,7 @@ for chrom in SeqIO.parse(args.ref1, "fasta"):
     if chrom.id == Chr:
         # When in correct chromosome, subset a region of defined size centered
         # around queried position
-        shift_sub = [0,len(chrom.seq)]
+        shift_sub = [0, len(chrom.seq)]
         start_sub = bp - args.region_size / 2
         end_sub = bp + args.region_size / 2
         offset = args.region_size / 2
@@ -94,8 +97,8 @@ for chrom in SeqIO.parse(args.ref1, "fasta"):
             shift_sub[1] -= end_sub
             if shift_sub[0] > 0:
                 # If start had a negative value
-                start_sub = 0  # Shifting start to zero
-                end_sub += shift_sub[0]  # Shifting  end to the right accordingly
+                start_sub = 0  # Shift start to zero
+                end_sub += shift_sub[0]  # Shift end to the right accordingly
                 # Offset from start to query position
                 offset = bp
             if shift_sub[1] < 0:
@@ -103,11 +106,12 @@ for chrom in SeqIO.parse(args.ref1, "fasta"):
                 end_sub = len(chrom.seq)  # Shifting end to length of chrom.
                 start_sub += shift_sub[1]  # Shifting start to the left
                 # Offset from start to query position
-                offset = args.region_size / 2 - shift_sub [1]
+                offset = args.region_size / 2 - shift_sub[1]
         else:
             # Region does not fit in chromosome, trim it
             offset = bp
-            start_sub = 0; end_sub = len(chrom.seq)
+            start_sub = 0
+            end_sub = len(chrom.seq)
             region_size = len(chrom.seq)
             eprint("Warning: The lookup region did not fit inside the \
 chromosome and has been trimmed down to {0} bp.".format(len(chrom.seq)))
@@ -127,10 +131,10 @@ except NameError:
 """
 # Setting up sequence with all possible combination of rev. and comp.
 # Associating boolean flag with each possibility to remember if seq. was rev.
-lookups = [[lookup_seq,0],
-           [lookup_seq.complement(),0],
-           [lookup_seq.reverse_complement().complement(),1],
-           [lookup_seq.reverse_complement(),1]]
+lookups = [[lookup_seq, 0],
+           [lookup_seq.complement(), 0],
+           [lookup_seq.reverse_complement().complement(), 1],
+           [lookup_seq.reverse_complement(), 1]]
 
 seq_match = []
 mod_flag = []
@@ -138,12 +142,12 @@ mod_flag = []
 for comb_id, comb_seq in enumerate(lookups):
     # Iterate over all contigs in original assembly
     for contig in SeqIO.parse(args.ref2, "fasta"):
-        #coord_match = contig.seq.find(comb_seq[0])
-        #coord_match = findall_str(comb_seq[0],contig.seq)
+        # coord_match = contig.seq.find(comb_seq[0])
+        # coord_match = findall_str(comb_seq[0],contig.seq)
         # iterate over all iterations of lookup sequence in current contig
-        for tighit in findall_str(comb_seq[0],contig.seq):
+        for tighit in findall_str(comb_seq[0], contig.seq):
             if tighit >= 0:
-                # if the subsetted region is found in the contig, record contig name
+                # if the region is found in the contig, record contig name
                 # and bp position corresponding to the center of the region
                 if comb_seq[1]:
                     # If sequence was reversed:
@@ -170,7 +174,7 @@ for comb_id, comb_seq in enumerate(lookups):
 if len(seq_match) > 1:
     for idx, match in enumerate(seq_match):
         print(','.join(match) + ',' +
-              ','.join([str(region_size),mod_flag[idx]]))
+              ','.join([str(region_size), mod_flag[idx]]))
     eprint("Warning: {0} occurences of the lookup region were found in the\
  original assembly, you should increase --region_size.".format(len(seq_match)))
 elif len(seq_match) == 1:

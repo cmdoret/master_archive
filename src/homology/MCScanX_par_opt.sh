@@ -34,7 +34,7 @@ tigs=()
 while read line
 do
   tig=$(echo -n "$line" | awk 'BEGIN{OFS=","}{print $2,$3}' |
-    python2 src/convert_coord/chr2contig.py $REF \
+    python2 src/convert_coord/contig2chr.py $REF \
        "$PREV" 2> /dev/null |
     awk 'BEGIN{FS=","}{print $1}')
     if [[ ! " ${tigs[@]} " =~ " ${tig} " ]]; then

@@ -1611,6 +1611,17 @@ Strategy 2 (bad, we lose the phase):
 \item Build linkage map
 \end{enumerate}
 
+\section{Final strategy}
+
+Update 16.07.2018
+After observing a very small overlap between Jens linkage map markers and the wasps from the CSD project, I ran his samples through my pipeline to check if only SNPs differ or if we sequence different regions of the genome (e.g. due to differences in protocols/conditions). I compared the relative number of loci overlapping between the dataset Jens used to anchor the genome (via a linkage map) and the CSD dataset. A small overlap would be indicative of a difference in protocols whereas a large overlap would be normal.
+
+Conclusions: Similar genomic regions are sequenced, there is no real difference in genome coverage, which indicate there is no issue with differences in protocols. Jens data has much fewer SNPs, which makes sense, as he only has a single non introgressed family while we have several families post-introgression. Together, these infos mean we cannot make a linkage map using Jens data and we would need to make one from the same introgressed families we have (which is not possible). Next step: Extrapolate cM from BP using Jens data and apply the transformation to our dataset. This is pretty bad, but the best we can do.
+
+Note that to transform bp coordinates of markers, I use a custom script that looks up the contig sequence in the reference genome. I cannot just sum markers coordinates with previous contigs in the linkage group, because 1) arbitrary gaps of 100bp were introduced an would shift basepairs at every contig boundary and 2) I don't have flip information of individual contigs.
+
+After getting markers coordinates in the anchored genome, I just compute cM/bp ratio in each inter-marker interval and will extrapolate this ration to the CSD markers to estimate recombination rates.
+
 \chapter{TO DO}
 \begin{itemize}
 \item Measure error rates (recombinations between SNP and CSD) using number of males that are heterozygous at each CSD peak

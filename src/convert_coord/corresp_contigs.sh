@@ -84,7 +84,7 @@ do
 
   # Setting region size longer than whole genome -> resized to contig
   ( tname=\$(echo \$tig | sed -n 's/>\([^ ]*\) .*/\1,/p' | tr -d '\n')
-  new_coord=\$(python2 src/convert_coord/chr2contig.py --pos1 "\${tname}0" \
+  new_coord=\$(python2 src/convert_coord/contig2chr.py --pos1 "\${tname}0" \
                         --region_size 1000000000 \
                         $OLD_REF \
                         $NEW_REF)
