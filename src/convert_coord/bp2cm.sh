@@ -50,15 +50,16 @@ if [ -z ${PRES+x} ] || [ ! -f "$OUTF.corresp" ]; then
     while read marker; do
         # For all markers: looking for surrounding sequence in newer assembly 
         python2 src/convert_coord/contig2chr.py "$OREF" "$NREF" --pos1 "$marker" \
-            | cut -f1,2 -d ',' \
-            | paste -d ',' <(echo $marker) - \
-            | grep 'chr' >> "$OUTF.corresp"
+            | tr ',' '\t' \
+            | cut -f1,2 \
+            | paste <(echo $marker) - \
+            | grep 'chr' \
+            | sort -k4,4 -k5,5n >> "$OUTF.corresp"
 done < "$MARK"
 fi
 
 # Compute average cM/BP per chromosome
-awk 'BEGIN{FS=",";OFS=","}
-     {  if($4 == chr || NR == 1) {BP=$5; if ($3 > cMax) cMax=$3} 
+awk '{  if($4 == chr || NR == 1) {BP=$5; if ($3 > cMax) cMax=$3} 
         else {print chr,(cMax/BP); cMax=$3;chr=$4;BP=$5}
      }' "$OUTF.corresp" > "$OUTF.cMean"
 
@@ -73,7 +74,7 @@ while read -a marker; do
     else
         # if still on same chromosome, use mean chrom. ratio to estimate inter-contig ratio
         if [ ${prev[3]} == ${prev[3]} ]; then
-            ratio=$(awk -v chrom="${marker[3]}" '{$1 == chrom {print $2}}' "$OUTF.cMean")
+            ratio=$(grep "${marker[3]}" "$OUTF.cMean" | cut -f2)
         else
             # New chromosome. No need to subtract (previous is 0)
             ratio=$(echo "${marker[2]} / ${marker[4]}" | bc -l | xargs printf "%.3f\n")
@@ -81,6 +82,6 @@ while read -a marker; do
         fi
     fi
     # send chromosome, interval between previous and current markers in BP, and cM/BP ratio in interval
-    echo "${marker[3]},${prev[4]},${marker[4]},$ratio" >> "$OUTF.csv"
+    echo -e "${marker[3]}\t${prev[4]}\t${marker[4]}\t$ratio" >> "$OUTF.tsv"
     prev=(${marker[@]})
 done < "$OUTF.corresp"
