@@ -44,24 +44,23 @@ if [ ! -z ${miss+x} ];then echo "$miss not provided."; usage; fi
 
 # Compute coordinates of markers in new assembly and store correspondance list to file
 # Unless preserve was specified (in which case, an existing file will be correspondance list will be used)
-
 if [ -z ${PRES+x} ] || [ ! -f "$OUTF.corresp" ]; then
     rm -f "$OUTF.corresp"
-    while read marker; do
-        # For all markers: looking for surrounding sequence in newer assembly
-        python2 src/convert_coord/contig2chr.py "$OREF" "$NREF" --pos1 "$marker" \
-            | tr ',' '\t' \
-            | cut -f1,2 \
-            | paste <(echo $marker | tr ',' '\t') - \
-            >> "$OUTF.corresp"
-    done < "$MARK"
-# remove unplaced contigs, ensure file is sorted by chromosome and basepair and 
-# all markers are unique (largest cM value is kept for duplicates)
-grep 'chr' "$OUTF.corresp" \
-    | sort -k1,1 -k2,2n -k3,3nr \
-    | awk '!a[$1,$2,$4,$5]++' \
-    | sort -k4,4 -k5,5n > "$OUTF.tmp" \
-    && mv "$OUTF.tmp" "$OUTF.corresp"
+    # TODO: Try this instead
+    python2 src/convert_coord/contig2chr_suffix_array.py "$OREF" "$NREF" \
+            --pos1 $(cat "$MARK" | tr '\n' '|') \
+        | tr ',' '\t' \
+        | cut -f1,2 \
+        | paste <(cat "$MARK" | tr ',' '\t') - \
+        > "$OUTF.corresp"
+
+    # remove unplaced contigs, ensure file is sorted by chromosome and basepair and 
+    # all markers are unique (largest cM value is kept for duplicates)
+    grep 'chr' "$OUTF.corresp" \
+        | sort -k1,1 -k2,2n -k3,3nr \
+        | awk '!a[$4,$5]++' \
+        | sort -k4,4 -k5,5n > "$OUTF.tmp" \
+        && mv "$OUTF.tmp" "$OUTF.corresp"
 fi
 
 # Compute average cM/BP per chromosome

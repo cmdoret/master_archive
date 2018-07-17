@@ -10,11 +10,21 @@ import sys  # Will allow to print messages to stderr
 from Bio import SeqIO
 import argparse
 import re
-import pickle
-import os.path
+import gc
+import gzip
+import os
 from itertools import izip_longest, islice
+from time import time
+# If available, use c version of pickle (much faster)
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
-# PARSE CL ARGS
+###################
+#  PARSE CL ARGS  #
+###################
+
 
 parser = argparse.ArgumentParser(description='This script allows to retrieve \
                                  the position in an original contig from a \
@@ -41,16 +51,19 @@ parser.add_argument('--region_size', type=int, default=1000, help='Size of the \
 
 args = parser.parse_args()
 
-# CUSTOM FUNCTIONS
+####################
+# CUSTOM FUNCTIONS #
+####################
 
 
 class ChromSuffixArray:
     # Used to build a suffix array for speeding up
     # lookups in a chromosome
-    def __init__(self, seq):
+    def __init__(self, seq, build=True):
         self.seq = seq
-        self.array = self.build(self.seq)
-        self.array = self.inverse_array(self.array)
+        if build:
+            self.array = self.build(self.seq)
+            self.array = self.inverse_array(self.array)
         self.len = len(self.seq)
 
     def to_int_keys(self, l):
@@ -69,6 +82,12 @@ class ChromSuffixArray:
         ls.sort()
         index = {v: i for i, v in enumerate(ls)}
         return [index[v] for v in l]
+
+    def disk_load(self, path):
+        gc.disable()
+        disk_array = gzip.open(path, 'rb')
+        self.array = pickle.load(disk_array)
+        gc.enable()
 
     def build(self, s):
         """
@@ -157,31 +176,19 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def findall_str(sub, string):
-    """
-    Finds All occurrences of sub in string and returns the index of each.
-    sub : Query substring
-    string : String in which the lookup is performed
-    returns : an iterator with all indexes of the occurrences
-    """
-    def next_index(length):
-        index = 0 - length
-        while True:
-            # At every iteration, start looking after last occurrence
-            index = string.find(sub, index + length)
-            yield index
-    # Build generator until hitting -1 (pattern not found)
-    return iter(next_index(len(sub)).next, -1)
+#################
+# PARSE CL ARGS #
+#################
 
 # Handling query position, whether it is from CL arg or stdin
-
-
 try:
     pos1 = args.pos1.read()
 except AttributeError:
     pos1 = args.pos1
-# Removing potential newline
+# Splitting positions by pipe or newline
 pos1 = re.split('\n|\|', pos1)
+# Removing empty elements (can arise in case of empty lines)
+pos1 = [x for x in pos1 if x]
 
 # Splitting query into chromosome and basepair
 for i in range(len(pos1)):
@@ -197,36 +204,62 @@ for i in range(len(pos1)):
     else:
         eprint("Error: Query position must be in the form 'Chr,bp'.")
 
-# Build initial suffix array for each contig
+######################################
+# BUILD SUFFIX ARRAY FOR EACH CONTIG #
+######################################
+
+ref1 = list(SeqIO.parse(args.ref1, "fasta"))
+ref2 = list(SeqIO.parse(args.ref2, "fasta"))
+
 tig_suf_arr = {}
 refdir = os.path.dirname(args.ref2)
-suf_file = os.path.join(refdir, 'suffix')
+sufdir = os.path.join(refdir, 'suffix')
 
-# If a pickled suffix file already exists, use it instead of building
+# Create directory for storing suffix arrays if not present
 try:
-    with open(suf_file, 'rb') as suffix:
-        tig_suf_arr = pickle.load(suffix)
+    os.makedirs(sufdir)
+# Do not raise error if the directory already exists
+except OSError:
+    if not os.sufdir.isdir(sufdir):
+        raise
+
+# If pickled suffix files already exist, use these  instead of building
+try:
+    eprint("Loading suffix array from disk: ", end='')
+    # suffix array is compressed to reduce size on disk.
+    # garbage collector (gc) disabled as it slows down loading.
+    for tig in ref2:
+        if re.search('chr.*', tig.id):
+            with gzip.open(os.path.join(sufdir, tig.id), 'rb') as suffix:
+                eprint(tig.id)
+                tig_suf_arr[tig.id] = ChromSuffixArray(tig.seq, build=False)
+                tig_suf_arr[tig.id].disk_load(suffix)
+    eprint("Done !")
 # If the file is absent, build it
 except IOError:
+    eprint("File does not exist !")
     eprint("Building suffix array...")
 
-    # Store a suffix array for each chromosome in a dictionary
-    for contig in SeqIO.parse(args.ref2, "fasta"):
-        eprint(str(contig.id) + "...")
+    # Store a suffix array for each contig in a dictionary
+    for tig in ref2:
+        eprint(str(tig.id) + "...")
         # Note unplaced contigs are excluded (i.e. only chromosomes)
-        if re.search('chr.*', contig.id):
-            tig_suf_arr[contig.id] = ChromSuffixArray(contig.seq)
-
+        if re.search('chr.*', tig.id):
+            tig_suf_arr[tig.id] = ChromSuffixArray(tig.seq)
+            # Dump suffix array to disk for next run
+            with gzip.open(os.path.join(sufdir, tig.id), 'wb') as suffix:
+                pickle.dump(file=suffix, obj=tig_suf_arr[tig.id].array)
     eprint("Done !")
-    # Dump suffix array to disk for next run
-    with open(suf_file, 'wb') as suffix:
-        pickle.dump(file=suffix, obj=tig_suf_arr)
+
+###########################
+# PROCESS INPUT POSITIONS #
+###########################
 
 # Loop over input positions
 for pos in pos1:
     Chr = pos[0]
     bp = int(pos[1])
-    for chrom in SeqIO.parse(args.ref1, "fasta"):
+    for chrom in ref1:
         # Iterating over chromosomes in the ordered assembly
         if chrom.id == Chr:
             # if correct chromosome, subset a region of defined size centered
@@ -275,10 +308,14 @@ for pos in pos1:
 
     for comb_id, comb_seq in enumerate(lookups):
         # Iterate over all contigs in original assembly
-        for contig in SeqIO.parse(args.ref2, "fasta"):
+        for contig in ref2:
+            # Do not look for match in unplaced contigs
+            if not re.search('chr.*', contig.id):
+                continue
             # coord_match = contig.seq.find(comb_seq[0])
             # coord_match = findall_str(comb_seq[0],contig.seq)
             # iterate over all occurences of lookup sequence in current contig
+            start = time()
             for tighit in tig_suf_arr[contig.id].search(comb_seq[0]):
                 if tighit >= 0:
                     # if the region is found in the contig, record contig name

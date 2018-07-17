@@ -9,7 +9,7 @@ from __future__ import print_function  # Use python3 print function
 import sys  # Will allow to print messages to stderr
 from Bio import SeqIO
 import argparse
-
+from time import time
 # PARSE CL ARGS
 
 parser = argparse.ArgumentParser(description='This script allows to retrieve \
@@ -81,7 +81,10 @@ genomic position in basepairs within the chromosome.")
 else:
     eprint("Error: Query position must be in the form 'Chr,bp'.")
 
-for chrom in SeqIO.parse(args.ref1, "fasta"):
+ref1 = list(SeqIO.parse(args.ref1, "fasta"))
+ref2 = list(SeqIO.parse(args.ref2, "fasta"))
+
+for chrom in ref1:
     # Iterating over chromosomes in the ordered assembly
     if chrom.id == Chr:
         # When in correct chromosome, subset a region of defined size centered
@@ -141,10 +144,11 @@ mod_flag = []
 
 for comb_id, comb_seq in enumerate(lookups):
     # Iterate over all contigs in original assembly
-    for contig in SeqIO.parse(args.ref2, "fasta"):
+    for contig in ref2:
         # coord_match = contig.seq.find(comb_seq[0])
         # coord_match = findall_str(comb_seq[0],contig.seq)
         # iterate over all iterations of lookup sequence in current contig
+        start = time()
         for tighit in findall_str(comb_seq[0], contig.seq):
             if tighit >= 0:
                 # if the region is found in the contig, record contig name
