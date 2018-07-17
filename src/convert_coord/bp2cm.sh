@@ -28,7 +28,7 @@ case $key in
     -r|--old_ref)	OREF="$2";	shift;shift;;
     -m|--markers)	MARK="$2";	shift;shift;;
     -o|--output)	OUTF="$2";	shift;shift;;
-    -p|--preserve)  PRES="T";	shift;shift;;
+    -p|--preserve)  PRES="T";	shift;;
     *)				usage;		shift;shift;; # Unknown option
 esac
 done
@@ -46,30 +46,44 @@ if [ ! -z ${miss+x} ];then echo "$miss not provided."; usage; fi
 # Unless preserve was specified (in which case, an existing file will be correspondance list will be used)
 
 if [ -z ${PRES+x} ] || [ ! -f "$OUTF.corresp" ]; then
-    rm "$OUTF.corresp"
+    rm -f "$OUTF.corresp"
     while read marker; do
-        # For all markers: looking for surrounding sequence in newer assembly 
+        # For all markers: looking for surrounding sequence in newer assembly
         python2 src/convert_coord/contig2chr.py "$OREF" "$NREF" --pos1 "$marker" \
             | tr ',' '\t' \
             | cut -f1,2 \
-            | paste <(echo $marker) - \
-            | grep 'chr' \
-            | sort -k4,4 -k5,5n >> "$OUTF.corresp"
-done < "$MARK"
+            | paste <(echo $marker | tr ',' '\t') - \
+            >> "$OUTF.corresp"
+    done < "$MARK"
+# remove unplaced contigs, ensure file is sorted by chromosome and basepair and 
+# all markers are unique (largest cM value is kept for duplicates)
+grep 'chr' "$OUTF.corresp" \
+    | sort -k1,1 -k2,2n -k3,3nr \
+    | awk '!a[$1,$2,$4,$5]++' \
+    | sort -k4,4 -k5,5n > "$OUTF.tmp" \
+    && mv "$OUTF.tmp" "$OUTF.corresp"
 fi
 
 # Compute average cM/BP per chromosome
-awk '{  if($4 == chr || NR == 1) {BP=$5; if ($3 > cMax) cMax=$3} 
-        else {print chr,(cMax/BP); cMax=$3;chr=$4;BP=$5}
-     }' "$OUTF.corresp" > "$OUTF.cMean"
+awk 'NR==1 {chr=$4}
+     {
+       if($4 == chr){BP=$5
+           if ($3 > cMax) cMax=$3
+       } else{print chr,(cMax/BP)
+              cMax=$3;chr=$4;BP=$5
+         }
+     }
+     END{print chr,(cMax/BP)
+         cMax=$3;chr=$4;BP=$5}' "$OUTF.corresp" > "$OUTF.cMean"
 
 prev=(0 0 0 0 0)
-rm "$OUTF.csv"
+rm -f "$OUTF.csv"
 while read -a marker; do
     # If still on same contig, compute bp/cM ratio between previous and current marker
     if [ ${prev[0]} == ${marker[0]} ] || [ ${prev[0]} == 0 ]; then
         cM=$(echo "${marker[2]} - ${prev[2]}" | bc -l)
         bp=$(( ${marker[4]} - ${prev[4]} ))
+        echo "${marker[@]}"
         ratio=$(echo "$cM / $bp"  | bc -l | xargs printf "%.3f\n")
     else
         # if still on same chromosome, use mean chrom. ratio to estimate inter-contig ratio
@@ -77,6 +91,7 @@ while read -a marker; do
             ratio=$(grep "${marker[3]}" "$OUTF.cMean" | cut -f2)
         else
             # New chromosome. No need to subtract (previous is 0)
+            echo "new chrom"
             ratio=$(echo "${marker[2]} / ${marker[4]}" | bc -l | xargs printf "%.3f\n")
             prev[4]=0
         fi

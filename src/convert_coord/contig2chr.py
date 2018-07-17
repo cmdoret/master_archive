@@ -178,7 +178,8 @@ if len(seq_match) > 1:
     eprint("Warning: {0} occurences of the lookup region were found in the\
  original assembly, you should increase --region_size.".format(len(seq_match)))
 elif len(seq_match) == 1:
-    eprint("Success: 1 corresponding coordinate found: {0}".format(','.join(seq_match[0])))
+    eprint("Success: 1 corresponding coordinate \
+            found: {0}".format(','.join(seq_match[0])))
     print(','.join(seq_match[0]) + ',' +
           ','.join([str(region_size), mod_flag[0]]))
 else:
