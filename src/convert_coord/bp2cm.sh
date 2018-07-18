@@ -44,17 +44,23 @@ if [ ! -z ${miss+x} ];then echo "$miss not provided."; usage; fi
 
 # Compute coordinates of markers in new assembly and store correspondance list to file
 # Unless preserve was specified (in which case, an existing file will be correspondance list will be used)
-if [ -z ${PRES+x} ] || [ ! -f "$OUTF.corresp" ]; then
-    rm -f "$OUTF.corresp"
-    # TODO: Try this instead
-    python2 src/convert_coord/contig2chr_suffix_array.py "$OREF" "$NREF" \
-            --pos1 $(cat "$MARK" | tr '\n' '|') --region_size 5000 --include_input \
-        | tr ',' '\t' \
-        | cut -f1-4 \
-        > "$OUTF.corresp"
 
-    # remove unplaced contigs, ensure file is sorted by chromosome and basepair and 
-    # all markers are unique (largest cM value is kept for duplicates)
+if [ -z ${PRES+x} ] || [ ! -f "$OUTF.corresp" ]; then
+    # pipe description: get marker positions | 
+    # remove useless cols | make composite chr-bp field  |
+    # join on composite field to add cM info
+    python2 src/convert_coord/contig2chr_suffix_array.py "$OREF" "$NREF" \
+            --region_size 5000 --include_input < $MARK \
+        | cut -d ',' -f1-4 \
+        | awk -v FS=',' -v OFS=',' '{print $1"-"$2,$0}' | sort -t ',' -k1,1 \
+        | join -t ',' -j1 -o1.2,1.3,2.4,1.4,1.5 - \
+               <(awk -v FS=',' -v OFS=',' '{print $1"-"$2,$0}' "$MARK" \
+                 | sort -t ',' -k1,1) \
+        | tr ',' '\t' > "$OUTF.corresp"
+
+    # pipe description: remove unplaced contigs | sort file by contig, 
+    # bp and cM in old assembly | remove duplicated markers (largest 
+    # cM value is kept for duplicates) | sort by position in new assembly
     grep 'chr' "$OUTF.corresp" \
         | sort -k1,1 -k2,2n -k3,3nr \
         | awk '!a[$4,$5]++' \
@@ -84,7 +90,6 @@ while read -a marker; do
         bp=$(( ${marker[4]} - ${prev[4]} ))
         #echo "${marker[@]}"
         ratio=$(echo "$cM / $bp"  | bc -l | xargs printf "%.10f\n")
-        echo "$ratio"
     else
         # if still on same chromosome, use mean chrom. ratio to estimate inter-contig ratio
         if [ ${marker[3]} == ${prev[3]} ]; then
