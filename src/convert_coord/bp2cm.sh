@@ -48,10 +48,9 @@ if [ -z ${PRES+x} ] || [ ! -f "$OUTF.corresp" ]; then
     rm -f "$OUTF.corresp"
     # TODO: Try this instead
     python2 src/convert_coord/contig2chr_suffix_array.py "$OREF" "$NREF" \
-            --pos1 $(cat "$MARK" | tr '\n' '|') \
+            --pos1 $(cat "$MARK" | tr '\n' '|') --region_size 5000 --include_input \
         | tr ',' '\t' \
-        | cut -f1,2 \
-        | paste <(cat "$MARK" | tr ',' '\t') - \
+        | cut -f1-4 \
         > "$OUTF.corresp"
 
     # remove unplaced contigs, ensure file is sorted by chromosome and basepair and 
@@ -64,38 +63,41 @@ if [ -z ${PRES+x} ] || [ ! -f "$OUTF.corresp" ]; then
 fi
 
 # Compute average cM/BP per chromosome
-awk 'NR==1 {chr=$4}
+awk 'BEGIN{FS="\t";OFS="\t"}
+     NR==1 {chr=$4}
      {
        if($4 == chr){BP=$5
            if ($3 > cMax) cMax=$3
-       } else{print chr,(cMax/BP)
+       } else{printf "%s\t%.10f\n", chr, (cMax/BP)
               cMax=$3;chr=$4;BP=$5
          }
      }
-     END{print chr,(cMax/BP)
+     END{printf "%s\t%.10f\n", chr, (cMax/BP)
          cMax=$3;chr=$4;BP=$5}' "$OUTF.corresp" > "$OUTF.cMean"
 
 prev=(0 0 0 0 0)
-rm -f "$OUTF.csv"
+rm -f "$OUTF.tsv"
 while read -a marker; do
     # If still on same contig, compute bp/cM ratio between previous and current marker
     if [ ${prev[0]} == ${marker[0]} ] || [ ${prev[0]} == 0 ]; then
         cM=$(echo "${marker[2]} - ${prev[2]}" | bc -l)
         bp=$(( ${marker[4]} - ${prev[4]} ))
-        echo "${marker[@]}"
-        ratio=$(echo "$cM / $bp"  | bc -l | xargs printf "%.3f\n")
+        #echo "${marker[@]}"
+        ratio=$(echo "$cM / $bp"  | bc -l | xargs printf "%.10f\n")
+        echo "$ratio"
     else
         # if still on same chromosome, use mean chrom. ratio to estimate inter-contig ratio
-        if [ ${prev[3]} == ${prev[3]} ]; then
+        if [ ${marker[3]} == ${prev[3]} ]; then
             ratio=$(grep "${marker[3]}" "$OUTF.cMean" | cut -f2)
         else
             # New chromosome. No need to subtract (previous is 0)
-            echo "new chrom"
-            ratio=$(echo "${marker[2]} / ${marker[4]}" | bc -l | xargs printf "%.3f\n")
+            ratio=$(echo "${marker[2]} / ${marker[4]}" | bc -l | xargs printf "%.10f\n")
             prev[4]=0
         fi
     fi
     # send chromosome, interval between previous and current markers in BP, and cM/BP ratio in interval
     echo -e "${marker[3]}\t${prev[4]}\t${marker[4]}\t$ratio" >> "$OUTF.tsv"
     prev=(${marker[@]})
+
+# TODO: Eliminate markers higher than a threshold (cM/BP > 1 maybe ?)
 done < "$OUTF.corresp"

@@ -10,16 +10,9 @@ import sys  # Will allow to print messages to stderr
 from Bio import SeqIO
 import argparse
 import re
-import gc
-import gzip
 import os
+import numpy as np
 from itertools import izip_longest, islice
-from time import time
-# If available, use c version of pickle (much faster)
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
 
 ###################
 #  PARSE CL ARGS  #
@@ -48,6 +41,8 @@ parser.add_argument('ref2', type=str, help='Path to the fasta file of the \
 parser.add_argument('--region_size', type=int, default=1000, help='Size of the \
                     region to look up for exact matching in the original \
                     assembly. Default: 1000bp')
+parser.add_argument('--include_input', action='store_true', help='if specified, \
+                    the input position will be prepended in the output.')
 
 args = parser.parse_args()
 
@@ -84,10 +79,7 @@ class ChromSuffixArray:
         return [index[v] for v in l]
 
     def disk_load(self, path):
-        gc.disable()
-        disk_array = gzip.open(path, 'rb')
-        self.array = pickle.load(disk_array)
-        gc.enable()
+        self.array = np.load(path)
 
     def build(self, s):
         """
@@ -105,14 +97,15 @@ class ChromSuffixArray:
                  izip_longest(line, islice(line, k, None),
                               fillvalue=-1)])
             k <<= 1
-        return line
+        return np.array(line, dtype=np.int64)
 
     def inverse_array(self, l):
         """
         l: suffix array to invert.
         """
         n = len(l)
-        ans = [0] * n
+        # ans = [0] * n
+        ans = np.zeros(n, dtype=np.int64)
         for i in range(n):
             ans[l[i]] = i
         return ans
@@ -204,9 +197,9 @@ for i in range(len(pos1)):
     else:
         eprint("Error: Query position must be in the form 'Chr,bp'.")
 
-######################################
-# BUILD SUFFIX ARRAY FOR EACH CONTIG #
-######################################
+##########################################
+# BUILD SUFFIX ARRAY FOR EACH CHROMOSOME #
+##########################################
 
 ref1 = list(SeqIO.parse(args.ref1, "fasta"))
 ref2 = list(SeqIO.parse(args.ref2, "fasta"))
@@ -220,35 +213,35 @@ try:
     os.makedirs(sufdir)
 # Do not raise error if the directory already exists
 except OSError:
-    if not os.sufdir.isdir(sufdir):
+    if not os.path.isdir(sufdir):
         raise
 
 # If pickled suffix files already exist, use these  instead of building
 try:
-    eprint("Loading suffix array from disk: ", end='')
+    eprint("Trying to load suffix array from disk: ", end='')
     # suffix array is compressed to reduce size on disk.
     # garbage collector (gc) disabled as it slows down loading.
     for tig in ref2:
         if re.search('chr.*', tig.id):
-            with gzip.open(os.path.join(sufdir, tig.id), 'rb') as suffix:
-                eprint(tig.id)
-                tig_suf_arr[tig.id] = ChromSuffixArray(tig.seq, build=False)
-                tig_suf_arr[tig.id].disk_load(suffix)
+            eprint(tig.id, end=' ')
+            tig_path = os.path.join(sufdir, tig.id) + ".npy"
+            tig_suf_arr[tig.id] = ChromSuffixArray(tig.seq, build=False)
+            tig_suf_arr[tig.id].disk_load(tig_path)
     eprint("Done !")
 # If the file is absent, build it
 except IOError:
     eprint("File does not exist !")
-    eprint("Building suffix array...")
+    eprint("Building suffix array: ", end='')
 
     # Store a suffix array for each contig in a dictionary
     for tig in ref2:
-        eprint(str(tig.id) + "...")
         # Note unplaced contigs are excluded (i.e. only chromosomes)
         if re.search('chr.*', tig.id):
+            eprint(str(tig.id), end=' ')
             tig_suf_arr[tig.id] = ChromSuffixArray(tig.seq)
             # Dump suffix array to disk for next run
-            with gzip.open(os.path.join(sufdir, tig.id), 'wb') as suffix:
-                pickle.dump(file=suffix, obj=tig_suf_arr[tig.id].array)
+            suffix = os.path.join(sufdir, tig.id) + ".npy"
+            np.save(suffix, tig_suf_arr[tig.id].array)
     eprint("Done !")
 
 ###########################
@@ -257,6 +250,7 @@ except IOError:
 
 # Loop over input positions
 for pos in pos1:
+    tig_found = False
     Chr = pos[0]
     bp = int(pos[1])
     for chrom in ref1:
@@ -294,7 +288,12 @@ for pos in pos1:
                 eprint("Warning: The lookup region did not fit inside the \
     chromosome and has been trimmed down to {0} bp.".format(len(chrom.seq)))
             lookup_seq = chrom.seq[start_sub:end_sub]
+            tig_found = True
             break
+
+    if not tig_found:
+        sys.exit("Error: input contig '{}' was not found in the \
+original assembly".format(Chr))
 
     # Setting up sequence with all possible combination of rev. and comp.
     # Associating boolean flag with each possibility if seq. was rev.
@@ -315,7 +314,6 @@ for pos in pos1:
             # coord_match = contig.seq.find(comb_seq[0])
             # coord_match = findall_str(comb_seq[0],contig.seq)
             # iterate over all occurences of lookup sequence in current contig
-            start = time()
             for tighit in tig_suf_arr[contig.id].search(comb_seq[0]):
                 if tighit >= 0:
                     # if the region is found in the contig, record contig name
@@ -342,16 +340,24 @@ for pos in pos1:
                             mod_flag.append('None')
                     eprint('Match found in a {0}contig !'.format(contig_mod))
 
+    orig_pos = "{0},{1},".format(Chr, bp)
     if len(seq_match) > 1:
         for idx, match in enumerate(seq_match):
-            print(','.join(match) + ',' +
-                  ','.join([str(region_size), mod_flag[idx]]))
+            output = "{0},{1},{2},{3}".format(match[0], match[1],
+                                              region_size[0], mod_flag[idx])
+            # Prepend input position to output if specified by CL arg
+            if args.include_input:
+                output = orig_pos + output
+            print(output)
         eprint("Warning: {0} occurences of the lookup region were found in the\
-      assembly, you should increase --region_size.".format(len(seq_match)))
+          assembly, you should increase --region_size.".format(len(seq_match)))
     elif len(seq_match) == 1:
+        output = "{0},{1},{2},{3}".format(seq_match[0][0], seq_match[0][1],
+                                          region_size, mod_flag[0])
+        if args.include_input:
+            output = orig_pos + output
+        print(output)
         eprint("Success: 1 corresponding coordinate \
                 found: {0}".format(','.join(seq_match[0])))
-        print(','.join(seq_match[0]) + ',' +
-              ','.join([str(region_size), mod_flag[0]]))
     else:
         eprint("Error: Query position not found in reference.")

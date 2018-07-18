@@ -84,6 +84,7 @@ else:
 ref1 = list(SeqIO.parse(args.ref1, "fasta"))
 ref2 = list(SeqIO.parse(args.ref2, "fasta"))
 
+tig_found = False
 for chrom in ref1:
     # Iterating over chromosomes in the ordered assembly
     if chrom.id == Chr:
@@ -119,6 +120,7 @@ for chrom in ref1:
             eprint("Warning: The lookup region did not fit inside the \
 chromosome and has been trimmed down to {0} bp.".format(len(chrom.seq)))
         lookup_seq = chrom.seq[start_sub:end_sub]
+        tig_found = True
         break
 
 """
@@ -132,8 +134,13 @@ except NameError:
     eprint("Error: Your position was not found in the matching assembly.")
     exit()
 """
+# Exiting if contig was not found
+if not tig_found:
+    sys.exit('Error: input contig was not found in the original assembly.')
+
 # Setting up sequence with all possible combination of rev. and comp.
 # Associating boolean flag with each possibility to remember if seq. was rev.
+
 lookups = [[lookup_seq, 0],
            [lookup_seq.complement(), 0],
            [lookup_seq.reverse_complement().complement(), 1],
