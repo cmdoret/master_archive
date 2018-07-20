@@ -40,7 +40,7 @@ if [ -z "$MARK" ];  then miss="Markers list"; fi
 if [ -z "$OUTF" ];  then miss="Output path";  fi
 
 # Signal missing argument, print help and exit
-if [ ! -z ${miss+x} ];then echo "$miss not provided."; usage; fi
+if [ ! -z ${miss+x} ];then echo -e "\033[31;1m Error: \033[m $miss not provided."; usage; fi
 
 # Compute coordinates of markers in new assembly and store correspondance list to file
 # Unless preserve was specified (in which case, an existing file will be correspondance list will be used)
@@ -52,10 +52,11 @@ if [ -z ${PRES+x} ] || [ ! -f "$OUTF.corresp" ]; then
     python2 src/convert_coord/contig2chr_suffix_array.py "$OREF" "$NREF" \
             --region_size 5000 --include_input < $MARK \
         | cut -d ',' -f1-4 \
-        | awk -v FS=',' -v OFS=',' '{print $1"-"$2,$0}' | sort -t ',' -k1,1 \
+        | awk -v FS=',' -v OFS=',' '{print $1"-"$2,$0}' \
+           | sort -t ',' -k1,1 \
         | join -t ',' -j1 -o1.2,1.3,2.4,1.4,1.5 - \
                <(awk -v FS=',' -v OFS=',' '{print $1"-"$2,$0}' "$MARK" \
-                 | sort -t ',' -k1,1) \
+                  | sort -t ',' -k1,1) \
         | tr ',' '\t' > "$OUTF.corresp"
 
     # pipe description: remove unplaced contigs | sort file by contig, 
@@ -90,6 +91,13 @@ while read -a marker; do
         bp=$(( ${marker[4]} - ${prev[4]} ))
         #echo "${marker[@]}"
         ratio=$(echo "$cM / $bp"  | bc -l | xargs printf "%.10f\n")
+        # Ignore SNP if BP order is wrong (i.e. diminishing cM) or unreasonably high ratio.
+        # ration limit set to 0.002 (i.e. ~100*mean of genome)
+        if [ $(bc -l <<< "$ratio > 0.002" ) -gt 0 ] || \
+           [ $(bc -l <<< "$ratio < 0" )   -gt 0 ];  then
+            continue
+        fi
+
     else
         # if still on same chromosome, use mean chrom. ratio to estimate inter-contig ratio
         if [ ${marker[3]} == ${prev[3]} ]; then
@@ -101,7 +109,7 @@ while read -a marker; do
         fi
     fi
     # send chromosome, interval between previous and current markers in BP, and cM/BP ratio in interval
-    echo -e "${marker[3]}\t${prev[4]}\t${marker[4]}\t$ratio" >> "$OUTF.tsv"
+    echo -e "${marker[3]}\t$((${prev[4]}+1))\t${marker[4]}\t$ratio" >> "$OUTF.tsv"
     prev=(${marker[@]})
 
 # TODO: Eliminate markers higher than a threshold (cM/BP > 1 maybe ?)
