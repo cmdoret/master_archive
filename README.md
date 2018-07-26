@@ -59,12 +59,12 @@ To run the STACKS pipeline with new data in the form of demultiplexed, trimmed s
 
 ![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Analyse collinearity of transcripts across genome to identify potential duplicated genes between candidate CSD regions.
 
-![](https://placehold.it/15/ffff00/000000?text=+) __WIP:__ Validate CSD loci using signatures of balancing selection in whole genome sequencing from wild females.
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Validate CSD loci using signatures of balancing selection in whole genome sequencing from wild females.
 
 
-![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Look for annotated transcripts from larvae RNA-seq data.
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Look for annotated transcripts from larvae RNA-seq data.
 
-![](https://placehold.it/15/ff0000/000000?text=+) __TODO:__ Streamline pipeline, add option to run without HPC and use a docker container for dependencies.
+![](https://placehold.it/15/00ff00/000000?text=+) __DONE:__ Streamline pipeline, add option to run without HPC and use a docker container for dependencies.
 
 
 ### Dependencies:
